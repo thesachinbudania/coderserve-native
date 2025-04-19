@@ -1,0 +1,48 @@
+
+{
+  "expo": {
+    "name": "CoderServe",
+    "slug": "CoderServe",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.sachinbudania.CoderServe",
+      "config": {
+        "googleMapsApiKey": "AIzaSyArSeVMODwcvE9Vb7_0E7vGj4kWpCq06Ks"
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      },
+      "config": {
+        "googleMaps": {
+          "apiKey": "AIzaSyArSeVMODwcvE9Vb7_0E7vGj4kWpCq06Ks"
+        }
+      },
+      "package": "com.sachinbudania.CoderServe"
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "07583b4e-fae9-43ff-90c9-396c90ebb8c8"
+      }
+    },
+    "plugins": [
+      "expo-secure-store",
+      "expo-asset"
+    ]
+  }
+}
