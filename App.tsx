@@ -1,4 +1,4 @@
-import { StatusBar, View, StyleSheet } from 'react-native';
+import {StatusBar, View, StyleSheet } from 'react-native';
 import { PortalProvider } from '@gorhom/portal';
 import { store, persistor } from './app/store';
 import { Provider } from 'react-redux';
@@ -6,7 +6,7 @@ import AuthProvider from './AuthProvider';
 import { PersistGate } from 'redux-persist/integration/react';
 import React from 'react';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { PaperProvider } from 'react-native-paper';
+import {PaperProvider} from 'react-native-paper';
 
 
 export default function App() {
