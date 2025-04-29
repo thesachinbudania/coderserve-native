@@ -1,6 +1,6 @@
 import Layout from '../../../profile/controlCentre/accountCenter/PageLayout';
 import TextAreaInput from '../../../../components/form/TextAreaInput';
-import { Text, StyleSheet, View } from 'react-native';
+import { Keyboard, TouchableWithoutFeedback, Text, StyleSheet, View } from 'react-native';
 import BlueButton from '../../../../components/buttons/BlueButton';
 import React from 'react';
 import ErrorMessage from '../../../../components/messsages/Error';
@@ -38,23 +38,29 @@ export default function About() {
 		<Layout
 			headerTitle='About'
 		>
-			<Text style={styles.label}>Tell Us About You</Text>
-			<TextAreaInput
-				placeholder='Write here'
-				text={text}
-				setText={setText}
-			/>
-			<View style={{ marginTop: 48, marginBottom: 8 }}>
-				<BlueButton
-					title='Save'
-					onPress={handleUpdate}
-					loading={isLoading}
-					disabled={text === currentAbout || text === ''}
-				/>
-			</View>
-			<ErrorMessage
-				message={error}
-			/>
+			<TouchableWithoutFeedback
+				onPress={() => Keyboard.dismiss()}
+			>
+				<>
+					<Text style={styles.label}>Tell Us About You</Text>
+					<TextAreaInput
+						placeholder='Write here'
+						text={text}
+						setText={setText}
+					/>
+					<View style={{ marginTop: 48, marginBottom: 8 }}>
+						<BlueButton
+							title='Save'
+							onPress={handleUpdate}
+							loading={isLoading}
+							disabled={text === currentAbout || text === ''}
+						/>
+					</View>
+					<ErrorMessage
+						message={error}
+					/>
+				</>
+			</TouchableWithoutFeedback>
 		</Layout>
 	)
 }

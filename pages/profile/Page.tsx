@@ -16,6 +16,12 @@ import EditProfileGender from './editProfile/gender/page';
 import EditProfileBackground from './editProfile/background/page';
 import EditProfileUploadBackground from './editProfile/background/UploadBackground';
 import AccountCenter from './controlCentre/accountCenter/page';
+import About from '../jobs/resume/about/page';
+import WorkExperience from '../jobs/resume/workExperience/page';
+import Education from '../jobs/resume/education/page';
+import OtherCertifications from '../jobs/resume/otherCertifications/page';
+import Skills from '../jobs/resume/skills/page';
+import Languages from '../jobs/resume/languages/page';
 import type { AccountCenterStackParamList } from './controlCentre/accountCenter/page';
 
 export type StackParamList = {
@@ -38,6 +44,24 @@ export type StackParamList = {
 	EditProfileGender: undefined;
 	EditProfileBackground: undefined;
 	EditProfileUploadBackground: undefined;
+	About: undefined;
+	WorkExperience: {
+		edit: boolean;
+		id: number | null;
+	};
+	Education: {
+		edit: boolean;
+		id: number | null;
+	};
+	OtherCertifications: {
+		edit: boolean;
+		id: number | null;
+	};
+	Skills: undefined;
+	Languages: {
+		edit: boolean;
+		id: number | null;
+	};
 };
 
 export type NavigationProp = NativeStackNavigationProp<StackParamList>;
@@ -63,6 +87,12 @@ export default function StackNavigator() {
 			<Stack.Screen name="EditProfileGender" component={EditProfileGender} />
 			<Stack.Screen name="EditProfileBackground" component={EditProfileBackground} />
 			<Stack.Screen name="EditProfileUploadBackground" component={EditProfileUploadBackground} />
+			<Stack.Screen name="About" component={About} />
+			<Stack.Screen name="WorkExperience" component={WorkExperience} initialParams={{ edit: false, id: null }} />
+			<Stack.Screen name="Education" component={Education} initialParams={{ edit: false, id: null }} />
+			<Stack.Screen name="OtherCertifications" component={OtherCertifications} initialParams={{ edit: false, id: null }} />
+			<Stack.Screen name="Skills" component={Skills} />
+			<Stack.Screen name="Languages" component={Languages} initialParams={{ edit: false, id: null }} />
 		</Stack.Navigator>
 	);
 }

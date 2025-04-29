@@ -13,7 +13,7 @@ export default function TextAreaInput({ placeholder, maxLength = 1000, text, set
 			<TextInput
 				placeholder={placeholder}
 				multiline={true}
-				numberOfLines={10}
+				numberOfLines={100}
 				style={[{
 					height: 400,
 					borderColor: 'black',
@@ -23,6 +23,7 @@ export default function TextAreaInput({ placeholder, maxLength = 1000, text, set
 					backgroundColor: '#fff',
 					color: '#000',
 					fontSize: 15,
+					textAlignVertical: 'top',
 				}, focused && { borderColor: '#006dff' }]}
 				placeholderTextColor={'#cbe1ff'}
 				onFocus={() => setFocused(true)}

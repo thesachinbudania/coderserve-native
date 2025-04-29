@@ -3,6 +3,7 @@ import {
   Animated,
   Dimensions,
   Image,
+  Keyboard,
   Platform,
   Pressable,
   StyleSheet,
@@ -17,7 +18,15 @@ import LocationSelectMenu from "../../../../components/form/LocationSelectMenu";
 import TextAreaInput from "../../../../components/form/TextAreaInput";
 import BlueButton from "../../../../components/buttons/BlueButton";
 import SearchBar from "../../../profile/components/SearchBar";
-import { useCompaniesDataMutation } from "../../apiSlice";
+import { useDeleteExpereinceMutation, useUpdateExperienceMutation, useUpdateJobExperienceMutation, useCompaniesDataMutation } from "../../apiSlice";
+import jobRoles from './jobRolesName';
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "../../../../app/store";
+import { setPreviousExperience } from '../../../../app/jobsSlice';
+import Error from '../../../../components/messsages/Error';
+import { useNavigation } from "@react-navigation/native";
+import NoBgButton from '../../../../components/buttons/NoBgButton';
+import PopUpMessage from "./PopUpMessage";
 
 const jobTypeOptions = [
   "Full Time",
@@ -29,9 +38,9 @@ const jobTypeOptions = [
 
 const workModeOptions = ["On-site", "Hybrid", "Remote"];
 
-function SearchSuggestion({
+export function SearchSuggestion({
   title,
-  onPress = () => {},
+  onPress = () => { },
 }: {
   title: string;
   onPress?: () => void;
@@ -42,15 +51,14 @@ function SearchSuggestion({
         <View
           pointerEvents="none"
           style={[
-            { padding: 16, flexDirection: "row", gap: 8 },
-            pressed && { backgroundColor: "black" },
+            { padding: 16, flexDirection: "row", gap: 8 }
           ]}
         >
           <Image
             source={require("../../../profile/components/assets/searchIcon.png")}
             style={{ width: 20, height: 20 }}
           />
-          <Text style={[{ fontSize: 15 }, !pressed && { color: "#006dff" }]}>
+          <Text style={[{ fontSize: 15 }, pressed && { color: "#006dff" }]}>
             {title}
           </Text>
         </View>
@@ -59,18 +67,13 @@ function SearchSuggestion({
   );
 }
 
-export default function WorkExperience() {
-  // states of the selected and filled fields
-  const [jobType, setJobType] = React.useState<string | null>(null);
-  const [jobRole, setJobRole] = React.useState("");
-  const [joinMonth, setJoinMonth] = React.useState("");
-  const [joinYear, setJoinYear] = React.useState("");
-  const [endMonth, setEndMonth] = React.useState("");
-  const [endYear, setEndYear] = React.useState("");
-  const [country, setCountry] = React.useState<string | null>(null);
-  const [state, setState] = React.useState<string | null>(null);
-  const [city, setCity] = React.useState<string | null>(null);
-  const [description, setDescription] = React.useState("");
+export default function WorkExperience({ route }: { route: any }) {
+  let experience = null;
+  const experiences = useSelector((state: RootState) => state.jobs.previousExperience);
+  if (route.params && route.params.edit) {
+    const experienceId = route.params.id;
+    experience = experiences?.find((exp) => exp.id === experienceId);
+  }
 
   // animation related stuff
   const contentOpacity = useAnimatedValue(1);
@@ -83,11 +86,12 @@ export default function WorkExperience() {
   const jobDescTranslate = useAnimatedValue(0);
   const [jDFocused, setJDFocused] = React.useState(false);
 
-  const [_, setSearchFocused] = React.useState(false);
-  const [searchText, setSearchText] = React.useState("");
-  const searchBarOpacity = useAnimatedValue(0);
+  const [searchText, setSearchText] = React.useState(experience ? experience.company.name : "");
 
   const windowWidth = Dimensions.get("window").width;
+  const [error, setError] = React.useState('');
+
+  const navigation = useNavigation();
 
   const measureYJR = async () => {
     let pos = null;
@@ -120,11 +124,6 @@ export default function WorkExperience() {
         duration: 300,
         useNativeDriver: true,
       }).start();
-      Animated.timing(searchBarOpacity, {
-        toValue: 1,
-        duration: 300,
-        useNativeDriver: true,
-      }).start();
     } else {
       Animated.timing(jobDescTranslate, {
         toValue: 0,
@@ -133,11 +132,6 @@ export default function WorkExperience() {
       }).start();
       Animated.timing(contentOpacity, {
         toValue: 1,
-        duration: 300,
-        useNativeDriver: true,
-      }).start();
-      Animated.timing(searchBarOpacity, {
-        toValue: 0,
         duration: 300,
         useNativeDriver: true,
       }).start();
@@ -157,11 +151,6 @@ export default function WorkExperience() {
         duration: 300,
         useNativeDriver: true,
       }).start();
-      Animated.timing(searchBarOpacity, {
-        toValue: 1,
-        duration: 300,
-        useNativeDriver: true,
-      }).start();
     } else {
       Animated.timing(jobRoleTranslate, {
         toValue: 0,
@@ -170,11 +159,6 @@ export default function WorkExperience() {
       }).start();
       Animated.timing(contentOpacity, {
         toValue: 1,
-        duration: 300,
-        useNativeDriver: true,
-      }).start();
-      Animated.timing(searchBarOpacity, {
-        toValue: 0,
         duration: 300,
         useNativeDriver: true,
       }).start();
@@ -194,13 +178,62 @@ export default function WorkExperience() {
   const [companiesSuggestions, setCompaniesSuggestions] = React.useState<any[]>(
     [],
   );
+
+  // states of the selected and filled fields
+  const [jobType, setJobType] = React.useState<string | null>(experience ? experience.job_type : null);
+  const [jobRole, setJobRole] = React.useState(experience ? experience.job_role : "");
+  const [company, setCompany] = React.useState<{ name: string; logo: string | null } | null>(experience ? experience.company : null);
+  const [workMode, setWorkMode] = React.useState<string | null>(experience ? experience.work_mode : null);
+  const [joinMonth, setJoinMonth] = React.useState(experience ? experience.joining_month : "");
+  const [joinYear, setJoinYear] = React.useState(experience ? experience.joining_year : "");
+  const [endMonth, setEndMonth] = React.useState(experience ? experience.end_month : "");
+  const [endYear, setEndYear] = React.useState(experience ? experience.end_year : "");
+  const [country, setCountry] = React.useState<string | null>(experience ? experience.country : null);
+  const [state, setState] = React.useState<string | null>(experience ? experience.state : null);
+  const [city, setCity] = React.useState<string | null>(experience ? experience.city : null);
+  const [description, setDescription] = React.useState(experience ? experience.description : "");
+
+  const [updateJobExperience, { isLoading }] = useUpdateJobExperienceMutation();
+
+  const dispatch = useDispatch();
+
+  const handleSave = async () => {
+    const data = {
+      id: Date.now(),
+      job_type: jobType,
+      job_role: jobRole,
+      company: company,
+      joining_month: joinMonth,
+      joining_year: joinYear,
+      end_month: endMonth,
+      end_year: endYear,
+      work_mode: workMode,
+      country,
+      state,
+      city,
+      description,
+    };
+
+    try {
+      const response = await updateJobExperience({ new_experience: data }).unwrap();
+      if (response) {
+        dispatch(setPreviousExperience(response.previous_experience));
+      }
+      navigation.goBack();
+    } catch (error) {
+      setError("Something went wrong. Please try again.");
+      console.error("Error updating job experience:", error);
+    }
+  }
+
+  // logics for handling company name search
   async function searchCompanyName(name: string) {
     try {
       const response = await companiesData({
         detail: false,
         data: name,
       }).unwrap();
-      if (response) {
+      if (response && searchText.length > 0) {
         setCompaniesSuggestions(response);
       }
     } catch (e) {
@@ -212,8 +245,80 @@ export default function WorkExperience() {
     if (searchText.length > 0) {
       searchCompanyName(searchText);
     } else {
+      setCompaniesSuggestions([]);
     }
   }, [searchText]);
+
+  // logics for handling job role search
+  const [jobRolesSuggestions, setJobRolesSuggestions] = React.useState<any[]>([]);
+  const [jobRolesSearchText, setJobRolesSearchText] = React.useState(experience ? experience.job_role : "")
+
+  const filterTopJobRoles = (searchText: string) => {
+    const lowerSearch = searchText.toLowerCase();
+    const matches = jobRoles
+      .filter(role => role.toLowerCase().includes(lowerSearch))
+      .slice(0, 3);
+
+    setJobRolesSuggestions(matches);
+  };
+
+
+  React.useEffect(() => {
+    if (jobRolesSearchText.length > 0) {
+      filterTopJobRoles(jobRolesSearchText);
+    } else {
+      setJobRolesSuggestions([]);
+    }
+  }, [jobRolesSearchText]);
+
+
+  // logics for handling updating the job experience
+  const [updateExperience, { isLoading: updateLoading }] = useUpdateExperienceMutation();
+  const handleUpdateExperience = async () => {
+    const data = {
+      id: experience?.id || Date.now(),
+      job_type: jobType,
+      job_role: jobRole,
+      company: company,
+      joining_month: joinMonth,
+      joining_year: joinYear,
+      end_month: endMonth,
+      end_year: endYear,
+      work_mode: workMode,
+      country,
+      state,
+      city,
+      description,
+    };
+    try {
+      const response = await updateExperience(data).unwrap();
+      if (response) {
+        dispatch(setPreviousExperience(response.previous_experience));
+        navigation.goBack();
+      }
+    } catch (error) {
+      console.log(error)
+      setError("Something went wrong. Please try again.");
+    }
+  };
+
+
+  // logics for deleting experience
+  const [deleteExperience, { isLoading: deleteLoading }] = useDeleteExpereinceMutation();
+  const [showPopUp, setShowPopUp] = React.useState(false);
+  const handleDeleteExperience = async () => {
+    try {
+      const response = await deleteExperience({ id: experience?.id }).unwrap();
+      if (response) {
+        dispatch(setPreviousExperience(response.previous_experience));
+        navigation.goBack();
+      }
+    } catch (error) {
+      console.log(error)
+      setError("Something went wrong. Please try again.");
+    }
+  };
+
 
   return (
     <>
@@ -222,6 +327,14 @@ export default function WorkExperience() {
         headerTitle="Experience"
         showHeader={!jRFocused && !jDFocused}
       >
+        <PopUpMessage
+          heading='Delete this experience?'
+          text='This action will permanently remove this experience from your resume. You won’t be able to undo this.'
+          visible={showPopUp}
+          setVisible={setShowPopUp}
+          onPress={handleDeleteExperience}
+          isLoading={deleteLoading}
+        />
         <Animated.View style={{ marginHorizontal: -16, alignItems: "center" }}>
           <Animated.View
             style={[
@@ -252,7 +365,8 @@ export default function WorkExperience() {
                 <SearchBar
                   isFocused={jDFocused}
                   setIsFocused={setJDFocused}
-                  onChangeText={setSearchText}
+                  onChangeText={setJobRolesSearchText}
+                  text={jobRolesSearchText}
                   placeholder="ex: Java Developer"
                 />
                 <View
@@ -261,7 +375,31 @@ export default function WorkExperience() {
                     height: "100%",
                     backgroundColor: "#f7f7f7",
                   }}
-                ></View>
+                >
+                  {
+                    jobRolesSearchText &&
+                    <SearchSuggestion
+                      title={jobRolesSearchText}
+                      onPress={() => {
+                        setJDFocused(false);
+                        Keyboard.dismiss();
+                        setJobRole(jobRolesSearchText);
+                      }}
+                    />
+                  }
+                  {jobRolesSuggestions.map((item, index) => (
+                    <SearchSuggestion
+                      key={index}
+                      title={item}
+                      onPress={() => {
+                        setJobRolesSearchText(item);
+                        setJDFocused(false);
+                        Keyboard.dismiss();
+                        setJobRole(item);
+                      }}
+                    />
+                  ))}
+                </View>
               </Animated.View>
             </Animated.View>
             <Animated.View style={{ opacity: jRFocused ? 1 : contentOpacity }}>
@@ -277,6 +415,7 @@ export default function WorkExperience() {
                   setIsFocused={setJRFocused}
                   onChangeText={setSearchText}
                   placeholder={"ex: Coder Serve"}
+                  text={searchText}
                 />
                 <View
                   style={{
@@ -285,10 +424,30 @@ export default function WorkExperience() {
                     backgroundColor: "#f7f7f7",
                     paddingTop: 8,
                   }}
-                  pointerEvents="none"
                 >
+                  {
+                    searchText &&
+                    <SearchSuggestion
+                      title={searchText}
+                      onPress={() => {
+                        setJRFocused(false);
+                        Keyboard.dismiss();
+                        setCompany({ name: searchText, logo: null });
+                      }}
+                    />
+                  }
+
                   {companiesSuggestions.map((item, index) => (
-                    <SearchSuggestion key={index} title={item.company_name} />
+                    <SearchSuggestion
+                      key={index}
+                      title={item.company_name}
+                      onPress={() => {
+                        setSearchText(item.company_name);
+                        setJRFocused(false);
+                        Keyboard.dismiss();
+                        setCompany({ name: item.company_name, logo: item.company_logo });
+                      }}
+                    />
                   ))}
                 </View>
               </Animated.View>
@@ -307,13 +466,14 @@ export default function WorkExperience() {
                 />
               </View>
               <View style={{ flex: 1 / 2 }}>
-                <Text style={styles.label}>Joining Date</Text>
+                <Text style={styles.label}>Ending Date</Text>
                 <DateSelect
                   placeholder="Dec 2022"
                   selectedMonth={endMonth}
                   selectedYear={endYear}
                   setSelectedMonth={setEndMonth}
                   setSelectedYear={setEndYear}
+                  presentOption
                 />
               </View>
             </Animated.View>
@@ -322,8 +482,8 @@ export default function WorkExperience() {
               <SelectMenu
                 placeholder="Select Work Mode"
                 options={workModeOptions}
-                selected={jobType}
-                onSelect={setJobType}
+                selected={workMode}
+                onSelect={setWorkMode}
                 allowSearch={false}
               />
             </Animated.View>
@@ -347,9 +507,43 @@ export default function WorkExperience() {
               />
             </Animated.View>
             <Animated.View
-              style={{ opacity: contentOpacity, marginBottom: 48 }}
+              style={{ opacity: contentOpacity, marginBottom: Platform.OS === 'ios' ? 64 : 112 }}
             >
-              <BlueButton title="Save" />
+              <BlueButton
+                title={experience ? "Update" : "Save"}
+                onPress={experience ? handleUpdateExperience : handleSave}
+                loading={experience ? updateLoading : isLoading}
+                disabled={
+                  jobType === null ||
+                  jobRole === "" ||
+                  company === null ||
+                  joinMonth === "" ||
+                  joinYear === "" ||
+                  endMonth === "" ||
+                  endYear === "" ||
+                  workMode === null ||
+                  country === null ||
+                  state === null ||
+                  city === null
+                }
+              />
+              {
+                experience && (
+                  <View style={{ marginTop: 16 }}>
+                    <NoBgButton
+                      dangerButton
+                      title='Delete'
+                      onPress={() => setShowPopUp(true)}
+                    />
+                  </View>
+                )
+              }
+              {error &&
+                <View style={{ marginTop: 8 }}>
+                  <Error message={error} />
+                </View>
+              }
+
             </Animated.View>
           </Animated.View>
         </Animated.View>

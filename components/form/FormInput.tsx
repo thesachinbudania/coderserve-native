@@ -13,11 +13,11 @@ type AutoCompleteOptions =
 
 type KeyboardOptions = 'default' | 'email-address' | 'numeric' | 'phone-pad' | 'decimal-pad' | 'number-pad';
 
-export default function FormInput({ light = false, placeholder, value, topMargin = true, onChangeText, autocomplete = 'off', keyboardType = 'default' }: { autocomplete?: AutoCompleteOptions, light?: boolean, placeholder: string, keyboardType?: KeyboardOptions, value: string, onChangeText: React.Dispatch<React.SetStateAction<string>>, topMargin?: boolean }) {
+export default function FormInput({ disabled = false, light = false, placeholder, value, topMargin = true, onChangeText, autocomplete = 'off', keyboardType = 'default' }: { autocomplete?: AutoCompleteOptions, disabled?: boolean, light?: boolean, placeholder: string, keyboardType?: KeyboardOptions, value: string, onChangeText: React.Dispatch<React.SetStateAction<string>>, topMargin?: boolean }) {
 	const [isFocused, setIsFocused] = React.useState(false);
 	return (
 		<TextInput
-			style={[styles.input, isFocused && { borderColor: '#006dff' }, light && { color: 'white', borderColor: '#545454' }, !topMargin && { marginTop: 0 }]}
+			style={[styles.input, isFocused && { borderColor: '#006dff' }, light && { color: 'white', borderColor: '#545454' }, !topMargin && { marginTop: 0 }, disabled && { borderWidth: 0, backgroundColor: '#f4f4f4' }]}
 			onFocus={() => setIsFocused(true)}
 			onBlur={() => setIsFocused(false)}
 			placeholder={placeholder}
@@ -28,6 +28,7 @@ export default function FormInput({ light = false, placeholder, value, topMargin
 			cursorColor="black"
 			autoCapitalize="none"
 			keyboardType={keyboardType}
+			editable={!disabled}
 		/>
 	)
 }

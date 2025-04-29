@@ -5,7 +5,7 @@ import GreyBgButton from '../../../components/buttons/GreyBgButton';
 
 const { width } = Dimensions.get('window');
 
-export default function PopUpMessage({ heading, text, visible, setVisible, singleButton = false, onPress, isLoading }: { heading: string, text: string, visible: boolean, setVisible: React.Dispatch<React.SetStateAction<boolean>>, onPress: () => void, isLoading: boolean, singleButton?: boolean }) {
+export default function PopUpMessage({ heading, buttonText = null, text, visible, setVisible, singleButton = false, onPress, isLoading = false }: { buttonText?: string | null, heading: string, text: string, visible: boolean, setVisible: React.Dispatch<React.SetStateAction<boolean>>, onPress: () => void, isLoading?: boolean, singleButton?: boolean }) {
 	return (
 		<PopUp
 			visible={visible}
@@ -16,13 +16,13 @@ export default function PopUpMessage({ heading, text, visible, setVisible, singl
 			{
 				singleButton ?
 					<BlueButton
-						title='Okay'
+						title={buttonText ? buttonText : 'Okay'}
 						loading={isLoading}
 						onPress={onPress}
 					/> : <View style={{ flexDirection: 'row', gap: 16 }}>
 						<View style={{ width: ((width - 80) / 2) }}>
 							<BlueButton
-								title='Yes, Update'
+								title={buttonText ? buttonText : 'Yes, Update'}
 								onPress={onPress}
 								loading={isLoading}
 							/>

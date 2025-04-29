@@ -25,6 +25,7 @@ function Page() {
 			<Text style={[styles.content, { marginTop: 24 }]}>
 				Kindly note, the birthday information you provide will not appear on your public profile. It will only be included in your resume and seen by recruiters when you apply for a job.
 			</Text>
+
 			<View style={{ marginTop: 32 }}>
 				<SectionContainer>
 					<Section>

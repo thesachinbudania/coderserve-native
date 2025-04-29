@@ -1,10 +1,10 @@
 import Header from '../Header';
-import { Dimensions, Pressable, Keyboard, ScrollView, StyleSheet } from 'react-native';
+import { Dimensions, Keyboard, ScrollView, StyleSheet, TouchableWithoutFeedback, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
 const { height } = Dimensions.get('window');
 
-export default function Layout({ headerTitle, children, defaultBack = true, showHeader = true, customBack = () => { } }: { headerTitle: string, defaultBack?: boolean, showHeader?: boolean, customBack?: () => void, children: React.ReactNode }) {
+export default function Layout({ headerTitle, children, defaultBack = true, flex1 = true, showHeader = true, customBack = () => { } }: { headerTitle: string, defaultBack?: boolean, flex1?: boolean, showHeader?: boolean, customBack?: () => void, children: React.ReactNode }) {
 	const navigation = useNavigation();
 	return (
 		<>
@@ -18,12 +18,25 @@ export default function Layout({ headerTitle, children, defaultBack = true, show
 				/>
 
 			)}
-			<ScrollView contentContainerStyle={styles.content}>
-				<Pressable
-					onPress={() => Keyboard.dismiss()}
+			<ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps='always'>
+				<TouchableWithoutFeedback
+					onPress={() => {
+						Keyboard.dismiss();
+					}}
+					style={{ flex: 1 }}
 				>
-					{children}
-				</Pressable>
+					{
+						flex1 ? (
+							<View style={{ flex: 1 }}>
+								{children}
+							</View>
+						) : (
+							<>
+								{children}
+							</>
+						)
+					}
+				</TouchableWithoutFeedback>
 			</ScrollView>
 		</>
 	)

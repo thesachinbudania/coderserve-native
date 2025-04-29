@@ -11,6 +11,7 @@
   "dependencies": {
     "18": "^0.0.0",
     "@devvie/bottom-sheet": "^0.4.3",
+    "@expo/metro-runtime": "~4.0.1",
     "@gorhom/portal": "^1.0.14",
     "@react-native-async-storage/async-storage": "1.23.1",
     "@react-native-masked-view/masked-view": "^0.2.9",
@@ -47,6 +48,8 @@
     "react-native-safe-area-context": "^5.2.0",
     "react-native-screens": "^4.9.0",
     "react-native-tab-view": "^4.0.5",
+    "react-native-typewriter": "^0.7.0",
+    "react-native-web": "~0.19.13",
     "react-redux": "^9.2.0",
     "react-use-wizard": "^2.3.0",
     "redux-persist": "^6.0.0",

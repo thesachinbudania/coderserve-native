@@ -73,6 +73,7 @@ export default function Page() {
 						placeholder='Natasha'
 						value={firstName}
 						onChangeText={setFirstName}
+						disabled={recentlyChanged}
 					/>
 				</View>
 				<View>
@@ -81,6 +82,7 @@ export default function Page() {
 						placeholder='Jackson'
 						value={lastName}
 						onChangeText={setLastName}
+						disabled={recentlyChanged}
 					/>
 				</View>
 				<View style={{ gap: 32 }}>

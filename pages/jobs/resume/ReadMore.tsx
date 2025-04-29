@@ -68,7 +68,7 @@ const ReadMoreText: React.FC<ReadMoreTextProps> = ({
 				<View style={styles.readMoreContainer}>
 					<Pressable onPress={toggleExpanded}>
 						{({ pressed }) => (
-							<Text style={[styles.readMoreText, readMoreStyle, { marginTop: 0 }, pressed && { color: '#006dff' }]}>Show less</Text>
+							<Text style={[styles.readMoreText, readMoreStyle, { marginTop: 0 }, pressed && { color: '#006dff' }]}>Read less</Text>
 						)}
 					</Pressable>
 				</View>
@@ -80,7 +80,6 @@ const ReadMoreText: React.FC<ReadMoreTextProps> = ({
 const styles = StyleSheet.create({
 	container: {
 		flex: 1,
-		width: '100%'
 	},
 	text: {
 		fontSize: 13,
@@ -91,6 +90,8 @@ const styles = StyleSheet.create({
 	readMoreContainer: {
 		flexDirection: 'row',
 		justifyContent: 'flex-end',
+		paddingBottom: 4,
+		marginBottom: -4,
 	},
 	readMoreText: {
 		color: '#000',

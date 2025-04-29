@@ -5,6 +5,20 @@ import { useNavigation } from '@react-navigation/native';
 import BlueButton from '../../../components/buttons/BlueButton';
 import React from 'react';
 import IconButton from '../../../components/buttons/IconButton';
+import PopUpMessage from '../../profile/editProfile/PopUpMessage';
+import { NavigationProps } from '../page';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../../app/store';
+
+
+function isResumeFinished() {
+	const jobs = useSelector((state: RootState) => state.jobs);
+	let isFinished = true;
+	if (!jobs || jobs.about === '' || !jobs.about || !jobs.previousExperience || jobs.previousExperience?.length < 1 || !jobs.degrees || jobs.degrees?.length < 1 || !jobs.skills || jobs.skills?.length < 1 || !jobs.languages || jobs.languages?.length < 1) {
+		isFinished = false;
+	}
+	return isFinished
+}
 
 
 function Detail({ heading, text }: { heading: string, text: string }) {
@@ -17,7 +31,8 @@ function Detail({ heading, text }: { heading: string, text: string }) {
 }
 
 export default function JobsView() {
-	const navigation = useNavigation();
+	const navigation = useNavigation<NavigationProps>();
+	const [popUpVisible, setPopUpVisible] = React.useState(false);
 	React.useEffect(() => {
 		navigation.getParent()?.setOptions({ tabBarStyle: { display: 'none' } });
 
@@ -37,6 +52,18 @@ export default function JobsView() {
 			<Layout
 				headerTitle='Job Details'
 			>
+				<PopUpMessage
+					heading='Complete Your Resume'
+					singleButton
+					text='Your resume is incomplete. Please provide all the required details to enable you to apply for job opportunities.'
+					visible={popUpVisible}
+					setVisible={setPopUpVisible}
+					buttonText={'Complete Resume'}
+					onPress={() => {
+						setPopUpVisible(false);
+						navigation.navigate('UpdateResume')
+					}}
+				/>
 				<LinearGradient
 					colors={['#ffffff', '#0070ad']}
 					start={{ x: 0, y: 0 }}
@@ -130,6 +157,7 @@ export default function JobsView() {
 				<View style={{ flex: 1 }}>
 					<BlueButton
 						title='Apply Now'
+						onPress={isResumeFinished() ? () => { } : () => setPopUpVisible(true)}
 					/>
 				</View>
 			</View>
@@ -138,10 +166,14 @@ export default function JobsView() {
 }
 
 
-const DetailsList = ({ heading, content }: { heading: string, content: string[] }) => {
+export const DetailsList = ({ heading = null, content }: { heading?: string | null, content: string[] }) => {
 	return (
 		<View>
-			<Text style={styles.detailHeading}>{heading}</Text>
+			{
+				heading && (
+					<Text style={styles.detailHeading}>{heading}</Text>
+				)
+			}
 			<UnorderedList
 				items={content}
 			/>
@@ -153,7 +185,7 @@ const DetailsList = ({ heading, content }: { heading: string, content: string[] 
 const UnorderedList = ({ items }: { items: string[] }) => {
 	return (
 		<View style={styles.container}>
-			{items.map((item, index) => (
+			{items.map((item, index) => item != '' && (
 				<View style={styles.listItem} key={index}>
 					<Text style={styles.bullet}>{'\u2022'}</Text>
 					<Text style={styles.detailText}>{item}</Text>

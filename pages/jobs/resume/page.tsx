@@ -1,15 +1,50 @@
-import { Image, Linking, StyleSheet, ScrollView, Text, View } from 'react-native';
+import { Image, Dimensions, Linking, Pressable, StyleSheet, ScrollView, Text, View } from 'react-native';
 import IconButton from '../../profile/components/IconButton';
-import { useNavigation } from '@react-navigation/native';
+import { Link, useNavigation } from '@react-navigation/native';
 import { NavigationProps } from '../page';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../../app/store';
 import TopSection from './TopSection';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import BottomName from '../../profile/home/BottomName';
 import Menu, { MenuButton } from '../Menu';
 import React from 'react';
 import ReadMore from './ReadMore';
+import { DetailsList } from '../jobView/page';
+import { Rating } from './languages/page';
+import OtherCertificationListing from './CertificationListing';
+import { Portal } from 'react-native-paper';
 
+const { width } = Dimensions.get('window');
+
+
+type ExperienceListingProps = {
+	children?: React.ReactNode;
+	image: any;
+	onPress?: () => void;
+	showLine?: boolean;
+	showPress?: boolean;
+}
+
+export function ExperienceListing({ children, image, onPress = () => { }, showLine = true, showPress = false }: ExperienceListingProps) {
+	return (
+		<Pressable onPress={onPress}>
+			{({ pressed }) => (
+				<View style={[styles.experienceContainer, pressed && showPress && { marginHorizontal: -16, backgroundColor: '#f5f5f5', paddingHorizontal: 16 }]}>
+					<View>
+						<View style={styles.logoContainer}>
+							<Image source={image} style={styles.logo} />
+						</View>
+						{showLine && <View style={styles.sideLine} />}
+					</View>
+					<View>
+						{children}
+					</View>
+				</View>
+			)}
+		</Pressable>
+	)
+}
 
 export default function Resume() {
 	const navigation = useNavigation<NavigationProps>();
@@ -17,22 +52,37 @@ export default function Resume() {
 	const jobs = useSelector((state: RootState) => state.jobs);
 	const menuRef = React.useRef<any>(null);
 
-
+	React.useEffect(() => {
+		navigation.getParent()?.setOptions({ tabBarStyle: { display: 'none' } });
+		return () => navigation.getParent()?.setOptions({
+			tabBarStyle: {
+				display: 'flex',
+				height: 54,
+				marginBottom: 0,
+				paddingBottom: 0,
+			}
+		});
+	}, [])
+	const { top } = useSafeAreaInsets();
 
 	return (
 		<ScrollView>
-			<View style={styles.header}>
-				<View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-					<IconButton onPress={() => navigation.goBack()}>
-						<Image source={require('../../profile/controlCentre/assets/Back.png')} style={styles.menuIcon} />
+			<Portal>
+				<View style={[styles.header, { top: top - 16 }]}>
+					<View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+						<IconButton onPress={() => navigation.goBack()}>
+							<Image source={require('../../profile/controlCentre/assets/Back.png')} style={styles.menuIcon} />
+						</IconButton>
+						<Text style={styles.headerText}>Your Resume</Text>
+					</View>
+					<IconButton onPress={() => menuRef?.current.open()}>
+						<Image source={require('../../profile/home/assets/menu.png')} style={styles.menuIcon} />
 					</IconButton>
-					<Text style={styles.headerText}>Your Resume</Text>
 				</View>
-				<IconButton onPress={() => menuRef?.current.open()}>
-					<Image source={require('../../profile/home/assets/menu.png')} style={styles.menuIcon} />
-				</IconButton>
+			</Portal>
+			<View style={{ marginTop: 57 }}>
+				<TopSection />
 			</View>
-			<TopSection />
 			<View style={styles.body}>
 				<View style={styles.container}>
 					<View>
@@ -47,11 +97,73 @@ export default function Resume() {
 					</View>
 					<View>
 						<Text style={styles.heading}>Experience</Text>
-						<Text style={styles.smallText}>THe user hasn't shared their experience yet.</Text>
+						{
+							(jobs.previousExperience && jobs.previousExperience.length > 0) ?
+								<View style={{ marginBottom: -32 }}>
+									{
+										jobs.previousExperience.map((experience, index) => (
+											<ExperienceListing
+												image={experience.company.logo ? { uri: 'https://api.coderserve.com' + experience.company.logo } : require('./assets/experienceImg.png')}
+												key={index}
+												showLine={jobs.previousExperience ? (index !== jobs.previousExperience.length - 1) : false}
+											>
+												<View style={{ marginBottom: 32 }}>
+													<Text style={styles.containerPrimaryHeading}>{experience.job_role}</Text>
+													<Text style={styles.containerSecondaryHeading}>{experience.company.name}</Text>
+													<Text style={styles.containerTertiaryHeading}>{experience.joining_month.slice(0, 3)} {experience.joining_year} - {experience.end_month === 'Present' || experience.end_year === 'Present' ? 'Present' : `${experience.end_month.slice(0, 3)} ${experience.end_year}`} ({experience.job_type})</Text>
+													<Text style={styles.containerTertiaryHeading}>{experience.city}, {experience.country}</Text>
+													{
+														experience.description && (
+															<View style={{ marginTop: 4, width: width - 96 }}>
+																<ReadMore
+																	text={experience.description}
+																	numberOfLines={2}
+																	textStyle={{ color: '#a6a6a6' }}
+																/>
+															</View>
+
+														)
+													}
+												</View>
+											</ExperienceListing>
+										))
+									}
+
+								</View>
+								:
+								<Text style={styles.smallText}>The user hasn't shared their experience yet.</Text>
+						}
+
+
 					</View>
 					<View>
 						<Text style={styles.heading}>Education</Text>
-						<Text style={styles.smallText}>The user hasn't shared their education details yet.</Text>
+						{
+							(jobs.degrees && jobs.degrees.length > 0) ?
+								<View style={{ marginBottom: -32 }}>
+									{
+										jobs.degrees.map((degree, index) => (
+											<ExperienceListing
+												image={require('./assets/educationImg.png')}
+												key={index}
+												showLine={jobs.degrees ? (index !== jobs.degrees.length - 1) : false}
+											>
+												<View style={{ marginBottom: 32 }}>
+													<Text style={styles.containerPrimaryHeading}>{degree.degree}</Text>
+													<Text style={styles.containerSecondaryHeading}>{degree.field_of_study}</Text>
+													<Text style={styles.containerTertiaryHeading}>Scored {degree.marks}%</Text>
+													<Text style={styles.containerTertiaryHeading}>{degree.institution}</Text>
+													<Text style={styles.containerTertiaryHeading}>{degree.joining_month.slice(0, 3)} {degree.joining_year} - {degree.end_month === 'Present' || degree.end_year === 'Present' ? 'Present' : `${degree.end_month.slice(0, 3)} ${degree.end_year}`}</Text>
+													<Text style={styles.containerTertiaryHeading}>{degree.city}, {degree.country}</Text>
+												</View>
+											</ExperienceListing>
+										))
+									}
+
+								</View>
+								:
+								<Text style={styles.smallText}>The user hasn't shared their education details yet.</Text>
+						}
 					</View>
 					<View>
 						<Text style={styles.heading}>Certifications</Text>
@@ -59,23 +171,62 @@ export default function Resume() {
 					</View>
 					<View>
 						<Text style={styles.heading}>Other Certifications</Text>
-						<Text style={styles.smallText}>The user hasn't shared any certifications yet.</Text>
-					</View>
-					<View>
-						<Text style={styles.heading}>About</Text>
-						<Text style={styles.smallText}>The user hasn't shared their story yet.</Text>
+						{
+							jobs.otherCertifications && jobs.otherCertifications.length > 0 ? (
+								<View style={{ marginTop: 8, gap: 16 }}>
+									{jobs.otherCertifications.map((certification, index) => (
+										<OtherCertificationListing
+											certification={certification}
+											key={index}
+											onPress={() => Linking.openURL(certification.link)}
+										/>
+									))}
+								</View>
+							) :
+
+								<Text style={styles.smallText}>The user hasn't shared any certifications yet.</Text>
+						}
 					</View>
 					<View>
 						<Text style={styles.heading}>Skills</Text>
-						<Text style={styles.smallText}>The user hasn't shared their skills yet.</Text>
+						{
+							(jobs.skills && jobs.skills.length > 0) ?
+								<View style={{ marginTop: 8, marginBottom: -8 }}>
+									<DetailsList
+										content={jobs.skills}
+									/>
+								</View>
+								:
+								<Text style={styles.smallText}>The user hasn't shared their skills yet.</Text>
+						}
 					</View>
 					<View>
 						<Text style={styles.heading}>Languages</Text>
-						<Text style={styles.smallText}>The user hasn't shared any languages they know yet.</Text>
+						{
+							jobs.languages && jobs.languages.length > 0 ? (
+								<>
+									{
+										jobs.languages.map((language, index) => (
+											<View key={index} style={{ marginTop: 8, flexDirection: 'row', justifyContent: 'space-between' }}>
+												<Text style={{ fontSize: 13, color: '#737373' }}>{language.language}</Text>
+												<View style={{ width: 91 }}>
+													<Rating
+														stars={language.rating}
+														editable={false}
+														size={14}
+													/>
+												</View>
+											</View>
+										))
+									}
+								</>
+							) :
+								<Text style={styles.smallText}>The user hasn't shared any languages they know yet.</Text>
+						}
 					</View>
 					<View>
 						<Text style={styles.heading}>Date of Birth</Text>
-						<Text style={styles.smallText}>The user hasn't shared their date of birth yet.</Text>
+						<Text style={styles.smallText}>{user.dobDate && user.dobMonth && user.dobYear ? `${user.dobDate} ${user.dobMonth} ${user.dobYear}` : "The user hasn't shared their date of birth yet."}</Text>
 					</View>
 					<View>
 						<Text style={styles.heading}>Get In Touch</Text>
@@ -129,8 +280,9 @@ export default function Resume() {
 
 						</View>
 					</View>
-					<BottomName />
 				</View>
+
+				<BottomName />
 			</View>
 
 			<Menu menuRef={menuRef}>
@@ -182,7 +334,7 @@ export const styles = StyleSheet.create({
 	smallText: {
 		marginTop: 4,
 		fontSize: 13,
-		color: '#737373',
+		color: '#A6A6A6',
 		textAlign: 'justify'
 	},
 	readButton: {
@@ -224,7 +376,10 @@ export const styles = StyleSheet.create({
 		paddingVertical: 8,
 		gap: 16,
 		flexDirection: 'row',
-		justifyContent: 'space-between'
+		justifyContent: 'space-between',
+		position: 'absolute',
+		borderBottomWidth: 1,
+		borderBottomColor: '#f5f5f5',
 	},
 	menuIcon: {
 		width: 24,
@@ -237,5 +392,56 @@ export const styles = StyleSheet.create({
 	headerText: {
 		fontSize: 15,
 		fontWeight: 'bold',
+	},
+	experienceContainer: {
+		flexDirection: 'row',
+		gap: 16,
+		paddingTop: 8,
+	},
+	logoContainer: {
+		borderRadius: 6,
+		borderWidth: 1,
+		borderColor: '#f5f5f5',
+		backgroundColor: 'white',
+	},
+	logo: {
+		margin: 8,
+		height: 32,
+		width: 32,
+	},
+	containerPrimaryHeading: {
+		fontSize: 13,
+		fontWeight: 'bold',
+	},
+	containerSecondaryHeading: {
+		marginTop: 4,
+		fontSize: 13,
+	},
+	containerTertiaryHeading: {
+		marginTop: 4,
+		fontSize: 13,
+		color: '#737373',
+	},
+	sideLine: {
+		width: 2,
+		flex: 1,
+		marginLeft: 24,
+		marginTop: 8,
+		backgroundColor: '#eeeeee',
+	},
+	addEntryContainer: {
+		flexDirection: 'row',
+		gap: 16,
+		alignItems: 'center',
+		marginTop: 8
+	},
+	certificationContainer: {
+		flexDirection: 'row',
+		padding: 16,
+		borderWidth: 1,
+		borderColor: '#f5f5f5',
+		borderRadius: 12,
+		gap: 16,
+		alignItems: 'center',
 	}
 })

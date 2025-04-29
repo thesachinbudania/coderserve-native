@@ -10,12 +10,25 @@ const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 
 const currentYear = new Date().getFullYear();
 const years = Array.from({ length: 100 }, (_, i) => {
 	return `${currentYear - i}`;
-});
+})
 
 
 
-export default function DateSelect({ placeholder, selectedMonth, setSelectedMonth, selectedYear, setSelectedYear }: { placeholder: string, selectedMonth: string, selectedYear: string, setSelectedMonth: React.Dispatch<React.SetStateAction<string>>, setSelectedYear: React.Dispatch<React.SetStateAction<string>> }) {
+export default function DateSelect({ placeholder, presentOption = false, selectedMonth, setSelectedMonth, selectedYear, setSelectedYear }: { placeholder: string, presentOption?: boolean, selectedMonth: string, selectedYear: string, setSelectedMonth: React.Dispatch<React.SetStateAction<string>>, setSelectedYear: React.Dispatch<React.SetStateAction<string>> }) {
 	const [popUpVisible, setPopUpVisible] = React.useState(false);
+	const [currentMonth, setCurrentMonth] = React.useState<string>(selectedMonth);
+	const [currentYear, setCurrentYear] = React.useState<string>(selectedYear);
+	const monthsList = presentOption ? ['--', '--', 'Present'].concat(months) : ['--', '--'].concat(months);
+	const yearsList = presentOption ? ['--', '--', 'Present'].concat(years) : ['--', '--'].concat(years);
+	const setDate = () => {
+		if (currentMonth != '--' && currentYear != '--') {
+			setSelectedMonth(currentMonth);
+			setSelectedYear(currentYear);
+		} else {
+			setSelectedMonth('');
+			setSelectedYear('');
+		}
+	}
 	return (
 		<>
 			<Pressable onPress={() => {
@@ -25,7 +38,7 @@ export default function DateSelect({ placeholder, selectedMonth, setSelectedMont
 			}>
 				{({ pressed }) => (
 					<View style={[styles.menuBox, pressed && { borderColor: '#006dff' }]}>
-						<Text style={[styles.boxText, selectedMonth && selectedYear && { color: 'black' }]}>{selectedMonth && selectedYear ? selectedMonth + ' ' + selectedYear : placeholder}</Text>
+						<Text style={[styles.boxText, selectedMonth && selectedYear && { color: 'black' }]}>{selectedMonth && selectedYear ? (selectedMonth === 'Present' || selectedYear === 'Present' ? 'Present' : selectedMonth + ' ' + selectedYear) : placeholder}</Text>
 						<Image source={pressed ? require('../../../../components/form/assets/downArrowBlue.png') : require('../../../../components/form/assets/downArrowBlack.png')} style={styles.downArrow} />
 					</View>
 				)}
@@ -37,14 +50,15 @@ export default function DateSelect({ placeholder, selectedMonth, setSelectedMont
 				<View style={styles.popUpContainer}>
 					<View style={{ flex: 1 / 2 }}>
 						<WheelPicker
-							initialSelectedIndex={selectedMonth ? months.indexOf(selectedMonth) : 0}
-							data={months}
+							initialSelectedIndex={monthsList.indexOf(selectedMonth) != -1 ? monthsList.indexOf(selectedMonth) : 1}
+							data={monthsList}
 							restElements={1}
 							elementHeight={45}
 							infiniteScroll={false}
-							selectedIndex={0}
+							selectedIndex={1}
 							onChangeValue={(_, value) => {
-								setSelectedMonth(value);
+								console.log(value, 'this is from picker')
+								setCurrentMonth(value);
 							}}
 							containerStyle={datePickerStyles.containerStyle}
 							selectedLayoutStyle={datePickerStyles.selectedLayoutStyle}
@@ -54,14 +68,14 @@ export default function DateSelect({ placeholder, selectedMonth, setSelectedMont
 					</View>
 					<View style={{ flex: 1 / 2 }}>
 						<WheelPicker
-							initialSelectedIndex={selectedYear ? years.indexOf(selectedYear) : 0}
-							data={years}
+							initialSelectedIndex={yearsList.indexOf(selectedYear) != -1 ? yearsList.indexOf(selectedYear) : 2}
+							data={yearsList}
 							restElements={1}
 							elementHeight={45}
 							infiniteScroll={false}
-							selectedIndex={0}
+							selectedIndex={2}
 							onChangeValue={(_, value) => {
-								setSelectedYear(value);
+								setCurrentYear(value);
 							}}
 							containerStyle={datePickerStyles.containerStyle}
 							selectedLayoutStyle={datePickerStyles.selectedLayoutStyle}
@@ -71,10 +85,12 @@ export default function DateSelect({ placeholder, selectedMonth, setSelectedMont
 					</View>
 				</View>
 				<BlueButton
-					title='Done'
+					title='Save'
 					onPress={() => {
+						setDate();
 						setPopUpVisible(false);
 					}}
+					disabled={currentMonth === '--' || currentYear === '--' || (currentMonth === 'Present' && currentYear != 'Present') || (currentYear === 'Present' && currentMonth != 'Present')}
 				/>
 			</PopUp>
 		</>

@@ -1,6 +1,7 @@
 import { View, Text, StyleSheet } from 'react-native';
 import BottomText from './BottomName';
 import React from 'react';
+import { EditResume } from '../../jobs/resume/editResume';
 
 
 export function ProfileSection({ title, content, onPress = () => { } }: { title: string, content: string, onPress?: () => void }) {
@@ -29,40 +30,7 @@ export default function ProfileContent() {
 	return (
 		<>
 			<View style={styles.tabContent} >
-				<ProfileSection
-					title='About'
-					content="You haven't introduced yourself yet. Let the world know about your  story!"
-				/>
-				<ProfileSection
-					title='Experience'
-					content='You haven’t added any experience yet. Share your journey and expertise!'
-				/>
-				<ProfileSection
-					title='Education'
-					content='You haven’t added any education yet. Highlight your academic achievements!'
-				/>
-				<View>
-					<Text style={styles.detailsHeading}>Certifications</Text>
-					<Text style={styles.detailsContent}>
-						You haven't completed any certifications yet. Once you complete one, it'll be showcased here.
-					</Text>
-
-				</View>
-				<ProfileSection
-					title='Other Certifications'
-					content='You haven’t added any certifications yet. Showcase your achievements and skills!'
-				/>
-				<View>
-					<Text style={styles.detailsHeading}>Projects</Text>
-					<Text style={styles.detailsContent}>
-						You haven't completed any project yet. Once you do, they'll be showcased here.
-					</Text>
-
-				</View>
-				<ProfileSection
-					title='Skills'
-					content='You haven’t added any skills yet. Showcase your expertise and stand out!'
-				/>
+				<EditResume />
 			</View>
 			<BottomText />
 		</>
@@ -86,7 +54,6 @@ const styles = StyleSheet.create({
 	tabContent: {
 		flex: 1,
 		flexGrow: 1,
-		paddingTop: 32,
-		gap: 48,
+		marginHorizontal: -16
 	},
 })

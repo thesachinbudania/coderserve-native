@@ -12,7 +12,6 @@ const authSlice = createSlice({
   name: 'auth',
   reducers: {
     setToken: (state, action) => {
-      console.log(action.payload)
       state.accessToken = action.payload.accessToken;
       state.refreshToken = action.payload.refreshToken;
       SecureStore.setItemAsync('accessToken', action.payload.accessToken);

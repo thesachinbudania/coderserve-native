@@ -1,16 +1,33 @@
-import { Image, View, StyleSheet, Text } from 'react-native';
+import { Platform, Image, View, StyleSheet, Text } from 'react-native';
 import IconButton from '../components/IconButton';
+import { Portal } from 'react-native-paper';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useIsFocused } from '@react-navigation/native';
 
-export default function Header({ onBackPress, title }: { onBackPress: () => void, title: string }) {
+export default function Header({ fixedHeader = false, onBackPress, title }: { fixedHeader?: boolean, onBackPress: () => void, title: string }) {
+	const { top } = useSafeAreaInsets();
+	const isFocused = useIsFocused();
 	return (
-		<View style={styles.header}>
-			<IconButton onPress={() => {
-				onBackPress()
-			}}>
-				<Image style={styles.menuIcon} source={require('./assets/Back.png')} />
-			</IconButton>
-			<Text style={styles.headerTitle}>{title}</Text>
-		</View>
+		fixedHeader ?
+			isFocused &&
+			<Portal>
+				<View style={[styles.header, Platform.OS === 'ios' && { marginTop: top - 16, }]}>
+					<IconButton onPress={() => {
+						onBackPress()
+					}}>
+						<Image style={styles.menuIcon} source={require('./assets/Back.png')} />
+					</IconButton>
+					<Text style={styles.headerTitle}>{title}</Text>
+				</View>
+			</Portal> :
+			<View style={styles.header}>
+				<IconButton onPress={() => {
+					onBackPress()
+				}}>
+					<Image style={styles.menuIcon} source={require('./assets/Back.png')} />
+				</IconButton>
+				<Text style={styles.headerTitle}>{title}</Text>
+			</View>
 	)
 }
 

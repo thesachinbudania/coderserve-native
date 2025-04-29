@@ -26,7 +26,7 @@ function Button({ title, subTitle, selected, setSelected, index }: { index: numb
 			}
 		}>
 			{
-				<View style={[buttonStyles.container, selected && { backgroundColor: 'black' }]}>
+				<View style={[buttonStyles.container, selected && { backgroundColor: '#202020' }]}>
 					<View style={[buttonStyles.selectCircle, selected && { borderColor: 'white' }]}>
 					</View>
 					<View >

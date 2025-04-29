@@ -150,6 +150,7 @@ export default function Username() {
 					placeholder='Username'
 					value={username}
 					onChangeText={setUsername}
+					disabled={recentlyChanged}
 				/>
 				<ErrorMessage message={message} status={didErrored ? 'error' : "success"} />
 			</View>

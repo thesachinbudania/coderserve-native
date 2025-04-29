@@ -13,12 +13,19 @@ import RBSheet from 'react-native-raw-bottom-sheet';
 import { Portal } from '@gorhom/portal';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
+import Typewriter from './Typewriter';
 
 function Header({ menuRef }: { menuRef: React.RefObject<any>, }) {
 	const navigation = useNavigation<NavigationProps>();
 	const user = useSelector((state: RootState) => state.user);
+	const resume = useSelector((state: RootState) => state.jobs);
+	let jobRole = null;
+	if (resume.previousExperience && resume.previousExperience.length > 0) {
+		jobRole = resume.previousExperience[0].job_role;
+	}
 	return (
 		<View style={styles.headerContainer}>
+
 			<View style={{ flexDirection: 'row', gap: 4 }}>
 				{
 					user.profilePicture && (
@@ -27,7 +34,7 @@ function Header({ menuRef }: { menuRef: React.RefObject<any>, }) {
 				}
 				<View style={{ gap: 6, justifyContent: 'center' }}>
 					<Text style={styles.headerName}>{user.firstName} {user.lastName}</Text>
-					<Text style={styles.secondaryHeaderText}>Whats your job role?</Text>
+					<Text style={styles.secondaryHeaderText}>{jobRole || "What's your job role?"}</Text>
 				</View>
 			</View>
 			<View style={{ gap: 16, flexDirection: 'row' }}>
@@ -211,6 +218,7 @@ export default function Home() {
 	const contentWidth = useAnimatedValue(width - 32);
 	const contentOpacity = useAnimatedValue(1);
 
+
 	React.useEffect(() => {
 		if (isSearchFocused) {
 			navigation.getParent()?.setOptions({ tabBarStyle: { display: 'none' } });
@@ -283,13 +291,17 @@ export default function Home() {
 			}).start();
 		}
 	})
+	const [typing, setTyping] = React.useState(1)
 	return (
 		<View style={{ flex: 1, backgroundColor: !isSearchFocused ? 'white' : '#f7f7f7' }}>
 			<ScrollView contentContainerStyle={{ width: width, alignItems: 'center' }} >
 				<Animated.View style={{ width: contentWidth }}>
-					<Header
-						menuRef={menuRef}
-					/>
+					<Animated.View style={{ opacity: contentOpacity }}>
+						<Header
+							menuRef={menuRef}
+						/>
+
+					</Animated.View>
 					<Pressable onPress={() => Keyboard.dismiss()}>
 						<Animated.View style={{ transform: [{ translateY: searchBarMarginTop }], flexDirection: 'row', gap: 16 }}>
 							<View style={{ flex: 1 }}>
@@ -297,7 +309,10 @@ export default function Home() {
 									onChangeText={setSearch}
 									isFocused={isSearchFocused}
 									setIsFocused={setIsSearchFocused}
+									placeholder=''
+									placholderText={['Search by Job Roles', 'ex: Java Developer']}
 								/>
+
 							</View>
 							<View style={[{ width: 48, }, isSearchFocused && { display: 'none' }]}>
 								<IconButton

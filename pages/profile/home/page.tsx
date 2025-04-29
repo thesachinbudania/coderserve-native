@@ -43,6 +43,7 @@ export default function ProfileHome() {
 				}
 			}}
 		>
+
 			<View style={styles.header}>
 				<IconButton>
 					<Image source={require('./assets/notifications.png')} style={styles.menuIcon} />

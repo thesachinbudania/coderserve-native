@@ -32,8 +32,125 @@ export const jobsApiSlice = createApi({
 					method: 'GET',
 				})
 			}
-		})
+		}),
+		updateJobExperience: builder.mutation({
+			query: (data) => {
+				return ({
+					url: '/resume/update_job_experience/',
+					method: 'PUT',
+					body: data
+				})
+			}
+		}),
+		updateExperience: builder.mutation({
+			query: (data) => {
+				return ({
+					url: '/resume/update_experience/',
+					method: 'PUT',
+					body: data
+				})
+			}
+		}),
+		deleteExpereince: builder.mutation({
+			query: (data) => {
+				return ({
+					url: '/resume/delete_experience/',
+					method: 'PUT',
+					body: data
+				})
+			}
+		}),
+		addDegree: builder.mutation({
+			query: (data) => {
+				return ({
+					url: '/resume/add_degree/',
+					method: 'PUT',
+					body: data
+				})
+			}
+		}),
+		updateDegree: builder.mutation({
+			query: (data) => {
+				return ({
+					url: '/resume/update_degree/',
+					method: 'PUT',
+					body: data
+				})
+			}
+		}),
+		deleteDegree: builder.mutation({
+			query: (data) => {
+				return ({
+					url: '/resume/delete_degree/',
+					method: 'PUT',
+					body: data
+				})
+			}
+		}),
+		addCertification: builder.mutation({
+			query: (data) => {
+				return ({
+					url: '/resume/add_certification/',
+					method: 'PUT',
+					body: data
+				})
+			}
+		}),
+		updateCertification: builder.mutation({
+			query: (data) => {
+				return ({
+					url: '/resume/update_certification/',
+					method: 'PUT',
+					body: data
+				})
+			}
+		}),
+		deleteCertification: builder.mutation({
+			query: (data) => {
+				return ({
+					url: '/resume/delete_certification/',
+					method: 'PUT',
+					body: data
+				})
+			}
+		}),
+		updateSkills: builder.mutation({
+			query: (data) => {
+				return ({
+					url: '/resume/update_skills/',
+					method: 'PUT',
+					body: data
+				})
+			}
+		}),
+		addLanguages: builder.mutation({
+			query: (data) => {
+				return ({
+					url: '/resume/add_language/',
+					method: 'PUT',
+					body: data
+				})
+			}
+		}),
+		updateLanguages: builder.mutation({
+			query: (data) => {
+				return ({
+					url: '/resume/update_language/',
+					method: 'PUT',
+					body: data
+				})
+			}
+		}),
+		deleteLanguages: builder.mutation({
+			query: (data) => {
+				return ({
+					url: '/resume/delete_language/',
+					method: 'PUT',
+					body: data
+				})
+			}
+		}),
 	})
 })
 
-export const { useCompaniesDataMutation, useUpdateResumeMutation, useGetResumeQuery } = jobsApiSlice
+export const { useAddLanguagesMutation, useUpdateLanguagesMutation, useDeleteLanguagesMutation, useUpdateSkillsMutation, useAddCertificationMutation, useUpdateCertificationMutation, useDeleteCertificationMutation, useAddDegreeMutation, useDeleteDegreeMutation, useUpdateDegreeMutation, useDeleteExpereinceMutation, useUpdateExperienceMutation, useUpdateJobExperienceMutation, useCompaniesDataMutation, useUpdateResumeMutation, useGetResumeQuery } = jobsApiSlice

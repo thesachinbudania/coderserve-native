@@ -6,7 +6,7 @@ import * as SecureStore from 'expo-secure-store';
 import React from 'react';
 import { setToken } from './app/slices';
 import { setUser } from './app/userSlice';
-import { setSalary, setAbout, setEmploymentStatus } from './app/jobsSlice';
+import { setLanguages, setSkills, setOtherCertifications, setSalary, setAbout, setEmploymentStatus, setPreviousExperience, setDegrees } from './app/jobsSlice';
 import DeviceInfo from 'react-native-device-info';
 import { useGetResumeQuery } from './pages/jobs/apiSlice';
 import { ActivityIndicator, View } from 'react-native';
@@ -26,14 +26,19 @@ export default function AuthProvider() {
   const [areTokensFetched, setAreTokensFetched] = React.useState(false);
   const device = DeviceInfo.getBrand() + ' ' + DeviceInfo.getModel();
   const { data: resumeData, isLoading, isError } = useGetResumeQuery({});
+  const user = useSelector((state: RootState) => state.user);
   React.useEffect(() => {
     if (resumeData) {
       dispatch(setEmploymentStatus(resumeData.employment_status));
       dispatch(setAbout(resumeData.about));
       dispatch(setSalary({ currency: resumeData.expected_salary_currency, salary: resumeData.expected_salary }));
+      dispatch(setPreviousExperience(resumeData.previous_experience));
+      dispatch(setDegrees(resumeData.degrees));
+      dispatch(setOtherCertifications(resumeData.other_certifications));
+      dispatch(setSkills(resumeData.skills));
+      dispatch(setLanguages(resumeData.languages));
     }
   }, [resumeData])
-
   React.useEffect(() => {
     function fetchTokens() {
       SecureStore.getItemAsync('refreshToken').then((refreshToken) => {
@@ -51,7 +56,7 @@ export default function AuthProvider() {
 
 
   const token = useSelector((state: RootState) => state.auth.refreshToken);
-  const username = useSelector((state: RootState) => state.user.username);
+  const username = user.username;
   if (isLoading && !isError && token) {
     return <LoadingScreen />
   }

@@ -1,9 +1,9 @@
 import { Image, TextInput, StyleSheet, TouchableWithoutFeedback, View } from 'react-native';
 import React from 'react';
+import Typewriter from '../../jobs/Typewriter';
 
 
-export default function SearchBar({ onChangeText, isFocused, setIsFocused, placeholder = null }: { onChangeText: React.Dispatch<React.SetStateAction<string>>, isFocused: boolean, placeholder?: string | null, setIsFocused: React.Dispatch<React.SetStateAction<boolean>> }) {
-	const [text, setText] = React.useState('');
+export default function SearchBar({ text = '', onChangeText, isFocused, setIsFocused, placeholder = null, placholderText = [] }: { text?: string, onChangeText: React.Dispatch<React.SetStateAction<string>>, isFocused: boolean, placeholder?: string | null, placholderText?: string[], setIsFocused: React.Dispatch<React.SetStateAction<boolean>> }) {
 	const inputRef = React.useRef<TextInput>(null);
 
 	const handleFocus = () => {
@@ -11,10 +11,6 @@ export default function SearchBar({ onChangeText, isFocused, setIsFocused, place
 			inputRef.current.focus();
 		}
 	}
-
-	React.useEffect(() => {
-		onChangeText(text);
-	}, [text]);
 
 	return (
 		<TouchableWithoutFeedback onPress={handleFocus}>
@@ -29,11 +25,23 @@ export default function SearchBar({ onChangeText, isFocused, setIsFocused, place
 					style={[styles.input, placeholder && !isFocused && { paddingLeft: 12 }, { borderColor: isFocused ? '#eeeeee' : 'black' }, isFocused && { borderWidth: 0, borderColor: '#eeeeee', borderBottomWidth: 1, borderRadius: 0, height: 62 }]}
 					onFocus={() => setIsFocused(true)}
 					onBlur={() => setIsFocused(false)}
-					placeholder={!isFocused && placeholder ? placeholder : 'Search'}
+					placeholder={!isFocused && placeholder ? placeholder : (placholderText.length > 0 && !isFocused ? '' : 'Search')}
 					value={text}
-					onChangeText={setText}
+					onChangeText={onChangeText}
 					placeholderTextColor={!isFocused && placeholder ? '#cbe1ff' : '#d9d9d9'}
 				/>
+				{
+					!isFocused && placholderText.length > 0 && (
+						<View style={styles.placeholderText}>
+							<Typewriter
+								text={placholderText}
+								speed={50}
+								textStyle={{ fontSize: 15, color: '#d9d9d9' }}
+							/>
+						</View>
+					)
+				}
+
 			</View >
 		</TouchableWithoutFeedback>
 	)
@@ -59,5 +67,10 @@ const styles = StyleSheet.create({
 	},
 	container: {
 		justifyContent: 'center',
+	},
+	placeholderText: {
+		position: 'absolute',
+		top: 13,
+		left: 43,
 	}
 })

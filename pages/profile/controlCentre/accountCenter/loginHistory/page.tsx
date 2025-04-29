@@ -141,7 +141,19 @@ export default function Page() {
 			{isLoading && !data ? <View style={styles.loadingView}><ActivityIndicator
 				color='black'
 				size='large'
-			/></View> :
+			/></View> : data.length === 0 ? (
+				<View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', marginHorizontal: 16 }}>
+					<Text style={{ fontSize: 15, fontWeight: 'bold', textAlign: 'center', marginBottom: 16 }}>Your Login Activity Starts Here</Text>
+					<Text style={{ textAlign: 'center', fontSize: 13, color: '#737373' }}>You’ve just signed up on this device, and no other logins have been recorded yet.</Text>
+					<Text style={{ textAlign: 'center', marginTop: 16, fontSize: 13, color: '#737373' }}>Once you log in from a new device - or sign in again here - your login history will appear right on this page.</Text>
+					<View style={{ marginTop: 32, width: '100%' }}>
+						<BlueButton
+							title='Okay'
+							onPress={handleBackButtonPress}
+						/>
+					</View>
+				</View>
+			) :
 				!isError ? (
 					<ScrollView style={styles.body} contentContainerStyle={{ flex: 1 }}>
 						<ScrollView contentContainerStyle={styles.logsContainer}>

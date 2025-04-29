@@ -13,7 +13,12 @@ import { setSalary } from '../../../app/jobsSlice';
 import PopUpMessage from '../../profile/editProfile/PopUpMessage';
 import { useNavigation } from '@react-navigation/native';
 
-const currencyOptions = targetCountries.map((country) => ([country.currencyName, country.currency]))
+
+const currencyOptions = Array.from(
+	new Map(
+		targetCountries.map((country) => [`${country.currencyName}-${country.currency}`, [country.currencyName, country.currency]])
+	).values()
+);
 
 export default function() {
 	const currentCurrency = useSelector((state: RootState) => state.jobs.salaryCurrency);
@@ -60,35 +65,37 @@ export default function() {
 					navigation.goBack();
 				}}
 			/>
-			<View style={styles.container}>
-				<View style={{ flex: 2 / 5 }}>
-					<SelectMenu
-						options={currencyOptions}
-						placeholder='Currency'
-						selected={currency}
-						onSelect={setCurrency}
+			<View style={{ flex: 1 }}>
+				<View style={styles.container}>
+					<View style={{ flex: 2 / 5 }}>
+						<SelectMenu
+							options={currencyOptions}
+							placeholder='Currency'
+							selected={currency}
+							onSelect={setCurrency}
+						/>
+					</View>
+					<View style={{ flex: 3 / 5 }}>
+						<InputField
+							placeholder='Expected Salary'
+							value={salary}
+							onChangeText={setSalaryState}
+							keyboardType='numeric'
+							topMargin={false}
+						/>
+					</View>
+				</View>
+				<View style={{ gap: 4 }}>
+					<BlueButton
+						title='Update'
+						onPress={handleUpdate}
+						loading={isLoading}
+						disabled={!currency || !salary || (currency === currentCurrency && salary === String(currentSalary))}
+					/>
+					<ErrorMessage
+						message={error}
 					/>
 				</View>
-				<View style={{ flex: 3 / 5 }}>
-					<InputField
-						placeholder='Expected Salary'
-						value={salary}
-						onChangeText={setSalaryState}
-						keyboardType='numeric'
-						topMargin={false}
-					/>
-				</View>
-			</View>
-			<View style={{ gap: 4 }}>
-				<BlueButton
-					title='Update'
-					onPress={handleUpdate}
-					loading={isLoading}
-					disabled={!currency || !salary}
-				/>
-				<ErrorMessage
-					message={error}
-				/>
 			</View>
 		</Layout >
 	)

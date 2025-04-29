@@ -8,6 +8,10 @@ import SalaryExpectations from './salaryExpectations/page';
 import UpdateResume from './resume/editResume';
 import About from './resume/about/page';
 import WorkExperience from './resume/workExperience/page';
+import Education from './resume/education/page';
+import OtherCertifications from './resume/otherCertifications/page';
+import Skills from './resume/skills/page';
+import Languages from './resume/languages/page';
 import { createNativeStackNavigator, NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 
@@ -23,7 +27,23 @@ type StackParamList = {
 	SalaryExpectations: undefined,
 	UpdateResume: undefined,
 	About: undefined,
-	WorkExperience: undefined,
+	WorkExperience: {
+		edit: boolean,
+		id: number | null
+	},
+	Education: {
+		edit: boolean,
+		id: number | null
+	},
+	OtherCertifications: {
+		edit: boolean,
+		id: number | null
+	},
+	Skills: undefined,
+	Languages: {
+		edit: boolean,
+		id: number | null
+	}
 }
 
 const Navigator = createNativeStackNavigator<StackParamList>();
@@ -45,7 +65,11 @@ export default function JobsPage() {
 			<Navigator.Screen name='SalaryExpectations' component={SalaryExpectations} />
 			<Navigator.Screen name='UpdateResume' component={UpdateResume} />
 			<Navigator.Screen name='About' component={About} />
-			<Navigator.Screen name='WorkExperience' component={WorkExperience} />
+			<Navigator.Screen name='WorkExperience' component={WorkExperience} initialParams={{ edit: false, id: null }} />
+			<Navigator.Screen name='Education' component={Education} initialParams={{ edit: false, id: null }} />
+			<Navigator.Screen name='OtherCertifications' component={OtherCertifications} initialParams={{ edit: false, id: null }} />
+			<Navigator.Screen name='Skills' component={Skills} />
+			<Navigator.Screen name='Languages' component={Languages} initialParams={{ edit: false, id: null }} />
 		</Navigator.Navigator>
 	)
 }

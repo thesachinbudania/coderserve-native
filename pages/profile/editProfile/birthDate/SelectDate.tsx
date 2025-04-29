@@ -4,7 +4,7 @@ import { styles } from '../location/page';
 import React from 'react';
 import BlueButton from '../../../../components/buttons/BlueButton';
 import PopUpMessage from '../PopUpMessage';
-import { useNavigation, StackActions } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import DatePicker from './DatePicker';
 import ErrorMessage from '../../../../components/messsages/Error';
 import { useSetDobMutation } from '../../apiSlice';
@@ -65,6 +65,7 @@ export default function GitHub() {
 			headerTitle='Birthday'
 			defaultBack={false}
 			customBack={() => goBack()}
+			flex1={false}
 		>
 			<PopUpMessage
 				heading='Birthday Updated'

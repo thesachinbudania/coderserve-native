@@ -16,7 +16,7 @@ export function SelectionButton({ onPress = () => { }, selected = false, title }
 	return (
 		<Pressable onPress={onPress}>
 			<View style={[buttonStyles.buttonContainer, selected && { backgroundColor: '#202020' }]}>
-				<View style={[buttonStyles.selectDot, selected && { backgroundColor: 'white' }]}></View>
+				<View style={[buttonStyles.selectDot, selected && { borderColor: 'white' }]}></View>
 				<Text style={[buttonStyles.buttonText, selected && { color: 'white' }]}>{title}</Text>
 			</View>
 			)
@@ -38,10 +38,11 @@ const buttonStyles = StyleSheet.create({
 		fontSize: 15,
 	},
 	selectDot: {
-		width: 15,
-		height: 15,
-		borderRadius: 8,
-		backgroundColor: '#eeeeee',
+		width: 16,
+		height: 16,
+		borderRadius: 50,
+		borderWidth: 3,
+		borderColor: '#eeeeee',
 	}
 })
 
