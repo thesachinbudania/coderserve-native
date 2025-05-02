@@ -1,9 +1,9 @@
 import { Image, Pressable, Text, StyleSheet, View } from 'react-native';
 import * as Haptics from 'expo-haptics';
-import { WheelPicker } from 'react-native-infinite-wheel-picker';
 import PopUp from '../../../../components/messsages/PopUp';
 import React from 'react';
 import BlueButton from '../../../../components/buttons/BlueButton';
+import { MonthPicker, YearPicker } from '../../../../components/form/DatePicker';
 
 const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
@@ -11,8 +11,6 @@ const currentYear = new Date().getFullYear();
 const years = Array.from({ length: 100 }, (_, i) => {
 	return `${currentYear - i}`;
 })
-
-
 
 export default function DateSelect({ placeholder, presentOption = false, selectedMonth, setSelectedMonth, selectedYear, setSelectedYear }: { placeholder: string, presentOption?: boolean, selectedMonth: string, selectedYear: string, setSelectedMonth: React.Dispatch<React.SetStateAction<string>>, setSelectedYear: React.Dispatch<React.SetStateAction<string>> }) {
 	const [popUpVisible, setPopUpVisible] = React.useState(false);
@@ -29,6 +27,7 @@ export default function DateSelect({ placeholder, presentOption = false, selecte
 			setSelectedYear('');
 		}
 	}
+
 	return (
 		<>
 			<Pressable onPress={() => {
@@ -47,40 +46,24 @@ export default function DateSelect({ placeholder, presentOption = false, selecte
 				visible={popUpVisible}
 				setVisible={setPopUpVisible}
 			>
-				<View style={styles.popUpContainer}>
-					<View style={{ flex: 1 / 2 }}>
-						<WheelPicker
-							initialSelectedIndex={monthsList.indexOf(selectedMonth) != -1 ? monthsList.indexOf(selectedMonth) : 1}
-							data={monthsList}
-							restElements={1}
-							elementHeight={45}
-							infiniteScroll={false}
-							selectedIndex={1}
-							onChangeValue={(_, value) => {
-								console.log(value, 'this is from picker')
-								setCurrentMonth(value);
+				<View style={styles.popUpContainer}
+				>
+					<View style={{ flex: 1 / 2, }}>
+						<MonthPicker
+							items={monthsList.map((item) => ({ label: item, value: item }))}
+							selectedValue={currentMonth}
+							onValueChange={(item) => {
+								setCurrentMonth(item);
 							}}
-							containerStyle={datePickerStyles.containerStyle}
-							selectedLayoutStyle={datePickerStyles.selectedLayoutStyle}
-							elementTextStyle={datePickerStyles.elementTextStyle}
-
 						/>
 					</View>
 					<View style={{ flex: 1 / 2 }}>
-						<WheelPicker
-							initialSelectedIndex={yearsList.indexOf(selectedYear) != -1 ? yearsList.indexOf(selectedYear) : 2}
-							data={yearsList}
-							restElements={1}
-							elementHeight={45}
-							infiniteScroll={false}
-							selectedIndex={2}
-							onChangeValue={(_, value) => {
-								setCurrentYear(value);
+						<YearPicker
+							items={yearsList.map((item) => ({ label: item, value: item }))}
+							selectedValue={currentYear}
+							onValueChange={(item) => {
+								setCurrentYear(item);
 							}}
-							containerStyle={datePickerStyles.containerStyle}
-							selectedLayoutStyle={datePickerStyles.selectedLayoutStyle}
-							elementTextStyle={datePickerStyles.elementTextStyle}
-
 						/>
 					</View>
 				</View>
@@ -97,24 +80,7 @@ export default function DateSelect({ placeholder, presentOption = false, selecte
 	)
 }
 
-const datePickerStyles = StyleSheet.create({
-	selectedLayoutStyle: {
-		backgroundColor: 'white',
-		borderColor: '#eeeeee',
-		borderTopWidth: 1,
-		borderBottomWidth: 1,
-	},
-	containerStyle: {
-		backgroundColor: 'white',
-		justifyContent: 'center',
-		alignItems: 'center',
-	},
-	elementTextStyle: {
-		fontSize: 13,
-		fontWeight: 'bold',
-	},
 
-})
 
 const styles = StyleSheet.create({
 	menuBox: {
@@ -141,6 +107,17 @@ const styles = StyleSheet.create({
 	popUpContainer: {
 		gap: 16,
 		flexDirection: 'row',
-		marginBottom: 48,
-	}
-})
+		marginBottom: 96,
+	},
+
+	selectedText: {
+		fontSize: 18,
+		color: '#000',
+	},
+	unselectedText: {
+		fontSize: 16,
+		color: '#999',
+	},
+
+});
+

@@ -17,6 +17,7 @@ import { DetailsList } from '../jobView/page';
 import { Rating } from './languages/page';
 import BlueButton from '../../../components/buttons/BlueButton';
 import OtherCertificationListing from './CertificationListing';
+import { NavigationProp } from '../../profile/Page';
 
 const { width } = Dimensions.get('window');
 
@@ -24,6 +25,7 @@ export function EditResume() {
 	const user = useSelector((state: RootState) => state.user);
 	const jobs = useSelector((state: RootState) => state.jobs);
 	const navigation = useNavigation<NavigationProps>();
+	const profielNavigation = useNavigation<NavigationProp>();
 	return (
 		<View style={styles.resumeContainer}>
 			{jobs.about ? (
@@ -63,7 +65,7 @@ export function EditResume() {
 									showPress
 									onPress={() => navigation.navigate('WorkExperience', { edit: true, id: experience.id })}
 								>
-									<View style={{ marginBottom: 32 }}>
+									<View style={{ marginBottom: 32, width: width - 96 }}>
 										<Text style={styles.containerPrimaryHeading}>{experience.job_role}</Text>
 										<Text style={styles.containerSecondaryHeading}>{experience.company.name}</Text>
 										<Text style={styles.containerTertiaryHeading}>{experience.joining_month.slice(0, 3)} {experience.joining_year} - {experience.end_month === 'Present' || experience.end_year === 'Present' ? 'Present' : `${experience.end_month.slice(0, 3)} ${experience.end_year}`} ({experience.job_type})</Text>
@@ -116,7 +118,7 @@ export function EditResume() {
 									showPress
 									onPress={() => navigation.navigate('Education', { edit: true, id: degree.id })}
 								>
-									<View style={{ marginBottom: 32 }}>
+									<View style={{ marginBottom: 32, width: width - 96 }}>
 										<Text style={styles.containerPrimaryHeading}>{degree.degree}</Text>
 										<Text style={styles.containerSecondaryHeading}>{degree.field_of_study}</Text>
 										<Text style={styles.containerTertiaryHeading}>Scored {degree.marks}%</Text>
@@ -245,10 +247,12 @@ export function EditResume() {
 								))
 							}
 						</View>
-						<BlueButton
-							title='Add More'
-							onPress={() => navigation.navigate('Languages', { edit: false, id: null })}
-						/>
+						<View style={styles.buttonContainer}>
+							<NoBgButton
+								title='Add More'
+								onPress={() => navigation.navigate('Languages', { edit: false, id: null })}
+							/>
+						</View>
 					</View>
 				) :
 					<ProfileSection
@@ -260,10 +264,19 @@ export function EditResume() {
 
 
 			<View>
-				<Text style={styles.detailsHeading}>Date of Birth</Text>
-				<Text style={styles.detailsContent}>
-					{user.dobDate && user.dobMonth && user.dobYear ? `${user.dobDate} ${user.dobMonth} ${user.dobYear}` : 'You haven’t added your date of birth yet. Add it to showcase your age!'}
-				</Text>
+				{user.dobDate && user.dobMonth && user.dobYear ?
+					<>
+						<Text style={styles.detailsHeading}>Date of Birth</Text>
+						<Text style={styles.detailsContent}>
+							{user.dobDate} {user.dobMonth} {user.dobYear}
+						</Text>
+					</>
+					: <ProfileSection
+						title='Date of Birth'
+						content='You haven’t added your date of birth yet. Add it to showcase your age!'
+						onPress={() => profielNavigation.navigate('EditProfileBirthDate')}
+					/>
+				}
 
 			</View>
 			<View>

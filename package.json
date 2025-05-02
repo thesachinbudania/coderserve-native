@@ -50,10 +50,12 @@
     "react-native-tab-view": "^4.0.5",
     "react-native-typewriter": "^0.7.0",
     "react-native-web": "~0.19.13",
+    "react-native-wheel-picker-expo": "^0.5.4",
     "react-redux": "^9.2.0",
     "react-use-wizard": "^2.3.0",
     "redux-persist": "^6.0.0",
-    "use-sync-external-store": "^1.4.0"
+    "use-sync-external-store": "^1.4.0",
+    "expo-sharing": "~13.0.1"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",

@@ -72,6 +72,7 @@ export default function() {
 					title='Save'
 					loading={isLoading}
 					onPress={handleUpdateSkills}
+					disabled={(areSkills && skills) ? ((skill1 === skills[0] && skill2 === skills[1] && skill3 === skills[2]) || skill1 === '' || skill2 === '' || skill3 === '') : (skill1 === '' && skill2 === '' && skill3 === '')}
 				/>
 				{
 					error && (

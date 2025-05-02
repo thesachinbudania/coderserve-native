@@ -4,6 +4,7 @@
     "name": "CoderServe",
     "slug": "CoderServe",
     "version": "1.0.0",
+"scheme": "coderserve",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -21,6 +22,20 @@
       }
     },
     "android": {
+      "intentFilters": [
+  {
+    "action": "VIEW",
+    "autoVerify": true,
+    "data": [
+      {
+        "scheme": "https",
+        "host": "coderserve.com",
+        "pathPrefix": "/"
+      }
+    ],
+    "category": ["BROWSABLE", "DEFAULT"]
+  }
+],
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"

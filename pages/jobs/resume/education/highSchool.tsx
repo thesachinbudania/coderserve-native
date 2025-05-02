@@ -481,7 +481,7 @@ export default function Education({ route, page, setPage, setShowHeader }: { pag
 						</View>
 					</Animated.View>
 					<Animated.View style={{ opacity: contentOpacity }}>
-						<Text style={styles.label}>Job Location</Text>
+						<Text style={styles.label}>Location</Text>
 						<LocationSelectMenu
 							selectedCountry={country}
 							setSelectedCountry={setCountry}

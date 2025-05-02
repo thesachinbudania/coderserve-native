@@ -12,6 +12,7 @@ import Education from './resume/education/page';
 import OtherCertifications from './resume/otherCertifications/page';
 import Skills from './resume/skills/page';
 import Languages from './resume/languages/page';
+import EditProfileBirthDate from '../profile/editProfile/birthDate/page';
 import { createNativeStackNavigator, NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 
@@ -43,7 +44,8 @@ type StackParamList = {
 	Languages: {
 		edit: boolean,
 		id: number | null
-	}
+	},
+	EditProfileBirthDate: undefined,
 }
 
 const Navigator = createNativeStackNavigator<StackParamList>();
@@ -70,6 +72,7 @@ export default function JobsPage() {
 			<Navigator.Screen name='OtherCertifications' component={OtherCertifications} initialParams={{ edit: false, id: null }} />
 			<Navigator.Screen name='Skills' component={Skills} />
 			<Navigator.Screen name='Languages' component={Languages} initialParams={{ edit: false, id: null }} />
+			<Navigator.Screen name='EditProfileBirthDate' component={EditProfileBirthDate} />
 		</Navigator.Navigator>
 	)
 }

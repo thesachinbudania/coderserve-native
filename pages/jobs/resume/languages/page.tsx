@@ -132,7 +132,7 @@ export default function Languages({ route }: { route: any }) {
 			</View>
 			<BlueButton
 				title={currentLanguage ? 'Update' : 'Save'}
-				disabled={language === null || rating === 0}
+				disabled={currentLanguage ? ((currentLanguage.language === language && currentLanguage.rating === rating) || language === null || rating === 0) : language === null || rating === 0}
 				onPress={currentLanguage ? handleUpdateLanguage : handleAddLanguage}
 				loading={currentLanguage ? isUpdateLanguageLoading : isAddLanguageLoading}
 			/>

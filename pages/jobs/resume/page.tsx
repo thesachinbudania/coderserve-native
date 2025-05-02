@@ -107,7 +107,7 @@ export default function Resume() {
 												key={index}
 												showLine={jobs.previousExperience ? (index !== jobs.previousExperience.length - 1) : false}
 											>
-												<View style={{ marginBottom: 32 }}>
+												<View style={{ marginBottom: 32, width: width - 96 }}>
 													<Text style={styles.containerPrimaryHeading}>{experience.job_role}</Text>
 													<Text style={styles.containerSecondaryHeading}>{experience.company.name}</Text>
 													<Text style={styles.containerTertiaryHeading}>{experience.joining_month.slice(0, 3)} {experience.joining_year} - {experience.end_month === 'Present' || experience.end_year === 'Present' ? 'Present' : `${experience.end_month.slice(0, 3)} ${experience.end_year}`} ({experience.job_type})</Text>
@@ -148,7 +148,7 @@ export default function Resume() {
 												key={index}
 												showLine={jobs.degrees ? (index !== jobs.degrees.length - 1) : false}
 											>
-												<View style={{ marginBottom: 32 }}>
+												<View style={{ marginBottom: 32, width: width - 96 }}>
 													<Text style={styles.containerPrimaryHeading}>{degree.degree}</Text>
 													<Text style={styles.containerSecondaryHeading}>{degree.field_of_study}</Text>
 													<Text style={styles.containerTertiaryHeading}>Scored {degree.marks}%</Text>

@@ -1,23 +1,7 @@
 import React from "react";
 import { View, Dimensions, StyleSheet } from "react-native";
-import { WheelPicker } from 'react-native-infinite-wheel-picker';
+import { DatePicker, MonthPicker, YearPicker, dates, months, years } from "../../../../components/form/DatePicker";
 
-
-const dates = Array.from({ length: 31 }, (_, i) => {
-	if (i < 9) {
-		return `0${i + 1}`;
-	}
-	else {
-		return `${i + 1}`;
-	}
-});
-
-const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-
-const currentYear = new Date().getFullYear();
-const years = Array.from({ length: 100 }, (_, i) => {
-	return `${currentYear - i}`;
-});
 
 
 const innerWidth = Dimensions.get('window').width - 88;
@@ -27,52 +11,19 @@ export default function InlineDatePicker({ date, month, year, setSelectedDate, s
 	return (
 		<View style={styles.container}>
 			<View style={styles.dateContainer}>
-				<WheelPicker
-					initialSelectedIndex={dates.indexOf(date)}
-					data={dates}
-					restElements={1}
-					elementHeight={45}
-					infiniteScroll={false}
-					onChangeValue={(_, value) => {
-						setSelectedDate(value);
+				<DatePicker
+					items={dates.map((item) => ({ label: item, value: item }))}
+					selectedValue={date}
+					onValueChange={(item) => {
+						setSelectedDate(item);
 					}}
-					selectedIndex={0}
-					containerStyle={styles.containerStyle}
-					selectedLayoutStyle={styles.selectedLayoutStyle}
-					elementTextStyle={styles.elementTextStyle}
 				/>
 			</View>
 			<View style={styles.monthContainer}>
-				<WheelPicker
-					initialSelectedIndex={months.indexOf(month)}
-					data={months}
-					restElements={1}
-					elementHeight={45}
-					infiniteScroll={false}
-					onChangeValue={(_, value) => {
-						setSelectedMonth(value);
-					}}
-					selectedIndex={0}
-					containerStyle={styles.containerStyle}
-					selectedLayoutStyle={styles.selectedLayoutStyle}
-					elementTextStyle={styles.elementTextStyle}
-				/>
+
 			</View>
 			<View style={styles.yearContainer}>
-				<WheelPicker
-					initialSelectedIndex={years.indexOf(year)}
-					data={years}
-					restElements={1}
-					elementHeight={45}
-					infiniteScroll={false}
-					onChangeValue={(_, value) => {
-						setSelectedYear(value);
-					}}
-					selectedIndex={0}
-					containerStyle={styles.containerStyle}
-					selectedLayoutStyle={styles.selectedLayoutStyle}
-					elementTextStyle={styles.elementTextStyle}
-				/>
+
 			</View>
 		</View>
 	);
@@ -89,6 +40,7 @@ const styles = StyleSheet.create({
 		borderColor: '#eeeeee',
 		borderRadius: 8,
 		gap: 12,
+		paddingBottom: 72,
 
 	},
 	selectedLayoutStyle: {

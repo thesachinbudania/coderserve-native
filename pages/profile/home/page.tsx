@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Dimensions, Image, Pressable, ScrollView, View, Text, StyleSheet, Platform, } from 'react-native';
+import { Dimensions, Image, Pressable, ScrollView, View, Text, Share, StyleSheet, Platform, } from 'react-native';
 import BlueButton from '../../../components/buttons/BlueButton';
 import IconButton from '../components/IconButton';
 import Tabs from './Tabs';
@@ -11,6 +11,7 @@ import ImageLoader from '../../../components/ImageLoader';
 import { PortalHost } from '@gorhom/portal';
 import BackgroundMapping from '../assets/Background/backgroundMapping';
 import BackgroundImageLoader from '../BackgroundImageLoader';
+import * as Sharing from 'expo-sharing';
 
 
 function ProfileButton({ count, title }: { count: number, title: string }) {
@@ -31,6 +32,17 @@ export default function ProfileHome() {
 	const user = useSelector((state: RootState) => state.user);
 	const navigation = useNavigation<NavigationProp>();
 	const isScrolling = React.useState(false);
+
+	async function shareProfileAsync() {
+		try {
+			await Share.share({
+				message: 'https://coderserve.com/profile/' + user.username,
+			});
+		} catch (error) {
+			console.error('Error sharing profile:', error);
+		}
+	}
+
 	return (
 		<ScrollView
 			contentContainerStyle={{ backgroundColor: 'white' }}
@@ -93,7 +105,10 @@ export default function ProfileHome() {
 						/>
 					</View>
 					<View style={{ width: (width - 32) * 0.5 - 8 }}>
-						<BlueButton title="Share Profile" />
+						<BlueButton
+							title="Share Profile"
+							onPress={shareProfileAsync}
+						/>
 					</View>
 				</View>
 			</View>
