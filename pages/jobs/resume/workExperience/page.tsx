@@ -1,6 +1,7 @@
 import PageLayout from "../../../profile/controlCentre/accountCenter/PageLayout";
 import {
   Animated,
+  BackHandler,
   Dimensions,
   Image,
   Keyboard,
@@ -45,8 +46,11 @@ export function SearchSuggestion({
   title: string;
   onPress?: () => void;
 }) {
+  const { width } = Dimensions.get("window");
   return (
-    <Pressable onPress={onPress}>
+    <Pressable
+      onPress={onPress}
+    >
       {({ pressed }) => (
         <View
           pointerEvents="none"
@@ -58,7 +62,7 @@ export function SearchSuggestion({
             source={require("../../../profile/components/assets/searchIcon.png")}
             style={{ width: 20, height: 20 }}
           />
-          <Text style={[{ fontSize: 15 }, pressed && { color: "#006dff" }]}>
+          <Text style={[{ fontSize: 15, width: width - 48 }, pressed && { color: "#006dff" }]}>
             {title}
           </Text>
         </View>
@@ -85,6 +89,35 @@ export default function WorkExperience({ route }: { route: any }) {
   const jobDescRef = React.useRef(null);
   const jobDescTranslate = useAnimatedValue(0);
   const [jDFocused, setJDFocused] = React.useState(false);
+
+  // function to handle back button press
+  const handleBackButtonPress = () => {
+    if (jRFocused || jDFocused) {
+      setJRFocused(false);
+      setJDFocused(false);
+      return true;
+    }
+    return false;
+  };
+  React.useEffect(() => {
+    const backHandler = BackHandler.addEventListener(
+      "hardwareBackPress",
+      handleBackButtonPress
+    );
+    return () => {
+      backHandler.remove();
+    };
+  }, [jRFocused, jDFocused]);
+
+  const [scrollEnabled, setScrollEnabled] = React.useState(true);
+  React.useEffect(() => {
+    if (jRFocused || jDFocused) {
+      setScrollEnabled(false);
+    }
+    else {
+      setScrollEnabled(true);
+    }
+  }, [jRFocused, jDFocused]);
 
   const [searchText, setSearchText] = React.useState(experience ? experience.company.name : "");
 
@@ -326,6 +359,7 @@ export default function WorkExperience({ route }: { route: any }) {
       <PageLayout
         headerTitle="Experience"
         showHeader={!jRFocused && !jDFocused}
+        scrollEnabled={scrollEnabled}
       >
         <PopUpMessage
           heading='Delete this experience?'

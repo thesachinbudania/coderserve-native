@@ -13,7 +13,6 @@ import RBSheet from 'react-native-raw-bottom-sheet';
 import { Portal } from '@gorhom/portal';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
-import Typewriter from './Typewriter';
 
 function Header({ menuRef }: { menuRef: React.RefObject<any>, }) {
 	const navigation = useNavigation<NavigationProps>();
@@ -29,11 +28,11 @@ function Header({ menuRef }: { menuRef: React.RefObject<any>, }) {
 			<View style={{ flexDirection: 'row', gap: 4 }}>
 				{
 					user.profilePicture && (
-						<ImageLoader size={48} uri={user.profilePicture} />
+						<ImageLoader size={48} uri={user.profilePicture} border={1} />
 					)
 				}
 				<View style={{ gap: 6, justifyContent: 'center' }}>
-					<Text style={styles.headerName}>{user.firstName} {user.lastName}</Text>
+					<Text style={styles.headerName}>{user.firstName}</Text>
 					<Text style={styles.secondaryHeaderText}>{jobRole || "What's your job role?"}</Text>
 				</View>
 			</View>

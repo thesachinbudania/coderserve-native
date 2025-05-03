@@ -114,10 +114,22 @@ const userSlice = createSlice({
       state.mobileNumber = null;
       state.whatsappCountryCode = null;
       state.whatsappNumber = null;
-    }
+    },
+    setUsername: (state, action) => {
+      state.username = action.payload;
+    },
+    setCountry: (state, action) => {
+      state.country = action.payload;
+    },
+    setCity: (state, action) => {
+      state.city = action.payload;
+    },
+    setState: (state, action) => {
+      state.state = action.payload;
+    },
   }
 })
 
-export const { setUser, clearUser } = userSlice.actions;
+export const { setUser, clearUser, setUsername, setCountry, setCity, setState } = userSlice.actions;
 
 export default userSlice.reducer;

@@ -10,7 +10,7 @@ import { useSignInMutation } from '../apiSlice';
 import TimedError from '../../../components/messsages/TimedError';
 import { useDispatch } from 'react-redux';
 import { setToken } from '../../../app/slices';
-import { setUser } from '../../../app/userSlice';
+import { setUser, setUsername, setState, setCity, setCountry } from '../../../app/userSlice';
 import DeviceInfo from 'react-native-device-info';
 
 
@@ -25,6 +25,7 @@ export default function SignIn({ navigate }: { navigate: (page: string) => void 
 
 	async function signIn() {
 		setError('');
+		dispatch(setUser({ username: '', email: '', firstName: '', lastName: '', profilePicture: '', backgroundCode: '', backgroundType: '', backgroundImage: '', country: '', city: '', state: '', dateJoined: '', device, gitHub: '', dobDate: 0, dobMonth: 0, dobYear: 0, website: '', mobileCountryCode: '', mobileNumber: '', whatsappCountryCode: '', whatsappNumber: '' }));
 		try {
 			const response = await sendSignInRequest({ email_or_username: email, password, deviceName: device }).unwrap();
 			const refreshToken = response.token.refresh;
@@ -51,7 +52,11 @@ export default function SignIn({ navigate }: { navigate: (page: string) => void 
 			const whatsappCountryCode = response.whatsappCountryCode;
 			const whatsappNumber = response.whatsappNumber;
 			dispatch(setToken({ refreshToken, accessToken }));
-			dispatch(setUser({ username, email: userEmail, firstName, lastName, profilePicture, backgroundCode, backgroundType, backgroundImage, country, city, state, dateJoined, device, gitHub, dobDate, dobMonth, dobYear, website, mobileCountryCode, mobileNumber, whatsappCountryCode, whatsappNumber }));
+			dispatch(setUser({ email: userEmail, firstName: firstName, lastName: lastName, profilePicture, backgroundCode, backgroundType, backgroundImage, dateJoined, device, gitHub, dobDate, dobMonth, dobYear, website, mobileCountryCode, mobileNumber, whatsappCountryCode, whatsappNumber }));
+			dispatch(setUsername(username));
+			dispatch(setCountry(country));
+			dispatch(setState(state));
+			dispatch(setCity(city));
 		} catch (e) {
 			console.log(e)
 			setErrorKey(errorKey + 1)

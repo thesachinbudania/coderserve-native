@@ -1,4 +1,4 @@
-import { Image, Dimensions, Linking, Pressable, StyleSheet, ScrollView, Text, View } from 'react-native';
+import { Image, Dimensions, Linking, Platform, Pressable, Share, StyleSheet, ScrollView, Text, View } from 'react-native';
 import IconButton from '../../profile/components/IconButton';
 import { Link, useNavigation } from '@react-navigation/native';
 import { NavigationProps } from '../page';
@@ -51,6 +51,15 @@ export default function Resume() {
 	const user = useSelector((state: RootState) => state.user);
 	const jobs = useSelector((state: RootState) => state.jobs);
 	const menuRef = React.useRef<any>(null);
+	const shareResume = async () => {
+		try {
+			await Share.share({
+				message: 'https://coderserve.com/resume/' + user.username,
+			});
+		} catch (error) {
+			console.error('Error sharing resume:', error);
+		}
+	}
 
 	React.useEffect(() => {
 		navigation.getParent()?.setOptions({ tabBarStyle: { display: 'none' } });
@@ -68,7 +77,7 @@ export default function Resume() {
 	return (
 		<ScrollView>
 			<Portal>
-				<View style={[styles.header, { top: top - 16 }]}>
+				<View style={[styles.header, { top: Platform.OS === 'ios' ? top - 16 : top }]}>
 					<View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
 						<IconButton onPress={() => navigation.goBack()}>
 							<Image source={require('../../profile/controlCentre/assets/Back.png')} style={styles.menuIcon} />
@@ -313,6 +322,7 @@ export default function Resume() {
 				<MenuButton
 					heading='Share Resume'
 					text='Share your resume via link.'
+					onPress={shareResume}
 				/>
 
 			</Menu>

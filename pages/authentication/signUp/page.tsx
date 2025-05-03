@@ -3,13 +3,14 @@ import ChooseUsernameScreen from './profileDetails/ChooseUsername';
 import ProfileImageScreen from './profileDetails/ProfileImage';
 import LocationSelectPage from './profileDetails/Location';
 import SignUpScreen from './SignUpScreen';
-import { Wizard } from 'react-use-wizard';
+import { Wizard, useWizard } from 'react-use-wizard';
 import React from 'react';
 
 
-export default function Page({ navigate }: { navigate: (page: string) => void }) {
+export default function Page({ navigate, screen = 1 }: { navigate: (page: string) => void, screen?: number }) {
 	return (
 		<Wizard>
+			<Controller step={screen} />
 			<SignUpScreen
 				navigate={navigate}
 			/>
@@ -21,3 +22,13 @@ export default function Page({ navigate }: { navigate: (page: string) => void })
 
 	)
 }
+
+const Controller = ({ step }: { step: number }) => {
+	const { goToStep } = useWizard();
+
+	React.useEffect(() => {
+		goToStep(step);
+	}, [step]);
+
+	return null; // invisible controller
+};

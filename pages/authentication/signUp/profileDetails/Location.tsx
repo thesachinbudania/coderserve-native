@@ -119,7 +119,8 @@ export default function LocationSelectPage() {
 			dispatch(setUser({ username, email: userEmail, firstName, lastName, profilePicture, backgroundCode, backgroundType, backgroundImage, country, city, state, dateJoined, gitHub, dobDate, dobMonth, dobYear, website, mobileCountryCode, mobileNumber, whatsappCountryCode, whatsappNumber }));
 			dispatch(setToken({ accessToken: access, refreshToken: refresh }));
 		}
-		catch {
+		catch (error) {
+			console.log(error)
 			setError('Something went wrong! Please try again later.');
 		}
 	}

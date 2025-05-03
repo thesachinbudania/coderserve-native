@@ -4,7 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 
 const { height } = Dimensions.get('window');
 
-export default function Layout({ headerTitle, children, defaultBack = true, flex1 = true, showHeader = true, customBack = () => { } }: { headerTitle: string, defaultBack?: boolean, flex1?: boolean, showHeader?: boolean, customBack?: () => void, children: React.ReactNode }) {
+export default function Layout({ headerTitle, children, defaultBack = true, flex1 = true, showHeader = true, scrollEnabled = true, customBack = () => { } }: { headerTitle: string, defaultBack?: boolean, flex1?: boolean, showHeader?: boolean, scrollEnabled?: boolean, customBack?: () => void, children: React.ReactNode }) {
 	const navigation = useNavigation();
 	return (
 		<>
@@ -18,7 +18,11 @@ export default function Layout({ headerTitle, children, defaultBack = true, flex
 				/>
 
 			)}
-			<ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps='always'>
+			<ScrollView
+				contentContainerStyle={styles.content}
+				keyboardShouldPersistTaps='always'
+				scrollEnabled={scrollEnabled}
+			>
 				<TouchableWithoutFeedback
 					onPress={() => {
 						Keyboard.dismiss();

@@ -17,13 +17,28 @@ export default function InlineDatePicker({ date, month, year, setSelectedDate, s
 					onValueChange={(item) => {
 						setSelectedDate(item);
 					}}
+					width={innerWidth * (1 / 4)}
 				/>
 			</View>
 			<View style={styles.monthContainer}>
-
+				<MonthPicker
+					items={months.map((item) => ({ label: item, value: item }))}
+					selectedValue={month}
+					onValueChange={(item) => {
+						setSelectedMonth(item);
+					}}
+					width={innerWidth * (2 / 4)}
+				/>
 			</View>
 			<View style={styles.yearContainer}>
-
+				<YearPicker
+					items={years.map((item) => ({ label: item, value: item }))}
+					selectedValue={year}
+					onValueChange={(item) => {
+						setSelectedYear(item);
+					}}
+					width={innerWidth * (1 / 4)}
+				/>
 			</View>
 		</View>
 	);

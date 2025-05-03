@@ -46,6 +46,7 @@ export default function ChooseUsernameScreen() {
 			wizard.nextStep();
 		}
 		catch (error: any) {
+			console.log(error)
 			setMessage('Something went wrong! Please try again.');
 			setDidErrored(true);
 

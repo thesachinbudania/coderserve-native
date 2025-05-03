@@ -1,4 +1,4 @@
-import { Animated, Dimensions, Keyboard, Platform, Text, useAnimatedValue, View } from 'react-native'
+import { Animated, BackHandler, Dimensions, Keyboard, Platform, Text, useAnimatedValue, View } from 'react-native'
 import FormInput from '../../../../components/form/FormInput';
 import { TopNav, measureY, setSuggestions, styles } from './page';
 import SearchBar from '../../../profile/components/SearchBar';
@@ -16,10 +16,11 @@ import Error from '../../../../components/messsages/Error';
 import NoBgButton from '../../../../components/buttons/NoBgButton';
 import PopUpMessage from '../workExperience/PopUpMessage';
 import { schools, boardNames } from './suggestions';
+import SearchWithSuggestions from '../components/SearchWithSuggestions';
 
 const windowWidth = Dimensions.get('window').width;
 
-export default function Education({ route, page, setPage, setShowHeader }: { page: number, setPage: React.Dispatch<SetStateAction<number>>, route: any, setShowHeader: React.Dispatch<React.SetStateAction<boolean>> }) {
+export default function Education({ route, page, setPage, setShowHeader, setScrollEnabled }: { setScrollEnabled: React.Dispatch<SetStateAction<boolean>>, page: number, setPage: React.Dispatch<SetStateAction<number>>, route: any, setShowHeader: React.Dispatch<React.SetStateAction<boolean>> }) {
 	let editDegree = null;
 	const currentDegrees = useSelector((state: RootState) => state.jobs.degrees);
 	if (route.params && route.params.edit) {
@@ -138,6 +139,38 @@ export default function Education({ route, page, setPage, setShowHeader }: { pag
 	const [degreeFocused, setDegreeFocused] = React.useState(false);
 	const [fieldOfStudyFocused, setFieldOfStudyFocused] = React.useState(false);
 	const [universityFocused, setUniversityFocused] = React.useState(false);
+
+	// function to handle back button press
+	React.useEffect(() => {
+		const backAction = () => {
+			if (degreeFocused || fieldOfStudyFocused || universityFocused) {
+				setDegreeFocused(false);
+				setFieldOfStudyFocused(false);
+				setUniversityFocused(false);
+				return true;
+			}
+			else {
+				navigation.goBack();
+				return false;
+			}
+		};
+
+		const backHandler = BackHandler.addEventListener(
+			'hardwareBackPress',
+			backAction
+		);
+
+		return () => backHandler.remove();
+	}, [degreeFocused, fieldOfStudyFocused, universityFocused]);
+
+	React.useEffect(() => {
+		if (degreeFocused || fieldOfStudyFocused || universityFocused) {
+			setScrollEnabled(false);
+		}
+		else {
+			setScrollEnabled(true);
+		}
+	}, [degreeFocused, fieldOfStudyFocused, universityFocused])
 
 	// refs for search bars 
 	const degreeRef = React.useRef(null);
@@ -319,8 +352,8 @@ export default function Education({ route, page, setPage, setShowHeader }: { pag
 							<View
 								style={{
 									display: degreeFocused ? "flex" : "none",
-									height: "100%",
 									backgroundColor: "#f7f7f7",
+									height: '100%',
 								}}
 							>
 								{

@@ -1,4 +1,4 @@
-import { Animated, Dimensions, Keyboard, Platform, Text, useAnimatedValue, View } from 'react-native'
+import { Animated, BackHandler, Dimensions, Keyboard, Platform, Text, useAnimatedValue, View } from 'react-native'
 import FormInput from '../../../../components/form/FormInput';
 import { TopNav, measureY, setSuggestions, styles } from './page';
 import SearchBar from '../../../profile/components/SearchBar';
@@ -19,7 +19,7 @@ import PopUpMessage from '../workExperience/PopUpMessage';
 
 const windowWidth = Dimensions.get('window').width;
 
-export default function Education({ route, page, setPage, setShowHeader }: { page: number, setPage: React.Dispatch<SetStateAction<number>>, route: any, setShowHeader: React.Dispatch<React.SetStateAction<boolean>> }) {
+export default function Education({ route, page, setPage, setShowHeader, setScrollEnabled }: { page: number, setPage: React.Dispatch<SetStateAction<number>>, route: any, setShowHeader: React.Dispatch<React.SetStateAction<boolean>>, setScrollEnabled: React.Dispatch<React.SetStateAction<boolean>> }) {
 	let editDegree = null;
 	const currentDegrees = useSelector((state: RootState) => state.jobs.degrees);
 	if (route.params && route.params.edit) {
@@ -139,6 +139,35 @@ export default function Education({ route, page, setPage, setShowHeader }: { pag
 	const [fieldOfStudyFocused, setFieldOfStudyFocused] = React.useState(false);
 	const [universityFocused, setUniversityFocused] = React.useState(false);
 
+	// effect for handling back button
+	React.useEffect(() => {
+		const backAction = () => {
+			if (degreeFocused || fieldOfStudyFocused || universityFocused) {
+				setDegreeFocused(false);
+				setFieldOfStudyFocused(false);
+				setUniversityFocused(false);
+				Keyboard.dismiss();
+				return true;
+			}
+			return false;
+		};
+
+		const backHandler = BackHandler.addEventListener(
+			'hardwareBackPress',
+			backAction
+		);
+
+		return () => backHandler.remove();
+	})
+
+	React.useEffect(() => {
+		if (degreeFocused || fieldOfStudyFocused || universityFocused) {
+			setScrollEnabled(false);
+		}
+		else {
+			setScrollEnabled(true);
+		}
+	}, [degreeFocused, fieldOfStudyFocused, universityFocused])
 	// refs for search bars 
 	const degreeRef = React.useRef(null);
 	const fieldOfStudyRef = React.useRef(null);

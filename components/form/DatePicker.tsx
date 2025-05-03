@@ -63,7 +63,7 @@ export const DatePicker: React.FC<MonthPickerProps> = ({ items, selectedValue, o
 	);
 }
 
-export const MonthPicker: React.FC<MonthPickerProps> = ({ items, selectedValue, onValueChange }) => {
+export const MonthPicker: React.FC<MonthPickerProps> = ({ items, selectedValue, onValueChange, width = null }) => {
 	const initialSelectedIndex = items.findIndex(item => item.value === selectedValue);
 
 	return (
@@ -73,6 +73,7 @@ export const MonthPicker: React.FC<MonthPickerProps> = ({ items, selectedValue, 
 				initialSelectedIndex={initialSelectedIndex !== -1 ? initialSelectedIndex : 0}
 				onChange={({ item }) => onValueChange(item.value)}
 				selectedStyle={datePickerStyles.selectedIndicator}
+				{...width ? { width } : {}}
 				renderItem={(item) => (
 					<Text
 						style={[
@@ -89,7 +90,7 @@ export const MonthPicker: React.FC<MonthPickerProps> = ({ items, selectedValue, 
 	);
 };
 
-export const YearPicker: React.FC<MonthPickerProps> = ({ items, selectedValue, onValueChange }) => {
+export const YearPicker: React.FC<MonthPickerProps> = ({ items, width = null, selectedValue, onValueChange }) => {
 	const initialSelectedIndex = items.findIndex(item => item.value === selectedValue);
 
 	return (
@@ -99,6 +100,7 @@ export const YearPicker: React.FC<MonthPickerProps> = ({ items, selectedValue, o
 				initialSelectedIndex={initialSelectedIndex !== -1 ? initialSelectedIndex : 0}
 				onChange={({ item }) => onValueChange(item.value)}
 				selectedStyle={datePickerStyles.selectedIndicator}
+				{...width ? { width } : {}}
 				renderItem={(item) => (
 					<Text
 						style={[

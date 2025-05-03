@@ -6,10 +6,12 @@ import * as SecureStore from 'expo-secure-store';
 import React from 'react';
 import { setToken } from './app/slices';
 import { setUser } from './app/userSlice';
+import { setTokenState } from './pages/authentication/signUp/signUpSlice';
 import { setLanguages, setSkills, setOtherCertifications, setSalary, setAbout, setEmploymentStatus, setPreviousExperience, setDegrees } from './app/jobsSlice';
 import DeviceInfo from 'react-native-device-info';
 import { useGetResumeQuery } from './pages/jobs/apiSlice';
 import { ActivityIndicator, View } from 'react-native';
+import SignUp from './pages/authentication/signUp/page';
 
 function LoadingScreen() {
   return (
@@ -54,11 +56,33 @@ export default function AuthProvider() {
     dispatch(setUser({ device }));
   }, []);
 
-
-  const token = useSelector((state: RootState) => state.auth.refreshToken);
-  const username = user.username;
-  if (isLoading && !isError && token) {
+  const { refreshToken, accessToken } = useSelector((state: RootState) => state.auth);
+  const [signUpCompleted, setSignUpCompleted] = React.useState(true);
+  const [signUpStep, setSignUpStep] = React.useState(0);
+  const tempRefreshToken = useSelector((state: RootState) => state.auth.refreshToken);
+  React.useEffect(() => {
+    if (user.email && !user.username) {
+      setSignUpCompleted(false);
+      setSignUpStep(3);
+      dispatch(setTokenState({ refresh: refreshToken, access: accessToken }));
+      console.log(tempRefreshToken)
+    }
+    else if (user.email && user.username && (user.state === '' || user.country === '' || user.city === '')) {
+      setSignUpCompleted(false);
+      setSignUpStep(5);
+      dispatch(setTokenState({ refresh: refreshToken, access: accessToken }));
+      console.log(tempRefreshToken)
+    }
+    else {
+      setSignUpStep(0);
+      setSignUpCompleted(true);
+    }
+  }, [user])
+  if (isLoading && !isError && refreshToken) {
     return <LoadingScreen />
   }
-  return !areTokensFetched ? null : token && username ? <Home /> : <Auth />;
+  return !areTokensFetched ? null : refreshToken && !signUpCompleted && signUpStep != 0 ? <SignUp
+    navigate={(page: string) => { }}
+    screen={signUpStep}
+  /> : refreshToken && user.username ? <Home /> : <Auth />;
 }

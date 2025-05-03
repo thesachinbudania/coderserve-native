@@ -81,12 +81,13 @@ export default function Education({ route }: { route: any }) {
 		const degreeId = route.params.id;
 		editDegree = currentDegrees?.find((degree) => degree.id === degreeId);
 	}
-
+	const [scrollEnabled, setScrollEnabled] = React.useState(true);
 	const [page, setPage] = React.useState(editDegree ? editDegree.type : 0);
 	return (
 		<PageLayout
 			headerTitle='Education'
 			showHeader={showHeader}
+			scrollEnabled={scrollEnabled}
 		>
 			{
 				page === 0 ?
@@ -95,12 +96,14 @@ export default function Education({ route }: { route: any }) {
 						setShowHeader={setShowHeader}
 						page={page}
 						setPage={setPage}
+						setScrollEnabled={setScrollEnabled}
 					/> :
 					<HighSchool
 						route={route}
 						setShowHeader={setShowHeader}
 						page={page}
 						setPage={setPage}
+						setScrollEnabled={setScrollEnabled}
 					/>
 			}
 
