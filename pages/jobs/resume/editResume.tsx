@@ -1,442 +1,595 @@
-import TopSection from './TopSection';
-import Header from '../../profile/controlCentre/Header';
-import { useNavigation } from '@react-navigation/native';
-import { Pressable, ScrollView, Text, View, StyleSheet } from 'react-native';
-import { ProfileSection } from '../../profile/home/ProfileContent';
-import { useSelector } from 'react-redux';
-import { RootState } from '../../../app/store';
-import { Dimensions, Linking, Image } from 'react-native';
-import IconButton from '../../profile/components/IconButton';
-import BottomName from '../../profile/home/BottomName';
-import { NavigationProps } from '../page';
-import ReadMoreText from './ReadMore';
-import { ExperienceListing } from './page';
-import SmallTextButton from '../../../components/buttons/SmallTextButton';
-import NoBgButton from '../../../components/buttons/NoBgButton';
-import { DetailsList } from '../jobView/page';
-import { Rating } from './languages/page';
-import BlueButton from '../../../components/buttons/BlueButton';
-import OtherCertificationListing from './CertificationListing';
-import { NavigationProp } from '../../profile/Page';
+import TopSection from "./TopSection";
+import Header from "../../profile/controlCentre/Header";
+import { useNavigation } from "@react-navigation/native";
+import { Pressable, ScrollView, Text, View, StyleSheet } from "react-native";
+import { ProfileSection } from "../../profile/home/ProfileContent";
+import { useSelector } from "react-redux";
+import { RootState } from "../../../app/store";
+import { Dimensions, Linking, Image } from "react-native";
+import IconButton from "../../profile/components/IconButton";
+import BottomName from "../../profile/home/BottomName";
+import { NavigationProps } from "../page";
+import ReadMoreText from "./ReadMore";
+import { ExperienceListing } from "./page";
+import SmallTextButton from "../../../components/buttons/SmallTextButton";
+import NoBgButton from "../../../components/buttons/NoBgButton";
+import { DetailsList } from "../jobView/page";
+import { Rating } from "./languages/page";
+import BlueButton from "../../../components/buttons/BlueButton";
+import OtherCertificationListing from "./CertificationListing";
+import { NavigationProp } from "../../profile/Page";
 
-const { width } = Dimensions.get('window');
+const { width } = Dimensions.get("window");
 
-export function EditResume() {
-	const user = useSelector((state: RootState) => state.user);
-	const jobs = useSelector((state: RootState) => state.jobs);
-	const navigation = useNavigation<NavigationProps>();
-	const profielNavigation = useNavigation<NavigationProp>();
-	return (
-		<View style={styles.resumeContainer}>
-			{jobs.about ? (
-				<View>
-					<Text style={styles.detailsHeading}>About</Text>
-					<Pressable
-						onPress={() => navigation.navigate('About')}
-					>
-						{
-							({ pressed }) => (
-								<View style={[styles.editDetailsContainer, pressed && { backgroundColor: '#f5f5f5' }]}>
-									<ReadMoreText
-										text={jobs.about || ''}
-									/>
-								</View>
-							)
-						}
+export function EditResume({
+  addFooterOnUnmount = false,
+}: {
+  addFooterOnUnmount?: boolean;
+}) {
+  const user = useSelector((state: RootState) => state.user);
+  const jobs = useSelector((state: RootState) => state.jobs);
+  const navigation = useNavigation<NavigationProps>();
+  const profielNavigation = useNavigation<NavigationProp>();
+  return (
+    <View style={styles.resumeContainer}>
+      {jobs.about ? (
+        <View>
+          <Text style={styles.detailsHeading}>About</Text>
+          <Pressable
+            onPress={() =>
+              navigation.navigate("About", {
+                addFooterOnUnmount: addFooterOnUnmount,
+              })
+            }
+          >
+            {({ pressed }) => (
+              <View
+                style={[
+                  styles.editDetailsContainer,
+                  pressed && { backgroundColor: "#f5f5f5" },
+                ]}
+              >
+                <ReadMoreText text={jobs.about || ""} />
+              </View>
+            )}
+          </Pressable>
+        </View>
+      ) : (
+        <ProfileSection
+          title="About"
+          content="You haven't introduced yourself yet. Let the world know about your  story!"
+          onPress={() => navigation.navigate("About", { addFooterOnUnmount })}
+        />
+      )}
+      {jobs.previousExperience && jobs.previousExperience.length > 0 ? (
+        <View>
+          <Text style={styles.detailsHeading}>Experience</Text>
+          {jobs.previousExperience.map((experience, index) => (
+            <ExperienceListing
+              image={
+                experience.company.logo
+                  ? {
+                      uri:
+                        "https://api.coderserve.com" + experience.company.logo,
+                    }
+                  : require("./assets/experienceImg.png")
+              }
+              key={index}
+              showPress
+              onPress={() =>
+                navigation.navigate("WorkExperience", {
+                  edit: true,
+                  id: experience.id,
+                  addFooterOnUnmount: addFooterOnUnmount,
+                })
+              }
+            >
+              <View style={{ marginBottom: 32, width: width - 96 }}>
+                <Text style={styles.containerPrimaryHeading}>
+                  {experience.job_role}
+                </Text>
+                <Text style={styles.containerSecondaryHeading}>
+                  {experience.company.name}
+                </Text>
+                <Text style={styles.containerTertiaryHeading}>
+                  {experience.joining_month.slice(0, 3)}{" "}
+                  {experience.joining_year} -{" "}
+                  {experience.end_month === "Present" ||
+                  experience.end_year === "Present"
+                    ? "Present"
+                    : `${experience.end_month.slice(0, 3)} ${experience.end_year}`}{" "}
+                  ({experience.job_type})
+                </Text>
+                <Text style={styles.containerTertiaryHeading}>
+                  {experience.city}, {experience.country}
+                </Text>
+                {experience.description && (
+                  <View style={{ marginTop: 4, width: width - 96 }}>
+                    <ReadMoreText
+                      text={experience.description}
+                      numberOfLines={2}
+                      textStyle={{ color: "#a6a6a6" }}
+                    />
+                  </View>
+                )}
+              </View>
+            </ExperienceListing>
+          ))}
+          <View style={styles.addEntryContainer}>
+            <View
+              style={[styles.logoContainer, { backgroundColor: "#f5f5f5" }]}
+            >
+              <Image
+                source={require("./assets/plus.png")}
+                style={styles.logo}
+              />
+            </View>
+            <SmallTextButton
+              title="Add Experience"
+              style={{
+                fontSize: 13,
+                fontWeight: "bold",
+                textDecorationLine: "underline",
+              }}
+              onPress={() =>
+                navigation.navigate("WorkExperience", {
+                  edit: false,
+                  id: null,
+                  addFooterOnUnmount,
+                })
+              }
+            />
+          </View>
+        </View>
+      ) : (
+        <ProfileSection
+          title="Experience"
+          content="You haven’t added any experience yet. Share your journey and expertise!"
+          onPress={() =>
+            navigation.navigate("WorkExperience", {
+              edit: false,
+              id: null,
+              addFooterOnUnmount,
+            })
+          }
+        />
+      )}
 
-					</Pressable>
-				</View>
-			) : (
-				<ProfileSection
-					title='About'
-					content="You haven't introduced yourself yet. Let the world know about your  story!"
-					onPress={() => navigation.navigate('About')}
-				/>
-			)}
-			{
-				(jobs.previousExperience && jobs.previousExperience.length > 0) ?
-					<View>
-						<Text style={styles.detailsHeading}>Experience</Text>
-						{
-							jobs.previousExperience.map((experience, index) => (
-								<ExperienceListing
-									image={experience.company.logo ? { uri: 'https://api.coderserve.com' + experience.company.logo } : require('./assets/experienceImg.png')}
-									key={index}
-									showPress
-									onPress={() => navigation.navigate('WorkExperience', { edit: true, id: experience.id })}
-								>
-									<View style={{ marginBottom: 32, width: width - 96 }}>
-										<Text style={styles.containerPrimaryHeading}>{experience.job_role}</Text>
-										<Text style={styles.containerSecondaryHeading}>{experience.company.name}</Text>
-										<Text style={styles.containerTertiaryHeading}>{experience.joining_month.slice(0, 3)} {experience.joining_year} - {experience.end_month === 'Present' || experience.end_year === 'Present' ? 'Present' : `${experience.end_month.slice(0, 3)} ${experience.end_year}`} ({experience.job_type})</Text>
-										<Text style={styles.containerTertiaryHeading}>{experience.city}, {experience.country}</Text>
-										{
-											experience.description && (
-												<View style={{ marginTop: 4, width: width - 96 }}>
-													<ReadMoreText
-														text={experience.description}
-														numberOfLines={2}
-														textStyle={{ color: '#a6a6a6' }}
-													/>
-												</View>
+      {jobs.degrees && jobs.degrees.length > 0 ? (
+        <View>
+          <Text style={styles.detailsHeading}>Education</Text>
+          {jobs.degrees.map((degree, index) => (
+            <ExperienceListing
+              image={require("./assets/educationImg.png")}
+              key={index}
+              showPress
+              onPress={() =>
+                navigation.navigate("Education", {
+                  edit: true,
+                  id: degree.id,
+                  addFooterOnUnmount,
+                })
+              }
+            >
+              <View style={{ marginBottom: 32, width: width - 96 }}>
+                <Text style={styles.containerPrimaryHeading}>
+                  {degree.degree}
+                </Text>
+                <Text style={styles.containerSecondaryHeading}>
+                  {degree.field_of_study}
+                </Text>
+                <Text style={styles.containerTertiaryHeading}>
+                  Scored {degree.marks}%
+                </Text>
+                <Text style={styles.containerTertiaryHeading}>
+                  {degree.institution}
+                </Text>
+                <Text style={styles.containerTertiaryHeading}>
+                  {degree.joining_month.slice(0, 3)} {degree.joining_year} -{" "}
+                  {degree.end_month === "Present" ||
+                  degree.end_year === "Present"
+                    ? "Present"
+                    : `${degree.end_month.slice(0, 3)} ${degree.end_year}`}
+                </Text>
+                <Text style={styles.containerTertiaryHeading}>
+                  {degree.city}, {degree.country}
+                </Text>
+              </View>
+            </ExperienceListing>
+          ))}
+          <View style={styles.addEntryContainer}>
+            <View
+              style={[styles.logoContainer, { backgroundColor: "#f5f5f5" }]}
+            >
+              <Image
+                source={require("./assets/plus.png")}
+                style={styles.logo}
+              />
+            </View>
+            <SmallTextButton
+              title="Add Education"
+              style={{
+                fontSize: 13,
+                fontWeight: "bold",
+                textDecorationLine: "underline",
+              }}
+              onPress={() =>
+                navigation.navigate("Education", {
+                  edit: false,
+                  id: null,
+                  addFooterOnUnmount,
+                })
+              }
+            />
+          </View>
+        </View>
+      ) : (
+        <ProfileSection
+          title="Education"
+          content="You haven’t added any education yet. Highlight your academic achievements!"
+          onPress={() =>
+            navigation.navigate("Education", {
+              edit: false,
+              id: null,
+              addFooterOnUnmount,
+            })
+          }
+        />
+      )}
+      <View>
+        <Text style={styles.detailsHeading}>Certifications</Text>
+        <Text style={styles.detailsContent}>
+          You haven't completed any certifications yet. Once you complete one,
+          it'll be showcased here.
+        </Text>
+      </View>
+      {jobs.otherCertifications && jobs.otherCertifications.length > 0 ? (
+        <View>
+          <Text style={styles.detailsHeading}>Other Certifications</Text>
+          <View style={{ gap: 16 }}>
+            {jobs.otherCertifications.map((certification, index) => (
+              <OtherCertificationListing
+                certification={certification}
+                key={index}
+                onPress={() =>
+                  navigation.navigate("OtherCertifications", {
+                    edit: true,
+                    id: certification.id,
+                    addFooterOnUnmount,
+                  })
+                }
+              />
+            ))}
+          </View>
+          <View style={styles.buttonContainer}>
+            <NoBgButton
+              title="Add More"
+              onPress={() =>
+                navigation.navigate("OtherCertifications", {
+                  edit: false,
+                  id: null,
+                  addFooterOnUnmount,
+                })
+              }
+            />
+          </View>
+        </View>
+      ) : (
+        <ProfileSection
+          title="Other Certifications"
+          content="You haven’t added any certifications yet. Showcase your achievements and skills!"
+          onPress={() =>
+            navigation.navigate("OtherCertifications", {
+              edit: false,
+              id: null,
+              addFooterOnUnmount,
+            })
+          }
+        />
+      )}
 
-											)
-										}
-									</View>
-								</ExperienceListing>
-							))
-						}
-						<View style={styles.addEntryContainer}>
-							<View style={[styles.logoContainer, { backgroundColor: '#f5f5f5' }]} >
-								<Image source={require('./assets/plus.png')} style={styles.logo} />
-							</View>
-							<SmallTextButton
-								title='Add Experience'
-								style={{ fontSize: 13, fontWeight: 'bold', textDecorationLine: 'underline' }}
-								onPress={() => navigation.navigate('WorkExperience', { edit: false, id: null })}
-							/>
-						</View>
+      <View>
+        <Text style={styles.detailsHeading}>Projects</Text>
+        <Text style={styles.detailsContent}>
+          You haven't completed any project yet. Once you do, they'll be
+          showcased here.
+        </Text>
+      </View>
+      {jobs.skills && jobs.skills.length > 0 ? (
+        <View>
+          <Text style={styles.detailsHeading}>Skills</Text>
+          <Pressable
+            onPress={() =>
+              navigation.navigate("Skills", { addFooterOnUnmount: true })
+            }
+          >
+            {({ pressed }) => (
+              <View
+                style={[
+                  { marginBottom: -8 },
+                  pressed && {
+                    marginHorizontal: -16,
+                    paddingHorizontal: 16,
+                    backgroundColor: "#f5f5f5",
+                  },
+                ]}
+              >
+                <DetailsList content={jobs.skills || []} />
+              </View>
+            )}
+          </Pressable>
+        </View>
+      ) : (
+        <ProfileSection
+          title="Skills"
+          content="You haven’t added any skills yet. Showcase your expertise and stand out!"
+          onPress={() => navigation.navigate("Skills", { addFooterOnUnmount })}
+        />
+      )}
+      {jobs.languages && jobs.languages.length > 0 ? (
+        <View>
+          <Text style={styles.detailsHeading}>Languages</Text>
+          <View style={{ marginTop: -8, marginBottom: 16 }}>
+            {jobs.languages.map((language, index) => (
+              <Pressable
+                onPress={() =>
+                  navigation.navigate("Languages", {
+                    edit: true,
+                    id: language.id,
+                    addFooterOnUnmount,
+                  })
+                }
+                key={index}
+              >
+                {({ pressed }) => (
+                  <View
+                    key={index}
+                    style={[
+                      {
+                        marginTop: 8,
+                        flexDirection: "row",
+                        justifyContent: "space-between",
+                        paddingVertical: 4,
+                        marginVertical: -4,
+                      },
+                      pressed && {
+                        marginHorizontal: -16,
+                        paddingHorizontal: 16,
+                        backgroundColor: "#f5f5f5",
+                      },
+                    ]}
+                  >
+                    <Text style={{ fontSize: 13, color: "#737373" }}>
+                      {language.language}
+                    </Text>
+                    <View style={{ width: 91 }}>
+                      <Rating
+                        stars={language.rating}
+                        editable={false}
+                        size={14}
+                      />
+                    </View>
+                  </View>
+                )}
+              </Pressable>
+            ))}
+          </View>
+          <View style={styles.buttonContainer}>
+            <NoBgButton
+              title="Add More"
+              onPress={() =>
+                navigation.navigate("Languages", {
+                  edit: false,
+                  id: null,
+                  addFooterOnUnmount,
+                })
+              }
+            />
+          </View>
+        </View>
+      ) : (
+        <ProfileSection
+          title="Languages"
+          content="You haven't added any languages yet. Highlight the languages you know!"
+          onPress={() =>
+            navigation.navigate("Languages", {
+              edit: false,
+              id: null,
+              addFooterOnUnmount,
+            })
+          }
+        />
+      )}
 
-					</View>
-					:
-					<ProfileSection
-						title='Experience'
-						content='You haven’t added any experience yet. Share your journey and expertise!'
-						onPress={() => navigation.navigate('WorkExperience', { edit: false, id: null })}
-					/>
-			}
-
-			{
-				(jobs.degrees && jobs.degrees.length > 0) ?
-					<View>
-						<Text style={styles.detailsHeading}>Education</Text>
-						{
-							jobs.degrees.map((degree, index) => (
-								<ExperienceListing
-									image={require('./assets/educationImg.png')}
-									key={index}
-									showPress
-									onPress={() => navigation.navigate('Education', { edit: true, id: degree.id })}
-								>
-									<View style={{ marginBottom: 32, width: width - 96 }}>
-										<Text style={styles.containerPrimaryHeading}>{degree.degree}</Text>
-										<Text style={styles.containerSecondaryHeading}>{degree.field_of_study}</Text>
-										<Text style={styles.containerTertiaryHeading}>Scored {degree.marks}%</Text>
-										<Text style={styles.containerTertiaryHeading}>{degree.institution}</Text>
-										<Text style={styles.containerTertiaryHeading}>{degree.joining_month.slice(0, 3)} {degree.joining_year} - {degree.end_month === 'Present' || degree.end_year === 'Present' ? 'Present' : `${degree.end_month.slice(0, 3)} ${degree.end_year}`}</Text>
-										<Text style={styles.containerTertiaryHeading}>{degree.city}, {degree.country}</Text>
-									</View>
-								</ExperienceListing>
-							))
-						}
-						<View style={styles.addEntryContainer}>
-							<View style={[styles.logoContainer, { backgroundColor: '#f5f5f5' }]} >
-								<Image source={require('./assets/plus.png')} style={styles.logo} />
-							</View>
-							<SmallTextButton
-								title='Add Education'
-								style={{ fontSize: 13, fontWeight: 'bold', textDecorationLine: 'underline' }}
-								onPress={() => navigation.navigate('Education', { edit: false, id: null })}
-							/>
-						</View>
-					</View>
-					:
-					<ProfileSection
-						title='Education'
-						content='You haven’t added any education yet. Highlight your academic achievements!'
-						onPress={() => navigation.navigate('Education', { edit: false, id: null })}
-					/>
-			}
-			<View>
-				<Text style={styles.detailsHeading}>Certifications</Text>
-				<Text style={styles.detailsContent}>
-					You haven't completed any certifications yet. Once you complete one, it'll be showcased here.
-				</Text>
-
-			</View>
-			{
-				jobs.otherCertifications && jobs.otherCertifications.length > 0 ? (
-					<View>
-						<Text style={styles.detailsHeading}>Other Certifications</Text>
-						<View style={{ gap: 16 }}>
-							{jobs.otherCertifications.map((certification, index) => (
-								<OtherCertificationListing
-									certification={certification}
-									key={index}
-									onPress={() => navigation.navigate('OtherCertifications', { edit: true, id: certification.id })}
-								/>
-							))}
-						</View>
-						<View style={styles.buttonContainer}>
-							<NoBgButton
-								title='Add More'
-								onPress={() => navigation.navigate('OtherCertifications', { edit: false, id: null })}
-							/>
-						</View>
-					</View>
-				) :
-					<ProfileSection
-						title='Other Certifications'
-						content='You haven’t added any certifications yet. Showcase your achievements and skills!'
-						onPress={() => navigation.navigate('OtherCertifications', { edit: false, id: null })}
-					/>
-			}
-
-			<View>
-				<Text style={styles.detailsHeading}>Projects</Text>
-				<Text style={styles.detailsContent}>
-					You haven't completed any project yet. Once you do, they'll be showcased here.
-				</Text>
-
-			</View>
-			{
-				jobs.skills && jobs.skills.length > 0 ? (
-					<View>
-						<Text style={styles.detailsHeading}>Skills</Text>
-						<Pressable
-							onPress={() => navigation.navigate('Skills')}
-						>
-							{
-								({ pressed }) => (
-									<View style={[{ marginBottom: -8 }, pressed && { marginHorizontal: -16, paddingHorizontal: 16, backgroundColor: '#f5f5f5' }]}>
-										<DetailsList
-											content={jobs.skills || []}
-										/>
-									</View>
-								)
-							}
-
-						</Pressable>
-					</View>
-				) : (
-					<ProfileSection
-						title='Skills'
-						content='You haven’t added any skills yet. Showcase your expertise and stand out!'
-						onPress={() => navigation.navigate('Skills')}
-					/>
-
-				)
-			}
-			{
-				jobs.languages && jobs.languages.length > 0 ? (
-					<View>
-						<Text style={styles.detailsHeading}>Languages</Text>
-						<View style={{ marginTop: -8, marginBottom: 16 }}>
-							{
-								jobs.languages.map((language, index) => (
-									<Pressable
-										onPress={() => navigation.navigate('Languages', { edit: true, id: language.id })}
-										key={index}
-									>
-										{
-											({ pressed }) => (
-												<View key={index} style={[{ marginTop: 8, flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 4, marginVertical: -4 }, pressed && { marginHorizontal: -16, paddingHorizontal: 16, backgroundColor: '#f5f5f5' }]}>
-													<Text style={{ fontSize: 13, color: '#737373' }}>{language.language}</Text>
-													<View style={{ width: 91 }}>
-														<Rating
-															stars={language.rating}
-															editable={false}
-															size={14}
-														/>
-													</View>
-												</View>
-											)
-										}
-
-									</Pressable>
-								))
-							}
-						</View>
-						<View style={styles.buttonContainer}>
-							<NoBgButton
-								title='Add More'
-								onPress={() => navigation.navigate('Languages', { edit: false, id: null })}
-							/>
-						</View>
-					</View>
-				) :
-					<ProfileSection
-						title='Languages'
-						content="You haven't added any languages yet. Highlight the languages you know!"
-						onPress={() => navigation.navigate('Languages', { edit: false, id: null })}
-					/>
-			}
-
-
-			<View>
-				{user.dobDate && user.dobMonth && user.dobYear ?
-					<>
-						<Text style={styles.detailsHeading}>Date of Birth</Text>
-						<Text style={styles.detailsContent}>
-							{user.dobDate} {user.dobMonth} {user.dobYear}
-						</Text>
-					</>
-					: <ProfileSection
-						title='Date of Birth'
-						content='You haven’t added your date of birth yet. Add it to showcase your age!'
-						onPress={() => profielNavigation.navigate('EditProfileBirthDate')}
-					/>
-				}
-
-			</View>
-			<View>
-				<Text style={styles.detailsHeading}>Get In Touch</Text>
-				<View style={{ flexDirection: 'row', gap: 8, marginTop: 8 }}>
-					{
-						user.email && (
-							<IconButton
-								onPress={() => Linking.openURL(`mailto:${user.email}`)}
-							>
-								<Image source={require('./assets/Email.png')} style={styles.menuIcon} />
-							</IconButton>
-						)
-					}
-					{
-						user.mobileCountryCode && user.mobileNumber && (
-							<IconButton
-								onPress={() => Linking.openURL(`tel:${user.mobileCountryCode + ' ' + user.mobileNumber}`)}
-							>
-								<Image source={require('./assets/Phone.png')} style={styles.menuIcon} />
-							</IconButton>
-
-						)
-					}
-					{
-						user.whatsappNumber && user.whatsappCountryCode && (
-							<IconButton
-								onPress={() => Linking.openURL(`https://api.whatsapp.com/send?phone=${user.whatsappCountryCode}${user.whatsappNumber}`)}
-							>
-								<Image source={require('./assets/WhatsApp.png')} style={styles.menuIcon} />
-							</IconButton>
-						)
-					}
-					{
-						user.gitHub && (
-							<IconButton
-								onPress={() => Linking.openURL(user.gitHub ? user.gitHub : 'https://github.com/')}
-							>
-								<Image source={require('./assets/GitHub.png')} style={styles.menuIcon} />
-							</IconButton>
-						)
-					}
-					{
-						user.website && (
-							<IconButton
-								onPress={() => Linking.openURL(user.website ? user.website : 'https://www.example.com')}
-							>
-								<Image source={require('./assets/Website.png')} style={styles.menuIcon} />
-							</IconButton>
-						)
-					}
-
-				</View>
-			</View>
-		</View>
-	)
+      <View>
+        {user.dobDate && user.dobMonth && user.dobYear ? (
+          <>
+            <Text style={styles.detailsHeading}>Date of Birth</Text>
+            <Text style={styles.detailsContent}>
+              {user.dobDate} {user.dobMonth} {user.dobYear}
+            </Text>
+          </>
+        ) : (
+          <ProfileSection
+            title="Date of Birth"
+            content="You haven’t added your date of birth yet. Add it to showcase your age!"
+            onPress={() => profielNavigation.navigate("EditProfileBirthDate")}
+          />
+        )}
+      </View>
+      <View>
+        <Text style={styles.detailsHeading}>Get In Touch</Text>
+        <View style={{ flexDirection: "row", gap: 8, marginTop: 8 }}>
+          {user.email && (
+            <IconButton onPress={() => Linking.openURL(`mailto:${user.email}`)}>
+              <Image
+                source={require("./assets/Email.png")}
+                style={styles.menuIcon}
+              />
+            </IconButton>
+          )}
+          {user.mobileCountryCode && user.mobileNumber && (
+            <IconButton
+              onPress={() =>
+                Linking.openURL(
+                  `tel:${user.mobileCountryCode + " " + user.mobileNumber}`,
+                )
+              }
+            >
+              <Image
+                source={require("./assets/Phone.png")}
+                style={styles.menuIcon}
+              />
+            </IconButton>
+          )}
+          {user.whatsappNumber && user.whatsappCountryCode && (
+            <IconButton
+              onPress={() =>
+                Linking.openURL(
+                  `https://api.whatsapp.com/send?phone=${user.whatsappCountryCode}${user.whatsappNumber}`,
+                )
+              }
+            >
+              <Image
+                source={require("./assets/WhatsApp.png")}
+                style={styles.menuIcon}
+              />
+            </IconButton>
+          )}
+          {user.gitHub && (
+            <IconButton
+              onPress={() =>
+                Linking.openURL(
+                  user.gitHub ? user.gitHub : "https://github.com/",
+                )
+              }
+            >
+              <Image
+                source={require("./assets/GitHub.png")}
+                style={styles.menuIcon}
+              />
+            </IconButton>
+          )}
+          {user.website && (
+            <IconButton
+              onPress={() =>
+                Linking.openURL(
+                  user.website ? user.website : "https://www.example.com",
+                )
+              }
+            >
+              <Image
+                source={require("./assets/Website.png")}
+                style={styles.menuIcon}
+              />
+            </IconButton>
+          )}
+        </View>
+      </View>
+    </View>
+  );
 }
 
-
-export default function() {
-
-	const navigation = useNavigation<NavigationProps>();
-	return (
-		<ScrollView>
-			<Header
-				onBackPress={() => navigation.goBack()}
-				title='Update Resume'
-				fixedHeader
-			/>
-			<View style={styles.container}>
-				<TopSection />
-				<EditResume />
-			</View>
-			<BottomName />
-		</ScrollView>
-	)
+export default function () {
+  const navigation = useNavigation<NavigationProps>();
+  return (
+    <ScrollView>
+      <Header
+        onBackPress={() => navigation.goBack()}
+        title="Update Resume"
+        fixedHeader
+      />
+      <View style={styles.container}>
+        <TopSection />
+        <EditResume />
+      </View>
+      <BottomName />
+    </ScrollView>
+  );
 }
 
 export const styles = StyleSheet.create({
-	editDetailsContainer: {
-		marginHorizontal: -16,
-		paddingHorizontal: 16,
-	},
-	container: {
-		marginTop: 57,
-	},
-	resumeContainer: {
-		marginHorizontal: 16,
-		marginTop: 32,
-		gap: 48,
-	},
-	detailsHeading: {
-		fontWeight: 'bold',
-		fontSize: 15,
-		marginBottom: 8,
-	},
-	menuIcon: {
-		height: 24,
-		width: 24,
-	},
-	detailsContent: {
-		fontSize: 13,
-		color: '#a6a6a6',
-		textAlign: 'justify',
-		verticalAlign: 'bottom',
-	},
-	experienceContainer: {
-		flexDirection: 'row',
-		gap: 16,
-		marginTop: 8,
-	},
-	logoContainer: {
-		borderRadius: 6,
-		borderWidth: 1,
-		borderColor: '#f5f5f5',
-	},
-	logo: {
-		margin: 8,
-		height: 32,
-		width: 32,
-	},
-	containerPrimaryHeading: {
-		fontSize: 13,
-		fontWeight: 'bold',
-	},
-	containerSecondaryHeading: {
-		marginTop: 4,
-		fontSize: 13,
-	},
-	containerTertiaryHeading: {
-		marginTop: 4,
-		fontSize: 13,
-		color: '#737373',
-	},
-	sideLine: {
-		width: 2,
-		flex: 1,
-		marginLeft: 24,
-		marginTop: 8,
-		backgroundColor: '#f5f5f5',
-	},
-	addEntryContainer: {
-		flexDirection: 'row',
-		gap: 16,
-		alignItems: 'center',
-		marginTop: 8
-	},
-	certificationContainer: {
-		flexDirection: 'row',
-		padding: 16,
-		borderWidth: 1,
-		borderColor: '#f5f5f5',
-		borderRadius: 12,
-		gap: 16,
-		alignItems: 'center',
-	},
-	buttonContainer: {
-		borderWidth: 1,
-		borderColor: '#f5f5f5',
-		borderRadius: 9,
-		marginTop: 16
-	}
-})
+  editDetailsContainer: {
+    marginHorizontal: -16,
+    paddingHorizontal: 16,
+  },
+  container: {
+    marginTop: 57,
+  },
+  resumeContainer: {
+    marginHorizontal: 16,
+    marginTop: 32,
+    gap: 48,
+  },
+  detailsHeading: {
+    fontWeight: "bold",
+    fontSize: 15,
+    marginBottom: 8,
+  },
+  menuIcon: {
+    height: 24,
+    width: 24,
+  },
+  detailsContent: {
+    fontSize: 13,
+    color: "#a6a6a6",
+    textAlign: "justify",
+    verticalAlign: "bottom",
+  },
+  experienceContainer: {
+    flexDirection: "row",
+    gap: 16,
+    marginTop: 8,
+  },
+  logoContainer: {
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: "#f5f5f5",
+  },
+  logo: {
+    margin: 8,
+    height: 32,
+    width: 32,
+  },
+  containerPrimaryHeading: {
+    fontSize: 13,
+    fontWeight: "bold",
+  },
+  containerSecondaryHeading: {
+    marginTop: 4,
+    fontSize: 13,
+  },
+  containerTertiaryHeading: {
+    marginTop: 4,
+    fontSize: 13,
+    color: "#737373",
+  },
+  sideLine: {
+    width: 2,
+    flex: 1,
+    marginLeft: 24,
+    marginTop: 8,
+    backgroundColor: "#f5f5f5",
+  },
+  addEntryContainer: {
+    flexDirection: "row",
+    gap: 16,
+    alignItems: "center",
+    marginTop: 8,
+  },
+  certificationContainer: {
+    flexDirection: "row",
+    padding: 16,
+    borderWidth: 1,
+    borderColor: "#f5f5f5",
+    borderRadius: 12,
+    gap: 16,
+    alignItems: "center",
+  },
+  buttonContainer: {
+    borderWidth: 1,
+    borderColor: "#f5f5f5",
+    borderRadius: 9,
+    marginTop: 16,
+  },
+});

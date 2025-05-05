@@ -19,15 +19,21 @@ import LocationSelectMenu from "../../../../components/form/LocationSelectMenu";
 import TextAreaInput from "../../../../components/form/TextAreaInput";
 import BlueButton from "../../../../components/buttons/BlueButton";
 import SearchBar from "../../../profile/components/SearchBar";
-import { useDeleteExpereinceMutation, useUpdateExperienceMutation, useUpdateJobExperienceMutation, useCompaniesDataMutation } from "../../apiSlice";
-import jobRoles from './jobRolesName';
+import {
+  useDeleteExpereinceMutation,
+  useUpdateExperienceMutation,
+  useUpdateJobExperienceMutation,
+  useCompaniesDataMutation,
+} from "../../apiSlice";
+import jobRoles from "./jobRolesName";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../../../app/store";
-import { setPreviousExperience } from '../../../../app/jobsSlice';
-import Error from '../../../../components/messsages/Error';
+import { setPreviousExperience } from "../../../../app/jobsSlice";
+import Error from "../../../../components/messsages/Error";
 import { useNavigation } from "@react-navigation/native";
-import NoBgButton from '../../../../components/buttons/NoBgButton';
+import NoBgButton from "../../../../components/buttons/NoBgButton";
 import PopUpMessage from "./PopUpMessage";
+import { useRemoveFooter } from "../../../../helpers/hideFooter";
 
 const jobTypeOptions = [
   "Full Time",
@@ -41,28 +47,29 @@ const workModeOptions = ["On-site", "Hybrid", "Remote"];
 
 export function SearchSuggestion({
   title,
-  onPress = () => { },
+  onPress = () => {},
 }: {
   title: string;
   onPress?: () => void;
 }) {
   const { width } = Dimensions.get("window");
   return (
-    <Pressable
-      onPress={onPress}
-    >
+    <Pressable onPress={onPress}>
       {({ pressed }) => (
         <View
           pointerEvents="none"
-          style={[
-            { padding: 16, flexDirection: "row", gap: 8 }
-          ]}
+          style={[{ padding: 16, flexDirection: "row", gap: 8 }]}
         >
           <Image
             source={require("../../../profile/components/assets/searchIcon.png")}
             style={{ width: 20, height: 20 }}
           />
-          <Text style={[{ fontSize: 15, width: width - 48 }, pressed && { color: "#006dff" }]}>
+          <Text
+            style={[
+              { fontSize: 15, width: width - 48 },
+              pressed && { color: "#006dff" },
+            ]}
+          >
             {title}
           </Text>
         </View>
@@ -72,8 +79,11 @@ export function SearchSuggestion({
 }
 
 export default function WorkExperience({ route }: { route: any }) {
+  useRemoveFooter(route.params.addFooterOnUnmount);
   let experience = null;
-  const experiences = useSelector((state: RootState) => state.jobs.previousExperience);
+  const experiences = useSelector(
+    (state: RootState) => state.jobs.previousExperience,
+  );
   if (route.params && route.params.edit) {
     const experienceId = route.params.id;
     experience = experiences?.find((exp) => exp.id === experienceId);
@@ -102,7 +112,7 @@ export default function WorkExperience({ route }: { route: any }) {
   React.useEffect(() => {
     const backHandler = BackHandler.addEventListener(
       "hardwareBackPress",
-      handleBackButtonPress
+      handleBackButtonPress,
     );
     return () => {
       backHandler.remove();
@@ -113,16 +123,17 @@ export default function WorkExperience({ route }: { route: any }) {
   React.useEffect(() => {
     if (jRFocused || jDFocused) {
       setScrollEnabled(false);
-    }
-    else {
+    } else {
       setScrollEnabled(true);
     }
   }, [jRFocused, jDFocused]);
 
-  const [searchText, setSearchText] = React.useState(experience ? experience.company.name : "");
+  const [searchText, setSearchText] = React.useState(
+    experience ? experience.company.name : "",
+  );
 
   const windowWidth = Dimensions.get("window").width;
-  const [error, setError] = React.useState('');
+  const [error, setError] = React.useState("");
 
   const navigation = useNavigation();
 
@@ -213,18 +224,43 @@ export default function WorkExperience({ route }: { route: any }) {
   );
 
   // states of the selected and filled fields
-  const [jobType, setJobType] = React.useState<string | null>(experience ? experience.job_type : null);
-  const [jobRole, setJobRole] = React.useState(experience ? experience.job_role : "");
-  const [company, setCompany] = React.useState<{ name: string; logo: string | null } | null>(experience ? experience.company : null);
-  const [workMode, setWorkMode] = React.useState<string | null>(experience ? experience.work_mode : null);
-  const [joinMonth, setJoinMonth] = React.useState(experience ? experience.joining_month : "");
-  const [joinYear, setJoinYear] = React.useState(experience ? experience.joining_year : "");
-  const [endMonth, setEndMonth] = React.useState(experience ? experience.end_month : "");
-  const [endYear, setEndYear] = React.useState(experience ? experience.end_year : "");
-  const [country, setCountry] = React.useState<string | null>(experience ? experience.country : null);
-  const [state, setState] = React.useState<string | null>(experience ? experience.state : null);
-  const [city, setCity] = React.useState<string | null>(experience ? experience.city : null);
-  const [description, setDescription] = React.useState(experience ? experience.description : "");
+  const [jobType, setJobType] = React.useState<string | null>(
+    experience ? experience.job_type : null,
+  );
+  const [jobRole, setJobRole] = React.useState(
+    experience ? experience.job_role : "",
+  );
+  const [company, setCompany] = React.useState<{
+    name: string;
+    logo: string | null;
+  } | null>(experience ? experience.company : null);
+  const [workMode, setWorkMode] = React.useState<string | null>(
+    experience ? experience.work_mode : null,
+  );
+  const [joinMonth, setJoinMonth] = React.useState(
+    experience ? experience.joining_month : "",
+  );
+  const [joinYear, setJoinYear] = React.useState(
+    experience ? experience.joining_year : "",
+  );
+  const [endMonth, setEndMonth] = React.useState(
+    experience ? experience.end_month : "",
+  );
+  const [endYear, setEndYear] = React.useState(
+    experience ? experience.end_year : "",
+  );
+  const [country, setCountry] = React.useState<string | null>(
+    experience ? experience.country : null,
+  );
+  const [state, setState] = React.useState<string | null>(
+    experience ? experience.state : null,
+  );
+  const [city, setCity] = React.useState<string | null>(
+    experience ? experience.city : null,
+  );
+  const [description, setDescription] = React.useState(
+    experience ? experience.description : "",
+  );
 
   const [updateJobExperience, { isLoading }] = useUpdateJobExperienceMutation();
 
@@ -248,7 +284,9 @@ export default function WorkExperience({ route }: { route: any }) {
     };
 
     try {
-      const response = await updateJobExperience({ new_experience: data }).unwrap();
+      const response = await updateJobExperience({
+        new_experience: data,
+      }).unwrap();
       if (response) {
         dispatch(setPreviousExperience(response.previous_experience));
       }
@@ -257,7 +295,7 @@ export default function WorkExperience({ route }: { route: any }) {
       setError("Something went wrong. Please try again.");
       console.error("Error updating job experience:", error);
     }
-  }
+  };
 
   // logics for handling company name search
   async function searchCompanyName(name: string) {
@@ -283,18 +321,21 @@ export default function WorkExperience({ route }: { route: any }) {
   }, [searchText]);
 
   // logics for handling job role search
-  const [jobRolesSuggestions, setJobRolesSuggestions] = React.useState<any[]>([]);
-  const [jobRolesSearchText, setJobRolesSearchText] = React.useState(experience ? experience.job_role : "")
+  const [jobRolesSuggestions, setJobRolesSuggestions] = React.useState<any[]>(
+    [],
+  );
+  const [jobRolesSearchText, setJobRolesSearchText] = React.useState(
+    experience ? experience.job_role : "",
+  );
 
   const filterTopJobRoles = (searchText: string) => {
     const lowerSearch = searchText.toLowerCase();
     const matches = jobRoles
-      .filter(role => role.toLowerCase().includes(lowerSearch))
+      .filter((role) => role.toLowerCase().includes(lowerSearch))
       .slice(0, 3);
 
     setJobRolesSuggestions(matches);
   };
-
 
   React.useEffect(() => {
     if (jobRolesSearchText.length > 0) {
@@ -304,9 +345,9 @@ export default function WorkExperience({ route }: { route: any }) {
     }
   }, [jobRolesSearchText]);
 
-
   // logics for handling updating the job experience
-  const [updateExperience, { isLoading: updateLoading }] = useUpdateExperienceMutation();
+  const [updateExperience, { isLoading: updateLoading }] =
+    useUpdateExperienceMutation();
   const handleUpdateExperience = async () => {
     const data = {
       id: experience?.id || Date.now(),
@@ -330,14 +371,14 @@ export default function WorkExperience({ route }: { route: any }) {
         navigation.goBack();
       }
     } catch (error) {
-      console.log(error)
+      console.log(error);
       setError("Something went wrong. Please try again.");
     }
   };
 
-
   // logics for deleting experience
-  const [deleteExperience, { isLoading: deleteLoading }] = useDeleteExpereinceMutation();
+  const [deleteExperience, { isLoading: deleteLoading }] =
+    useDeleteExpereinceMutation();
   const [showPopUp, setShowPopUp] = React.useState(false);
   const handleDeleteExperience = async () => {
     try {
@@ -347,11 +388,10 @@ export default function WorkExperience({ route }: { route: any }) {
         navigation.goBack();
       }
     } catch (error) {
-      console.log(error)
+      console.log(error);
       setError("Something went wrong. Please try again.");
     }
   };
-
 
   return (
     <>
@@ -362,8 +402,8 @@ export default function WorkExperience({ route }: { route: any }) {
         scrollEnabled={scrollEnabled}
       >
         <PopUpMessage
-          heading='Delete this experience?'
-          text='This action will permanently remove this experience from your resume. You won’t be able to undo this.'
+          heading="Delete this experience?"
+          text="This action will permanently remove this experience from your resume. You won’t be able to undo this."
           visible={showPopUp}
           setVisible={setShowPopUp}
           onPress={handleDeleteExperience}
@@ -410,8 +450,7 @@ export default function WorkExperience({ route }: { route: any }) {
                     backgroundColor: "#f7f7f7",
                   }}
                 >
-                  {
-                    jobRolesSearchText &&
+                  {jobRolesSearchText && (
                     <SearchSuggestion
                       title={jobRolesSearchText}
                       onPress={() => {
@@ -420,7 +459,7 @@ export default function WorkExperience({ route }: { route: any }) {
                         setJobRole(jobRolesSearchText);
                       }}
                     />
-                  }
+                  )}
                   {jobRolesSuggestions.map((item, index) => (
                     <SearchSuggestion
                       key={index}
@@ -459,8 +498,7 @@ export default function WorkExperience({ route }: { route: any }) {
                     paddingTop: 8,
                   }}
                 >
-                  {
-                    searchText &&
+                  {searchText && (
                     <SearchSuggestion
                       title={searchText}
                       onPress={() => {
@@ -469,7 +507,7 @@ export default function WorkExperience({ route }: { route: any }) {
                         setCompany({ name: searchText, logo: null });
                       }}
                     />
-                  }
+                  )}
 
                   {companiesSuggestions.map((item, index) => (
                     <SearchSuggestion
@@ -479,7 +517,10 @@ export default function WorkExperience({ route }: { route: any }) {
                         setSearchText(item.company_name);
                         setJRFocused(false);
                         Keyboard.dismiss();
-                        setCompany({ name: item.company_name, logo: item.company_logo });
+                        setCompany({
+                          name: item.company_name,
+                          logo: item.company_logo,
+                        });
                       }}
                     />
                   ))}
@@ -541,7 +582,10 @@ export default function WorkExperience({ route }: { route: any }) {
               />
             </Animated.View>
             <Animated.View
-              style={{ opacity: contentOpacity, marginBottom: Platform.OS === 'ios' ? 64 : 112 }}
+              style={{
+                opacity: contentOpacity,
+                marginBottom: Platform.OS === "ios" ? 64 : 112,
+              }}
             >
               <BlueButton
                 title={experience ? "Update" : "Save"}
@@ -561,23 +605,20 @@ export default function WorkExperience({ route }: { route: any }) {
                   city === null
                 }
               />
-              {
-                experience && (
-                  <View style={{ marginTop: 16 }}>
-                    <NoBgButton
-                      dangerButton
-                      title='Delete'
-                      onPress={() => setShowPopUp(true)}
-                    />
-                  </View>
-                )
-              }
-              {error &&
+              {experience && (
+                <View style={{ marginTop: 16 }}>
+                  <NoBgButton
+                    dangerButton
+                    title="Delete"
+                    onPress={() => setShowPopUp(true)}
+                  />
+                </View>
+              )}
+              {error && (
                 <View style={{ marginTop: 8 }}>
                   <Error message={error} />
                 </View>
-              }
-
+              )}
             </Animated.View>
           </Animated.View>
         </Animated.View>
