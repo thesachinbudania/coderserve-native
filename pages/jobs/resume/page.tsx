@@ -1,6 +1,6 @@
 import { Image, Dimensions, Linking, Platform, Pressable, Share, StyleSheet, ScrollView, Text, View } from 'react-native';
 import IconButton from '../../profile/components/IconButton';
-import { Link, useNavigation } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import { NavigationProps } from '../page';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../../app/store';
@@ -14,6 +14,7 @@ import { DetailsList } from '../jobView/page';
 import { Rating } from './languages/page';
 import OtherCertificationListing from './CertificationListing';
 import { Portal } from 'react-native-paper';
+import { useIsFocused } from '@react-navigation/native';
 
 const { width } = Dimensions.get('window');
 
@@ -51,6 +52,7 @@ export default function Resume() {
 	const user = useSelector((state: RootState) => state.user);
 	const jobs = useSelector((state: RootState) => state.jobs);
 	const menuRef = React.useRef<any>(null);
+	const focused = useIsFocused();
 	const shareResume = async () => {
 		try {
 			await Share.share({
@@ -76,19 +78,22 @@ export default function Resume() {
 
 	return (
 		<ScrollView>
-			<Portal>
-				<View style={[styles.header, { top: Platform.OS === 'ios' ? top - 16 : top }]}>
-					<View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-						<IconButton onPress={() => navigation.goBack()}>
-							<Image source={require('../../profile/controlCentre/assets/Back.png')} style={styles.menuIcon} />
+			{
+				focused && <Portal>
+					<View style={[styles.header, { top: Platform.OS === 'ios' ? top - 16 : top }]}>
+						<View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+							<IconButton onPress={() => navigation.goBack()}>
+								<Image source={require('../../profile/controlCentre/assets/Back.png')} style={styles.menuIcon} />
+							</IconButton>
+							<Text style={styles.headerText}>Your Resume</Text>
+						</View>
+						<IconButton onPress={() => menuRef?.current.open()}>
+							<Image source={require('../../profile/home/assets/menu.png')} style={styles.menuIcon} />
 						</IconButton>
-						<Text style={styles.headerText}>Your Resume</Text>
 					</View>
-					<IconButton onPress={() => menuRef?.current.open()}>
-						<Image source={require('../../profile/home/assets/menu.png')} style={styles.menuIcon} />
-					</IconButton>
-				</View>
-			</Portal>
+				</Portal>
+			}
+
 			<View style={{ marginTop: 57 }}>
 				<TopSection />
 			</View>

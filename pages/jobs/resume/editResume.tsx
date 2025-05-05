@@ -267,9 +267,15 @@ export function EditResume() {
 				{user.dobDate && user.dobMonth && user.dobYear ?
 					<>
 						<Text style={styles.detailsHeading}>Date of Birth</Text>
-						<Text style={styles.detailsContent}>
-							{user.dobDate} {user.dobMonth} {user.dobYear}
-						</Text>
+						<Pressable onPress={() => profielNavigation.navigate('EditProfileBirthDate')}>
+							{
+								({ pressed }) => (
+									<Text style={[styles.detailsContent, { color: '#737373' }, pressed && { backgroundColor: '#f5f5f5', marginHorizontal: -16, paddingHorizontal: 16 }]}>
+										{user.dobDate} {user.dobMonth} {user.dobYear}
+									</Text>
+								)
+							}
+						</Pressable>
 					</>
 					: <ProfileSection
 						title='Date of Birth'

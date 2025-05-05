@@ -548,17 +548,44 @@ export default function WorkExperience({ route }: { route: any }) {
                 onPress={experience ? handleUpdateExperience : handleSave}
                 loading={experience ? updateLoading : isLoading}
                 disabled={
-                  jobType === null ||
-                  jobRole === "" ||
-                  company === null ||
-                  joinMonth === "" ||
-                  joinYear === "" ||
-                  endMonth === "" ||
-                  endYear === "" ||
-                  workMode === null ||
-                  country === null ||
-                  state === null ||
-                  city === null
+                  experience ?
+                    jobType === null ||
+                    jobRole === "" ||
+                    company === null ||
+                    joinMonth === "" ||
+                    joinYear === "" ||
+                    endMonth === "" ||
+                    endYear === "" ||
+                    workMode === null ||
+                    country === null ||
+                    state === null ||
+                    city === null ||
+                    (
+                      jobType === experience.job_type &&
+                      jobRole === experience.job_role &&
+                      company?.name === experience.company.name &&
+                      joinMonth === experience.joining_month &&
+                      joinYear === experience.joining_year &&
+                      endMonth === experience.end_month &&
+                      endYear === experience.end_year &&
+                      workMode === experience.work_mode &&
+                      country === experience.country &&
+                      state === experience.state &&
+                      city === experience.city &&
+                      description === experience.description
+                    )
+                    :
+                    jobType === null ||
+                    jobRole === "" ||
+                    company === null ||
+                    joinMonth === "" ||
+                    joinYear === "" ||
+                    endMonth === "" ||
+                    endYear === "" ||
+                    workMode === null ||
+                    country === null ||
+                    state === null ||
+                    city === null
                 }
               />
               {

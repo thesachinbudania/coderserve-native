@@ -44,7 +44,7 @@ const styles = StyleSheet.create({
 		gap: 8,
 		position: 'absolute',
 		top: 0,
-		zIndex: 10,
+		zIndex: 100,
 		width: '100%'
 	},
 	menuIcon: {
