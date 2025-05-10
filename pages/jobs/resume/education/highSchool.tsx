@@ -140,7 +140,6 @@ export default function Education({ route, page, setPage, setShowHeader, setScro
 	const [fieldOfStudyFocused, setFieldOfStudyFocused] = React.useState(false);
 	const [universityFocused, setUniversityFocused] = React.useState(false);
 
-	// function to handle back button press
 	React.useEffect(() => {
 		const backAction = () => {
 			if (degreeFocused || fieldOfStudyFocused || universityFocused) {
@@ -150,7 +149,6 @@ export default function Education({ route, page, setPage, setShowHeader, setScro
 				return true;
 			}
 			else {
-				navigation.goBack();
 				return false;
 			}
 		};
@@ -529,6 +527,50 @@ export default function Education({ route, page, setPage, setShowHeader, setScro
 							title={editDegree ? "Update" : "Save"}
 							onPress={editDegree ? handleUpdate : handleSave}
 							loading={editDegree ? isUpdateDegreeLoading : isAddDegreeLoading}
+							disabled={
+								editDegree ? (
+									!degree ||
+									!fieldOfStudy ||
+									!marks ||
+									!university ||
+									!joinMonth ||
+									!joinYear ||
+									!endMonth ||
+									!endYear ||
+									!country ||
+									!state ||
+									!city ||
+									(
+										editDegree.degree === degree &&
+										editDegree.field_of_study === fieldOfStudy &&
+										editDegree.marks === marks &&
+										editDegree.institution === university &&
+										editDegree.joining_month === joinMonth &&
+										editDegree.joining_year === joinYear &&
+										editDegree.end_month === endMonth &&
+										editDegree.end_year === endYear &&
+										editDegree.country === country &&
+										editDegree.state === state &&
+										editDegree.city === city
+
+									)
+
+								)
+									: (
+										!degree ||
+										!fieldOfStudy ||
+										!marks ||
+										!university ||
+										!joinMonth ||
+										!joinYear ||
+										!endMonth ||
+										!endYear ||
+										!country ||
+										!state ||
+										!city
+
+									)
+							}
 						/>
 						{
 							editDegree &&

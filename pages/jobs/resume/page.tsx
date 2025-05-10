@@ -47,6 +47,27 @@ export function ExperienceListing({ children, image, onPress = () => { }, showLi
 	)
 }
 
+export function Header({ menuRef, title }: { menuRef: React.RefObject<any>, title: string }) {
+	const navigation = useNavigation<NavigationProps>();
+	const { top } = useSafeAreaInsets();
+	return (
+		<Portal>
+			<View style={[styles.header, { top: Platform.OS === 'ios' ? top - 16 : top }]}>
+				<View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+					<IconButton onPress={() => navigation.goBack()}>
+						<Image source={require('../../profile/controlCentre/assets/Back.png')} style={styles.menuIcon} />
+					</IconButton>
+					<Text style={styles.headerText}>{title}</Text>
+				</View>
+				<IconButton onPress={() => menuRef?.current.open()}>
+					<Image source={require('../../profile/home/assets/menu.png')} style={styles.menuIcon} />
+				</IconButton>
+			</View>
+		</Portal>
+
+	)
+}
+
 export default function Resume() {
 	const navigation = useNavigation<NavigationProps>();
 	const user = useSelector((state: RootState) => state.user);
@@ -74,25 +95,14 @@ export default function Resume() {
 			}
 		});
 	}, [])
-	const { top } = useSafeAreaInsets();
 
 	return (
 		<ScrollView>
 			{
-				focused && <Portal>
-					<View style={[styles.header, { top: Platform.OS === 'ios' ? top - 16 : top }]}>
-						<View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-							<IconButton onPress={() => navigation.goBack()}>
-								<Image source={require('../../profile/controlCentre/assets/Back.png')} style={styles.menuIcon} />
-							</IconButton>
-							<Text style={styles.headerText}>Your Resume</Text>
-						</View>
-						<IconButton onPress={() => menuRef?.current.open()}>
-							<Image source={require('../../profile/home/assets/menu.png')} style={styles.menuIcon} />
-						</IconButton>
-					</View>
-				</Portal>
-			}
+				focused && <Header
+					menuRef={menuRef}
+					title='Your Resume'
+				/>}
 
 			<View style={{ marginTop: 57 }}>
 				<TopSection />
@@ -240,7 +250,7 @@ export default function Resume() {
 					</View>
 					<View>
 						<Text style={styles.heading}>Date of Birth</Text>
-						<Text style={styles.smallText}>{user.dobDate && user.dobMonth && user.dobYear ? `${user.dobDate} ${user.dobMonth} ${user.dobYear}` : "The user hasn't shared their date of birth yet."}</Text>
+						{user.dobDate && user.dobMonth && user.dobYear ? <Text style={[styles.smallText, { color: '#737373' }]}>{user.dobDate} {user.dobMonth} {user.dobYear}</Text> : <Text style={styles.smallText}>The user hasn't shared their date of birth yet.</Text>}
 					</View>
 					<View>
 						<Text style={styles.heading}>Get In Touch</Text>

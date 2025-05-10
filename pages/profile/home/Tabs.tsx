@@ -3,6 +3,7 @@ import { TabView, SceneMap } from 'react-native-tab-view';
 import React from 'react';
 import { Animated, Dimensions, Platform, TouchableOpacity, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { Portal } from '@gorhom/portal';
+import PostsTab from './PostsTab';
 
 const width = Dimensions.get('window').width;
 
@@ -95,7 +96,7 @@ const tabBarStyles = StyleSheet.create({
 	},
 });
 
-export default function Tabs() {
+export default function Tabs({ hostName = 'tabsContent' }: { hostName?: string }) {
 	const layout = useWindowDimensions();
 	const [index, setIndex] = React.useState(0);
 	const renderScene = ({ route }: { route: any }) => {
@@ -104,10 +105,10 @@ export default function Tabs() {
 		}
 
 		return (
-			<Portal hostName="tabsContent">
+			<Portal hostName={hostName}>
 				<View style={{ marginHorizontal: 16, minHeight: 300 }}>
 					{
-						route.title === 'Profile' ? <ProfileTab /> : <Text>Posts</Text>
+						route.title === 'Profile' ? <ProfileTab /> : <PostsTab />
 					}
 				</View>
 			</Portal>

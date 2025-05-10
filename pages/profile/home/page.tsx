@@ -11,10 +11,9 @@ import ImageLoader from '../../../components/ImageLoader';
 import { PortalHost } from '@gorhom/portal';
 import BackgroundMapping from '../assets/Background/backgroundMapping';
 import BackgroundImageLoader from '../BackgroundImageLoader';
-import * as Sharing from 'expo-sharing';
 
 
-function ProfileButton({ count, title }: { count: number, title: string }) {
+export function ProfileButton({ count, title }: { count: number, title: string }) {
 	return (
 		<Pressable
 			style={({ pressed }) => [styles.countBox, pressed && { backgroundColor: '#f4f4f4' }]}

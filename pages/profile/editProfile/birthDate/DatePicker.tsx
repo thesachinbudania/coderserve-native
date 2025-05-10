@@ -7,7 +7,6 @@ import { DatePicker, MonthPicker, YearPicker, dates, months, years } from "../..
 const innerWidth = Dimensions.get('window').width - 88;
 
 export default function InlineDatePicker({ date, month, year, setSelectedDate, setSelectedMonth, setSelectedYear }: { date: string, month: string, year: string, setSelectedDate: Function, setSelectedMonth: Function, setSelectedYear: Function }) {
-	console.log(date, month, year)
 	return (
 		<View style={styles.container}>
 			<View style={styles.dateContainer}>
