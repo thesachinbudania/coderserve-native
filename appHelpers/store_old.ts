@@ -1,22 +1,13 @@
 import { configureStore } from "@reduxjs/toolkit";
 import signUpReducer from '../pages/authentication/signUp/signUpSlice';
 import authSliceReducer from './slices';
-import userSliceReducer from './userSlice';
 import jobsSliceReducer from './jobsSlice';
-import { persistStore, persistReducer } from 'redux-persist';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { persistStore } from 'redux-persist';
 
 import { apiSlice } from '../pages/authentication/apiSlice';
 import { profileApiSlice } from '../pages/profile/apiSlice';
 import { jobsApiSlice } from '../pages/jobs/apiSlice';
 
-
-const userPersistConfig = {
-	key: 'user',
-	storage: AsyncStorage,
-}
-
-const persistedUserReducer = persistReducer(userPersistConfig, userSliceReducer);
 
 export const store = configureStore({
 	reducer: {
@@ -24,7 +15,6 @@ export const store = configureStore({
 		signUp: signUpReducer,
 		auth: authSliceReducer,
 		jobs: jobsSliceReducer,
-		user: persistedUserReducer,
 		[profileApiSlice.reducerPath]: profileApiSlice.reducer,
 		[jobsApiSlice.reducerPath]: jobsApiSlice.reducer,
 	},

@@ -17,3 +17,16 @@ export function formatDateTime(isoString: string) {
 
   return `${formattedDate}, ${formattedTime}`;
 }
+
+
+export function formatDate(isoString: string) {
+  const date = new Date(isoString);
+
+  const formattedDate = date.toLocaleDateString('en-GB', {
+    day: '2-digit',
+    month: 'long',
+    year: 'numeric'
+  });
+
+  return `${formattedDate}`;
+}
