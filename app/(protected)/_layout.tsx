@@ -178,7 +178,7 @@ function AppTabs() {
 						}}
 					/>
 					<Tabs.Screen
-						name='(profile)'
+						name='profile'
 						options={{
 							title: "Profile",
 							tabBarLabel: "Profile",

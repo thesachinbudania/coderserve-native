@@ -1,11 +1,10 @@
 import Layout from '@/components/auth/Layout';
 import OtpValidator from '@/components/form/OtpValidator';
-import { useSelector } from 'react-redux';
-import { RootState } from '@/appHelpers/store';
+import { useUserStore } from '@/zustand/stores';
 import { useWizard } from 'react-use-wizard';
 
 export default function VerifyCurrentEmail() {
-	const email = useSelector((state: RootState) => state.user.email);
+	const email = useUserStore((state) => state.email);
 	const wizard = useWizard();
 	return (
 		<Layout
