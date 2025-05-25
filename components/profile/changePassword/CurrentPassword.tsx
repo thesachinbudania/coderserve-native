@@ -10,40 +10,40 @@ import { useRouter } from 'expo-router';
 
 
 export default function ChangePassword({ currentPassword, setCurrentPassword }: { currentPassword: string, setCurrentPassword: React.Dispatch<React.SetStateAction<string>> }) {
-	const wizard = useWizard();
-	const router = useRouter();
-	return (
-		<Layout
-			title={'Update Password'}
-			secondaryText='Enter Your Current Password'
-		>
-			<View>
-				<FieldHeading>
-					Current Password
-				</FieldHeading>
-				<PasswordField
-					value={currentPassword}
-					onChangeText={setCurrentPassword}
-				/>
-				<View style={styles.forgotPasswordContainer}>
-					<SmallTextButton
-						title='Forgot Password'
-						onPress={() => router.push('/forgotPassword')}
-					/>
-				</View>
-			</View>
-			<BlueButton
-				title='Continue'
-				disabled={currentPassword == ''}
-				onPress={() => wizard.nextStep()}
-			/>
-		</Layout>
-	)
+  const wizard = useWizard();
+  const router = useRouter();
+  return (
+    <Layout
+      title={'Update Password'}
+      secondaryText='Enter Your Current Password'
+    >
+      <View>
+        <FieldHeading>
+          Current Password
+        </FieldHeading>
+        <PasswordField
+          value={currentPassword}
+          onChangeText={setCurrentPassword}
+        />
+        <View style={styles.forgotPasswordContainer}>
+          <SmallTextButton
+            title='Forgot Password'
+            onPress={() => router.push('/profile/forgotPassword')}
+          />
+        </View>
+      </View>
+      <BlueButton
+        title='Continue'
+        disabled={currentPassword == ''}
+        onPress={() => wizard.nextStep()}
+      />
+    </Layout>
+  )
 }
 
 const styles = StyleSheet.create({
-	forgotPasswordContainer: {
-		marginTop: 8,
-		alignItems: 'flex-end'
-	}
+  forgotPasswordContainer: {
+    marginTop: 8,
+    alignItems: 'flex-end'
+  }
 })

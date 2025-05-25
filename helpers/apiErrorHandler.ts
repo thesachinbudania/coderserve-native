@@ -1,42 +1,62 @@
+
 const handleApiError = (error: any, setError: any) => {
-	let errors = 0;
-	// Check if error response contains field-specific errors
-	if (error?.response?.data) {
-		const { data } = error.response;
+  const response = error?.response || {};
+  const { data, status } = response;
 
-		// Handle field-specific errors (e.g., email, password, etc.)
-		Object.keys(data).forEach((field) => {
-			if (data[field]) {
-				setError(field, {
-					type: "server",
-					message: data[field][0], // Take the first error message
-				});
-				errors += 1;
-			}
-		});
+  // Clear previous server errors
+  setError("root", { type: "server" });
+  // Handle 405 Method Not Allowed and similar standard errors
+  if (status === 405 || data?.detail) {
+    setError("root", {
+      type: "server",
+      message: data?.detail || "This action is not allowed",
+    });
+    return;
+  }
 
-		// Handle non-field errors (if any)
-		if (data.non_field_errors) {
-			setError("root", {
-				type: "server",
-				message: data.non_field_errors[0],
-			});
-			errors += 1;
-		}
-	} else {
-		// Handle generic error (e.g., network issues)
-		setError("root", {
-			type: "server",
-			message: "Something went wrong. Please try again later.",
-		});
-		errors += 1;
-	}
-	if (errors === 0) {
-		setError("root", {
-			type: "server",
-			message: "An unknown error occurred.",
-		});
-	}
+  // Handle validation errors (field-specific and non-field)
+  if (data) {
+    let hasHandledErrors = false;
+
+    // Handle field-specific errors
+    Object.entries(data).forEach(([field, messages]) => {
+      if (field === 'non_field_errors' || field === 'detail') return;
+      const message = Array.isArray(messages) ? messages[0] : messages;
+      if (field === '0') {
+        setError('root', {
+          type: 'server',
+          message,
+        })
+      }
+      if (message) {
+        setError(field, {
+          type: "server",
+          message,
+        });
+        hasHandledErrors = true;
+      }
+    });
+
+    // Handle non-field errors
+    if (data.non_field_errors) {
+      const message = Array.isArray(data.non_field_errors)
+        ? data.non_field_errors[0]
+        : data.non_field_errors;
+      setError("root", {
+        type: "server",
+        message,
+      });
+      hasHandledErrors = true;
+    }
+
+    if (hasHandledErrors) return;
+  }
+
+  // Fallback for unhandled errors
+  setError("root", {
+    type: "server",
+    message: "Something went wrong. Please try again later.",
+  });
 };
 
 export default handleApiError;

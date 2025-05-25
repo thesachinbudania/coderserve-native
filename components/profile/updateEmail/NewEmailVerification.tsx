@@ -1,52 +1,57 @@
 import Layout from '@/components/auth/Layout';
 import OtpValidator from '@/components/form/OtpValidator';
-import { useSelector } from 'react-redux';
-import { RootState } from '@/appHelpers/store';
-import { useChangeEmailSaveEmailMutation } from '@/helpers/profile/apiSlice';
+import { useUserStore } from '@/zustand/stores';
 import ErrorMessage from '@/components/messsages/Error';
-import { useDispatch } from 'react-redux';
-import { setUser } from '@/appHelpers/userSlice';
 import React from 'react';
 import { useRouter } from 'expo-router';
-import { Button } from 'react-native-paper';
+import { popUpStore } from '@/zustand/accountCentre';
+import protectedApi from '@/helpers/axios';
+import FullScreenActivity from '@/components/FullScreenActivity';
 
 
 export default function VerifyCurrentEmail({ newEmail }: { newEmail: string }) {
-	const email = useSelector((state: RootState) => state.user.email);
-	const [changeEmailSaveEmail] = useChangeEmailSaveEmailMutation();
-	const [error, setError] = React.useState('');
-	const dispatch = useDispatch();
-	const router = useRouter();
+  const email = useUserStore(state => state.email);
+  const setUser = useUserStore(state => state.setUser)
+  const [error, setError] = React.useState('');
+  const router = useRouter();
+  const { setPopUp } = popUpStore(state => state)
+  const [isLoading, setIsLoading] = React.useState(false)
 
-	async function saveEmail() {
-		try {
-			router.back();
-			router.setParams({
-				popUpVisible: 'true',
-				title: 'Success',
-				body: 'Your email address has been updated. Thank you for keeping your information current.'
+  async function saveEmail() {
+    try {
+      setIsLoading(true)
+      await protectedApi.put('/accounts/change_email_save_email/')
+      setUser({ email: newEmail })
+      setPopUp({
+        visible: true,
+        title: 'Success',
+        body: 'Your email address has been updated. Thank you for keeping your information current.'
+      })
+      router.back();
+    }
+    catch {
+      setIsLoading(false)
+      setError('Something went wrong. Please try again');
+    }
+  }
 
-			})
-		}
-		catch {
-			setError('Something went wrong. Please try again');
-		}
-	}
-
-	return (
-		<Layout
-			title='Verify Your Email'
-			secondaryText="We've sent a verification code to your email"
-		>
-			<Button onPress={saveEmail} mode='contained'>
-				Press
-			</Button>
-			<OtpValidator
-				email={email ? email : ''}
-				otpFor='new_email_verification'
-				nextStep={() => { saveEmail() }}
-			/>
-			<ErrorMessage message={error} />
-		</Layout>
-	)
+  return (
+    <>
+      {
+        isLoading ? <FullScreenActivity /> : (
+          <Layout
+            title='Verify Your Email'
+            secondaryText="We've sent a verification code to your email"
+          >
+            <OtpValidator
+              email={email ? email : ''}
+              otpFor='new_email_verification'
+              nextStep={() => { saveEmail() }}
+            />
+            <ErrorMessage message={error} />
+          </Layout>
+        )
+      }
+    </>
+  )
 }

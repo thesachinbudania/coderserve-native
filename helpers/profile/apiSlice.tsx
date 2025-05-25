@@ -1,5 +1,4 @@
 import { createApi } from '@reduxjs/toolkit/query/react';
-import { baseQueryWithReAuth } from '@/appHelpers/apiSlice';
 
 export const profileApiSlice = createApi({
 	reducerPath: 'profileApi',
