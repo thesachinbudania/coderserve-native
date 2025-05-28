@@ -12,7 +12,6 @@ import {
 } from "react-native";
 import BottomName from "@/components/profile/home/BottomName";
 import ImageLoader from "@/components/ImageLoader";
-import { useSelector } from "react-redux";
 import { useUserStore } from "@/zustand/stores";
 import IconButton from "@/components/buttons/IconButton";
 import SearchBar from "@/components/profile/SearchBar";
@@ -25,11 +24,12 @@ import * as Haptics from "expo-haptics";
 import { useRouter, useNavigation } from "expo-router";
 import { useIsFocused } from "@react-navigation/native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useJobsState } from "@/zustand/jobsStore";
 
 export function Header({ menuRef }: { menuRef: React.RefObject<any> }) {
   const router = useRouter();
   const user = useUserStore(state => state);
-  const resume = useSelector((state: RootState) => state.jobs);
+  const resume = useJobsState(state => state)
   let jobRole = null;
   if (resume.previousExperience && resume.previousExperience.length > 0) {
     jobRole = resume.previousExperience[0].job_role;
@@ -81,7 +81,7 @@ function ListingChip({ title }: { title: string }) {
 function JobListing() {
   const router = useRouter();
   return (
-    <Pressable onPress={() => router.push('/jobs/(job-view)/page')}>
+    <Pressable onPress={() => router.push('/jobs/jobView/page')}>
       {({ pressed }) => (
         <View
           style={[jobStyles.container, pressed && { borderColor: "#006dff" }]}

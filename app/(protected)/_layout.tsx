@@ -5,6 +5,7 @@ import ProjectsIcon from "@/components/bottomBar/projectsIcon";
 import ProfileIcon from "@/components/bottomBar/profileIcon";
 import { useUserStore, useTokensStore } from '@/zustand/stores'
 import { useStore } from '@/zustand/auth/stores'
+import { useJobsState } from "@/zustand/jobsStore";
 import protectedApi from '@/helpers/axios'
 import { Redirect, Tabs, useSegments } from 'expo-router'
 import { Provider } from 'react-native-paper'
@@ -36,7 +37,7 @@ const AppTabs = () => {
     <Provider>
       <View style={{ flex: 1, backgroundColor: 'white' }}>
         <Tabs
-         screenOptions={{
+          screenOptions={{
             animation: 'shift',
             tabBarLabelStyle: { fontSize: 11 },
             tabBarActiveTintColor: "#000",
@@ -68,6 +69,7 @@ export default function AuthProvider() {
   const [isLoading, setIsLoading] = React.useState(true)
   const [signUpStep, setSignUpStep] = React.useState(0)
   const { setUser } = useUserStore()
+  const { setJobsState } = useJobsState();
   const { refresh, access, setTokens } = useTokensStore()
   const { setStore } = useStore()
 
@@ -81,6 +83,10 @@ export default function AuthProvider() {
         await setTokens({ refresh: refreshToken, access: accessToken })
         const response = await protectedApi.get('/accounts/auth_token_validator/')
         setUser(response.data)
+        console.log('this is happening now')
+        const resumeState = await protectedApi.get('/jobs/resume/update_resume/')
+        console.log(resumeState.data, 'this is resume state')
+        setJobsState(resumeState.data)
       }
     } catch (error) {
       console.log('Auth validation error:', error)

@@ -4,7 +4,6 @@ import HighSchool from "@/components/jobs/resume/highSchool";
 import PageLayout from "@/components/general/PageLayout";
 import React, { SetStateAction } from "react";
 import { useSelector } from "react-redux";
-import { RootState } from "@/appHelpers/store";
 
 type TopNavProps = {
   page: number;

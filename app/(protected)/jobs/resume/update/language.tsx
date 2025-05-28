@@ -5,12 +5,24 @@ import SelectMenu from "@/components/form/SelectMenu";
 import React from "react";
 import { spokenLanguages } from "@/constants/languages";
 import BlueButton from "@/components/buttons/BlueButton";
-import ErrorMessage from "../../../../components/messsages/Error";
-import { useDispatch, useSelector } from "react-redux";
-import { useUserStore } from "@/zustand/stores";
-import { useNavigation } from "@react-navigation/native";
-import NoBgButton from "../../../../components/buttons/NoBgButton";
+import ErrorMessage from "@/components/messsages/Error";
+import NoBgButton from "@/components/buttons/NoBgButton";
 import PopUpMessage from "@/components/general/PopUpMessage";
+import { useJobsState, useResumeEdit } from "@/zustand/jobsStore";
+import * as zod from 'zod';
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm, SubmitHandler, Controller } from "react-hook-form";
+import handleApiError from "@/helpers/apiErrorHandler";
+import protectedApi from "@/helpers/axios";
+import { useRouter } from "expo-router";
+
+const fromSchema = zod.object({
+  id: zod.number(),
+  language: zod.string().min(1, "Language is required"),
+  rating: zod.number().min(1, "Rating is required").max(5, "Rating must be between 1 and 5"),
+});
+
+type FormData = zod.infer<typeof fromSchema>;
 
 const ratingWords = [
   "Beginner",
@@ -20,87 +32,54 @@ const ratingWords = [
   "Fluent",
 ];
 
-export default function Languages({ route }: { route: any }) {
+export default function Languages() {
   let currentLanguage = null;
-  const languages = useSelector((state: RootState) => state.jobs.languages);
-  if (route.params && route.params.id) {
-    const languageId = route.params.id;
-    currentLanguage = languages?.find((language) => language.id === languageId);
+  const { languages, setJobsState } = useJobsState(state => state);
+  const { edit, id } = useResumeEdit(state => state);
+  if (edit && id) {
+    currentLanguage = languages?.find((language) => language.id === id);
   }
+  const router = useRouter();
 
-  // states for holding the form data
-  const [language, setLanguage] = React.useState<string | null>(
-    currentLanguage ? currentLanguage.language : null,
-  );
-  const [rating, setRating] = React.useState<number>(
-    currentLanguage ? currentLanguage.rating : 0,
-  );
+  const { control, setError, watch, handleSubmit, formState: { errors, isSubmitting } } = useForm<FormData>({
+    resolver: zodResolver(fromSchema),
+    defaultValues: {
+      id: currentLanguage ? currentLanguage.id : Date.now(),
+      language: currentLanguage ? currentLanguage.language : "",
+      rating: currentLanguage ? currentLanguage.rating : 0,
+    },
+  });
 
-  const [error, setError] = React.useState("");
-  const dispatch = useDispatch();
-  const navigation = useNavigation();
+  const { language, rating } = watch();
+
   const [showPopUp, setShowPopUp] = React.useState(false);
 
-  // hooks for the API calls
-  const [addLanguage, { isLoading: isAddLanguageLoading }] =
-    useAddLanguagesMutation();
-  const [updateLanguage, { isLoading: isUpdateLanguageLoading }] =
-    useUpdateLanguagesMutation();
-  const [deleteLanguage, { isLoading: isDeleteLanguageLoading }] =
-    useDeleteLanguagesMutation();
-
-  // function to handle the form submission
-  async function handleAddLanguage() {
-    const data = {
-      id: Date.now(),
-      language,
-      rating,
-    };
-    try {
-      const response = await addLanguage({ new_language: data }).unwrap();
-      if (response) {
-        dispatch(setLanguages(response["languages"]));
+  const handleAddLanguage: SubmitHandler<FormData> = async (data) => {
+    await protectedApi.put('/jobs/resume/add_language/', { new_language: data }).then((response) => {
+      if (response.data) {
+        setJobsState(response.data);
+        router.back();
       }
-      navigation.goBack();
-    } catch (e) {
-      setError("Something went wrong. Please try again later.");
-      console.log(e);
-    }
+    }).catch(error => handleApiError(error, setError));
   }
 
-  // function to handle update
-  const handleUpdateLanguage = async () => {
-    const data = {
-      id: currentLanguage?.id || Date.now(),
-      language,
-      rating,
-    };
-    try {
-      const response = await updateLanguage(data).unwrap();
-      if (response) {
-        dispatch(setLanguages(response["languages"]));
+  const handleUpdateLanguage: SubmitHandler<FormData> = async (data) => {
+    await protectedApi.put('/jobs/resume/update_language/', data).then((response) => {
+      if (response.data) {
+        setJobsState(response.data);
+        router.back();
       }
-      navigation.goBack();
-    } catch (e) {
-      setError("Something went wrong. Please try again later.");
-      console.log(e);
-    }
+    }).catch(error => handleApiError(error, setError));
   };
 
-  // function to handle delete
   const handleDeleteLanguage = async () => {
-    try {
-      const response = await deleteLanguage({
-        id: currentLanguage?.id,
-      }).unwrap();
-      if (response) {
-        dispatch(setLanguages(response["languages"]));
+    if (!currentLanguage) return;
+    await protectedApi.put('/jobs/resume/delete_language/', { id: currentLanguage.id }).then((response) => {
+      if (response.data) {
+        setJobsState(response.data);
+        router.back();
       }
-      navigation.goBack();
-    } catch (e) {
-      setError("Something went wrong. Please try again later.");
-      console.log(e);
-    }
+    }).catch(error => handleApiError(error, setError));
   };
 
   return (
@@ -110,16 +89,22 @@ export default function Languages({ route }: { route: any }) {
         text="This action will permanently remove this language from your resume. You won’t be able to undo this."
         visible={showPopUp}
         setVisible={setShowPopUp}
-        onPress={handleDeleteLanguage}
-        isLoading={isDeleteLanguageLoading}
+        onPress={handleSubmit(handleDeleteLanguage)}
+        isLoading={isSubmitting}
       />
       <Text style={styles.label}>Highlight Your Linguistic Strengths</Text>
-      <SelectMenu
-        title="Selecte Language"
-        placeholder="Select Language"
-        selected={language}
-        onSelect={setLanguage}
-        options={spokenLanguages}
+      <Controller
+        control={control}
+        name="language"
+        render={({ field: { onChange, value } }) => (
+          <SelectMenu
+            title="Select Language"
+            placeholder="Select Language"
+            selected={value}
+            onSelect={onChange}
+            options={spokenLanguages}
+          />
+        )}
       />
       <View style={languageStyles.ratingContainer}>
         {rating > 0 && (
@@ -127,7 +112,16 @@ export default function Languages({ route }: { route: any }) {
             {ratingWords[rating - 1]}
           </Text>
         )}
-        <Rating stars={rating} setStars={setRating} />
+        <Controller
+          control={control}
+          name="rating"
+          render={({ field: { onChange, value } }) => (
+            <Rating
+              stars={value}
+              setStars={onChange}
+            />
+          )}
+        />
       </View>
       <BlueButton
         title={currentLanguage ? "Update" : "Save"}
@@ -139,10 +133,8 @@ export default function Languages({ route }: { route: any }) {
             rating === 0
             : language === null || rating === 0
         }
-        onPress={currentLanguage ? handleUpdateLanguage : handleAddLanguage}
-        loading={
-          currentLanguage ? isUpdateLanguageLoading : isAddLanguageLoading
-        }
+        onPress={currentLanguage ? handleSubmit(handleUpdateLanguage) : handleSubmit(handleAddLanguage)}
+        loading={isSubmitting}
       />
       {currentLanguage && (
         <View style={{ marginTop: 16 }}>
@@ -153,9 +145,9 @@ export default function Languages({ route }: { route: any }) {
           />
         </View>
       )}
-      {error && (
+      {errors.root?.message && (
         <View style={{ marginTop: 8 }}>
-          <ErrorMessage message={error} />
+          <ErrorMessage message={errors.root?.message} />
         </View>
       )}
     </PageLayout>

@@ -27,7 +27,6 @@ function PopUpMessage({ setVisible, title, body }: { body: string, title: string
 export default function AccountCenter() {
   const user = useUserStore(state => state);
   const { visible: popUpVisible, title, body, hidePopUp } = popUpStore(state => state);
-  console.log(title, body, popUpVisible)
   const dateJoined = user.date_joined ? new Date(user.date_joined).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : null;
   const router = useRouter();
   return (

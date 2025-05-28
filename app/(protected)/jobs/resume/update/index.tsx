@@ -2,18 +2,19 @@ import TopSection from "@/components/jobs/resume/TopSection";
 import Layout from "@/components/general/PageLayout";
 import { Pressable, Text, View, StyleSheet } from "react-native";
 import { ProfileSection } from "@/components/profile/home/ProfileContent";
-import { useSelector } from "react-redux";
 import { Dimensions, Linking, Image } from "react-native";
 import IconButton from "@/components/profile/IconButton";
 import BottomName from "@/components/profile/home/BottomName";
 import ReadMoreText from "@/components/general/ReadMore";
-import { ExperienceListing } from "./index";
+import { ExperienceListing } from "../index";
 import SmallTextButton from "@/components/buttons/SmallTextButton";
 import NoBgButton from "@/components/buttons/NoBgButton";
-import { DetailsList } from "../jobView/page";
-import { Rating } from "./updateLanguage";
+import { DetailsList } from "../../jobView/page";
+import { Rating } from "./language";
 import OtherCertificationListing from "@/components/jobs/resume/CertificationListing";
 import { useUserStore } from "@/zustand/stores";
+import { useJobsState, useResumeEdit } from "@/zustand/jobsStore";
+import { useRouter } from "expo-router";
 
 const { width } = Dimensions.get("window");
 
@@ -23,13 +24,17 @@ export function EditResume({
   addFooterOnUnmount?: boolean;
 }) {
   const user = useUserStore(state => state);
-  const jobs: any = null;
+  const jobs = useJobsState(state => state);
+  const { setResumeEdit } = useResumeEdit(state => state);
+  const router = useRouter();
+
   return (
     <View style={styles.resumeContainer}>
       {jobs.about ? (
         <View>
           0         <Text style={styles.detailsHeading}>About</Text>
           <Pressable
+            onPress={() => router.push('/jobs/resume/update/about')}
           >
             {({ pressed }) => (
               <View
@@ -47,13 +52,13 @@ export function EditResume({
         <ProfileSection
           title="About"
           content="You haven't introduced yourself yet. Let the world know about your  story!"
-          onPress={() => { }}
+          onPress={() => router.push('/jobs/resume/update/about')}
         />
       )}
-      {jobs.previousExperience && jobs.previousExperience.length > 0 ? (
+      {jobs.previous_experience && jobs.previous_experience.length > 0 ? (
         <View>
           <Text style={styles.detailsHeading}>Experience</Text>
-          {jobs.previousExperience.map((experience, index) => (
+          {jobs.previous_experience.map((experience, index) => (
             <ExperienceListing
               image={
                 experience.company.logo
@@ -227,20 +232,21 @@ export function EditResume({
           it'll be showcased here.
         </Text>
       </View>
-      {jobs.otherCertifications && jobs.otherCertifications.length > 0 ? (
+      {jobs.other_certifications && jobs.other_certifications.length > 0 ? (
         <View>
           <Text style={styles.detailsHeading}>Other Certifications</Text>
           <View style={{ gap: 16 }}>
-            {jobs.otherCertifications.map((certification, index) => (
+            {jobs.other_certifications.map((certification, index) => (
               <OtherCertificationListing
                 certification={certification}
                 key={index}
-                onPress={() =>
-                  navigation.navigate("OtherCertifications", {
+                onPress={() => {
+                  setResumeEdit({
                     edit: true,
                     id: certification.id,
-                    addFooterOnUnmount,
-                  })
+                  });
+                  router.push('/jobs/resume/update/otherCertifications');
+                }
                 }
               />
             ))}
@@ -248,12 +254,13 @@ export function EditResume({
           <View style={styles.buttonContainer}>
             <NoBgButton
               title="Add More"
-              onPress={() =>
-                navigation.navigate("OtherCertifications", {
+              onPress={() => {
+                setResumeEdit({
                   edit: false,
                   id: null,
-                  addFooterOnUnmount,
-                })
+                });
+                router.push('/jobs/resume/update/otherCertifications');
+              }
               }
             />
           </View>
@@ -262,12 +269,13 @@ export function EditResume({
         <ProfileSection
           title="Other Certifications"
           content="You haven’t added any certifications yet. Showcase your achievements and skills!"
-          onPress={() =>
-            navigation.navigate("OtherCertifications", {
+          onPress={() => {
+            setResumeEdit({
               edit: false,
               id: null,
-              addFooterOnUnmount,
-            })
+            });
+            router.push('/jobs/resume/update/otherCertifications');
+          }
           }
         />
       )}
@@ -284,7 +292,7 @@ export function EditResume({
           <Text style={styles.detailsHeading}>Skills</Text>
           <Pressable
             onPress={() =>
-              navigation.navigate("Skills", { addFooterOnUnmount: true })
+              router.push('/jobs/resume/update/skills')
             }
           >
             {({ pressed }) => (
@@ -307,7 +315,7 @@ export function EditResume({
         <ProfileSection
           title="Skills"
           content="You haven’t added any skills yet. Showcase your expertise and stand out!"
-          onPress={() => navigation.navigate("Skills", { addFooterOnUnmount })}
+          onPress={() => router.push('/jobs/resume/update/skills')}
         />
       )}
       {jobs.languages && jobs.languages.length > 0 ? (
@@ -316,12 +324,13 @@ export function EditResume({
           <View style={{ marginTop: -8, marginBottom: 16 }}>
             {jobs.languages.map((language, index) => (
               <Pressable
-                onPress={() =>
-                  navigation.navigate("Languages", {
+                onPress={() => {
+                  setResumeEdit({
                     edit: true,
                     id: language.id,
-                    addFooterOnUnmount,
-                  })
+                  });
+                  router.push('/jobs/resume/update/language');
+                }
                 }
                 key={index}
               >
@@ -361,12 +370,13 @@ export function EditResume({
           <View style={styles.buttonContainer}>
             <NoBgButton
               title="Add More"
-              onPress={() =>
-                navigation.navigate("Languages", {
+              onPress={() => {
+                setResumeEdit({
                   edit: false,
                   id: null,
-                  addFooterOnUnmount,
-                })
+                });
+                router.push('/jobs/resume/update/language');
+              }
               }
             />
           </View>
@@ -375,12 +385,13 @@ export function EditResume({
         <ProfileSection
           title="Languages"
           content="You haven't added any languages yet. Highlight the languages you know!"
-          onPress={() =>
-            navigation.navigate("Languages", {
+          onPress={() => {
+            setResumeEdit({
               edit: false,
               id: null,
-              addFooterOnUnmount,
-            })
+            });
+            router.push('/jobs/resume/update/language');
+          }
           }
         />
       )}
@@ -419,11 +430,11 @@ export function EditResume({
               />
             </IconButton>
           )}
-          {user.mobileCountryCode && user.mobileNumber && (
+          {user.mobileCountryCode && user.mobile && (
             <IconButton
               onPress={() =>
                 Linking.openURL(
-                  `tel:${user.mobileCountryCode + " " + user.mobileNumber}`,
+                  `tel:${user.mobileCountryCode + " " + user.mobile}`,
                 )
               }
             >
@@ -483,7 +494,7 @@ export function EditResume({
 
 export default function() {
   return (
-    <View style={{ flex: 1, backgroundColor: "white" }}>
+    <View style={{ flex: 1, backgroundColor: "white", paddingBottom: -64 }}>
       <Layout
         headerTitle="Update Resume"
       >

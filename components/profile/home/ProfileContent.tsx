@@ -1,7 +1,7 @@
 import { View, Text, StyleSheet } from "react-native";
 import BottomText from "./BottomName";
 import React from "react";
-import { EditResume } from "@/app/(protected)/jobs/resume/editResume";
+import { EditResume } from "@/app/(protected)/jobs/resume/update/index";
 
 export function ProfileSection({
   title,

@@ -10,6 +10,7 @@ interface UserState {
   background_pattern_code: number | null
   background_image: string | null
   background_type: string | null
+  gender: string | null
   country: string | null
   city: string | null
   state: string | null
@@ -21,9 +22,11 @@ interface UserState {
   dobYear: string | null
   website: string | null
   mobileCountryCode: string | null
-  mobileNumber: string | null
+  mobile: string | null
   whatsappCountryCode: string | null
   whatsappNumber: string | null
+  last_name_changed: string | null
+  last_username_changed: string | null
   setUser: (user: Partial<UserState>) => void
 }
 
@@ -36,6 +39,7 @@ export const useUserStore = create<UserState>((set) => ({
   background_pattern_code: null,
   background_image: null,
   background_type: null,
+  gender: null,
   country: null,
   city: null,
   state: null,
@@ -47,9 +51,11 @@ export const useUserStore = create<UserState>((set) => ({
   dobYear: null,
   website: null,
   mobileCountryCode: null,
-  mobileNumber: null,
+  mobile: null,
   whatsappCountryCode: null,
   whatsappNumber: null,
+  last_name_changed: null,
+  last_username_changed: null,
   setUser: (user) => set(user),
 }))
 
