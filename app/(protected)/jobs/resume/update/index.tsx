@@ -15,6 +15,7 @@ import OtherCertificationListing from "@/components/jobs/resume/CertificationLis
 import { useUserStore } from "@/zustand/stores";
 import { useJobsState, useResumeEdit } from "@/zustand/jobsStore";
 import { useRouter } from "expo-router";
+import { apiUrl } from '@/constants/env';
 
 const { width } = Dimensions.get("window");
 
@@ -64,14 +65,19 @@ export function EditResume({
                 experience.company.logo
                   ? {
                     uri:
-                      "https://api.coderserve.com" + experience.company.logo,
+                      apiUrl + experience.company.logo,
                   }
                   : require("@/assets/images/jobs/experienceImg.png")
               }
               key={index}
               showPress
-              onPress={() => { }
-              }
+              onPress={() => {
+                setResumeEdit({
+                  edit: true,
+                  id: experience.id,
+                });
+                router.push('/jobs/resume/update/workExperience');
+              }}
             >
               <View style={{ marginBottom: 32, width: width - 96 }}>
                 <Text style={styles.containerPrimaryHeading}>
@@ -120,13 +126,13 @@ export function EditResume({
                 fontWeight: "bold",
                 textDecorationLine: "underline",
               }}
-              onPress={() =>
-                navigation.navigate("WorkExperience", {
+              onPress={() => {
+                setResumeEdit({
                   edit: false,
                   id: null,
-                  addFooterOnUnmount,
                 })
-              }
+                router.push('/jobs/resume/update/workExperience')
+              }}
             />
           </View>
         </View>
@@ -134,12 +140,13 @@ export function EditResume({
         <ProfileSection
           title="Experience"
           content="You haven’t added any experience yet. Share your journey and expertise!"
-          onPress={() =>
-            navigation.navigate("WorkExperience", {
+          onPress={() => {
+            setResumeEdit({
               edit: false,
               id: null,
-              addFooterOnUnmount,
             })
+            router.push('/jobs/resume/update/workExperience')
+          }
           }
         />
       )}
@@ -152,12 +159,13 @@ export function EditResume({
               image={require("@/assets/images/jobs/educationImg.png")}
               key={index}
               showPress
-              onPress={() =>
-                navigation.navigate("Education", {
+              onPress={() => {
+                setResumeEdit({
                   edit: true,
-                  id: degree.id,
-                  addFooterOnUnmount,
+                  id: degree.id
                 })
+                router.push('/jobs/resume/update/education');
+              }
               }
             >
               <View style={{ marginBottom: 32, width: width - 96 }}>
@@ -202,12 +210,13 @@ export function EditResume({
                 fontWeight: "bold",
                 textDecorationLine: "underline",
               }}
-              onPress={() =>
-                navigation.navigate("Education", {
+              onPress={() => {
+                setResumeEdit({
                   edit: false,
                   id: null,
-                  addFooterOnUnmount,
                 })
+                router.push('/jobs/resume/update/education')
+              }
               }
             />
           </View>
@@ -216,12 +225,13 @@ export function EditResume({
         <ProfileSection
           title="Education"
           content="You haven’t added any education yet. Highlight your academic achievements!"
-          onPress={() =>
-            navigation.navigate("Education", {
+          onPress={() => {
+            setResumeEdit({
               edit: false,
               id: null,
-              addFooterOnUnmount,
             })
+            router.push('/jobs/resume/update/education')
+          }
           }
         />
       )}
@@ -401,7 +411,7 @@ export function EditResume({
           <>
             <Text style={styles.detailsHeading}>Date of Birth</Text>
             <Pressable
-              onPress={() => navigation.navigate("EditProfileBirthDate")}
+              onPress={() => router.push('/profile/edit/birthday')}
             >
               {
                 ({ pressed }) => <Text style={[styles.detailsContent, { color: '#737373' }, pressed && { backgroundColor: '#f5f5f5', marginHorizontal: -16, paddingHorizontal: 16 }]}>
@@ -415,7 +425,7 @@ export function EditResume({
           <ProfileSection
             title="Date of Birth"
             content="You haven’t added your date of birth yet. Add it to showcase your age!"
-            onPress={() => profielNavigation.navigate("EditProfileBirthDate")}
+            onPress={() => router.push('/profile/edit/birthday')}
           />
         )}
       </View>

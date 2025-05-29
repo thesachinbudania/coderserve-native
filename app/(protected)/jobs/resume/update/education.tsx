@@ -3,7 +3,7 @@ import Degree from "@/components/jobs/resume/Degree";
 import HighSchool from "@/components/jobs/resume/highSchool";
 import PageLayout from "@/components/general/PageLayout";
 import React, { SetStateAction } from "react";
-import { useSelector } from "react-redux";
+import { useJobsState, useResumeEdit } from "@/zustand/jobsStore";
 
 type TopNavProps = {
   page: number;
@@ -76,15 +76,16 @@ export const setSuggestions = (
   setSuggestions(matches);
 };
 
-export default function Education({ route }: { route: any }) {
+export default function Education() {
   const [showHeader, setShowHeader] = React.useState(true);
   let editDegree = null;
-  const currentDegrees = useSelector((state: RootState) => state.jobs.degrees);
-  if (route.params && route.params.edit) {
-    const degreeId = route.params.id;
-    editDegree = currentDegrees?.find((degree) => degree.id === degreeId);
+  const currentDegrees = useJobsState(state => state.degrees);
+  const { edit, id } = useResumeEdit(state => state);
+  if (edit && id) {
+    editDegree = currentDegrees?.find((degree) => degree.id === id);
   }
   const [scrollEnabled, setScrollEnabled] = React.useState(true);
+  console.log(editDegree?.type, 'this is the type of degree')
   const [page, setPage] = React.useState(editDegree ? editDegree.type : 0);
   return (
     <PageLayout
@@ -94,7 +95,6 @@ export default function Education({ route }: { route: any }) {
     >
       {page === 0 ? (
         <Degree
-          route={route}
           setShowHeader={setShowHeader}
           page={page}
           setPage={setPage}
@@ -102,7 +102,6 @@ export default function Education({ route }: { route: any }) {
         />
       ) : (
         <HighSchool
-          route={route}
           setShowHeader={setShowHeader}
           page={page}
           setPage={setPage}

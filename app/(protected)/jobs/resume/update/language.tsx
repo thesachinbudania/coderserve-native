@@ -1,6 +1,6 @@
 import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 import PageLayout from "@/components/general/PageLayout";
-import { styles } from "./updateEducation";
+import { styles } from "./education";
 import SelectMenu from "@/components/form/SelectMenu";
 import React from "react";
 import { spokenLanguages } from "@/constants/languages";

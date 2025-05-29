@@ -1,6 +1,6 @@
 import { Text, View } from "react-native";
 import PageLayout from "@/components/general/PageLayout";
-import { styles } from "./updateEducation";
+import { styles } from "./education";
 import FormInput from "@/components/form/FormInput";
 import React from "react";
 import BlueButton from "@/components/buttons/BlueButton";

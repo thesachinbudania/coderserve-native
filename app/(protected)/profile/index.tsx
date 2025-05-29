@@ -110,6 +110,7 @@ export default function ProfileHome() {
             />
           </View>
         </View>
+        <Tabs />
       </View>
       <View >
       </View>

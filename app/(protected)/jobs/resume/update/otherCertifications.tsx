@@ -9,7 +9,7 @@ import {
 } from "react-native";
 import PageLayout from "@/components/general/PageLayout";
 import SearchBar from "@/components/profile/SearchBar";
-import { measureY, styles } from "./updateEducation";
+import { measureY, styles } from "./education";
 import React from "react";
 import SearchSuggestion from "@/components/jobs/resume/SearchSuggestions";
 import FormInput from "@/components/form/FormInput";
