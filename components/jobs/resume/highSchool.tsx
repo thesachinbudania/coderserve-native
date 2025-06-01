@@ -1,6 +1,6 @@
 import { Animated, BackHandler, Dimensions, Keyboard, Platform, Text, useAnimatedValue, View } from 'react-native'
 import FormInput from '@/components/form/FormInput';
-import { TopNav, measureY, setSuggestions, styles } from '@/app/(protected)/jobs/resume/update/education';
+import { TopNav, measureY, setSuggestions, styles } from '@/app/(freeRoutes)/jobs/resume/education';
 import SearchBar from '@/components/profile/SearchBar';
 import React, { SetStateAction } from 'react';
 import DateSelect from '@/components/jobs/resume/DateSelect';
@@ -39,7 +39,7 @@ type FormData = zod.infer<typeof formSchema>;
 
 const windowWidth = Dimensions.get('window').width;
 
-export default function Education({ page, setPage, setShowHeader, setScrollEnabled }: { setScrollEnabled: React.Dispatch<SetStateAction<boolean>>, page: number, setPage: React.Dispatch<SetStateAction<number>>, route: any, setShowHeader: React.Dispatch<React.SetStateAction<boolean>> }) {
+export default function HighSchool({ page, setPage, setShowHeader, setScrollEnabled }: { setScrollEnabled: React.Dispatch<SetStateAction<boolean>>, page: number, setPage: React.Dispatch<SetStateAction<number>>, route: any, setShowHeader: React.Dispatch<React.SetStateAction<boolean>> }) {
   let editDegree = null;
   const { degrees: currentDegrees, setJobsState } = useJobsState(state => state);
   const { edit, id } = useResumeEdit(state => state);
@@ -497,7 +497,7 @@ export default function Education({ page, setPage, setShowHeader, setScrollEnabl
               setSelectedCity={(city: string) => setValue('city', city)}
             />
           </Animated.View>
-          <Animated.View style={{ opacity: contentOpacity, marginBottom: Platform.OS === 'ios' ? 64 : 112 }}>
+          <Animated.View style={{ opacity: contentOpacity }}>
             <BlueButton
               title={editDegree ? "Update" : "Save"}
               onPress={editDegree ? handleSubmit(handleUpdate) : handleSubmit(handleSave)}

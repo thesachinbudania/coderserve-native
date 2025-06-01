@@ -500,7 +500,6 @@ export default function WorkExperience() {
             <Animated.View
               style={{
                 opacity: contentOpacity,
-                marginBottom: Platform.OS === "ios" ? 64 : 112,
               }}
             >
               <BlueButton

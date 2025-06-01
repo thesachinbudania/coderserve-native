@@ -91,7 +91,7 @@ export default function JobsView() {
             text='Bangalore, India'
           />
         </View>
-        <View style={{ paddingBottom: Platform.OS === 'ios' ? 112 : 176 }}>
+        <View style={{ marginBottom: 77 }}>
           <View style={{ gap: 32 }}>
             <JobDetails
               heading='Job Description'

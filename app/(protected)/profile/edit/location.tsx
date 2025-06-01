@@ -83,7 +83,7 @@ export default function Location() {
           title='Update'
           onPress={handleSubmit(saveLocation)}
           loading={isSubmitting}
-          disabled={(currentCountry === country && currentCity === city && currentState === city) || !country || !state || !city}
+          disabled={(currentCountry === country && currentCity === city && currentState === state) || !country || !state || !city}
         />
       </View>
       {
