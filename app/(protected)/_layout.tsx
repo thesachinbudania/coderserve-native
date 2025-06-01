@@ -83,9 +83,7 @@ export default function AuthProvider() {
         await setTokens({ refresh: refreshToken, access: accessToken })
         const response = await protectedApi.get('/accounts/auth_token_validator/')
         setUser(response.data)
-        console.log('this is happening now')
         const resumeState = await protectedApi.get('/jobs/resume/update_resume/')
-        console.log(resumeState.data, 'this is resume state')
         setJobsState(resumeState.data)
       }
     } catch (error) {
