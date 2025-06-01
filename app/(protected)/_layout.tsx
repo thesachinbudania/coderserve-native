@@ -8,12 +8,11 @@ import { useStore } from '@/zustand/auth/stores'
 import { useJobsState } from "@/zustand/jobsStore";
 import protectedApi from '@/helpers/axios'
 import { Redirect, Tabs, useSegments } from 'expo-router'
-import { Provider } from 'react-native-paper'
 import hiddenSegments from '@/constants/hiddenFooterRoutes'
 import * as SecureStore from 'expo-secure-store'
 import DeviceInfo from 'react-native-device-info'
 import React from 'react'
-import { View, ActivityIndicator, Pressable } from 'react-native';
+import { View, ActivityIndicator, StatusBar, Pressable } from 'react-native';
 
 function LoadingScreen() {
   return (
@@ -34,16 +33,18 @@ const AppTabs = () => {
   const segment = useSegments()
 
   return (
-    <Provider>
+    <>
+      <StatusBar backgroundColor={'#202020'} barStyle={'light-content'} />
       <View style={{ flex: 1, backgroundColor: 'white' }}>
         <Tabs
           screenOptions={{
             animation: 'shift',
-            tabBarLabelStyle: { fontSize: 11 },
+            tabBarLabelStyle: { fontSize: 11, fontWeight: 'normal' },
             tabBarActiveTintColor: "#000",
             tabBarInactiveTintColor: '#d9d9d9',
             tabBarStyle: {
               display: hiddenSegments.includes(JSON.stringify(segment)) ? 'flex' : 'none',
+              height: 54,
             },
             headerShown: false,
             tabBarButton: (props) => (
@@ -61,7 +62,7 @@ const AppTabs = () => {
           <Tabs.Screen name='profile' options={{ tabBarIcon: ProfileIcon, tabBarLabel: 'Profile' }} />
         </Tabs>
       </View>
-    </Provider>
+    </>
   )
 }
 

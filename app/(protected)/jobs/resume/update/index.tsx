@@ -10,7 +10,7 @@ import { ExperienceListing } from "../index";
 import SmallTextButton from "@/components/buttons/SmallTextButton";
 import NoBgButton from "@/components/buttons/NoBgButton";
 import { DetailsList } from "../../jobView/page";
-import { Rating } from "./language";
+import { Rating } from "@/app/(freeRoutes)/jobs/resume/language";
 import OtherCertificationListing from "@/components/jobs/resume/CertificationListing";
 import { useUserStore } from "@/zustand/stores";
 import { useJobsState, useResumeEdit } from "@/zustand/jobsStore";
@@ -19,11 +19,7 @@ import { apiUrl } from '@/constants/env';
 
 const { width } = Dimensions.get("window");
 
-export function EditResume({
-  addFooterOnUnmount = false,
-}: {
-  addFooterOnUnmount?: boolean;
-}) {
+export function EditResume() {
   const user = useUserStore(state => state);
   const jobs = useJobsState(state => state);
   const { setResumeEdit } = useResumeEdit(state => state);
@@ -35,7 +31,7 @@ export function EditResume({
         <View>
           0         <Text style={styles.detailsHeading}>About</Text>
           <Pressable
-            onPress={() => router.push('/jobs/resume/update/about')}
+            onPress={() => router.push('/(freeRoutes)/jobs/resume/about')}
           >
             {({ pressed }) => (
               <View
@@ -53,7 +49,7 @@ export function EditResume({
         <ProfileSection
           title="About"
           content="You haven't introduced yourself yet. Let the world know about your  story!"
-          onPress={() => router.push('/jobs/resume/update/about')}
+          onPress={() => router.push('/(freeRoutes)/jobs/resume/about')}
         />
       )}
       {jobs.previous_experience && jobs.previous_experience.length > 0 ? (
@@ -76,7 +72,7 @@ export function EditResume({
                   edit: true,
                   id: experience.id,
                 });
-                router.push('/jobs/resume/update/workExperience');
+                router.push('/(freeRoutes)/jobs/resume/workExperience');
               }}
             >
               <View style={{ marginBottom: 32, width: width - 96 }}>
@@ -131,7 +127,7 @@ export function EditResume({
                   edit: false,
                   id: null,
                 })
-                router.push('/jobs/resume/update/workExperience')
+                router.push('/(freeRoutes)/jobs/resume/workExperience')
               }}
             />
           </View>
@@ -145,7 +141,7 @@ export function EditResume({
               edit: false,
               id: null,
             })
-            router.push('/jobs/resume/update/workExperience')
+            router.push('/(freeRoutes)/jobs/resume/workExperience')
           }
           }
         />
@@ -164,7 +160,7 @@ export function EditResume({
                   edit: true,
                   id: degree.id
                 })
-                router.push('/jobs/resume/update/education');
+                router.push('/(freeRoutes)/jobs/resume/education');
               }
               }
             >
@@ -215,7 +211,7 @@ export function EditResume({
                   edit: false,
                   id: null,
                 })
-                router.push('/jobs/resume/update/education')
+                router.push('/(freeRoutes)/jobs/resume/education')
               }
               }
             />
@@ -230,7 +226,7 @@ export function EditResume({
               edit: false,
               id: null,
             })
-            router.push('/jobs/resume/update/education')
+            router.push('/(freeRoutes)/jobs/resume/education')
           }
           }
         />
@@ -255,7 +251,7 @@ export function EditResume({
                     edit: true,
                     id: certification.id,
                   });
-                  router.push('/jobs/resume/update/otherCertifications');
+                  router.push('/(freeRoutes)/jobs/resume/otherCertifications');
                 }
                 }
               />
@@ -269,7 +265,7 @@ export function EditResume({
                   edit: false,
                   id: null,
                 });
-                router.push('/jobs/resume/update/otherCertifications');
+                router.push('/(freeRoutes)/jobs/resume/otherCertifications');
               }
               }
             />
@@ -284,7 +280,7 @@ export function EditResume({
               edit: false,
               id: null,
             });
-            router.push('/jobs/resume/update/otherCertifications');
+            router.push('/(freeRoutes)/jobs/resume/otherCertifications');
           }
           }
         />
@@ -302,7 +298,7 @@ export function EditResume({
           <Text style={styles.detailsHeading}>Skills</Text>
           <Pressable
             onPress={() =>
-              router.push('/jobs/resume/update/skills')
+              router.push('/(freeRoutes)/jobs/resume/skills')
             }
           >
             {({ pressed }) => (
@@ -325,7 +321,7 @@ export function EditResume({
         <ProfileSection
           title="Skills"
           content="You haven’t added any skills yet. Showcase your expertise and stand out!"
-          onPress={() => router.push('/jobs/resume/update/skills')}
+          onPress={() => router.push('/(freeRoutes)/jobs/resume/skills')}
         />
       )}
       {jobs.languages && jobs.languages.length > 0 ? (
@@ -339,7 +335,7 @@ export function EditResume({
                     edit: true,
                     id: language.id,
                   });
-                  router.push('/jobs/resume/update/language');
+                  router.push('/(freeRoutes)/jobs/resume/language');
                 }
                 }
                 key={index}
@@ -385,7 +381,7 @@ export function EditResume({
                   edit: false,
                   id: null,
                 });
-                router.push('/jobs/resume/update/language');
+                router.push('/(freeRoutes)/jobs/resume/language');
               }
               }
             />
@@ -400,7 +396,7 @@ export function EditResume({
               edit: false,
               id: null,
             });
-            router.push('/jobs/resume/update/language');
+            router.push('/(freeRoutes)/jobs/resume/language');
           }
           }
         />
@@ -411,7 +407,7 @@ export function EditResume({
           <>
             <Text style={styles.detailsHeading}>Date of Birth</Text>
             <Pressable
-              onPress={() => router.push('/profile/edit/birthday')}
+              onPress={() => router.push('/(freeRoutes)/profile/birthday')}
             >
               {
                 ({ pressed }) => <Text style={[styles.detailsContent, { color: '#737373' }, pressed && { backgroundColor: '#f5f5f5', marginHorizontal: -16, paddingHorizontal: 16 }]}>
@@ -425,7 +421,7 @@ export function EditResume({
           <ProfileSection
             title="Date of Birth"
             content="You haven’t added your date of birth yet. Add it to showcase your age!"
-            onPress={() => router.push('/profile/edit/birthday')}
+            onPress={() => router.push('/(freeRoutes)/profile/birthday')}
           />
         )}
       </View>

@@ -81,6 +81,9 @@ export default function Gender() {
   const [popUpVisible, setPopUpVisible] = React.useState(false)
 
   function isButtonEnabled() {
+    if (!gender) {
+      return true
+    }
     if (gender === 'Other') {
       return otherGender === '' || otherGender === currentGender;
     }

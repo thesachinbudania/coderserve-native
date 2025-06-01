@@ -1,6 +1,6 @@
 import { Animated, BackHandler, Dimensions, Keyboard, Platform, Text, useAnimatedValue, View } from 'react-native'
 import FormInput from '@/components/form/FormInput';
-import { TopNav, measureY, setSuggestions, styles } from '@/app/(protected)/jobs/resume/update/education';
+import { TopNav, measureY, setSuggestions, styles } from '@/app/(freeRoutes)/jobs/resume/education';
 import SearchBar from '@/components/profile/SearchBar';
 import React, { SetStateAction } from 'react';
 import DateSelect from '@/components/jobs/resume/DateSelect';
@@ -496,7 +496,7 @@ export default function Education({ page, setPage, setShowHeader, setScrollEnabl
               setSelectedCity={(city: string) => setValue('city', city)}
             />
           </Animated.View>
-          <Animated.View style={{ opacity: contentOpacity, marginBottom: Platform.OS === 'ios' ? 64 : 112 }}>
+          <Animated.View style={{ opacity: contentOpacity }}>
             <BlueButton
               title={editDegree ? "Update" : "Save"}
               onPress={editDegree ? handleSubmit(handleUpdate) : handleSubmit(handleSave)}

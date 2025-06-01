@@ -7,7 +7,7 @@ import Menu, { MenuButton } from '@/components/jobs/Menu';
 import React from 'react';
 import ReadMore from '@/components/general/ReadMore';
 import { DetailsList } from '../jobView/page';
-import { Rating } from './update/language';
+import { Rating } from '@/app/(freeRoutes)/jobs/resume/language';
 import OtherCertificationListing from '@/components/jobs/resume/CertificationListing';
 import { Portal } from 'react-native-paper';
 import { useIsFocused } from '@react-navigation/native';

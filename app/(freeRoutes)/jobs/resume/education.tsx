@@ -1,7 +1,7 @@
 import { Image, Pressable, StyleSheet, Text, View } from "react-native";
+import PageLayout from "@/components/general/PageLayout";
 import Degree from "@/components/jobs/resume/Degree";
 import HighSchool from "@/components/jobs/resume/highSchool";
-import PageLayout from "@/components/general/PageLayout";
 import React, { SetStateAction } from "react";
 import { useJobsState, useResumeEdit } from "@/zustand/jobsStore";
 
@@ -102,6 +102,7 @@ export default function Education() {
         />
       ) : (
         <HighSchool
+          route={null}
           setShowHeader={setShowHeader}
           page={page}
           setPage={setPage}
