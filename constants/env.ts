@@ -1,1 +1,1 @@
-export const apiUrl = 'https://api.coderserve.com';
+export const apiUrl = 'https://api.coderserve.com'
