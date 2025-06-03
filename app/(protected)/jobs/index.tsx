@@ -31,8 +31,8 @@ export function Header({ menuRef }: { menuRef: React.RefObject<any> }) {
   const user = useUserStore(state => state);
   const resume = useJobsState(state => state)
   let jobRole = null;
-  if (resume.previousExperience && resume.previousExperience.length > 0) {
-    jobRole = resume.previousExperience[0].job_role;
+  if (resume.previous_experience && resume.previous_experience.length > 0) {
+    jobRole = resume.previous_experience[0].job_role;
   }
   const { top } = useSafeAreaInsets();
   return (

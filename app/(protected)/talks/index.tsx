@@ -18,6 +18,7 @@ import BottomName from "@/components/profile/home/BottomName";
 import BottomSheet from "@/components/messsages/BottomSheet";
 import { MenuButton } from "@/app/(protected)/jobs/index";
 import { useRouter, useNavigation } from "expo-router";
+import { useIsFocused } from "@react-navigation/native";
 
 const width = Dimensions.get("window").width;
 type OptionChipProps = {
@@ -39,7 +40,7 @@ function OptionChip({
         !selected && { backgroundColor: "#f5f5f5" },
       ]}
     >
-      <Text style={[optionChipStyles.text, !selected && { color: "#737373" }]}>
+      <Text style={[optionChipStyles.text, !selected && { color: "#737373", fontWeight: 'normal' }]}>
         {title}
       </Text>
     </Pressable>
@@ -69,9 +70,10 @@ const hashChipStyles = StyleSheet.create({
 
 const optionChipStyles = StyleSheet.create({
   container: {
-    paddingVertical: 8,
+    height: 38,
     paddingHorizontal: 16,
-    borderRadius: 16,
+    justifyContent: 'center',
+    borderRadius: 32,
     backgroundColor: "#202020",
   },
   text: {
@@ -148,6 +150,19 @@ export default function Page() {
   const [isSearchFocused, setIsSearchFocused] = React.useState(false);
   const [search, setSearch] = React.useState("");
   const navigation = useNavigation();
+  const focused = useIsFocused();
+
+  React.useEffect(() => {
+    if (!isSearchFocused && focused) {
+      navigation.getParent()?.setOptions({ tabBarStyle: { display: "flex" } });
+    } else {
+      navigation.getParent()?.setOptions({
+        tabBarStyle: {
+          display: "none",
+        },
+      });
+    }
+  }, [isSearchFocused, focused]);
 
   // search bar animation values
   const searchBarMarginTop = useAnimatedValue(0);
@@ -156,22 +171,8 @@ export default function Page() {
 
   React.useEffect(() => {
     if (isSearchFocused) {
-      navigation.getParent()?.setOptions({ tabBarStyle: { display: "none" } });
-    } else {
-      navigation.getParent()?.setOptions({
-        tabBarStyle: {
-          display: "flex",
-          height: 54,
-          marginBottom: 0,
-          paddingBottom: 0,
-        },
-      });
-    }
-  }, [isSearchFocused]);
-  React.useEffect(() => {
-    if (isSearchFocused) {
       Animated.timing(searchBarMarginTop, {
-        toValue: -96,
+        toValue: -88,
         duration: 200,
         useNativeDriver: true,
       }).start();
@@ -232,10 +233,12 @@ export default function Page() {
             </Animated.View>
           </Pressable>
         </Animated.View>
-        <View
+        <Animated.View
           style={{
             width: width - 32,
             marginTop: 32,
+            opacity: contentOpacity,
+
           }}
         >
           <View style={{ flexDirection: "row", gap: 16 }}>
@@ -245,14 +248,14 @@ export default function Page() {
             <OptionChip title="Trending" selected={true} />
             <OptionChip title="Following" selected={false} />
           </View>
-        </View>
-        <View style={styles.postsContainer}>
+        </Animated.View>
+        <Animated.View style={[styles.postsContainer, { opacity: contentOpacity }]}>
           <Post />
           <Post />
           <View style={{ backgroundColor: 'white' }}>
             <BottomName />
           </View>
-        </View>
+        </Animated.View>
       </ScrollView>
       <BottomSheet
         menuRef={menuRef}
@@ -261,7 +264,7 @@ export default function Page() {
           <MenuButton
             onPress={() => {
               menuRef?.current.close();
-
+              router.push("/(protected)/talks/profile");
             }}
           >
             <Text style={styles.menuButtonHeading}>Your Profile</Text>
@@ -307,16 +310,16 @@ const styles = StyleSheet.create({
   },
   postsContainer: {
     backgroundColor: "#f5f5f5",
-    gap: 12,
-    paddingTop: 12,
+    gap: 8,
+    paddingTop: 8,
     marginTop: 16,
     width: width,
   },
   addHashContainer: {
     backgroundColor: '#f5f5f5',
-    height: 32,
-    width: 32,
-    borderRadius: 32,
+    height: 36,
+    width: 36,
+    borderRadius: 36,
     alignItems: 'center',
     justifyContent: 'center',
   },

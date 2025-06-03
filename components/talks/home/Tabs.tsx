@@ -3,7 +3,7 @@ import { TabView } from 'react-native-tab-view';
 import React from 'react';
 import { Animated, Dimensions, Platform, TouchableOpacity, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { Portal } from '@gorhom/portal';
-import PostsTab from './PostsTab';
+import PostsTab from '@/components/profile/home/PostsTab';
 
 const width = Dimensions.get('window').width;
 

@@ -31,6 +31,7 @@ function LoadingScreen() {
 
 const AppTabs = () => {
   const segment = useSegments()
+  console.log('Current segment:', segment, hiddenSegments.includes(JSON.stringify(segment)))
 
   return (
     <>

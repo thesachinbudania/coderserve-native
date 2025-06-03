@@ -19,7 +19,7 @@ import { apiUrl } from '@/constants/env';
 
 const { width } = Dimensions.get("window");
 
-export function EditResume() {
+export function EditResume({ showLess = false }: { showLess?: boolean }) {
   const user = useUserStore(state => state);
   const jobs = useJobsState(state => state);
   const { setResumeEdit } = useResumeEdit(state => state);
@@ -293,207 +293,213 @@ export function EditResume() {
           showcased here.
         </Text>
       </View>
-      {jobs.skills && jobs.skills.length > 0 ? (
-        <View>
-          <Text style={styles.detailsHeading}>Skills</Text>
-          <Pressable
-            onPress={() =>
-              router.push('/(freeRoutes)/jobs/resume/skills')
-            }
-          >
-            {({ pressed }) => (
-              <View
-                style={[
-                  { marginBottom: -8 },
-                  pressed && {
-                    marginHorizontal: -16,
-                    paddingHorizontal: 16,
-                    backgroundColor: "#f5f5f5",
-                  },
-                ]}
-              >
-                <DetailsList content={jobs.skills || []} />
+      {
+        !showLess && (
+          <View style={{ gap: 48 }}>
+            {jobs.skills && jobs.skills.length > 0 ? (
+              <View>
+                <Text style={styles.detailsHeading}>Skills</Text>
+                <Pressable
+                  onPress={() =>
+                    router.push('/(freeRoutes)/jobs/resume/skills')
+                  }
+                >
+                  {({ pressed }) => (
+                    <View
+                      style={[
+                        { marginBottom: -8 },
+                        pressed && {
+                          marginHorizontal: -16,
+                          paddingHorizontal: 16,
+                          backgroundColor: "#f5f5f5",
+                        },
+                      ]}
+                    >
+                      <DetailsList content={jobs.skills || []} />
+                    </View>
+                  )}
+                </Pressable>
               </View>
+            ) : (
+              <ProfileSection
+                title="Skills"
+                content="You haven’t added any skills yet. Showcase your expertise and stand out!"
+                onPress={() => router.push('/(freeRoutes)/jobs/resume/skills')}
+              />
             )}
-          </Pressable>
-        </View>
-      ) : (
-        <ProfileSection
-          title="Skills"
-          content="You haven’t added any skills yet. Showcase your expertise and stand out!"
-          onPress={() => router.push('/(freeRoutes)/jobs/resume/skills')}
-        />
-      )}
-      {jobs.languages && jobs.languages.length > 0 ? (
-        <View>
-          <Text style={styles.detailsHeading}>Languages</Text>
-          <View style={{ marginTop: -8, marginBottom: 16 }}>
-            {jobs.languages.map((language, index) => (
-              <Pressable
+            {jobs.languages && jobs.languages.length > 0 ? (
+              <View>
+                <Text style={styles.detailsHeading}>Languages</Text>
+                <View style={{ marginTop: -8, marginBottom: 16 }}>
+                  {jobs.languages.map((language, index) => (
+                    <Pressable
+                      onPress={() => {
+                        setResumeEdit({
+                          edit: true,
+                          id: language.id,
+                        });
+                        router.push('/(freeRoutes)/jobs/resume/language');
+                      }
+                      }
+                      key={index}
+                    >
+                      {({ pressed }) => (
+                        <View
+                          key={index}
+                          style={[
+                            {
+                              marginTop: 8,
+                              flexDirection: "row",
+                              justifyContent: "space-between",
+                              paddingVertical: 4,
+                              marginVertical: -4,
+                            },
+                            pressed && {
+                              marginHorizontal: -16,
+                              paddingHorizontal: 16,
+                              backgroundColor: "#f5f5f5",
+                            },
+                          ]}
+                        >
+                          <Text style={{ fontSize: 13, color: "#737373" }}>
+                            {language.language}
+                          </Text>
+                          <View style={{ width: 91 }}>
+                            <Rating
+                              stars={language.rating}
+                              editable={false}
+                              size={14}
+                            />
+                          </View>
+                        </View>
+                      )}
+                    </Pressable>
+                  ))}
+                </View>
+                <View style={styles.buttonContainer}>
+                  <NoBgButton
+                    title="Add More"
+                    onPress={() => {
+                      setResumeEdit({
+                        edit: false,
+                        id: null,
+                      });
+                      router.push('/(freeRoutes)/jobs/resume/language');
+                    }
+                    }
+                  />
+                </View>
+              </View>
+            ) : (
+              <ProfileSection
+                title="Languages"
+                content="You haven't added any languages yet. Highlight the languages you know!"
                 onPress={() => {
                   setResumeEdit({
-                    edit: true,
-                    id: language.id,
+                    edit: false,
+                    id: null,
                   });
                   router.push('/(freeRoutes)/jobs/resume/language');
                 }
                 }
-                key={index}
-              >
-                {({ pressed }) => (
-                  <View
-                    key={index}
-                    style={[
-                      {
-                        marginTop: 8,
-                        flexDirection: "row",
-                        justifyContent: "space-between",
-                        paddingVertical: 4,
-                        marginVertical: -4,
-                      },
-                      pressed && {
-                        marginHorizontal: -16,
-                        paddingHorizontal: 16,
-                        backgroundColor: "#f5f5f5",
-                      },
-                    ]}
+              />
+            )}
+
+            <View>
+              {user.dobDate && user.dobMonth && user.dobYear ? (
+                <>
+                  <Text style={styles.detailsHeading}>Date of Birth</Text>
+                  <Pressable
+                    onPress={() => router.push('/(freeRoutes)/profile/birthday')}
                   >
-                    <Text style={{ fontSize: 13, color: "#737373" }}>
-                      {language.language}
-                    </Text>
-                    <View style={{ width: 91 }}>
-                      <Rating
-                        stars={language.rating}
-                        editable={false}
-                        size={14}
-                      />
-                    </View>
-                  </View>
+                    {
+                      ({ pressed }) => <Text style={[styles.detailsContent, { color: '#737373' }, pressed && { backgroundColor: '#f5f5f5', marginHorizontal: -16, paddingHorizontal: 16 }]}>
+                        {user.dobDate} {user.dobMonth} {user.dobYear}
+                      </Text>
+                    }
+
+                  </Pressable>
+                </>
+              ) : (
+                <ProfileSection
+                  title="Date of Birth"
+                  content="You haven’t added your date of birth yet. Add it to showcase your age!"
+                  onPress={() => router.push('/(freeRoutes)/profile/birthday')}
+                />
+              )}
+            </View>
+            <View>
+              <Text style={styles.detailsHeading}>Get In Touch</Text>
+              <View style={{ flexDirection: "row", gap: 8, marginTop: 8 }}>
+                {user.email && (
+                  <IconButton onPress={() => Linking.openURL(`mailto:${user.email}`)}>
+                    <Image
+                      source={require("@/assets/images/jobs/Email.png")}
+                      style={styles.menuIcon}
+                    />
+                  </IconButton>
                 )}
-              </Pressable>
-            ))}
+                {user.mobileCountryCode && user.mobile && (
+                  <IconButton
+                    onPress={() =>
+                      Linking.openURL(
+                        `tel:${user.mobileCountryCode + " " + user.mobile}`,
+                      )
+                    }
+                  >
+                    <Image
+                      source={require("@/assets/images/jobs/Phone.png")}
+                      style={styles.menuIcon}
+                    />
+                  </IconButton>
+                )}
+                {user.whatsappNumber && user.whatsappCountryCode && (
+                  <IconButton
+                    onPress={() =>
+                      Linking.openURL(
+                        `https://api.whatsapp.com/send?phone=${user.whatsappCountryCode}${user.whatsappNumber}`,
+                      )
+                    }
+                  >
+                    <Image
+                      source={require("@/assets/images/jobs/WhatsApp.png")}
+                      style={styles.menuIcon}
+                    />
+                  </IconButton>
+                )}
+                {user.gitHub && (
+                  <IconButton
+                    onPress={() =>
+                      Linking.openURL(
+                        user.gitHub ? user.gitHub : "https://github.com/",
+                      )
+                    }
+                  >
+                    <Image
+                      source={require("@/assets/images/jobs/GitHub.png")}
+                      style={styles.menuIcon}
+                    />
+                  </IconButton>
+                )}
+                {user.website && (
+                  <IconButton
+                    onPress={() =>
+                      Linking.openURL(
+                        user.website ? user.website : "https://www.example.com",
+                      )
+                    }
+                  >
+                    <Image
+                      source={require("@/assets/images/jobs/Website.png")}
+                      style={styles.menuIcon}
+                    />
+                  </IconButton>
+                )}
+              </View>
+            </View>
           </View>
-          <View style={styles.buttonContainer}>
-            <NoBgButton
-              title="Add More"
-              onPress={() => {
-                setResumeEdit({
-                  edit: false,
-                  id: null,
-                });
-                router.push('/(freeRoutes)/jobs/resume/language');
-              }
-              }
-            />
-          </View>
-        </View>
-      ) : (
-        <ProfileSection
-          title="Languages"
-          content="You haven't added any languages yet. Highlight the languages you know!"
-          onPress={() => {
-            setResumeEdit({
-              edit: false,
-              id: null,
-            });
-            router.push('/(freeRoutes)/jobs/resume/language');
-          }
-          }
-        />
-      )}
-
-      <View>
-        {user.dobDate && user.dobMonth && user.dobYear ? (
-          <>
-            <Text style={styles.detailsHeading}>Date of Birth</Text>
-            <Pressable
-              onPress={() => router.push('/(freeRoutes)/profile/birthday')}
-            >
-              {
-                ({ pressed }) => <Text style={[styles.detailsContent, { color: '#737373' }, pressed && { backgroundColor: '#f5f5f5', marginHorizontal: -16, paddingHorizontal: 16 }]}>
-                  {user.dobDate} {user.dobMonth} {user.dobYear}
-                </Text>
-              }
-
-            </Pressable>
-          </>
-        ) : (
-          <ProfileSection
-            title="Date of Birth"
-            content="You haven’t added your date of birth yet. Add it to showcase your age!"
-            onPress={() => router.push('/(freeRoutes)/profile/birthday')}
-          />
-        )}
-      </View>
-      <View>
-        <Text style={styles.detailsHeading}>Get In Touch</Text>
-        <View style={{ flexDirection: "row", gap: 8, marginTop: 8 }}>
-          {user.email && (
-            <IconButton onPress={() => Linking.openURL(`mailto:${user.email}`)}>
-              <Image
-                source={require("@/assets/images/jobs/Email.png")}
-                style={styles.menuIcon}
-              />
-            </IconButton>
-          )}
-          {user.mobileCountryCode && user.mobile && (
-            <IconButton
-              onPress={() =>
-                Linking.openURL(
-                  `tel:${user.mobileCountryCode + " " + user.mobile}`,
-                )
-              }
-            >
-              <Image
-                source={require("@/assets/images/jobs/Phone.png")}
-                style={styles.menuIcon}
-              />
-            </IconButton>
-          )}
-          {user.whatsappNumber && user.whatsappCountryCode && (
-            <IconButton
-              onPress={() =>
-                Linking.openURL(
-                  `https://api.whatsapp.com/send?phone=${user.whatsappCountryCode}${user.whatsappNumber}`,
-                )
-              }
-            >
-              <Image
-                source={require("@/assets/images/jobs/WhatsApp.png")}
-                style={styles.menuIcon}
-              />
-            </IconButton>
-          )}
-          {user.gitHub && (
-            <IconButton
-              onPress={() =>
-                Linking.openURL(
-                  user.gitHub ? user.gitHub : "https://github.com/",
-                )
-              }
-            >
-              <Image
-                source={require("@/assets/images/jobs/GitHub.png")}
-                style={styles.menuIcon}
-              />
-            </IconButton>
-          )}
-          {user.website && (
-            <IconButton
-              onPress={() =>
-                Linking.openURL(
-                  user.website ? user.website : "https://www.example.com",
-                )
-              }
-            >
-              <Image
-                source={require("@/assets/images/jobs/Website.png")}
-                style={styles.menuIcon}
-              />
-            </IconButton>
-          )}
-        </View>
-      </View>
+        )
+      }
     </View>
   );
 }

@@ -1,8 +1,7 @@
 import { View, Text, StyleSheet } from "react-native";
-import BottomText from "./BottomName";
+import BottomText from "@/components/profile/home/BottomName";
 import React from "react";
-import { EditResume } from "@/app/(protected)/jobs/resume/update/index";
-
+import { ResumeDetails } from "@/app/(protected)/jobs/resume/index";
 export function ProfileSection({
   title,
   content,
@@ -39,7 +38,7 @@ export default function ProfileContent() {
   return (
     <>
       <View style={styles.tabContent}>
-        <EditResume />
+        <ResumeDetails showLess={true} />
       </View>
       <BottomText />
     </>
@@ -62,6 +61,5 @@ const styles = StyleSheet.create({
   tabContent: {
     flex: 1,
     flexGrow: 1,
-    marginHorizontal: -16,
   },
 });
