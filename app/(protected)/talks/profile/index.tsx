@@ -46,7 +46,7 @@ export default function YourProfile() {
           menuRef={menuRef}
         />
       }
-      <ScrollView contentContainerStyle={{ paddingTop: 57 }}>
+      <ScrollView contentContainerStyle={{ paddingTop: 57, backgroundColor: 'white' }}>
         {
           user.background_type === 'default' ?
             // @ts-ignore
@@ -111,7 +111,10 @@ export default function YourProfile() {
           <MenuButton
             heading='Your Activity'
             text='View your engagement history.'
-            onPress={() => { }}
+            onPress={() => {
+              menuRef?.current.close();
+              router.push('/(protected)/talks/profile/activity')
+            }}
           />
           <MenuButton
             heading='Go Pro'

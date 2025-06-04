@@ -8,6 +8,7 @@ import BackgroundImageLoader from "@/components/BackgroundImageLoader";
 import BackgroundMapping from '@/assets/images/profile/Background/backgroundMapping';
 import ImageLoader from "@/components/ImageLoader";
 import ProfileButton from "@/components/general/ProfileButton";
+import { LearningStreak } from "@/components/talks/home/ProfileContent";
 
 
 
@@ -56,6 +57,9 @@ export default function() {
         </View>
         <View style={{ marginHorizontal: -16, marginTop: 16 }}>
           <EditResume showLess />
+          <View style={{ marginHorizontal: 16 }}>
+            <LearningStreak />
+          </View>
         </View>
         <BottomName />
       </Layout>

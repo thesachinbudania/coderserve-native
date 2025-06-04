@@ -31,7 +31,7 @@ export default function Layout({ headerTitle, children, defaultBack = true, flex
         >
           {
             flex1 ? (
-              <View style={{ flex: 1 }}>
+              <View style={{ flex: 1, backgroundColor: 'white' }}>
                 {children}
               </View>
             ) : (
