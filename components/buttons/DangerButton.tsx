@@ -17,7 +17,7 @@ export default function BlueButton({ title, dangerButton = false, disabled = fal
       {
         ({ pressed }) => (
           <LinearGradient
-            colors={disabled ? ['#f4f4f4', '#f4f4f4'] : (pressed || loading ? (dangerButton ? ['#ff5757', '#ff5757'] : ['#006dff', '#006dff']) : ['#202020', '#202020'])}
+            colors={disabled ? ['#f4f4f4', '#f4f4f4'] : (pressed || loading ? ['#ff5757', '#ff5757'] : ['#fff5f5', '#fff5f5'])}
             start={{ x: 0, y: 1 }}
             end={{ x: 1, y: 0 }}
             style={styles.graident}
@@ -47,6 +47,6 @@ const styles = StyleSheet.create({
   text: {
     fontSize: 15,
     fontWeight: 'bold',
-    color: 'white',
+    color: '#ff5757',
   }
 })

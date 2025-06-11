@@ -106,7 +106,7 @@ export default function Tabs({ hostName = 'tabsContent' }: { hostName?: string }
 
     return (
       <Portal hostName={hostName}>
-        <View style={{ marginHorizontal: 16, minHeight: 300 }}>
+        <View style={{ marginHorizontal: 16, minHeight: 357, marginTop: -16 }}>
           {
             route.title === 'Profile' ? <ProfileTab /> : <PostsTab />
           }

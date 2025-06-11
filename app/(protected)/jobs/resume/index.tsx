@@ -321,7 +321,7 @@ export default function Resume() {
           text="Show if you're currently job hunting."
           onPress={() => {
             menuRef?.current.close();
-            router.push('/jobs/resume/update/employmentStatus')
+            router.push('/(freeRoutes)/jobs/resume/employmentStatus')
           }}
         />
         <MenuButton
@@ -329,7 +329,7 @@ export default function Resume() {
           text='Set expected salary for job matches.'
           onPress={() => {
             menuRef?.current.close();
-            router.push('/jobs/resume/update/salaryExpectations')
+            router.push('/(freeRoutes)/jobs/resume/salaryExpectations')
           }}
         />
         <MenuButton

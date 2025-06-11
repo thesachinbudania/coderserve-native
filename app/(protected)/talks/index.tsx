@@ -1,5 +1,6 @@
 import {
   Animated,
+  BackHandler,
   Dimensions,
   Image,
   Keyboard,
@@ -19,6 +20,9 @@ import BottomSheet from "@/components/messsages/BottomSheet";
 import { MenuButton } from "@/app/(protected)/jobs/index";
 import { useRouter, useNavigation } from "expo-router";
 import { useIsFocused } from "@react-navigation/native";
+import { isTalksProfileCompleted } from "@/zustand/jobsStore";
+import { useUserStore } from "@/zustand/stores";
+import DefaultButton from "@/components/buttons/BlueButton";
 
 const width = Dimensions.get("window").width;
 type OptionChipProps = {
@@ -64,7 +68,7 @@ const hashChipStyles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#737373',
     borderRadius: 6,
-    padding: 6
+    padding: 4
   }
 })
 
@@ -123,6 +127,7 @@ const postStyles = StyleSheet.create({
   headContainer: {
     flexDirection: "row",
     gap: 4,
+    alignItems: 'center',
   },
   name: {
     fontSize: 15,
@@ -146,6 +151,7 @@ const postStyles = StyleSheet.create({
 
 export default function Page() {
   const menuRef = React.useRef<any>(null);
+  const similarProfileInactiveMenuRef = React.useRef<any>(null);
   const router = useRouter();
   const [isSearchFocused, setIsSearchFocused] = React.useState(false);
   const [search, setSearch] = React.useState("");
@@ -153,8 +159,33 @@ export default function Page() {
   const focused = useIsFocused();
 
   React.useEffect(() => {
+    const backHandler = BackHandler.addEventListener('hardwareBackPress', () => {
+      if (isSearchFocused) {
+        Keyboard.dismiss(); // Dismiss keyboard manually
+        setIsSearchFocused(false); // Hide search bar
+        return true; // Prevent default back action
+      }
+      router.back();
+      return true;
+    });
+
+    return () => backHandler.remove();
+  }, [isSearchFocused]);
+
+
+  const similarProfileOnClickHandler = () => {
+    if (isTalksProfileCompleted()) {
+      menuRef?.current.close();
+      router.push("/(protected)/talks/similarProfiles");
+    } else {
+      menuRef?.current.close();
+      similarProfileInactiveMenuRef?.current.open();
+    }
+  }
+
+  React.useEffect(() => {
     if (!isSearchFocused && focused) {
-      navigation.getParent()?.setOptions({ tabBarStyle: { display: "flex" } });
+      navigation.getParent()?.setOptions({ tabBarStyle: { display: "flex", height: 54 } });
     } else {
       navigation.getParent()?.setOptions({
         tabBarStyle: {
@@ -214,6 +245,7 @@ export default function Page() {
     >
       <ScrollView
         contentContainerStyle={{ width: width, alignItems: "center" }}
+        scrollEnabled={!isSearchFocused}
       >
         <Animated.View style={{ width: contentWidth }}>
           <Animated.View style={{ opacity: contentOpacity }}>
@@ -275,6 +307,7 @@ export default function Page() {
           <MenuButton
             onPress={() => {
               menuRef?.current.close();
+              similarProfileOnClickHandler()
             }}
           >
             <Text style={styles.menuButtonHeading}>Similar Profiles</Text>
@@ -298,6 +331,25 @@ export default function Page() {
               Unlock exclusive features and enhance profile visibility.
             </Text>
           </MenuButton>
+        </View>
+      </BottomSheet>
+      <BottomSheet
+        menuRef={similarProfileInactiveMenuRef}
+        height={168}>
+        <View style={{ gap: 32 }}>
+          <View style={{ gap: 8 }}>
+            <Text style={{ textAlign: 'center', fontWeight: 'bold', fontSize: 15 }}>Complete Your Profile</Text>
+            <Text style={{ textAlign: 'center', color: '#737373', fontSize: 13 }}>
+              Your profile is incomplete. Please provide all the required details to enable you to access similar profiles.
+            </Text>
+          </View>
+          <DefaultButton
+            title='Update Profile'
+            onPress={() => {
+              similarProfileInactiveMenuRef?.current.close();
+              router.push("/(protected)/talks/profile/update");
+            }}
+          />
         </View>
       </BottomSheet>
     </View>

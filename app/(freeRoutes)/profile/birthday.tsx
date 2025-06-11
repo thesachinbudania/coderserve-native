@@ -26,7 +26,7 @@ export default function Page() {
             <SectionOption
               title='Your Birthdate'
               subTitle={dobDate && dobMonth && dobYear ? `${dobDate} ${dobMonth} ${dobYear}` : '-'}
-              onPress={() => router.push('/profile/edit/selectDate')}
+              onPress={() => router.push('/(freeRoutes)/profile/selectDate')}
             />
           </Section>
         </SectionContainer>

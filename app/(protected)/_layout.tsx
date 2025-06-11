@@ -39,7 +39,7 @@ const AppTabs = () => {
         <Tabs
           screenOptions={{
             animation: 'shift',
-            tabBarLabelStyle: { fontSize: 11, fontWeight: 'normal' },
+            tabBarLabelStyle: { fontSize: 11, fontWeight: 'thin' },
             tabBarActiveTintColor: "#000",
             tabBarInactiveTintColor: '#d9d9d9',
             tabBarStyle: {
@@ -49,8 +49,8 @@ const AppTabs = () => {
             headerShown: false,
             tabBarButton: (props) => (
               <Pressable
-                android_ripple={{ color: '#f0f0f0', borderless: true }}
                 {...props}
+                android_ripple={{ color: '#f5f5f5', borderless: true }}
               />
             )
           }}

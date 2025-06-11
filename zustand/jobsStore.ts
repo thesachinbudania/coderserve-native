@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { useUserStore } from './stores';
 
 export type OtherCertifications = {
   id: number,
@@ -90,3 +91,15 @@ export const useResumeEdit = create<ResumeEdit>((set) => ({
 
   setResumeEdit: (resumeEdit) => set(resumeEdit),
 }));
+
+
+export const isTalksProfileCompleted = () => {
+  const { about, previous_experience, degrees, other_certifications } = useJobsState.getState();
+
+  return (
+    about !== null &&
+    previous_experience !== null &&
+    degrees !== null &&
+    other_certifications !== null
+  );
+}

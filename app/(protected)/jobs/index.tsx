@@ -1,5 +1,6 @@
 import {
   Animated,
+  BackHandler,
   Dimensions,
   Pressable,
   Keyboard,
@@ -255,10 +256,23 @@ export default function Home() {
   const contentOpacity = useAnimatedValue(1);
   const router = useRouter();
   const focused = useIsFocused();
+  React.useEffect(() => {
+    const backHandler = BackHandler.addEventListener('hardwareBackPress', () => {
+      if (isSearchFocused) {
+        Keyboard.dismiss(); // Dismiss keyboard manually
+        setIsSearchFocused(false); // Hide search bar
+        return true; // Prevent default back action
+      }
+      router.back();
+      return true;
+    });
+
+    return () => backHandler.remove();
+  }, [isSearchFocused]);
 
   React.useEffect(() => {
     if (!isSearchFocused && focused) {
-      navigation.getParent()?.setOptions({ tabBarStyle: { display: "flex" } });
+      navigation.getParent()?.setOptions({ tabBarStyle: { display: "flex", height: 54 } });
     } else {
       navigation.getParent()?.setOptions({
         tabBarStyle: {
@@ -271,7 +285,7 @@ export default function Home() {
   React.useEffect(() => {
     if (isSearchFocused) {
       Animated.timing(searchBarMarginTop, {
-        toValue: -96,
+        toValue: -88,
         duration: 200,
         useNativeDriver: true,
       }).start();

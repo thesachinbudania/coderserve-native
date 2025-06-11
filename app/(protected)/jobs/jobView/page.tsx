@@ -13,7 +13,7 @@ import { useJobsState } from '@/zustand/jobsStore';
 function isResumeFinished() {
   const jobs = useJobsState(state => state);
   let isFinished = true;
-  if (!jobs || jobs.about === '' || !jobs.about || !jobs.previousExperience || jobs.previousExperience?.length < 1 || !jobs.degrees || jobs.degrees?.length < 1 || !jobs.skills || jobs.skills?.length < 1 || !jobs.languages || jobs.languages?.length < 1) {
+  if (!jobs || jobs.about === '' || !jobs.about || !jobs.previous_experience || jobs.previous_experience?.length < 1 || !jobs.degrees || jobs.degrees?.length < 1 || !jobs.skills || jobs.skills?.length < 1 || !jobs.languages || jobs.languages?.length < 1) {
     isFinished = false;
   }
   return isFinished

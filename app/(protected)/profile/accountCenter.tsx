@@ -6,7 +6,7 @@ import React from 'react';
 import PopUp from '@/components/messsages/PopUp';
 import BlueButton from '@/components/buttons/BlueButton';
 import ImageLoader from '@/components/ImageLoader';
-import { useRouter, useLocalSearchParams } from 'expo-router';
+import { useRouter } from 'expo-router';
 import { popUpStore } from '@/zustand/accountCentre';
 
 function PopUpMessage({ setVisible, title, body }: { body: string, title: string, setVisible: React.Dispatch<React.SetStateAction<boolean>> }) {
