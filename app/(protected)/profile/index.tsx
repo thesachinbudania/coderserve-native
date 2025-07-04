@@ -10,12 +10,14 @@ import BackgroundMapping from '@/assets/images/profile/Background/backgroundMapp
 import BackgroundImageLoader from '@/components/BackgroundImageLoader';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useTabPressScrollToTop } from '@/helpers/hooks/useTabBarScrollToTop';
 
 
-export function ProfileButton({ count, title }: { count: number, title: string }) {
+export function ProfileButton({ count, onPress = () => { }, title }: { count: number, onPress?: () => void, title: string }) {
   return (
     <Pressable
       style={({ pressed }) => [styles.countBox, pressed && { backgroundColor: '#f4f4f4' }]}
+      onPress={onPress}
     >
       <Text style={styles.countText}>{count}</Text>
       <Text style={styles.countHeading}>{title}</Text>
@@ -24,45 +26,10 @@ export function ProfileButton({ count, title }: { count: number, title: string }
   )
 }
 
-
-const width = Dimensions.get('window').width;
-export default function ProfileHome() {
-  const user = useUserStore(state => state);
-  const isScrolling = React.useState(false);
+export const Profile = ({ user }: { user: any }) => {
   const router = useRouter();
-  const { top } = useSafeAreaInsets();
-
-  async function shareProfileAsync() {
-    try {
-      await Share.share({
-        message: 'https://coderserve.com/profile/' + user.username,
-      });
-    } catch (error) {
-      console.error('Error sharing profile:', error);
-    }
-  }
-
   return (
-    <ScrollView
-      contentContainerStyle={{ backgroundColor: 'white', paddingTop: top }}
-      nestedScrollEnabled
-      onScroll={(e) => {
-        if (e.nativeEvent.contentOffset.y > 0) {
-          isScrolling[1](true);
-        } else {
-          isScrolling[1](false);
-        }
-      }}
-    >
-
-      <View style={styles.header}>
-        <IconButton>
-          <Image source={require('@/assets/images/profile/home/notifications.png')} style={styles.menuIcon} />
-        </IconButton>
-        <IconButton onPress={() => router.push('/profile/controlCenter')}>
-          <Image source={require('@/assets/images/profile/home/menu.png')} style={styles.menuIcon} />
-        </IconButton>
-      </View>
+    <>
       {
         user.background_type === 'default' ?
           // @ts-ignore
@@ -84,18 +51,71 @@ export default function ProfileHome() {
               title="Posts"
             />
             <ProfileButton
-              count={0}
+              count={user.followers || 0}
               title="Followers"
+              onPress={() => router.push(`/(freeRoutes)/profile/followersList/${user.username}`)}
             />
             <ProfileButton
-              count={0}
+              count={user.following || 0}
               title="Following"
+              onPress={() => router.push(`/(freeRoutes)/profile/followingList/${user.username}`)}
             />
           </View>
         </View>
         <Text style={styles.name}>{user.first_name} {user.last_name}</Text>
         <Text style={styles.username}>@{user.username}</Text>
         <Text style={styles.userLocation}>{user.city}, {user.state}, {user.country}</Text>
+      </View>
+    </>
+  )
+}
+
+
+const width = Dimensions.get('window').width;
+
+export default function ProfileHome() {
+  const user = useUserStore(state => state);
+  const isScrolling = React.useState(false);
+  const router = useRouter();
+  const { top } = useSafeAreaInsets();
+  const scrollRef = React.useRef<ScrollView>(null);
+  const [scrollEnabled, setScrollEnabled] = React.useState(true);
+  useTabPressScrollToTop(scrollRef, 'profile')
+
+  async function shareProfileAsync() {
+    try {
+      await Share.share({
+        message: 'https://coderserve.com/profile/userProfile/' + encodeURIComponent(user.username || ''),
+      });
+    } catch (error) {
+      console.error('Error sharing profile:', error);
+    }
+  }
+
+  return (
+    <ScrollView
+      contentContainerStyle={{ backgroundColor: 'white', paddingTop: top }}
+      nestedScrollEnabled
+      onScroll={(e) => {
+        if (e.nativeEvent.contentOffset.y > 0) {
+          isScrolling[1](true);
+        } else {
+          isScrolling[1](false);
+        }
+      }}
+      ref={scrollRef}
+    >
+
+      <View style={styles.header}>
+        <IconButton>
+          <Image source={require('@/assets/images/profile/home/notifications.png')} style={styles.menuIcon} />
+        </IconButton>
+        <IconButton onPress={() => router.push('/profile/controlCenter')}>
+          <Image source={require('@/assets/images/profile/home/menu.png')} style={styles.menuIcon} />
+        </IconButton>
+      </View>
+      <Profile user={user} />
+      <View style={styles.body}>
         <View style={styles.buttonContainer}>
           <View style={{ width: (width - 32) * 0.5 - 8 }}>
             <BlueButton
@@ -110,11 +130,14 @@ export default function ProfileHome() {
             />
           </View>
         </View>
-        <Tabs />
+        <View style={{ marginHorizontal: -16 }}>
+          <Tabs
+            setScrollEnabled={setScrollEnabled}
+          />
+        </View>
       </View>
       <View >
       </View>
-      <PortalHost name='tabsContent' />
     </ScrollView>
   )
 }

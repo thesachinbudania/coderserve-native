@@ -5,6 +5,7 @@ import {
   Pressable,
   Keyboard,
   Image,
+  RefreshControl,
   ScrollView,
   StyleSheet,
   Text,
@@ -26,8 +27,11 @@ import { useRouter, useNavigation } from "expo-router";
 import { useIsFocused } from "@react-navigation/native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useJobsState } from "@/zustand/jobsStore";
+import { useTabPressScrollToTop } from "@/helpers/hooks/useTabBarScrollToTop";
 
-export function Header({ menuRef }: { menuRef: React.RefObject<any> }) {
+const width = Dimensions.get("window").width;
+
+export function Header({ menuRef, forTalks = false }: { forTalks?: boolean, menuRef: React.RefObject<any> }) {
   const router = useRouter();
   const user = useUserStore(state => state);
   const resume = useJobsState(state => state)
@@ -43,9 +47,13 @@ export function Header({ menuRef }: { menuRef: React.RefObject<any> }) {
           <ImageLoader size={48} uri={user.profile_image} border={1} />
         )}
         <View style={{ gap: 6, justifyContent: "center" }}>
-          <Text style={styles.headerName}>{user.first_name}</Text>
+          <Text
+            numberOfLines={1}
+            ellipsizeMode="tail"
+            style={styles.headerName}
+          >{user.first_name}</Text>
           <Text style={styles.secondaryHeaderText}>
-            {jobRole || "What's your job role?"}
+            {forTalks ? "0 Followers" : jobRole || "What's your job role?"}
           </Text>
         </View>
       </View>
@@ -251,17 +259,41 @@ export default function Home() {
   const searchBarMarginTop = useAnimatedValue(0);
   const searchBarMarginRight = useAnimatedValue(0);
   const filterButtonWidth = useAnimatedValue(0);
-  const width = Dimensions.get("window").width;
   const contentWidth = useAnimatedValue(width - 32);
   const contentOpacity = useAnimatedValue(1);
   const router = useRouter();
   const focused = useIsFocused();
+  const listRef = React.useRef<ScrollView>(null);
+  const [keyboardVisible, setKeyboardVisible] = React.useState(false);
+  useTabPressScrollToTop(listRef, 'jobs');
+
+  React.useEffect(() => {
+    const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => {
+      setKeyboardVisible(true);
+    });
+    const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => {
+      setKeyboardVisible(false);
+    });
+
+    return () => {
+      keyboardDidShowListener.remove();
+      keyboardDidHideListener.remove();
+    };
+  }, [])
+
+
   React.useEffect(() => {
     const backHandler = BackHandler.addEventListener('hardwareBackPress', () => {
       if (isSearchFocused) {
-        Keyboard.dismiss(); // Dismiss keyboard manually
-        setIsSearchFocused(false); // Hide search bar
-        return true; // Prevent default back action
+        if (keyboardVisible) {
+          Keyboard.dismiss();
+          return true;
+        }
+        else {
+          Keyboard.dismiss(); // Dismiss keyboard manually
+          setIsSearchFocused(false); // Hide search bar
+          return true; // Prevent default back action
+        }
       }
       router.back();
       return true;
@@ -337,6 +369,8 @@ export default function Home() {
       }).start();
     }
   });
+
+  const [refreshing, setRefreshing] = React.useState(false);
   return (
     <View
       style={{
@@ -347,6 +381,19 @@ export default function Home() {
       <ScrollView
         contentContainerStyle={{ width: width, alignItems: "center" }}
         scrollEnabled={!isSearchFocused}
+        ref={listRef}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={() => {
+              setRefreshing(true);
+              setTimeout(() => {
+                setRefreshing(false);
+              }, 2000);
+            }}
+          />
+        }
+
       >
         <Animated.View style={{ width: contentWidth }}>
           <Animated.View style={{ opacity: contentOpacity }}>
@@ -400,57 +447,55 @@ export default function Home() {
               </View>
             </Animated.View>
             <BottomName />
-            <Portal>
-              <RBSheet
-                ref={menuRef}
-                height={392}
-                closeOnPressMask
-                customStyles={{
-                  container: {
-                    borderTopLeftRadius: 24,
-                    borderTopRightRadius: 24,
-                    padding: 16,
-                  },
-                  draggableIcon: {
-                    backgroundColor: "#000",
-                  },
-                }}
-              >
-                <View style={styles.menuContainer}>
-                  <CountrySelectOption />
-                  <MenuButton
-                    onPress={() => {
-                      menuRef?.current.close();
-                      router.push('/jobs/resume')
-                    }}
-                  >
-                    <Text style={styles.menuButtonHeading}>Resume</Text>
-                    <Text style={styles.menuButtonText}>
-                      Navigate to your resume.
-                    </Text>
-                  </MenuButton>
-                  <MenuButton>
-                    <Text style={styles.menuButtonHeading}>Applied Jobs</Text>
-                    <Text style={styles.menuButtonText}>
-                      Track your job applications in one place
-                    </Text>
-                  </MenuButton>
-                  <MenuButton dark>
-                    <Text
-                      style={[styles.menuButtonHeading, { color: "white" }]}
-                    >
-                      Go Pro
-                    </Text>
-                    <Text style={[styles.menuButtonText, { color: "white" }]}>
-                      Unlock premium features and boost your job search
-                    </Text>
-                  </MenuButton>
-                </View>
-              </RBSheet>
-            </Portal>
           </Pressable>
         </Animated.View>
       </ScrollView>
+      <RBSheet
+        ref={menuRef}
+        height={392}
+        closeOnPressMask
+        customStyles={{
+          container: {
+            borderTopLeftRadius: 24,
+            borderTopRightRadius: 24,
+            padding: 16,
+          },
+          draggableIcon: {
+            backgroundColor: "#000",
+          },
+        }}
+      >
+        <View style={styles.menuContainer}>
+          <CountrySelectOption />
+          <MenuButton
+            onPress={() => {
+              menuRef?.current.close();
+              router.push('/jobs/resume')
+            }}
+          >
+            <Text style={styles.menuButtonHeading}>Resume</Text>
+            <Text style={styles.menuButtonText}>
+              Navigate to your resume.
+            </Text>
+          </MenuButton>
+          <MenuButton>
+            <Text style={styles.menuButtonHeading}>Applied Jobs</Text>
+            <Text style={styles.menuButtonText}>
+              Track your job applications in one place
+            </Text>
+          </MenuButton>
+          <MenuButton dark>
+            <Text
+              style={[styles.menuButtonHeading, { color: "white" }]}
+            >
+              Go Pro
+            </Text>
+            <Text style={[styles.menuButtonText, { color: "white" }]}>
+              Unlock premium features and boost your job search
+            </Text>
+          </MenuButton>
+        </View>
+      </RBSheet>
     </View>
   );
 }
@@ -498,6 +543,7 @@ const styles = StyleSheet.create({
   headerName: {
     fontSize: 15,
     fontWeight: "bold",
+    width: width - 192,
   },
   secondaryHeaderText: {
     fontSize: 11,

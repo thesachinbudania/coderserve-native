@@ -1,4 +1,4 @@
-import { Image, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import Layout from '@/components/general/PageLayout';
 import React from 'react';
 import PopUp from '@/components/messsages/PopUp';
@@ -97,16 +97,16 @@ export default function Background() {
         </View>
         <View style={{ flexDirection: 'row', gap: 16 }}>
           <View style={{ flex: 1 / 2 }}>
-            <BlueButton
-              title='Yes, update'
-              onPress={handleSubmit(updateBackground)}
-              loading={isSubmitting}
-            />
-          </View>
-          <View style={{ flex: 1 / 2 }}>
             <GreyBgButton
               title='Cancel'
               onPress={() => setPopUpVisible(false)}
+            />
+          </View>
+          <View style={{ flex: 1 / 2 }}>
+            <BlueButton
+              title='Yes, Update'
+              onPress={handleSubmit(updateBackground)}
+              loading={isSubmitting}
             />
           </View>
         </View>

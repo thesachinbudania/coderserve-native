@@ -509,6 +509,7 @@ export default function() {
     <View style={{ flex: 1, backgroundColor: "white", paddingBottom: -64 }}>
       <Layout
         headerTitle="Update Resume"
+        bottomPadding={false}
       >
         <View style={styles.container}>
           <TopSection />

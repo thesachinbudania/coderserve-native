@@ -43,13 +43,16 @@ export default function Page() {
   const [changeableDate, setChangeableDate] = React.useState<string | null>(null);
   React.useEffect(() => {
     if (lastNameChanged) {
-      const lastChanged = new Date(lastNameChanged).getTime();
-      const now = new Date().getTime();
-      if (now - lastChanged < (60 * 24 * 60 * 60 * 1000)) {
-        setRecentlyChanged(true);
-      }
-      const canChange = new Date(lastNameChanged).getTime() + (30 * 24 * 60 * 60 * 1000);
-      setChangeableDate(formatDate(new Date(canChange).toString()))
+      protectedApi.get('/accounts/fetch_server_time/').then(response => {
+        const serverTime = response.data.server_time;
+        const lastChanged = new Date(lastNameChanged).getTime();
+        const now = new Date(serverTime).getTime();
+        if (now - lastChanged < (60 * 24 * 60 * 60 * 1000)) {
+          setRecentlyChanged(true);
+        }
+        const canChange = new Date(lastNameChanged).getTime() + (60 * 24 * 60 * 60 * 1000);
+        setChangeableDate(formatDate(new Date(canChange).toString()))
+      })
     }
   }, [])
 

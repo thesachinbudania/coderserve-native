@@ -31,9 +31,9 @@ export default function SelectDate() {
 
   const { setValue, setError, watch, handleSubmit, formState: { isSubmitting, errors } } = useForm<FormData>({
     defaultValues: {
-      dobDate: currentDate || '1',
-      dobMonth: currentMonth || 'January',
-      dobYear: currentYear || thisYear.toString()
+      dobDate: currentDate || '',
+      dobMonth: currentMonth || '',
+      dobYear: currentYear || '',
     },
     resolver: zodResolver(formSchema)
   })
@@ -79,11 +79,10 @@ export default function SelectDate() {
       <View style={{ marginTop: 32 }}>
 
         <View>
-
           <DatePicker
-            date={dobDate || '01'}
-            month={dobMonth || 'January'}
-            year={dobYear || '2025'}
+            date={dobDate}
+            month={dobMonth}
+            year={dobYear}
             setSelectedDate={(date: string) => setValue('dobDate', date)}
             setSelectedMonth={(month: string) => setValue('dobMonth', month)}
             setSelectedYear={(year: string) => setValue('dobYear', year)}
@@ -94,7 +93,7 @@ export default function SelectDate() {
               title='Update'
               onPress={handleSubmit(updateDob)}
               loading={isSubmitting}
-              disabled={dobDate === currentDate && dobMonth === currentMonth && dobYear === currentYear}
+              disabled={(dobDate === currentDate && dobMonth === currentMonth && dobYear === currentYear) || dobDate === '--' || dobMonth === '--' || dobYear === '--'}
             />
             {
               errors.root?.message && <ErrorMessage message={errors.root.message} />

@@ -15,6 +15,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm, Controller, SubmitHandler } from 'react-hook-form';
 import { api } from '@/helpers/auth/axios';
 import handleApiError from '@/helpers/apiErrorHandler';
+import { useJobsState } from "@/zustand/jobsStore";
+import protectedApi from '@/helpers/axios';
 
 const formSchema = zod.object({
   email_or_username: zod.string().min(1, 'Email/Username is required'),
@@ -40,12 +42,15 @@ export default function SignIn() {
   const setUser = useUserStore((state) => state.setUser);
   const setTokens = useTokensStore((state) => state.setTokens);
   const formState = watch();
+  const { setJobsState } = useJobsState();
 
   const signIn: SubmitHandler<FormData> = async (data) => {
-    await api.post('/login/', data).then((response) => {
+    await api.post('/login/', data).then(async (response) => {
       const data = response.data
       setUser(response.data)
       setTokens({ refresh: data.token.refresh, access: data.token.access });
+      const resumeState = await protectedApi.get('/jobs/resume/update_resume/')
+      setJobsState(resumeState.data)
       router.replace('/')
     }).catch(error => {
       handleApiError(error, setError)

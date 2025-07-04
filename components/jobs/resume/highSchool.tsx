@@ -9,7 +9,7 @@ import BlueButton from '@/components/buttons/BlueButton';
 import SearchSuggestion from '@/components/jobs/resume/SearchSuggestions';
 import Error from '@/components/messsages/Error';
 import NoBgButton from '@/components/buttons/NoBgButton';
-import PopUpMessage from '@/components/general/PopUpMessage';
+import PopUpMessage from '@/components/jobs/resume/PopUpMessage';
 import { schools, boardNames } from '@/constants/jobsEducationSuggestions';
 import { useJobsState, useResumeEdit } from '@/zustand/jobsStore';
 import * as zod from 'zod';
@@ -110,11 +110,27 @@ export default function HighSchool({ page, setPage, setShowHeader, setScrollEnab
 
   React.useEffect(() => {
     const backAction = () => {
+      Keyboard.dismiss();
       if (degreeFocused || fieldOfStudyFocused || universityFocused) {
-        setDegreeFocused(false);
-        setFieldOfStudyFocused(false);
-        setUniversityFocused(false);
-        return true;
+        switch (true) {
+          case degreeFocused:
+            setDegreeFocused(false);
+            setValue('degree', editDegree ? editDegree.degree : '');
+            setDegreeSearchText(editDegree ? editDegree.degree : '');
+            return true;
+          case fieldOfStudyFocused:
+            setFieldOfStudyFocused(false);
+            setValue('field_of_study', editDegree ? editDegree.field_of_study : '');
+            setFieldOfStudySearchText(editDegree ? editDegree.field_of_study : '');
+            return true;
+          case universityFocused:
+            setUniversityFocused(false);
+            setValue('institution', editDegree ? editDegree.institution : '');
+            setUniversitySearchText(editDegree ? editDegree.institution : '');
+            return true;
+          default:
+            return false;
+        }
       }
       else {
         return false;

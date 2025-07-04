@@ -50,7 +50,7 @@ export type Degrees = {
 }[]
 
 
-type JobsState = {
+export type JobsState = {
   employment_status: number | null,
   expected_salary_currency: string | null,
   expected_salary: number | null,
@@ -94,12 +94,12 @@ export const useResumeEdit = create<ResumeEdit>((set) => ({
 
 
 export const isTalksProfileCompleted = () => {
-  const { about, previous_experience, degrees, other_certifications } = useJobsState.getState();
+  const { about, previous_experience, degrees } = useJobsState.getState();
 
   return (
     about !== null &&
     previous_experience !== null &&
     degrees !== null &&
-    other_certifications !== null
+    degrees.length > 0
   );
 }

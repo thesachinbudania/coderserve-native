@@ -1,8 +1,9 @@
 import { create } from 'zustand'
 import * as SecureStore from 'expo-secure-store'
 
-interface UserState {
+export interface UserState {
   username: string | null
+  user_id: string | null
   email: string | null
   first_name: string | null
   last_name: string | null
@@ -27,11 +28,14 @@ interface UserState {
   whatsappNumber: string | null
   last_name_changed: string | null
   last_username_changed: string | null
+  following: number | null
+  followers: number | null
   setUser: (user: Partial<UserState>) => void
 }
 
 export const useUserStore = create<UserState>((set) => ({
   username: null,
+  user_id: null,
   email: null,
   first_name: null,
   last_name: null,
@@ -56,6 +60,8 @@ export const useUserStore = create<UserState>((set) => ({
   whatsappNumber: null,
   last_name_changed: null,
   last_username_changed: null,
+  following: null,
+  followers: null,
   setUser: (user) => set(user),
 }))
 

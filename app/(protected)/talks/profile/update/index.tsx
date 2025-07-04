@@ -18,6 +18,7 @@ export default function() {
     <View style={{ flex: 1, backgroundColor: "white", paddingBottom: -64 }}>
       <Layout
         headerTitle="Update Profile"
+        bottomPadding={false}
       >
         <View style={styles.container}>
           <View style={{ marginHorizontal: -16 }}>

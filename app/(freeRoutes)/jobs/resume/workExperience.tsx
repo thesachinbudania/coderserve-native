@@ -25,7 +25,6 @@ import SearchSuggestion from "@/components/jobs/resume/SearchSuggestions";
 import { useJobsState, useResumeEdit } from "@/zustand/jobsStore";
 import protectedApi from "@/helpers/axios";
 import * as zod from 'zod';
-import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, SubmitHandler, Controller } from "react-hook-form";
 import handleApiError from "@/helpers/apiErrorHandler";
 import { useRouter } from "expo-router";
@@ -82,25 +81,6 @@ export default function WorkExperience() {
   const jobDescRef = React.useRef(null);
   const jobDescTranslate = useAnimatedValue(0);
   const [jDFocused, setJDFocused] = React.useState(false);
-
-  // function to handle back button press
-  const handleBackButtonPress = () => {
-    if (jRFocused || jDFocused) {
-      setJRFocused(false);
-      setJDFocused(false);
-      return true;
-    }
-    return false;
-  };
-  React.useEffect(() => {
-    const backHandler = BackHandler.addEventListener(
-      "hardwareBackPress",
-      handleBackButtonPress,
-    );
-    return () => {
-      backHandler.remove();
-    };
-  }, [jRFocused, jDFocused]);
 
   const [scrollEnabled, setScrollEnabled] = React.useState(true);
   React.useEffect(() => {
@@ -222,7 +202,6 @@ export default function WorkExperience() {
   })
 
   const { job_type, job_role, company, joining_month, joining_year, end_month, end_year, work_mode, country, state, city, description } = watch();
-
   const handleSave: SubmitHandler<FormData> = async (data) => {
     await protectedApi.put('/jobs/resume/update_job_experience/', { new_experience: data }).then((response) => {
       setJobsState({ previous_experience: response.data.previous_experience })
@@ -288,6 +267,36 @@ export default function WorkExperience() {
       router.back();
     }).catch(error => handleApiError(error, setError));
   }
+
+  // function to handle back button press
+  const handleBackButtonPress = () => {
+    if (jRFocused || jDFocused) {
+      if (jRFocused) {
+        setValue("company.name", "");
+        setJRFocused(false);
+        setSearchText("");
+      }
+      if (jDFocused) {
+        setValue("job_role", "");
+        setJDFocused(false);
+        setJobRolesSearchText("");
+      }
+      Keyboard.dismiss();
+      return true;
+    }
+    return false;
+  };
+  React.useEffect(() => {
+    const backHandler = BackHandler.addEventListener(
+      "hardwareBackPress",
+      handleBackButtonPress,
+    );
+    return () => {
+      backHandler.remove();
+    };
+  }, [jRFocused, jDFocused]);
+
+
 
   return (
     <>
@@ -495,7 +504,6 @@ export default function WorkExperience() {
                   />
                 )}
               />
-
             </Animated.View>
             <Animated.View
               style={{
@@ -510,7 +518,7 @@ export default function WorkExperience() {
                   experience ?
                     job_type === null ||
                     job_role === "" ||
-                    company === null ||
+                    company.name === '' ||
                     joining_month === "" ||
                     joining_year === "" ||
                     end_month === "" ||
@@ -536,7 +544,7 @@ export default function WorkExperience() {
                     :
                     job_type === null ||
                     job_role === "" ||
-                    company === null ||
+                    company.name === '' ||
                     joining_month === "" ||
                     joining_year === "" ||
                     end_month === "" ||

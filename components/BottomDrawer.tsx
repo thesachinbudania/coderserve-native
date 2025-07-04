@@ -1,5 +1,4 @@
 import { Portal } from '@gorhom/portal';
-import { DimensionValue } from 'react-native';
 import RBSheet from 'react-native-raw-bottom-sheet';
 
 export default function BottomDrawer({ sheetRef, children, draggableIconHeight = 3, height = 600 }: { draggableIconHeight?: number, height?: number, sheetRef: React.RefObject<any>, children: React.ReactNode }) {

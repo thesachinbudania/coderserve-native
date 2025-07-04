@@ -6,8 +6,7 @@ import BackgroundMapping from '@/assets/images/profile/Background/backgroundMapp
 import BlueButton from '@/components/buttons/BlueButton';
 import ImageLoader from '@/components/ImageLoader';
 import ProfileButton from '@/components/general/ProfileButton';
-import Tabs from '@/components/talks/home/Tabs';
-import { PortalHost } from '@gorhom/portal';
+import Tabs from '@/components/profile/home/Tabs';
 import { useUserStore } from '@/zustand/stores';
 import { useIsFocused } from '@react-navigation/native';
 import Menu, { MenuButton } from '@/components/jobs/Menu';
@@ -87,12 +86,11 @@ export default function YourProfile() {
             />
           </View>
         </View>
-        <View style={{ paddingHorizontal: 16 }}>
+        <View >
           <Tabs
-            hostName='tabsContentTalks'
+            setScrollEnabled={() => { }}
           />
         </View>
-        <PortalHost name='tabsContentTalks' />
         <Menu
           menuRef={menuRef}>
           <MenuButton

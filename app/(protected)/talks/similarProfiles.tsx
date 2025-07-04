@@ -30,12 +30,16 @@ function matchDegrees(user1Degrees: Degrees, user2Degrees: Degrees): string[] {
 const ProfileOption = ({ data }: { data: any }) => {
   const { degrees } = useJobsState();
   const matchedDegrees = degrees ? matchDegrees(degrees, data['user_resume']['degrees']) : [];
+  const router = useRouter();
   return (
-    <Pressable style={{ padding: 16, borderWidth: 1, borderColor: '#eeeeee', borderRadius: 12 }}>
+    <Pressable
+      style={({ pressed }) => [{ padding: 16, borderWidth: 1, borderColor: '#eeeeee', borderRadius: 12 }, pressed && { borderColor: '#006dff' }]}
+      onPress={() => router.push(`/(freeRoutes)/profile/userProfile/${data['username']}`)}
+    >
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
         <ImageLoader
           size={48}
-          uri={`https://picsum.photos/200/300`}
+          uri={data['profile_image']}
         />
         <View style={{ gap: 4 }}>
           <Text style={{ fontWeight: 'bold', fontSize: 15 }}>{data['first_name']} {data['last_name']}</Text>
@@ -81,7 +85,7 @@ export default function SimilarProfiles() {
   }, [data]);
 
   const handleEndReached = () => {
-    if (!isPaginating && nextPage) {
+    if (!isPaginating && nextPage && !initialLoading) {
       setIsPaginating(true);
       refetch();
     }
@@ -89,7 +93,10 @@ export default function SimilarProfiles() {
 
   return (
     <>
-      <DataWrapper isLoading={initialLoading}>
+      <DataWrapper
+        isLoading={initialLoading}
+        header='Similar Profiles'
+      >
         <FlatList
           data={combinedData}
           renderItem={({ item }) => <ProfileOption data={item} />}

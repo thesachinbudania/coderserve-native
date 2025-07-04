@@ -1,7 +1,7 @@
 import Header from '@/components/general/Header';
 import { useRouter } from 'expo-router';
 import { ActivityIndicator, View } from "react-native";
-export default function DataWrapper({ children, isLoading = false }: { children: React.ReactNode, isLoading?: boolean }) {
+export default function DataWrapper({ children, header, isLoading = false, containerStyle }: { children: React.ReactNode, header: string, isLoading?: boolean, containerStyle?: object }) {
   const router = useRouter();
   return (
     isLoading ? (
@@ -11,10 +11,10 @@ export default function DataWrapper({ children, isLoading = false }: { children:
     ) : (
       <>
         <Header
-          title='Data'
+          title={header}
           onBackPress={() => { router.back() }}
         />
-        <View style={{ flex: 1, backgroundColor: 'white', marginTop: 57 }}>
+        <View style={[{ flex: 1, backgroundColor: 'white', marginTop: 57 }, containerStyle]}>
           {children}
         </View>
       </>

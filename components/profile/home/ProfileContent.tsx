@@ -63,5 +63,6 @@ const styles = StyleSheet.create({
     flex: 1,
     flexGrow: 1,
     marginHorizontal: -16,
+    marginTop: -32,
   },
 });

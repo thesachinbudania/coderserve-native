@@ -99,7 +99,7 @@ export default function GitHub() {
                 placeholder='Mobile number'
                 topMargin={false}
                 autocomplete='tel'
-
+                keyboardType='number-pad'
               />
             )}
           />

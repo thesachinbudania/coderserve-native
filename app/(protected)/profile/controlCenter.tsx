@@ -19,6 +19,22 @@ export default function ControlCentre() {
   const navigation = useNavigation();
   const { setTokens, refresh } = useTokensStore()
   const [isLoading, setIsLoading] = React.useState(false);
+  const [keyboardVisible, setKeyboardVisible] = React.useState(false);
+
+  React.useEffect(() => {
+    const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => {
+      setKeyboardVisible(true);
+    });
+    const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => {
+      setKeyboardVisible(false);
+    });
+
+    return () => {
+      keyboardDidShowListener.remove();
+      keyboardDidHideListener.remove();
+    };
+  }, [])
+
 
   const logout = async () => {
     setIsLoading(true);
@@ -31,9 +47,15 @@ export default function ControlCentre() {
   React.useEffect(() => {
     const backHandler = BackHandler.addEventListener('hardwareBackPress', () => {
       if (isFocused) {
-        Keyboard.dismiss(); // Dismiss keyboard manually
-        setIsFocused(false); // Hide search bar
-        return true; // Prevent default back action
+        if (keyboardVisible) {
+          Keyboard.dismiss();
+          return true;
+        }
+        else {
+          Keyboard.dismiss(); // Dismiss keyboard manually
+          setIsFocused(false); // Hide search bar
+          return true; // Prevent default back action
+        }
       }
       router.back();
       return true;

@@ -17,7 +17,8 @@ export default function DateSelect({ placeholder, presentOption = false, selecte
   const [currentMonth, setCurrentMonth] = React.useState<string>(selectedMonth);
   const [currentYear, setCurrentYear] = React.useState<string>(selectedYear);
   const monthsList = presentOption ? ['--', '--', 'Present'].concat(months) : ['--', '--'].concat(months);
-  const yearsList = presentOption ? ['--', '--', 'Present'].concat(years) : ['--', '--'].concat(years);
+  const yearsList = presentOption ? ['--', '--', '--', 'Present'].concat(years) : ['--', '--', '--'].concat(years);
+
   const setDate = () => {
     if (currentMonth != '--' && currentYear != '--') {
       setSelectedMonth(currentMonth);
@@ -73,7 +74,7 @@ export default function DateSelect({ placeholder, presentOption = false, selecte
             setDate();
             setPopUpVisible(false);
           }}
-          disabled={currentMonth === '--' || currentYear === '--' || (currentMonth === 'Present' && currentYear != 'Present') || (currentYear === 'Present' && currentMonth != 'Present')}
+          disabled={(currentMonth === selectedMonth && currentYear === selectedYear) || !currentMonth || !currentYear || currentMonth === '--' || currentYear === '--' || (currentMonth === 'Present' && currentYear != 'Present') || (currentYear === 'Present' && currentMonth != 'Present')}
         />
       </PopUp>
     </>

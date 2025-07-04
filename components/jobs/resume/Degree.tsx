@@ -11,7 +11,7 @@ import SearchSuggestion from '@/components/jobs/resume/SearchSuggestions';
 import { useJobsState, useResumeEdit } from '@/zustand/jobsStore';
 import Error from '@/components/messsages/Error';
 import NoBgButton from '@/components/buttons/NoBgButton';
-import PopUpMessage from '@/components/general/PopUpMessage';
+import PopUpMessage from '@/components/jobs/resume/PopUpMessage';
 import * as zod from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm, SubmitHandler, Controller } from 'react-hook-form';
@@ -110,26 +110,6 @@ export default function Education({ page, setPage, setShowHeader, setScrollEnabl
   const [fieldOfStudyFocused, setFieldOfStudyFocused] = React.useState(false);
   const [universityFocused, setUniversityFocused] = React.useState(false);
 
-  // effect for handling back button
-  React.useEffect(() => {
-    const backAction = () => {
-      if (degreeFocused || fieldOfStudyFocused || universityFocused) {
-        setDegreeFocused(false);
-        setFieldOfStudyFocused(false);
-        setUniversityFocused(false);
-        Keyboard.dismiss();
-        return true;
-      }
-      return false;
-    };
-
-    const backHandler = BackHandler.addEventListener(
-      'hardwareBackPress',
-      backAction
-    );
-
-    return () => backHandler.remove();
-  })
 
   React.useEffect(() => {
     if (degreeFocused || fieldOfStudyFocused || universityFocused) {
@@ -281,6 +261,40 @@ export default function Education({ page, setPage, setShowHeader, setScrollEnabl
     animatedUniversity();
   }, [universityFocused])
 
+  // effect for handling back button
+  React.useEffect(() => {
+    const backAction = () => {
+      if (degreeFocused || fieldOfStudyFocused || universityFocused) {
+        switch (true) {
+          case degreeFocused:
+            setDegreeFocused(false);
+            setDegreeSearchText(editDegree ? editDegree.degree : '');
+            setValue('degree', editDegree ? editDegree.degree : '');
+            break;
+          case fieldOfStudyFocused:
+            setFieldOfStudyFocused(false);
+            setFieldOfStudySearchText(editDegree ? editDegree.field_of_study : '');
+            setValue('field_of_study', editDegree ? editDegree.field_of_study : '');
+            break;
+          case universityFocused:
+            setUniversityFocused(false);
+            setUniversitySearchText(editDegree ? editDegree.institution : '');
+            setValue('institution', editDegree ? editDegree.institution : '');
+            break;
+        }
+        Keyboard.dismiss();
+        return true;
+      }
+      return false;
+    };
+
+    const backHandler = BackHandler.addEventListener(
+      'hardwareBackPress',
+      backAction
+    );
+
+    return () => backHandler.remove();
+  })
   return (
     <>
       <PopUpMessage

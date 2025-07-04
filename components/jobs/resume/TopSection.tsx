@@ -11,7 +11,7 @@ const employmentStatus = ['Open to Work', 'Employed, but Exploring', 'Fresher, R
 
 export default function TopSection() {
   const user = useUserStore(state => state);
-  const status = useJobsState(state => state.employmentStatus);
+  const status = useJobsState(state => state.employment_status);
 
   return (
     <>

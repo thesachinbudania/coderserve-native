@@ -15,6 +15,7 @@ import * as zod from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm, SubmitHandler, Controller } from 'react-hook-form';
 import handleApiError from '@/helpers/apiErrorHandler';
+import PopUpMessage from '@/components/profile/PopUpMessage';
 
 export function formatDateTime(isoString: string) {
   const date = new Date(isoString);
@@ -44,13 +45,17 @@ export default function Username() {
   const [changeableDate, setChangeableDate] = React.useState<string | null>(null);
   React.useEffect(() => {
     if (lastUsernameChanged) {
-      const lastChanged = new Date(lastUsernameChanged).getTime();
-      const now = new Date().getTime();
-      if (now - lastChanged < (30 * 24 * 60 * 60 * 1000)) {
-        setRecentlyChanged(true);
-      }
-      const canChange = new Date(lastUsernameChanged).getTime() + (30 * 24 * 60 * 60 * 1000);
-      setChangeableDate(formatDateTime(new Date(canChange).toString()))
+      protectedApi.get('/accounts/fetch_server_time/').then(response => {
+        const serverTime = response.data.server_time;
+        const lastChanged = new Date(lastUsernameChanged).getTime();
+        const now = new Date(serverTime).getTime();
+        if (now - lastChanged < (30 * 24 * 60 * 60 * 1000)) {
+          setRecentlyChanged(true);
+        }
+        const canChange = new Date(lastUsernameChanged).getTime() + (30 * 24 * 60 * 60 * 1000);
+        setChangeableDate(formatDateTime(new Date(canChange).toString()))
+      })
+
     }
   }, [])
 
@@ -93,13 +98,13 @@ export default function Username() {
 
   async function verifyUsername() {
     try {
-      await protectedApi.put('/accounts/verify_username_taken/', username);
+      await protectedApi.put('/accounts/verify_username_taken/', { username: username });
       setDidErrored(false);
       setMessage("Congratulations! The username you've chosen is available and ready for you to claim.");
     }
     catch (error: any) {
       setDidErrored(true);
-      const errorMessage = error.data.username[0];
+      const errorMessage = error.response.data.username[0];
       if (errorMessage === 'custom user with this username already exists.') {
         setMessage("Oops, it looks like you're a bit late – that username is already taken.");
       }
@@ -129,29 +134,14 @@ export default function Username() {
     <Layout
       headerTitle='Username'
     >
-      <PopUp
+      <PopUpMessage
         visible={confirmVisible}
         setVisible={setConfirmVisible}
-      >
-        <Text style={styles.popUpHeading}>Confirm Username Change</Text>
-        <Text style={styles.popUpText}>Are you sure you want to update your username? Once changed, you won't be able to modify it again for 30 days.</Text>
-        <View style={{ flexDirection: 'row', gap: 16 }}>
-          <View style={{ width: ((width - 80) / 2) }}>
-            <BlueButton
-              title='Yes, Update'
-              onPress={handleSubmit(updateUsername)}
-              loading={isSubmitting}
-            />
-          </View>
-          <View style={{ width: ((width - 80) / 2) }}>
-            <GreyBgButton
-              title='Cancel'
-              onPress={() => setConfirmVisible(false)}
-            />
-          </View>
-        </View>
-      </PopUp>
-
+        heading='Confirm Username Change'
+        text='Are you sure you want to update your username? Once changed, you won’t be able to modify it again for 30 days.'
+        onPress={handleSubmit(updateUsername)}
+        isLoading={isSubmitting}
+      />
       <FieldLabel label='Your Username' />
       <View style={{ gap: 8 }}>
         <Controller

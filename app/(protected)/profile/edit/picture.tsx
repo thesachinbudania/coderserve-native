@@ -167,16 +167,27 @@ export default function ProfileImage() {
         }
       </View>
       <View style={styles.buttonContainer}>
-        {!image ? (<><BlueButton
-          title='Update'
-          onPress={() => openImagePicker()}
-        />
-          <NoBgButton
-            title='Delete'
-            dangerButton
-            loading={isSubmitting}
-            onPress={() => setDeleteConfirmVisible(true)}
-          /></>) : (<>
+        {!image ? (
+          <><BlueButton
+            title='Update'
+            onPress={() => openImagePicker()}
+          />
+            {
+              profileImage?.endsWith('default_profile_image.png') ? (
+                <NoBgButton
+                  title='Cancel'
+                  onPress={() => router.back()}
+                />
+              )
+                :
+                <NoBgButton
+                  title='Delete'
+                  dangerButton
+                  loading={isSubmitting}
+                  onPress={() => setDeleteConfirmVisible(true)}
+                />
+            }
+          </>) : (<>
             <BlueButton
               title='Save'
               loading={isSubmitting}
@@ -218,7 +229,7 @@ const styles = StyleSheet.create({
   popUpText: {
     fontSize: 13,
     textAlign: 'center',
-    marginBottom: 24,
+    marginBottom: 32,
     color: '#737373',
   }
 })

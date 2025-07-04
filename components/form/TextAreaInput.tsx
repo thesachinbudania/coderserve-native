@@ -2,7 +2,18 @@ import { Text, TextInput, View } from 'react-native';
 import React from 'react';
 import ErrorMessage from '@/components/messsages/Error';
 
-export default function TextAreaInput({ placeholder, maxLength = 1000, text, setText, error = '' }: { error?: string, placeholder: string, maxLength?: number, text: string, setText: React.Dispatch<React.SetStateAction<string>> }) {
+interface TextAreaInputProps {
+  placeholder: string;
+  numberOfLines?: number;
+  maxLength?: number;
+  text: string;
+  setText: React.Dispatch<React.SetStateAction<string>>;
+  error?: string;
+  styles?: object;
+  contentContainerStyle?: object;
+}
+
+export default function TextAreaInput({ placeholder, numberOfLines = 100, maxLength = 1000, text, setText, error = '', styles, contentContainerStyle }: TextAreaInputProps) {
   const [focused, setFocused] = React.useState(false)
   React.useEffect(() => {
     if (text.length > maxLength) {
@@ -10,12 +21,12 @@ export default function TextAreaInput({ placeholder, maxLength = 1000, text, set
     }
   }, [text])
   return (
-    <View style={{ gap: 8 }}>
+    <View style={[{ gap: 8 }, contentContainerStyle]}>
       <View style={{ position: 'relative' }}>
         <TextInput
           placeholder={placeholder}
           multiline={true}
-          numberOfLines={100}
+          numberOfLines={numberOfLines}
           style={[{
             height: 400,
             borderColor: 'black',
@@ -26,7 +37,7 @@ export default function TextAreaInput({ placeholder, maxLength = 1000, text, set
             color: '#000',
             fontSize: 15,
             textAlignVertical: 'top',
-          }, focused && { borderColor: '#006dff' }]}
+          }, focused && { borderColor: '#006dff' }, styles]}
           placeholderTextColor={'#cbe1ff'}
           onFocus={() => setFocused(true)}
           onBlur={() => setFocused(false)}

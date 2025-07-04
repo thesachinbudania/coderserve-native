@@ -1,13 +1,16 @@
 import { Stack } from "expo-router";
+import { PortalProvider } from "@gorhom/portal";
 
 export default function Layout() {
-	return (
-		<Stack
-			screenOptions={{
-				headerShown: false,
-				contentStyle: { backgroundColor: "white" },
-			}}
-		>
-		</Stack>
-	);
+  return (
+    <PortalProvider>
+      <Stack
+        screenOptions={{
+          headerShown: false,
+          contentStyle: { backgroundColor: "white" },
+        }}
+      >
+      </Stack>
+    </PortalProvider>
+  );
 }

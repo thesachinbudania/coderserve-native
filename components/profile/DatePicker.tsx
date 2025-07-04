@@ -1,23 +1,24 @@
 import React from "react";
 import { View, Dimensions, StyleSheet } from "react-native";
-import { DatePicker, MonthPicker, YearPicker, dates, months } from "@/components/form/DatePicker";
-
-
-
-
+import { DatePicker, MonthPicker, YearPicker, dates } from "@/components/form/DatePicker";
 
 const innerWidth = Dimensions.get('window').width - 88;
+const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+
+const currentYear = new Date().getFullYear();
+const years = Array.from({ length: 100 }, (_, i) => {
+  return `${currentYear - i}`;
+})
 
 export default function InlineDatePicker({ date, month, year, setSelectedDate, setSelectedMonth, setSelectedYear, leastYears = 0 }: { date: string, month: string, leastYears?: number, year: string, setSelectedDate: Function, setSelectedMonth: Function, setSelectedYear: Function }) {
-  const currentYear = new Date().getFullYear() - leastYears;
-  const years = Array.from({ length: 100 }, (_, i) => {
-    return `${currentYear - i}`;
-  })
+  const datesList = ['--', '--'].concat(dates);
+  const monthsList = ['--', '--'].concat(months);
+  const yearsList = ['--', '--', '--'].concat(years.slice(leastYears));
   return (
     <View style={styles.container}>
       <View style={styles.dateContainer}>
         <DatePicker
-          items={dates.map((item) => ({ label: item, value: item }))}
+          items={datesList.map((item) => ({ label: item, value: item }))}
           selectedValue={date}
           onValueChange={(item) => {
             setSelectedDate(item);
@@ -27,7 +28,7 @@ export default function InlineDatePicker({ date, month, year, setSelectedDate, s
       </View>
       <View style={styles.monthContainer}>
         <MonthPicker
-          items={months.map((item) => ({ label: item, value: item }))}
+          items={monthsList.map((item) => ({ label: item, value: item }))}
           selectedValue={month}
           onValueChange={(item) => {
             setSelectedMonth(item);
@@ -37,7 +38,7 @@ export default function InlineDatePicker({ date, month, year, setSelectedDate, s
       </View>
       <View style={styles.yearContainer}>
         <YearPicker
-          items={years.map((item) => ({ label: item, value: item }))}
+          items={yearsList.map((item) => ({ label: item, value: item }))}
           selectedValue={year}
           onValueChange={(item) => {
             setSelectedYear(item);

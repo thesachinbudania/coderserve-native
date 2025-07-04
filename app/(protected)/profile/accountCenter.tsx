@@ -43,7 +43,7 @@ export default function AccountCenter() {
             uri={user.profile_image}
           />
         }
-        <Text style={styles.userId}>A0000007521</Text>
+        <Text style={styles.userId}>A{user.user_id}</Text>
         <Text style={styles.joinDate}>Member since {dateJoined}</Text>
       </View>
       <SectionContainer>

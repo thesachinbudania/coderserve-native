@@ -61,7 +61,10 @@ export default function JobsView() {
             <Image style={styles.logo} source={require('@/assets/images/jobs/capGemini.png')} />
           </View>
           <View style={styles.companyContainer}>
-            <Text style={styles.companyName}>Capgemini</Text>
+            <View style={{ flexDirection: 'row', gap: 4, alignItems: 'center' }}>
+              <Text style={styles.companyName}>Capgemini</Text>
+              <Image source={require('@/assets/images/blueTick.png')} style={{ width: 15, height: 15, objectFit: 'contain' }} />
+            </View>
             <Text style={styles.postedDate}>Posted 1 day ago</Text>
           </View>
         </View>

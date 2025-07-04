@@ -64,27 +64,25 @@ const countrySelectStyles = StyleSheet.create({
 
 export default function Menu({ menuRef, children }: { children?: React.ReactNode, menuRef: React.RefObject<any> }) {
   return (
-    <Portal>
-      <RBSheet
-        ref={menuRef}
-        height={392}
-        closeOnPressMask
-        customStyles={{
-          container: {
-            borderTopLeftRadius: 24,
-            borderTopRightRadius: 24,
-            padding: 16,
-          },
-          draggableIcon: {
-            backgroundColor: '#000',
-          }
-        }}
-      >
-        <View style={styles.menuContainer}>
-          {children}
-        </View>
-      </RBSheet>
-    </Portal>
+    <RBSheet
+      ref={menuRef}
+      height={392}
+      closeOnPressMask
+      customStyles={{
+        container: {
+          borderTopLeftRadius: 24,
+          borderTopRightRadius: 24,
+          padding: 16,
+        },
+        draggableIcon: {
+          backgroundColor: '#000',
+        }
+      }}
+    >
+      <View style={styles.menuContainer}>
+        {children}
+      </View>
+    </RBSheet>
   )
 }
 

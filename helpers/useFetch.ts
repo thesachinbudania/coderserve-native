@@ -20,10 +20,10 @@ export const useFetch = <T = unknown>(
     setIsLoading(true);
     setError(null);
     try {
-      console.log(url, 'this is from inside use fetch')
       const response = await protectedApi.get(uri || url, { baseURL: '' });
       setData(response.data);
-    } catch (err) {
+    } catch (err: any) {
+      console.log('Error fetching data:', err);
       setError('Something went wrong! Please try again later.');
     } finally {
       setIsLoading(false);

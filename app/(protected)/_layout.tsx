@@ -13,6 +13,7 @@ import * as SecureStore from 'expo-secure-store'
 import DeviceInfo from 'react-native-device-info'
 import React from 'react'
 import { View, ActivityIndicator, StatusBar, Pressable } from 'react-native';
+import { notify } from '@alexsandersarmento/react-native-event-emitter'
 
 function LoadingScreen() {
   return (
@@ -28,18 +29,22 @@ function LoadingScreen() {
     </View>
   );
 }
-
 const AppTabs = () => {
   const segment = useSegments()
-
   return (
     <>
       <StatusBar backgroundColor={'#202020'} barStyle={'light-content'} />
-      <View style={{ flex: 1, backgroundColor: 'white' }}>
+      <View style={{ flex: 1, backgroundColor: 'white' }}
+      >
         <Tabs
+          screenListeners={() => ({
+            tabPress: () => {
+              notify(`tabPress:${segment[segment.length - 1]}`);
+            }
+          })}
           screenOptions={{
             animation: 'shift',
-            tabBarLabelStyle: { fontSize: 11, fontWeight: 'thin' },
+            tabBarLabelStyle: { fontSize: 11, fontWeight: '100' },
             tabBarActiveTintColor: "#000",
             tabBarInactiveTintColor: '#d9d9d9',
             tabBarStyle: {

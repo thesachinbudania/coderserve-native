@@ -3,7 +3,8 @@ import { TabView } from 'react-native-tab-view';
 import React from 'react';
 import { Animated, Dimensions, Platform, TouchableOpacity, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { Portal } from '@gorhom/portal';
-import PostsTab from '@/components/profile/home/PostsTab';
+import PostsTab from '@/components/talks/home/PostsTab';
+import AnimatedTopTabs from '@/components/general/TopTabs';
 
 const width = Dimensions.get('window').width;
 
@@ -105,13 +106,14 @@ export default function Tabs({ hostName = 'tabsContent' }: { hostName?: string }
     }
 
     return (
-      <Portal hostName={hostName}>
-        <View style={{ marginHorizontal: 16, minHeight: 357, marginTop: -16 }}>
+      <AnimatedTopTabs
+        tabs={[
           {
-            route.title === 'Profile' ? <ProfileTab /> : <PostsTab />
+            name: 'Profile',
+            content: <ProfileTab />
           }
-        </View>
-      </Portal>
+        ]}
+      />
     );
   };
 

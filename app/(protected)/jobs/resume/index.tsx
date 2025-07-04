@@ -14,6 +14,7 @@ import { useIsFocused } from '@react-navigation/native';
 import { useRouter } from 'expo-router';
 import { useUserStore } from '@/zustand/stores';
 import { useJobsState } from '@/zustand/jobsStore';
+import type { JobsState } from '@/zustand/jobsStore';
 
 const { width } = Dimensions.get('window');
 
@@ -67,9 +68,20 @@ export function Header({ menuRef, title }: { menuRef: React.RefObject<any>, titl
   )
 }
 
-export function ResumeDetails({ showLess = false }: { showLess?: boolean }) {
-  const jobs = useJobsState(state => state);
-  const user = useUserStore(state => state);
+export function ResumeDetails({ showLess = false, jobsState, userState }: { showLess?: boolean, jobsState?: JobsState, userState?: any }) {
+  let jobs, user;
+  if (!jobsState) {
+    jobs = useJobsState(state => state);
+  }
+  else {
+    jobs = jobsState;
+  }
+  if (!userState) {
+    user = useUserStore(state => state);
+  }
+  else {
+    user = userState;
+  }
   return (
     <View style={styles.container}>
       <View>

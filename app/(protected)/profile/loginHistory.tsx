@@ -1,6 +1,6 @@
-import PageLayout from '@/components/PageLayout';
-import { Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { Section, SectionOption, SectionContainer } from '@/components/general/OptionsSection';
+import PageLayout from '@/components/general/PageLayout';
+import { Platform, FlatList, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { SectionOption } from '@/components/general/OptionsSection';
 import React from 'react';
 import MapView from 'react-native-maps';
 import BottomDrawer from '@/components/BottomDrawer';
@@ -120,15 +120,14 @@ function formatDateTime(isoString: string) {
 export default function Page() {
   const sheetRef = React.useRef<any>(null);
   const [currentLog, setCurrentLog] = React.useState<currentLog | null>(null);
-  const { data, isLoading, error } = useFetch('/accounts/get_login_history/')
-  console.log(data, isLoading, error)
+  const { data, isLoading, error } = useFetch('https://api.coderserve.com/api/accounts/get_login_history/')
   const router = useRouter();
   return (
-    <PageLayout>
-      <DataWrapper
-        isLoading={isLoading}
-      >
-        {data && data.results?.length === 0 ? (
+    <>
+      {data && data.results?.length === 0 ? (
+        <PageLayout
+          headerTitle='Login Activity'
+        >
           <View style={{ height: '100%', alignItems: 'center', justifyContent: 'center', marginHorizontal: 16 }}>
             <Text style={{ fontSize: 15, fontWeight: 'bold', textAlign: 'center', marginBottom: 16 }}>Your Login Activity Starts Here</Text>
             <Text style={{ textAlign: 'center', fontSize: 13, color: '#737373' }}>You’ve just signed up on this device, and no other logins have been recorded yet.</Text>
@@ -140,85 +139,86 @@ export default function Page() {
               />
             </View>
           </View>
-        ) :
-          (
-            <ScrollView style={styles.body} contentContainerStyle={{ flex: 1 }}>
-              <ScrollView contentContainerStyle={styles.logsContainer}>
-                <SectionContainer>
-                  <Section>
-                    {
-                      data?.results?.map((log: any, index: number) => (
-                        <SectionOption
-                          key={index}
-                          title={log.device.device_name}
-                          subTitle={log.state + ', ' + log.country}
-                          onPress={() => {
-                            setCurrentLog({
-                              deviceName: log.device.device_name,
-                              signInTime: log.time,
-                              lastActivity: log.device.last_activity,
-                              lat: Number(log.lat),
-                              long: Number(log.long),
-                            })
-                            sheetRef.current.open()
-                          }}
-                        />
-                      ))
-                    }
-                  </Section>
-                </SectionContainer>
-                <BottomDrawer
-                  sheetRef={sheetRef}
-                  draggableIconHeight={0}
-                  height={552}
-                >
-                  <View style={styles.detailsContainer}>
-                    {
-                      currentLog && currentLog.lat && currentLog.long &&
-                      <>
-                        <LogInfo
-                          deviceName={currentLog.deviceName}
-                          firstSignIn={formatDateTime(currentLog.signInTime)}
-                          lastActivity={formatDateTime(currentLog.lastActivity)}
-                        />
-                        <Text style={[logStyles.heading, { marginTop: 32 }]}>Signed in from a nearby location</Text>
-                        <View style={styles.mapViewContainer}>
-                          <MapView
-                            style={styles.mapView}
-                            customMapStyle={greyMapStyle}
-                            initialRegion={{
-                              latitude: currentLog.lat,
-                              longitude: currentLog.long,
-                              latitudeDelta: Platform.OS === 'ios' ? 0.0722 : 0.0121,
-                              longitudeDelta: Platform.OS === 'ios' ? 0.0721 : 0.0121,
-                            }}
-                          />
-                        </View>
-                      </>
-
-                    }
-                    <BlueButton
-                      title='Thanks'
-                      onPress={() => sheetRef.current.close()}
-                    />
-                  </View>
-                </BottomDrawer>
-              </ScrollView>
+        </PageLayout>
+      ) :
+        (
+          <DataWrapper
+            isLoading={isLoading}
+            header='Login Activity'
+          >
+            <ScrollView contentContainerStyle={{ paddingBottom: 64 }}>
+              <FlatList
+                data={data?.results || []}
+                renderItem={({ item }) => (
+                  <SectionOption
+                    title={item.device.device_name}
+                    subTitle={`${item.state}, ${item.country}`}
+                    onPress={() => {
+                      setCurrentLog({
+                        deviceName: item.device.device_name,
+                        signInTime: item.time,
+                        lastActivity: item.device.last_activity,
+                        lat: Number(item.lat),
+                        long: Number(item.long),
+                      })
+                      sheetRef.current.open()
+                    }}
+                  />
+                )}
+                keyExtractor={(_, index) => index.toString()}
+                contentContainerStyle={styles.loginContainer}
+              />
             </ScrollView>
-          )}
-      </DataWrapper>
-    </PageLayout>
+          </DataWrapper>
+        )}
+      <BottomDrawer
+        sheetRef={sheetRef}
+        draggableIconHeight={0}
+        height={552}
+      >
+        <View style={styles.detailsContainer}>
+          {
+            currentLog && currentLog.lat && currentLog.long &&
+            <>
+              <LogInfo
+                deviceName={currentLog.deviceName}
+                firstSignIn={formatDateTime(currentLog.signInTime)}
+                lastActivity={formatDateTime(currentLog.lastActivity)}
+              />
+              <Text style={[logStyles.heading, { marginTop: 32 }]}>Signed in from a nearby location</Text>
+              <View style={styles.mapViewContainer}>
+                <MapView
+                  style={styles.mapView}
+                  customMapStyle={greyMapStyle}
+                  initialRegion={{
+                    latitude: currentLog.lat,
+                    longitude: currentLog.long,
+                    latitudeDelta: Platform.OS === 'ios' ? 0.0722 : 0.0121,
+                    longitudeDelta: Platform.OS === 'ios' ? 0.0721 : 0.0121,
+                  }}
+                />
+              </View>
+            </>
+
+          }
+          <BlueButton
+            title='Thanks'
+            onPress={() => sheetRef.current.close()}
+          />
+        </View>
+      </BottomDrawer>
+    </>
   )
 }
 
 
 const styles = StyleSheet.create({
-  body: {
-    marginTop: 57,
-  },
-  logsContainer: {
-    marginTop: 16,
-    paddingHorizontal: 16,
+  loginContainer: {
+    marginHorizontal: 16,
+    marginTop: 24,
+    borderWidth: 1,
+    borderColor: '#eee',
+    borderRadius: 12,
   },
   detailsContainer: {
     flex: 1,

@@ -3,10 +3,11 @@ import {
   BackHandler,
   Dimensions,
   Image,
-  Keyboard,
   Pressable,
-  StyleSheet,
+  Keyboard,
+  RefreshControl,
   ScrollView,
+  StyleSheet,
   Text,
   useAnimatedValue,
   View,
@@ -21,8 +22,8 @@ import { MenuButton } from "@/app/(protected)/jobs/index";
 import { useRouter, useNavigation } from "expo-router";
 import { useIsFocused } from "@react-navigation/native";
 import { isTalksProfileCompleted } from "@/zustand/jobsStore";
-import { useUserStore } from "@/zustand/stores";
 import DefaultButton from "@/components/buttons/BlueButton";
+import { useTabPressScrollToTop } from "@/helpers/hooks/useTabBarScrollToTop";
 
 const width = Dimensions.get("window").width;
 type OptionChipProps = {
@@ -65,7 +66,7 @@ const hashChipStyles = StyleSheet.create({
     color: '#737373',
   },
   container: {
-    borderWidth: 1,
+    borderWidth: 0.5,
     borderColor: '#737373',
     borderRadius: 6,
     padding: 4
@@ -95,7 +96,7 @@ function Post() {
           size={48}
           uri="https://api.coderserve.com/media/profile_images/default_profile_image.png"
         />
-        <View style={{ gap: 4 }}>
+        <View style={{ gap: 6 }}>
           <Text style={postStyles.name}>Emma Watson</Text>
           <Text style={postStyles.time}>2 hours ago</Text>
         </View>
@@ -155,15 +156,38 @@ export default function Page() {
   const router = useRouter();
   const [isSearchFocused, setIsSearchFocused] = React.useState(false);
   const [search, setSearch] = React.useState("");
+  const [incompleteProfileText, setIncompleteProfileText] = React.useState("");
   const navigation = useNavigation();
   const focused = useIsFocused();
+  const listRef = React.useRef<ScrollView>(null);
+  const [keyboardVisible, setKeyboardVisible] = React.useState(false);
+  useTabPressScrollToTop(listRef, 'talks');
 
+  React.useEffect(() => {
+    const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => {
+      setKeyboardVisible(true);
+    });
+    const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => {
+      setKeyboardVisible(false);
+    });
+
+    return () => {
+      keyboardDidShowListener.remove();
+      keyboardDidHideListener.remove();
+    };
+  }, [])
   React.useEffect(() => {
     const backHandler = BackHandler.addEventListener('hardwareBackPress', () => {
       if (isSearchFocused) {
-        Keyboard.dismiss(); // Dismiss keyboard manually
-        setIsSearchFocused(false); // Hide search bar
-        return true; // Prevent default back action
+        if (keyboardVisible) {
+          Keyboard.dismiss();
+          return true;
+        }
+        else {
+          Keyboard.dismiss();
+          setIsSearchFocused(false);
+          return true;
+        }
       }
       router.back();
       return true;
@@ -172,6 +196,14 @@ export default function Page() {
     return () => backHandler.remove();
   }, [isSearchFocused]);
 
+  const handleAddPostPress = () => {
+    if (isTalksProfileCompleted()) {
+      router.push("/(protected)/talks/createPost");
+    } else {
+      setIncompleteProfileText("Your profile is incomplete. Please complete your profile to start creating and sharing posts with the community.")
+      similarProfileInactiveMenuRef?.current.open();
+    }
+  }
 
   const similarProfileOnClickHandler = () => {
     if (isTalksProfileCompleted()) {
@@ -179,6 +211,7 @@ export default function Page() {
       router.push("/(protected)/talks/similarProfiles");
     } else {
       menuRef?.current.close();
+      setIncompleteProfileText("Your profile is incomplete. Please provide all the required details to enable you to access similar profiles.")
       similarProfileInactiveMenuRef?.current.open();
     }
   }
@@ -236,58 +269,74 @@ export default function Page() {
     }
   });
 
+  const data = ['', '', '', '']
+  const [refreshing, setRefreshing] = React.useState(false);
+
   return (
-    <View
-      style={{
-        flex: 1,
-        backgroundColor: !isSearchFocused ? "white" : "#f7f7f7",
-      }}
-    >
+    <>
       <ScrollView
-        contentContainerStyle={{ width: width, alignItems: "center" }}
+        contentContainerStyle={{
+          backgroundColor: !isSearchFocused ? "white" : "#f7f7f7",
+          alignItems: 'center',
+        }}
+        ref={listRef}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={() => {
+              setRefreshing(true);
+              setTimeout(() => {
+                setRefreshing(false);
+              }, 2000);
+            }}
+          />
+        }
         scrollEnabled={!isSearchFocused}
       >
         <Animated.View style={{ width: contentWidth }}>
           <Animated.View style={{ opacity: contentOpacity }}>
-            <Header menuRef={menuRef} />
+            <Header
+              menuRef={menuRef}
+              forTalks
+            />
           </Animated.View>
-          <Pressable onPress={() => Keyboard.dismiss()}>
-            <Animated.View
-              style={{
-                transform: [{ translateY: searchBarMarginTop }],
-              }}
-            >
-              <SearchBar
-                onChangeText={setSearch}
-                isFocused={isSearchFocused}
-                setIsFocused={setIsSearchFocused}
-              />
-            </Animated.View>
-          </Pressable>
+          <Animated.View
+            style={{
+              transform: [{ translateY: searchBarMarginTop }],
+            }}
+          >
+            <SearchBar
+              onChangeText={setSearch}
+              isFocused={isSearchFocused}
+              setIsFocused={setIsSearchFocused}
+            />
+          </Animated.View>
         </Animated.View>
         <Animated.View
           style={{
             width: width - 32,
             marginTop: 32,
             opacity: contentOpacity,
-
+            marginBottom: 16,
           }}
         >
           <View style={{ flexDirection: "row", gap: 16 }}>
-            <View style={styles.addHashContainer}>
+            <Pressable
+              style={({ pressed }) => [styles.addHashContainer, pressed && { backgroundColor: '#d9d9d9' }]}
+              onPress={() => {
+                handleAddPostPress();
+              }}
+            >
               <Image source={require('@/assets/images/jobs/plus.png')} style={styles.addHashImage} />
-            </View>
+            </Pressable>
             <OptionChip title="Trending" selected={true} />
             <OptionChip title="Following" selected={false} />
           </View>
         </Animated.View>
-        <Animated.View style={[styles.postsContainer, { opacity: contentOpacity }]}>
-          <Post />
-          <Post />
-          <View style={{ backgroundColor: 'white' }}>
-            <BottomName />
-          </View>
-        </Animated.View>
+        {data.map((_, index) => (
+          <Animated.View key={index} style={{ backgroundColor: '#f5f5f5', paddingTop: 8, opacity: contentOpacity }}><Post /></Animated.View>
+        ))}
+        <BottomName />
       </ScrollView>
       <BottomSheet
         menuRef={menuRef}
@@ -340,7 +389,7 @@ export default function Page() {
           <View style={{ gap: 8 }}>
             <Text style={{ textAlign: 'center', fontWeight: 'bold', fontSize: 15 }}>Complete Your Profile</Text>
             <Text style={{ textAlign: 'center', color: '#737373', fontSize: 13 }}>
-              Your profile is incomplete. Please provide all the required details to enable you to access similar profiles.
+              {incompleteProfileText}
             </Text>
           </View>
           <DefaultButton
@@ -352,7 +401,7 @@ export default function Page() {
           />
         </View>
       </BottomSheet>
-    </View>
+    </>
   );
 }
 
