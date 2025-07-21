@@ -5,10 +5,11 @@ import { Text, View } from 'react-native';
 import BlueButton from '@/components/buttons/BlueButton';
 import { useNewPostStore } from '@/zustand/talks/newPostStore';
 import { useRouter } from 'expo-router';
+import { current } from '@reduxjs/toolkit';
 
 export default function Headline() {
-  const [headline, setHeadline] = React.useState('');
-  const { setNewPost } = useNewPostStore();
+  const { title: currentHeadline, setNewPost } = useNewPostStore();
+  const [headline, setHeadline] = React.useState(currentHeadline || '');
   const router = useRouter();
   return (
     <PageLayout
@@ -27,7 +28,7 @@ export default function Headline() {
       </View>
       <BlueButton
         title='Save'
-        disabled={headline.length === 0}
+        disabled={headline.length === 0 || (currentHeadline != null && currentHeadline == headline)}
         onPress={() => {
           setNewPost({ title: headline });
           router.back();

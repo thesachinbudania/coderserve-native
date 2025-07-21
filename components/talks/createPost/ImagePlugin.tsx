@@ -32,24 +32,22 @@ export default function ImagePlugin({ changeAddImage }: { changeAddImage: boolea
 
   const pickImage = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: false, // cropping off
-      base64: true,
+      mediaTypes: ['images'],
+      allowsEditing: true,
+      quality: 1,
+      aspect: [3, 1]
     });
 
     if (!result.canceled && result.assets && result.assets.length > 0) {
       const asset = result.assets[0];
 
-      // 🔢 Get actual dimensions
       const originalWidth = asset.width || 400;
       const originalHeight = asset.height || 300;
 
-      // 🧮 Scale to max width (400px) while keeping aspect ratio
       const targetWidth = 400;
       const scale = targetWidth / originalWidth;
       const targetHeight = Math.round(originalHeight * scale);
 
-      // 🖼️ Base64 image
       const base64 = `data:image/jpeg;base64,${asset.base64}`;
 
       insertImage(base64, targetWidth, targetHeight);

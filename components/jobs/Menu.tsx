@@ -1,4 +1,3 @@
-import { Portal } from '@gorhom/portal';
 import { Pressable, View, StyleSheet, Text } from 'react-native';
 import RBSheet from 'react-native-raw-bottom-sheet';
 import LinearGradient from 'react-native-linear-gradient';

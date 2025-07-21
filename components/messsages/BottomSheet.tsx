@@ -1,5 +1,4 @@
 import RBSheet from 'react-native-raw-bottom-sheet';
-import { Portal } from '@gorhom/portal';
 
 
 export default function BottomSheet({ height, children, menuRef }: { height: number, children: React.ReactNode, menuRef: React.RefObject<any> }) {

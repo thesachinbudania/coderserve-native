@@ -62,10 +62,10 @@ const hashChipStyles = StyleSheet.create({
 export default function Hashtags() {
   const menuRef = React.useRef<any>(null);
   const [newHashtag, setNewHashtag] = React.useState<string>('');
-  const [hashtags, setHashtags] = React.useState<string[]>([]);
+  const { hashtags: currentHashtags, setNewPost } = useNewPostStore();
+  const [hashtags, setHashtags] = React.useState<string[]>(currentHashtags || []);
   const [showPopUp, setShowPopUp] = React.useState<boolean>(false);
   const [deleteIndex, setDeleteIndex] = React.useState<number | null>(null);
-  const { setNewPost } = useNewPostStore();
   const router = useRouter();
   const onDeleteHashtag = () => {
     setHashtags(hashtags.filter((_, i) => i !== deleteIndex));
@@ -125,11 +125,11 @@ export default function Hashtags() {
           <NoBgButton
             title='Add Hashtag'
             onPress={() => { menuRef.current?.open() }}
-            disabled={hashtags.length >= 7}
+            disabled={hashtags.length >= 8}
           />
           <BlueButton
             title='Save'
-            disabled={hashtags.length < 1}
+            disabled={hashtags.length < 1 || (currentHashtags && hashtags == currentHashtags)}
             onPress={setHashtag}
           />
         </View>

@@ -1,15 +1,13 @@
 import {
+  ActivityIndicator,
   Animated,
-  BackHandler,
   Dimensions,
   Image,
   Pressable,
-  Keyboard,
   RefreshControl,
   ScrollView,
   StyleSheet,
   Text,
-  useAnimatedValue,
   View,
 } from "react-native";
 import { Header } from "@/app/(protected)/jobs/index";
@@ -24,6 +22,10 @@ import { useIsFocused } from "@react-navigation/native";
 import { isTalksProfileCompleted } from "@/zustand/jobsStore";
 import DefaultButton from "@/components/buttons/BlueButton";
 import { useTabPressScrollToTop } from "@/helpers/hooks/useTabBarScrollToTop";
+import useSearchBar from "@/helpers/general/searchBar";
+import useFetchData from "@/helpers/general/handleFetchedData";
+import FullWidthImage from "@/components/FullWidthImage";
+import { formatDistanceToNow } from "date-fns";
 
 const width = Dimensions.get("window").width;
 type OptionChipProps = {
@@ -88,35 +90,48 @@ const optionChipStyles = StyleSheet.create({
   },
 });
 
-function Post() {
+function Post({ data }: { data: any }) {
+  const router = useRouter();
+  let result = formatDistanceToNow(new Date(data.created_at), { addSuffix: true });
+  result = result.replace(/^about\s/, '');
+  result = result.replace(/^almost\s/, '');
+  result = result.replace(/^in\s/, '');
+  result = result.replace(/^less than\s/, '');
+
   return (
-    <View style={postStyles.container}>
-      <View style={postStyles.headContainer}>
+    <Pressable
+      android_ripple={{ color: '#f5f5f5' }}
+      style={postStyles.container}
+      onPress={() => {
+        router.push(`/talks/viewPost/${data.id}`);
+      }}
+    >
+      <View style={postStyles.headContainer} pointerEvents="none">
         <ImageLoader
           size={48}
-          uri="https://api.coderserve.com/media/profile_images/default_profile_image.png"
+          uri={data.author.profile_image}
         />
         <View style={{ gap: 6 }}>
-          <Text style={postStyles.name}>Emma Watson</Text>
-          <Text style={postStyles.time}>2 hours ago</Text>
+          <Text style={postStyles.name}>{data.author.first_name} {data.author.last_name}</Text>
+          <Text style={postStyles.time}>{result}</Text>
         </View>
       </View>
-      <View style={{ marginTop: 32 }}>
+      <View style={{ marginTop: 32 }} pointerEvents="none">
         <Text style={postStyles.content}>
-          Docker isn't just about containers anymore - it's the backbone of
-          modern development workflows, eliminating environment mismatches and
-          simlifying deployment.
+          {data.title}
         </Text>
       </View>
-      <View style={{ marginTop: 16, flexDirection: 'row', gap: 8 }}>
-        <HashChip title="#docker" />
-        <HashChip title="#devops" />
-        <HashChip title="#containers" />
+      <View style={{ marginTop: 16, flexDirection: 'row', gap: 8, flexWrap: 'wrap' }} pointerEvents="none">
+        {
+          data.hashtags.map((hashtag: string, index: number) => (
+            <HashChip key={index} title={`#${hashtag}`} />
+          ))
+        }
       </View>
-      <View style={{ marginTop: 16 }}>
-        <Image source={require('@/assets/images/profile/Background/3.png')} style={postStyles.image} />
+      <View style={{ marginTop: 16 }} pointerEvents="none">
+        <FullWidthImage imageUrl={data.thumbnail} />
       </View>
-    </View>
+    </Pressable>
   );
 }
 
@@ -160,42 +175,10 @@ export default function Page() {
   const navigation = useNavigation();
   const focused = useIsFocused();
   const listRef = React.useRef<ScrollView>(null);
-  const [keyboardVisible, setKeyboardVisible] = React.useState(false);
   useTabPressScrollToTop(listRef, 'talks');
+  const { isLoading, initialLoading, refreshing, combinedData, handleEndReached, handleRefresh } = useFetchData({ url: '/api/talks/posts/' });
 
-  React.useEffect(() => {
-    const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => {
-      setKeyboardVisible(true);
-    });
-    const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => {
-      setKeyboardVisible(false);
-    });
-
-    return () => {
-      keyboardDidShowListener.remove();
-      keyboardDidHideListener.remove();
-    };
-  }, [])
-  React.useEffect(() => {
-    const backHandler = BackHandler.addEventListener('hardwareBackPress', () => {
-      if (isSearchFocused) {
-        if (keyboardVisible) {
-          Keyboard.dismiss();
-          return true;
-        }
-        else {
-          Keyboard.dismiss();
-          setIsSearchFocused(false);
-          return true;
-        }
-      }
-      router.back();
-      return true;
-    });
-
-    return () => backHandler.remove();
-  }, [isSearchFocused]);
-
+  const { contentWidth, contentOpacity, searchBarMarginTop } = useSearchBar({ setIsSearchFocused, isSearchFocused });
   const handleAddPostPress = () => {
     if (isTalksProfileCompleted()) {
       router.push("/(protected)/talks/createPost");
@@ -228,70 +211,32 @@ export default function Page() {
     }
   }, [isSearchFocused, focused]);
 
-  // search bar animation values
-  const searchBarMarginTop = useAnimatedValue(0);
-  const contentWidth = useAnimatedValue(width - 32);
-  const contentOpacity = useAnimatedValue(1);
-
-  React.useEffect(() => {
-    if (isSearchFocused) {
-      Animated.timing(searchBarMarginTop, {
-        toValue: -88,
-        duration: 200,
-        useNativeDriver: true,
-      }).start();
-      Animated.timing(contentWidth, {
-        toValue: width,
-        duration: 200,
-        useNativeDriver: false,
-      }).start();
-      Animated.timing(contentOpacity, {
-        toValue: 0,
-        duration: 200,
-        useNativeDriver: true,
-      }).start();
-    } else {
-      Animated.timing(searchBarMarginTop, {
-        toValue: 0,
-        duration: 200,
-        useNativeDriver: true,
-      }).start();
-      Animated.timing(contentWidth, {
-        toValue: width - 32,
-        duration: 200,
-        useNativeDriver: false,
-      }).start();
-      Animated.timing(contentOpacity, {
-        toValue: 1,
-        duration: 200,
-        useNativeDriver: true,
-      }).start();
-    }
-  });
-
-  const data = ['', '', '', '']
-  const [refreshing, setRefreshing] = React.useState(false);
-
   return (
     <>
       <ScrollView
         contentContainerStyle={{
           backgroundColor: !isSearchFocused ? "white" : "#f7f7f7",
           alignItems: 'center',
+          minHeight: '100%'
         }}
         ref={listRef}
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
-            onRefresh={() => {
-              setRefreshing(true);
-              setTimeout(() => {
-                setRefreshing(false);
-              }, 2000);
-            }}
+            onRefresh={handleRefresh}
           />
         }
         scrollEnabled={!isSearchFocused}
+        onScroll={({ nativeEvent }) => {
+          const { layoutMeasurement, contentOffset, contentSize } = nativeEvent;
+          const paddingToBottom = 20;
+          if (
+            layoutMeasurement.height + contentOffset.y >=
+            contentSize.height - paddingToBottom
+          ) {
+            handleEndReached();
+          }
+        }}
       >
         <Animated.View style={{ width: contentWidth }}>
           <Animated.View style={{ opacity: contentOpacity }}>
@@ -333,10 +278,15 @@ export default function Page() {
             <OptionChip title="Following" selected={false} />
           </View>
         </Animated.View>
-        {data.map((_, index) => (
-          <Animated.View key={index} style={{ backgroundColor: '#f5f5f5', paddingTop: 8, opacity: contentOpacity }}><Post /></Animated.View>
+        {initialLoading && (
+          <View style={{ width: '100%', flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'white' }}>
+            <ActivityIndicator size='large' color='#202020' />
+          </View>
+        )}
+        {!initialLoading && combinedData.length > 0 && combinedData.map((data, index) => (
+          <Animated.View key={index} style={{ backgroundColor: '#f5f5f5', paddingTop: 8, opacity: contentOpacity, width: '100%' }}><Post data={data} /></Animated.View>
         ))}
-        <BottomName />
+        {!initialLoading && <BottomName />}
       </ScrollView>
       <BottomSheet
         menuRef={menuRef}

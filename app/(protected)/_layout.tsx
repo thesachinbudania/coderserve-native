@@ -12,7 +12,7 @@ import hiddenSegments from '@/constants/hiddenFooterRoutes'
 import * as SecureStore from 'expo-secure-store'
 import DeviceInfo from 'react-native-device-info'
 import React from 'react'
-import { View, ActivityIndicator, StatusBar, Pressable } from 'react-native';
+import { View, ActivityIndicator, StatusBar, TouchableWithoutFeedback, Pressable } from 'react-native';
 import { notify } from '@alexsandersarmento/react-native-event-emitter'
 
 function LoadingScreen() {
@@ -65,6 +65,7 @@ const AppTabs = () => {
           <Tabs.Screen name='jobs' options={{ tabBarIcon: JobsIcon, tabBarLabel: "Jobs" }} />
           <Tabs.Screen name='projects' options={{ tabBarIcon: ProjectsIcon, tabBarLabel: 'Projects' }} />
           <Tabs.Screen name='profile' options={{ tabBarIcon: ProfileIcon, tabBarLabel: 'Profile' }} />
+          <Tabs.Screen name='home' options={{ href: null }} />
         </Tabs>
       </View>
     </>

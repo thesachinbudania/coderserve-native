@@ -21,6 +21,7 @@ export default function BottomDrawer({ sheetRef, children, draggableIconHeight =
             borderTopLeftRadius: 24,
             borderTopRightRadius: 24,
             paddingBottom: 16,
+            width: '100%',
           }
         }}
       >

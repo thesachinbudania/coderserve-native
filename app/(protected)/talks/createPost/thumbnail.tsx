@@ -8,15 +8,13 @@ import PopUpMessage from '@/components/profile/PopUpMessage';
 import ErrorMessage from '@/components/messsages/Error';
 import PopUp from '@/components/messsages/PopUp';
 import GreyBgButton from '@/components/buttons/GreyBgButton';
-import BackgroundImageLoader from '@/components/BackgroundImageLoader';
 import { useRouter } from 'expo-router';
-import { useUserStore } from '@/zustand/stores';
 import * as zod from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { SubmitHandler, useForm } from 'react-hook-form';
-import protectedApi from '@/helpers/axios';
-import handleApiError from '@/helpers/apiErrorHandler';
 import { useNewPostStore } from '@/zustand/talks/newPostStore';
+import { BlurView } from 'expo-blur';
+import FullWidthImage from '@/components/FullWidthImage';
 
 const formSchema = zod.object({
   background_image: zod.any().nullish(),
@@ -26,40 +24,28 @@ const formSchema = zod.object({
 type FormData = zod.infer<typeof formSchema>
 
 export default function UploadBackground() {
-  const { watch, handleSubmit, setValue, setError, formState: { isSubmitting, errors } } = useForm<FormData>({
+  const { thumbnail: currentThumbnail, setNewPost } = useNewPostStore();
+  const { watch, handleSubmit, setValue, formState: { isSubmitting, errors } } = useForm<FormData>({
     defaultValues: {
-      background_type: 'custom',
-      background_image: null,
+      background_image: currentThumbnail,
     },
     resolver: zodResolver(formSchema)
   })
 
   const { background_image: image } = watch();
-  const { setNewPost } = useNewPostStore();
 
   const [uploadPopUp, setUploadPopUp] = React.useState(false);
   const [deleteConfirmVisible, setDeleteConfirmVisible] = React.useState(false);
   const router = useRouter();
 
-  const backgroundImage = useUserStore(state => state.background_image);
-  const backgroundType = useUserStore(state => state.background_type);
-  const setUser = useUserStore(state => state.setUser);
-
-  const updateBackground: SubmitHandler<FormData> = async (data) => {
-    if (data.background_image) {
-      setNewPost({ thumbnail: data.background_image })
+  const updateBackground = async () => {
+    if (image) {
+      setNewPost({ thumbnail: image })
       router.back();
     }
   }
 
   const deleteBackground: SubmitHandler<FormData> = async () => {
-    await protectedApi.put('/accounts/delete_background_image/').then(() => {
-      setUser({ background_image: '', background_type: 'default' })
-      setValue('background_image', null)
-      router.dismiss(2);
-    }).catch((error) => {
-      handleApiError(error, setError)
-    })
   }
 
   async function openImagePicker() {
@@ -67,7 +53,6 @@ export default function UploadBackground() {
       mediaTypes: ['images'],
       allowsEditing: true,
       quality: 1,
-      aspect: [3, 1]
     })
     if (!result.canceled) {
       setValue('background_image', result.assets[0])
@@ -114,26 +99,18 @@ export default function UploadBackground() {
         </View>
       </PopUp>
       {!image ?
-        (
-          backgroundType === 'custom' && backgroundImage ?
-            <View style={{ overflow: 'hidden', borderRadius: 8 }}>
-              <BackgroundImageLoader size={144} uri={backgroundImage} />
-            </View>
-            : (
-              <View style={styles.imageContainer}>
-                <Image source={require('@/assets/images/profile/uploadIcon.png')} style={styles.uploadIcon} />
-              </View>
-            )
-        )
+        <View style={styles.imageContainer}>
+          <Image source={require('@/assets/images/profile/uploadIcon.png')} style={styles.uploadIcon} />
+        </View>
         :
-        <Image source={{ uri: image.uri }} style={{ borderRadius: 8, width: '100%', height: 144 }} />
+        <FullWidthImage imageUrl={image.uri} />
       }
       <View style={{ gap: 16, marginTop: 48 }}>
-        {image ?
+        {(currentThumbnail && (image && image.uri != currentThumbnail.uri)) || (!currentThumbnail && image) ?
           <>
             <BlueButton
               title="Save"
-              onPress={handleSubmit(updateBackground)}
+              onPress={updateBackground}
               loading={isSubmitting}
             />
             <NoBgButton
@@ -143,23 +120,13 @@ export default function UploadBackground() {
           </> :
           <>
             <BlueButton
-              title={backgroundType === 'default' ? 'Upload' : 'Update'}
+              title={!image ? 'Upload' : 'Update'}
               onPress={openImagePicker}
             />
-            {
-              backgroundType === 'default' ? (
-                <NoBgButton
-                  title='Cancel'
-                  onPress={() => { router.back() }}
-                />
-              ) : (
-                <NoBgButton
-                  title='Delete'
-                  dangerButton
-                  onPress={() => setDeleteConfirmVisible(true)}
-                />
-              )
-            }
+            <NoBgButton
+              title='Cancel'
+              onPress={() => { router.back() }}
+            />
           </>
         }
         {

@@ -6,6 +6,7 @@ import ImageLoader from '@/components/ImageLoader';
 import IconButton from '@/components/buttons/IconButton';
 import { useUserStore } from '@/zustand/stores';
 import { useNewPostStore } from '@/zustand/talks/newPostStore';
+import FullWidthImage from '@/components/FullWidthImage';
 
 const { width } = Dimensions.get('window');
 
@@ -75,6 +76,34 @@ function Header() {
   );
 }
 
+export function PostContent({ title, hashtags, thumbnail }: { title: string, hashtags: string[], thumbnail: string }) {
+  return (
+    <View style={styles.postContainer}>
+      {title && (
+        <Text style={styles.postHeading}>
+          {title}
+        </Text>
+      )}
+      {
+        title && hashtags.length > 0 && (
+          <View style={styles.hashTagContainer}>
+            {hashtags.map((hashtag, index) => (
+              <HashChip key={index} hashtag={hashtag} />
+            ))}
+          </View>
+        )
+      }
+      {
+        title && hashtags.length > 0 && thumbnail && (
+          <View style={{ marginTop: 16 }}>
+            <FullWidthImage imageUrl={thumbnail} />
+          </View>
+        )
+      }
+    </View>
+  );
+}
+
 
 export default function PreviewPost() {
   const { title, hashtags, thumbnail } = useNewPostStore();
@@ -83,27 +112,7 @@ export default function PreviewPost() {
       contentContainerStyle={{ paddingHorizontal: 16, flex: 1, paddingBottom: 48, backgroundColor: 'white' }}
     >
       <Header />
-      <View style={styles.postContainer}>
-        {title && (
-          <Text style={styles.postHeading}>
-            {title}
-          </Text>
-        )}
-        {
-          title && hashtags.length > 0 && (
-            <View style={styles.hashTagContainer}>
-              {hashtags.map((hashtag, index) => (
-                <HashChip key={index} hashtag={hashtag} />
-              ))}
-            </View>
-          )
-        }
-        {
-          title && hashtags.length > 0 && thumbnail && (
-            <Image source={{ uri: thumbnail.uri }} style={{ borderRadius: 8, width: '100%', height: 144, marginTop: 16 }} />
-          )
-        }
-      </View>
+      <PostContent title={title} hashtags={hashtags} thumbnail={thumbnail.uri} />
     </ScrollView>
   );
 }
@@ -120,7 +129,7 @@ const styles = StyleSheet.create({
   headerName: {
     fontSize: 15,
     fontWeight: "bold",
-    width: width - 192,
+    width: width - 140,
   },
   secondaryHeaderText: {
     fontSize: 11,

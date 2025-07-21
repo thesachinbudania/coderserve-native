@@ -1,9 +1,12 @@
 import React from "react";
-import { Text, View, Image, StyleSheet } from "react-native";
+import { Pressable, Text, View, Image, StyleSheet } from "react-native";
 
-const CourseCard = ({ name, time }: { name: string, time: string }) => {
+const CourseCard = ({ name, time, onPress = () => { } }: { name: string, onPress?: () => void, time: string }) => {
   return (
-    <View style={courseCardStyles.container}>
+    <Pressable
+      style={({ pressed }) => [courseCardStyles.container, pressed && { borderColor: '#006dff' }]}
+      onPress={onPress}
+    >
       <View style={courseCardStyles.logoContainer}>
         <Image source={require('@/assets/images/jobs/otherCertifications.png')} style={courseCardStyles.logo} />
       </View>
@@ -20,7 +23,7 @@ const CourseCard = ({ name, time }: { name: string, time: string }) => {
           <Text style={{ fontSize: 11, color: '#00bf53' }}>Start now</Text>
         </View>
       </View>
-    </View>
+    </Pressable>
   )
 }
 
