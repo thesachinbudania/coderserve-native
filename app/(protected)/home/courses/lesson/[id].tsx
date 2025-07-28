@@ -7,10 +7,10 @@ import { useGlobalSearchParams } from 'expo-router';
 import protectedApi from '@/helpers/axios';
 import Loading from '@/components/general/Loading';
 
+const breakpoints = ['quiz', 'miniTask', 'moveToNext']
 
 export default function Introduction() {
   const [data, setData] = React.useState<any>(null);
-  console.log(data)
   const [loading, setLoading] = React.useState(true);
   const { id } = useGlobalSearchParams();
 
@@ -23,7 +23,7 @@ export default function Introduction() {
     let nextIndex = data.content.length;
 
     for (let i = currentIndex + 1; i < data.content.length; i++) {
-      if (data.content[i].component === 'quiz') {
+      if (breakpoints.includes(data.content[i].component)) {
         nextIndex = i;
         break;
       }
@@ -39,6 +39,7 @@ export default function Introduction() {
     async function fetchData() {
       try {
         const response = await protectedApi.get(`/home/lessons/${id}/`);
+        console.log(response.data.user_lesson_points)
         setData(response.data);
       } catch (error: any) {
         console.error('Error fetching course data:', error.response.data);
@@ -52,12 +53,14 @@ export default function Introduction() {
   return (
     loading ? <Loading /> :
       <PageLayout headerTitle="Introduction to AI">
-        <Image source={{ uri: data.image }} style={{ marginHorizontal: 'auto', objectFit: 'contain', width: 256, height: 256 }} />
+        {data.image &&
+          <Image source={{ uri: data.image }} style={{ marginHorizontal: 'auto', objectFit: 'contain', width: 256, height: 256 }} />
+        }
         {
           data?.content.slice(0, unlockedIndex + 1).map((item: any, index: number) => {
             const { component, ...props } = item;
             const Component = componentsMap[component as ComponentName];
-            if (component === 'quiz') {
+            if (breakpoints.includes(component)) {
               return (
                 <Component
                   key={index}

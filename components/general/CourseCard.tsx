@@ -1,7 +1,7 @@
 import React from "react";
 import { Pressable, Text, View, Image, StyleSheet } from "react-native";
 
-const CourseCard = ({ name, time, onPress = () => { } }: { name: string, onPress?: () => void, time: string }) => {
+const CourseCard = ({ name, time, onPress = () => { }, available = true }: { name: string, onPress?: () => void, time: string, available?: boolean }) => {
   return (
     <Pressable
       style={({ pressed }) => [courseCardStyles.container, pressed && { borderColor: '#006dff' }]}
@@ -20,7 +20,7 @@ const CourseCard = ({ name, time, onPress = () => { } }: { name: string, onPress
             <Image source={require('@/assets/images/home/time.png')} style={{ width: 12, height: 12 }} />
             <Text style={{ fontSize: 11, color: '#a6a6a6' }}>{time}</Text>
           </View>
-          <Text style={{ fontSize: 11, color: '#00bf53' }}>Start now</Text>
+          <Text style={{ fontSize: 11, color: '#00bf53' }}>{available ? 'Start now' : 'Available Soon'}</Text>
         </View>
       </View>
     </Pressable>

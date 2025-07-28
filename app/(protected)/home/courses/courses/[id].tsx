@@ -6,6 +6,7 @@ import { useGlobalSearchParams } from 'expo-router';
 import React from 'react';
 import protectedApi from '@/helpers/axios';
 import Loading from '@/components/general/Loading';
+import { useFocusEffect } from 'expo-router';
 
 const categoryMapping = {
   'additional': 'Additional Resources',
@@ -19,21 +20,24 @@ export default function FullStackAi() {
   const { id } = useGlobalSearchParams();
   const [data, setData] = React.useState<any>(null);
   const [loading, setLoading] = React.useState(true);
+  console.log(data)
 
-  React.useEffect(() => {
-    async function fetchData() {
-      try {
-        const response = await protectedApi.get(`/home/specializations/${id}/`);
-        setData(response.data);
-      } catch (error: any) {
-        console.error('Error fetching course data:', error.response.data);
-      } finally {
-        setLoading(false);
+  useFocusEffect(
+    React.useCallback(() => {
+      async function fetchData() {
+        try {
+          const response = await protectedApi.get(`/home/specializations/${id}/`);
+          setData(response.data);
+        } catch (error: any) {
+          console.error('Error fetching course data:', error.response.data);
+        } finally {
+          setLoading(false);
+        }
       }
-    }
 
-    fetchData();
-  }, [])
+      fetchData();
+    }, [])
+  )
 
   const router = useRouter();
   return (
@@ -50,6 +54,8 @@ export default function FullStackAi() {
                 key={index}
                 pointsCount={course.points}
                 onPress={course.type === 'lesson' ? () => router.push(`/(protected)/home/courses/lesson/${course.lesson_id}`) : () => router.push(`/(protected)/home/courses/modules/${course.id}`)}
+                userPoints={course.user_points}
+                locked={index === 0 ? false : data.courses[index - 1].user_points >= data.courses[index - 1].points ? false : true}
               />
             ))
           }

@@ -1,5 +1,5 @@
 import React from 'react';
-import { ActivityIndicator, Pressable, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, Text, TextInput, View } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import { useRouter } from 'expo-router';
 import { useUserStore } from '@/zustand/stores';
@@ -14,21 +14,36 @@ function Heading({ children }: { children: string }) {
   )
 }
 
-function SubHeading({ children }: { children: string }) {
+function SubHeading({ children, topMargin = 0, bottomMargin = 0 }: { children: string, topMargin?: number, bottomMargin?: number }) {
   return (
-    <Text style={{ fontSize: 16, fontWeight: 'bold' }}>{children}</Text>
+    <Text style={{ fontSize: 16, fontWeight: 'bold', marginTop: topMargin, marginBottom: bottomMargin }}>{children}</Text>
   )
 }
 
 interface ParagraphProps {
-  children: string;
+  children: string | { type: 'text' | 'code', content: string }[];
   topMargin?: number;
   bottomMargin?: number;
 }
 
 function Paragraph({ children, topMargin = 8, bottomMargin = 0 }: ParagraphProps) {
   return (
-    <Text style={{ marginTop: topMargin, marginBottom: bottomMargin, fontSize: 13, color: '#737373' }}>{children}</Text>
+    typeof children === 'string' ?
+      <Text style={{ marginTop: topMargin, marginBottom: bottomMargin, fontSize: 13, color: '#737373' }}>{children}</Text> :
+      <Text style={{ marginTop: topMargin, marginBottom: bottomMargin, flexWrap: 'wrap' }}>
+        {children.map((child, idx) => {
+          if (child.type === 'text') {
+            return <Text key={idx} style={{ fontSize: 13, color: "#737373" }}>{child.content} </Text>;
+          } else if (child.type === 'code') {
+            return (
+              <Text key={idx} style={{ color: '#3c5fff', fontSize: 13 }}>
+                {child.content}
+              </Text>
+            );
+          }
+          return null;
+        })}
+      </Text>
   )
 }
 
@@ -73,13 +88,14 @@ function Table({ title1, title2, width1, width2, data, bottomMargin = 0, topMarg
 }
 
 interface UnorderedListProps {
-  items: string[];
+  items: string[] | { type: 'text' | 'code', content: string }[][];
   topMargin?: number;
   bottomMargin?: number;
+  gap?: number;
 }
-const UnorderedList = ({ items, topMargin = 8, bottomMargin = 0 }: UnorderedListProps) => {
+const UnorderedList = ({ items, topMargin = 8, bottomMargin = 0, gap = 16 }: UnorderedListProps) => {
   return (
-    <View style={{ gap: 16, marginTop: topMargin, marginBottom: bottomMargin }}>
+    <View style={{ gap: gap, marginTop: topMargin, marginBottom: bottomMargin }}>
       {items.map((item, index) => item != '' && (
         <View style={{ flexDirection: 'row', alignItems: 'flex-start' }} key={index}>
           <Text style={{
@@ -88,7 +104,7 @@ const UnorderedList = ({ items, topMargin = 8, bottomMargin = 0 }: UnorderedList
             lineHeight: 22,
             color: '#737373'
           }}>{'\u2022'}</Text>
-          <Text style={{ fontSize: 13, color: '#737373' }}>{item}</Text>
+          <Paragraph children={item} topMargin={0} bottomMargin={0} />
         </View>
       ))}
     </View>
@@ -272,6 +288,8 @@ const Quiz = ({ topMargin = 8, bottomMargin = 0, renderNext, id }: McqProps) => 
             text="Once you've answered above questions, click 'Done' to proceed."
             buttonTitle='Done'
             onPress={submitQuiz}
+            loading={submitLoading}
+            disabled={questions.length != Object.keys(answers).length}
           />
         }
       </View>
@@ -279,7 +297,7 @@ const Quiz = ({ topMargin = 8, bottomMargin = 0, renderNext, id }: McqProps) => 
 }
 
 
-const GradientBoxWithButton = ({ disabled = false, text, onPress, buttonTitle }: { buttonTitle: string, disabled?: boolean, text: string, onPress?: () => void }) => {
+const GradientBoxWithButton = ({ disabled = false, text, onPress, buttonTitle, loading = false }: { loading?: boolean, buttonTitle: string, disabled?: boolean, text: string, onPress?: () => void }) => {
   return (
     <LinearGradient
       colors={['#691a00', '#ae2a00']}
@@ -294,31 +312,35 @@ const GradientBoxWithButton = ({ disabled = false, text, onPress, buttonTitle }:
         <YellowButton
           title={buttonTitle}
           onPress={onPress}
+          disabled={disabled}
+          loading={loading}
         />
       </View>
     </LinearGradient>
   )
 }
 
-const YellowButton = ({ title, onPress }: { title: string, onPress?: () => void }) => {
+const YellowButton = ({ title, onPress, disabled, loading = false }: { title: string, onPress?: () => void, disabled?: boolean, loading?: boolean }) => {
   return (
     <Pressable
-      style={({ pressed }) => [{ borderRadius: 32, paddingHorizontal: 32, paddingVertical: 16, backgroundColor: pressed ? '#ffe370' : 'white' }]}
+      style={({ pressed }) => [{ borderRadius: 32, paddingHorizontal: 32, paddingVertical: 16, backgroundColor: pressed ? '#ffe370' : 'white' }, disabled && { backgroundColor: "#d98a71" }]}
       onPress={onPress}
     >
-      <Text>{title}</Text>
+      {loading ? <ActivityIndicator size="small" color="#202020" /> :
+        <Text style={disabled && { color: '#691a00' }}>{title}</Text>
+      }
     </Pressable>
   )
 }
 
-const EndBox = () => {
+const EndBox = ({ text = null, onPress = null, buttonText = null }: { text?: string | null, onPress?: (() => void) | null, buttonText?: string | null }) => {
   const router = useRouter();
   const { first_name } = useUserStore();
   return (
     <GradientBoxWithButton
-      text={`Congrats ${first_name}! You successfully completed Introduction to AI`}
-      buttonTitle='Close'
-      onPress={() => router.back()}
+      text={text ? text : `Congrats ${first_name}! You successfully completed Introduction to AI`}
+      buttonTitle={buttonText ? buttonText : 'Close'}
+      onPress={onPress ? onPress : () => router.back()}
     />
   )
 }
@@ -357,6 +379,171 @@ const OutputCode = ({ children, topMargin = 8, bottomMargin = 0 }: CodeBlockProp
 }
 
 
+const MiniTask = ({ renderNext, id, outputLines = 2 }: { renderNext: () => void, id: number, outputLines?: number }) => {
+  const { first_name } = useUserStore();
+  const [yesClicked, setYesClicked] = React.useState(false);
+  const [focused, setFocused] = React.useState(false);
+  const [data, setData] = React.useState<any>(null);
+  const [loading, setLoading] = React.useState(true);
+  const [submitLoading, setSubmitLoading] = React.useState(false);
+  const [points, setPoints] = React.useState(0);
+
+  const [answer, setAnswer] = React.useState<string>('');
+  const [completed, setCompleted] = React.useState<boolean>(false);
+  const [popUpVisible, setPopUpVisible] = React.useState(false);
+  const [errored, setErrored] = React.useState(false);
+  const [correctAnswer, setCorrectAnswer] = React.useState<any>(null);
+
+  React.useEffect(() => {
+    async function fetchData() {
+      try {
+        const response = await protectedApi.get(`/home/mini_task/${id}/`);
+        setData(response.data);
+        setLoading(false);
+        setCompleted(response.data.completed);
+        if (response.data.completed) {
+          setCorrectAnswer(response.data.answer);
+          renderNext();
+        }
+      } catch (error: any) {
+        console.error('Error fetching mini task data:', error.response.data);
+      }
+    }
+    fetchData();
+  }, [id]);
+
+  const submitAnswer = async () => {
+    setSubmitLoading(true);
+    if (answer === '') {
+      return
+    }
+    try {
+      const response = await protectedApi.put(`/home/mini_task/${id}/`, { answer });
+      if (response.data.correct) {
+        setCompleted(true);
+        setCorrectAnswer(response.data.answer)
+        renderNext();
+      }
+      else {
+        setCompleted(false);
+        setErrored(true);
+      }
+      setPoints(response.data.points);
+      setPopUpVisible(true);
+    } catch (error: any) {
+      console.error('Error submitting mini task answer:', error.response.data);
+    }
+    finally {
+      setSubmitLoading(false);
+    }
+  }
+  return (
+    loading ? <View style={{ height: 400, justifyContent: 'center', alignItems: 'center' }}>
+      <ActivityIndicator size="large" color="#202020" />
+    </View> :
+      !yesClicked && !completed ?
+        <View style={{ marginTop: 48 }}>
+          <EndBox
+            text={`${first_name}! Are you ready to try your mini task?`}
+            buttonText={'Yes'}
+            onPress={() => setYesClicked(true)}
+          /></View> : (
+          <>
+            <Section title="Your Mini Task" />
+            {
+              data.question.map((item: any, index: number) => {
+                const { component, ...props } = item;
+                const Component = componentsMap[component as ComponentName];
+                return <Component key={index} {...props} />
+              })
+            }
+            {
+              !completed && data.question_autohide.length > 0 && data.question_autohide.map((item: any, index: number) => {
+                const { component, ...props } = item;
+                const Component = componentsMap[component as ComponentName];
+                return <Component key={index} {...props} />
+              })
+            }
+            {
+              !completed ? (
+                <>
+                  <TextInput
+                    placeholder={'Output'}
+                    multiline={true}
+                    numberOfLines={outputLines}
+                    style={[{
+                      height: (outputLines * 16) + 32,
+                      borderColor: 'black',
+                      borderWidth: 1,
+                      padding: 16,
+                      borderRadius: 12,
+                      backgroundColor: '#fff',
+                      color: '#000',
+                      fontSize: 13,
+                      textAlignVertical: 'top',
+                      marginTop: 16
+                    }, focused && { borderColor: '#006dff' }]}
+                    placeholderTextColor={'#cbe1ff'}
+                    onFocus={() => setFocused(true)}
+                    onBlur={() => setFocused(false)}
+                    value={answer}
+                    onChangeText={setAnswer}
+                  />
+                  {
+                    errored && <Text style={{ marginTop: 8, color: "#ff5757" }}>Incorrect output. Try again</Text>
+                  }
+                  <View style={{ marginTop: 32 }}>
+                    <GradientBoxWithButton
+                      text="Once you've entered the output above, click 'Done' to proceed."
+                      buttonTitle='Done'
+                      onPress={submitAnswer}
+                      loading={submitLoading}
+                      disabled={!answer || answer === ''}
+                    />
+                  </View>
+                </>
+              ) : (
+                correctAnswer && correctAnswer.map((item: any, index: number) => {
+                  const { component, ...props } = item;
+                  const Component = componentsMap[component as ComponentName];
+                  return <Component key={index} {...props} />
+                })
+              )
+            }
+
+            <PopUp
+              visible={popUpVisible}
+              setVisible={setPopUpVisible}
+            >
+              <Text style={{ fontSize: 15, fontWeight: 'bold', textAlign: 'center' }}>{!completed ? 'Incorrect Submission' : 'Successful Submission'}</Text>
+              <Text style={{ paddingVertical: 32, textAlign: 'center', fontSize: 33, color: (!completed) ? '#ff5757' : '#00bf63', fontWeight: 'bold' }}>{!completed ? '-' : '+'}{points} points</Text>
+              <Text style={{ fontSize: 13, color: '#737373', marginBottom: 24, textAlign: 'center' }}>{!completed ? "Great Job! Your code passed all test cases and you've earned partial points for this task." : "Oops! Your code didn't pass all the test cases and partial points have been deducted. Don't worry - you can review and try again!"}</Text>
+              <DefaultButton
+                title='Done'
+                onPress={() => setPopUpVisible(false)}
+              />
+            </PopUp>
+          </>
+        )
+  )
+}
+
+const MoveToNext = ({ renderNext, children }: { renderNext: () => void, children: string }) => {
+  const [show, setShow] = React.useState(true);
+  return (
+    show &&
+    <View style={{ marginTop: 32 }}>
+      <EndBox
+        text={children}
+        buttonText='Okay'
+        onPress={() => { renderNext(); setShow(false) }}
+      />
+    </View>
+  )
+}
+
+
+
 export const componentsMap = {
   'paragraph': (props: any) => <Paragraph {...props} />,
   'heading': (props: any) => <Heading {...props} />,
@@ -369,6 +556,8 @@ export const componentsMap = {
   'endBox': (props: any) => <EndBox {...props} />,
   'codeBlock': (props: any) => <CodeBlock {...props} />,
   'outputCode': (props: any) => <OutputCode {...props} />,
+  'miniTask': (props: any) => <MiniTask {...props} />,
+  'moveToNext': (props: any) => <MoveToNext {...props} />
 }
 
 export type ComponentName = keyof typeof componentsMap;
