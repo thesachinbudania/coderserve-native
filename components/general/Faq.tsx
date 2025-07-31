@@ -28,38 +28,67 @@ const faqData = [
   },
   {
     id: '2',
-    question: 'What does each box in the streak grid represent?',
-    answer: 'You can earn points by completing modules, participating in quizzes, and engaging with additional resources.',
+    question: 'How is my daily streak percentage calculated?',
+    answer: `Each day, you earn streak percentage based on your activity:
+  - Completed 1 module = 100%
+  - Completed 50% of a module = 50%
+  - Posted something useful = 25%
+`,
   },
   {
     id: '3',
-    question: 'Will I lose my streak if I skip a day?',
-    answer: 'Currently, there is no option to reset your progress. All completed work is saved to your account permanently.',
+    question: 'What does each box in the streak grid represnet?',
+    answer: `Each box = 1 day
+Layout: 26 weeks (columns) x 7 days (rows) = 182 days
+Colors or intensity of the boxes reflect your daily streak percentage. More completion = darker/more intense color.`,
   },
   {
     id: "4",
-    question: 'What is streak rate?',
-    answer: 'Streak rate is the percentage of days you have been active in the last 182 days. It is calculated based on your daily activity.',
+    question: 'Will I lose my streak if I skip a day?',
+    answer: "Not exactly. Your streak isn't broken line in some apps. Even partial activity (like posting or completing 50% of a module) will count. You only get 0% if you do nothing on that day.",
   },
   {
     id: "5",
-    question: "What is the 'Activities' section?",
-    answer: "The 'Activities' section shows your daily progress, including completed modules, quizzes, and additional resources. It helps you track your learning journey.",
+    question: "What is Streak Rate?",
+    answer: `Streak Rate measures how consistently active you've been since joining the platform. It's a percentage score.
+Streak Rate = (Total streak % across all days) / (Total days since joining)`,
   },
   {
     id: "6",
-    question: "Why don't I see anything in Activites?",
-    answer: "If you don't see any activities, it means you haven't completed any modules, quizzes, or additional resources yet. Start engaging with the content to see your progress here.",
+    question: "What is 'Activities section'?",
+    answer: `The Activities section shows all the action you've comleted on a specific day that contributed to your streak - not just today.
+
+By default, it shows today's activity. You can chane the date to view your activities on any of the past 182 days.
+
+Example entries:
+  - Completed "Module 1: Introduction to AI"
+  - Posted: "Best practices for clean code in Python`,
   },
   {
     id: "7",
-    question: "What is the Leaderboard?",
-    answer: "The Leaderboard displays the top users based on their streak rates. It allows you to compare your progress with others and encourages healthy competition.",
+    question: "Why don't I see anything in Activities?",
+    answer: "If you haven't done anything that contributes to your streak (course progress or a useful post), this section will be empty.",
   },
   {
     id: "8",
+    question: "What is the Leaderboard?",
+    answer: `The leaderboard ranks users based on their total points earned by:
+  - Completing course modules
+  - Completing project modules
+
+It highlights top learners and creators in the community.`
+  },
+  {
+    id: "9",
     question: "How are points calculated for the leaderboard?",
-    answer: "Points for the leaderboard are calculated based on your daily activity, including completed modules, quizzes, and additional resources. The more active you are, the higher your points.",
+    answer: `Each completed module (course or project) gives you points.
+More modules = More points = Higher rank.
+(Note: Streak activity itself doesn't add leaderboard points unless it involves completing modules.)`,
+  },
+  {
+    id: "10",
+    question: "Does posting increase leaderboard rank?",
+    answer: "No. Useful posts only help increase your daily streak, not your leaderboard rank."
   }
 ];
 

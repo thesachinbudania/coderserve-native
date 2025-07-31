@@ -14,7 +14,6 @@ import secureApi from '@/helpers/auth/axios';
 import handleApiError from '@/helpers/apiErrorHandler';
 import { useStore } from '@/zustand/auth/stores'
 import { useUserStore, useTokensStore } from '@/zustand/stores';
-import { useScrollToTop } from '@react-navigation/native';
 
 
 const formSchema = zod.object({
@@ -38,16 +37,11 @@ export default function LocationSelectPage() {
   const { setUser } = useUserStore(state => state)
   const { setTokens } = useTokensStore(state => state)
 
-  // initial list of the countries we support currently
-  const countriesList = countryData.map((country) => (
-    country.name
-  ))
   // converting the countries list to the format provided by the library	
   const [countries, setCountries] = React.useState<{ name: string, id: number }[] | null>(null);
   React.useEffect(() => {
     GetCountries().then((countries) => {
-      const filteredCountries = countries.filter((country) => (countriesList.includes(country.name)))
-      setCountries(filteredCountries);
+      setCountries(countries);
     })
   }, [])
 

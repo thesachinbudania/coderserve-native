@@ -20,7 +20,6 @@ export default function Layout({ headerTitle, children, defaultBack = true, flex
       )}
       <ScrollView
         contentContainerStyle={[styles.content, bottomPadding ? { paddingBottom: Platform.OS === 'ios' ? 96 : 128, } : { paddingBottom: 60 }]}
-        keyboardShouldPersistTaps='always'
         scrollEnabled={scrollEnabled}
       >
         <TouchableWithoutFeedback

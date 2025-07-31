@@ -71,6 +71,7 @@ const StreakContainer = () => {
   useFocusEffect(React.useCallback(() => {
     protectedApi.get('/home/last_week_streak/')
       .then((res) => {
+        console.log(res.data)
         setData(res.data);
       })
       .catch((err) => {
@@ -97,15 +98,15 @@ const StreakContainer = () => {
         </View>
         < View style={streakContainerStyles.datesContainer} >
           {
-            [...Array(7).keys()].reverse().map((index, _) => {
+            [...Array(7).keys()].map((index, _) => {
               const currentDate = new Date(date); // clone the date
-              currentDate.setDate(date.getDate() - (index)); // subtract i days
+              currentDate.setDate(date.getDate() - (6 - index)); // subtract i days
 
               const formattedDate = currentDate.toLocaleDateString('en-GB', {
                 day: 'numeric',
                 month: 'short'
               });
-              const streak = data.length > index ? data[index]['progress'] : 0;
+              const streak = data.length > index ? data[index]['total_increment'] : 0;
               return (
 
                 <DateRing
