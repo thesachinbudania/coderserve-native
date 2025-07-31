@@ -197,7 +197,7 @@ export default function Streak() {
             <View style={{ marginTop: 32, flexDirection: 'row', gap: 16 }}>
               <StreakBox
                 header='Streak Rate'
-                content={streakRate ? streakRate.toFixed(2) : ''}
+                content={streakRate ? streakRate.toFixed(2) : '0.00'}
               />
               <StreakBox
                 header='Current Streak'

@@ -94,7 +94,7 @@ const StreakContainer = () => {
             source={require('@/assets/images/home/streak.png')}
             style={{ width: 24, height: 24, marginRight: 8, objectFit: 'contain' }}
           />
-          < Text style={{ fontSize: 21, fontWeight: 'bold' }}>{(data && data.length > 0) ? data[data.length - 1]['progress'] : '0.00'}</Text>
+          < Text style={{ fontSize: 21, fontWeight: 'bold' }}>{(data && data.length > 0) ? data[data.length - 1]['total_increment'] : '0.00'}</Text>
         </View>
         < View style={streakContainerStyles.datesContainer} >
           {
