@@ -1,10 +1,8 @@
 import { Alert, Text, Pressable, View, StyleSheet, Image, ScrollView, ActivityIndicator } from 'react-native';
 import React from 'react';
-import { Portal } from '@gorhom/portal';
 import GreyBgButton from '../../components/buttons/GreyBgButton';
 import SearchBar from '../../components/form/SearchBar';
 import LinearGradient from 'react-native-linear-gradient';
-import RBSheet from 'react-native-raw-bottom-sheet';
 import * as Haptics from 'expo-haptics';
 import BottomSheet from '../messsages/BottomSheet';
 
@@ -19,7 +17,7 @@ function MultiTextGreyBgButton({ title, disabled = false, onPress = () => { }, l
       {
         ({ pressed }) => (
           <LinearGradient
-            colors={disabled ? ['#f4f4f4', '#f4f4f4'] : (pressed ? ['#202020', '#202020'] : ['#f4f4f4', '#f4f4f4'])}
+            colors={disabled ? ['#f5f5f5', '#f5f5f5'] : (pressed ? ['#202020', '#202020'] : ['#f4f4f4', '#f4f4f4'])}
             start={{ x: 0, y: 1 }}
             end={{ x: 1, y: 0 }}
             style={buttonStyles.graident}
@@ -159,7 +157,7 @@ const styles = StyleSheet.create({
   },
   boxText: {
     fontSize: 15,
-    color: '#cbe1ff',
+    color: '#cfdbe6',
     paddingLeft: 12,
   },
   downArrow: {

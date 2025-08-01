@@ -99,7 +99,7 @@ export default function SignIn() {
         onPress={handleSubmit(signIn)}
       />
       <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
-        <Text style={{ fontSize: 13, color: '#737373' }}>Don't have an account? </Text>
+        <Text style={{ fontSize: 13, color: '#a6a6a6' }}>Don't have an account? </Text>
         <SmallTextButton
           underline={true}
           title={'Sign Up'}

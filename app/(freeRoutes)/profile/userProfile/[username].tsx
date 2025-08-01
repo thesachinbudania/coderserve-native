@@ -10,6 +10,7 @@ import { useLocalSearchParams } from 'expo-router';
 import protectedApi from '@/helpers/axios';
 import React from 'react';
 import { useRouter } from 'expo-router';
+import { useUserStore } from '@/zustand/stores';
 
 export default function UserProfile() {
   const { username } = useLocalSearchParams();
@@ -17,6 +18,7 @@ export default function UserProfile() {
   const [userResume, setUserResume] = React.useState<any>(null);
   const [isFollowing, setIsFollowing] = React.useState(false);
   const router = useRouter();
+  const { username: currentUsername } = useUserStore(state => state);
   async function shareProfileAsync() {
     try {
       await Share.share({
@@ -27,6 +29,10 @@ export default function UserProfile() {
     }
   }
   React.useEffect(() => {
+    if (currentUsername === username) {
+      router.replace('/profile')
+      return;
+    }
     protectedApi.get(`/accounts/user_profile/${username}/`).then((res) => {
       setUserData(res.data);
       protectedApi.get(`/jobs/user_resume/${username}/`).then((resumeRes) => {
