@@ -201,6 +201,7 @@ const Quiz = ({ topMargin = 8, bottomMargin = 0, renderNext, id }: McqProps) => 
   const [correctAnswers, setCorrectAnswers] = React.useState<number[]>([]);
   const [popUpVisible, setPopUpVisible] = React.useState(false);
   const [points, setPoints] = React.useState(0);
+  const [pointsLeft, setPointsLeft] = React.useState(100);
 
   React.useEffect(() => {
     async function fetchQuestions() {
@@ -228,6 +229,7 @@ const Quiz = ({ topMargin = 8, bottomMargin = 0, renderNext, id }: McqProps) => 
       setPoints(response.data.points);
       if (response.data.correct === false) {
         setIncorrectAnswers(response.data.incorrect);
+        setPointsLeft(pointsLeft - points)
       }
       else {
         setSubmitted(true);
@@ -258,7 +260,7 @@ const Quiz = ({ topMargin = 8, bottomMargin = 0, renderNext, id }: McqProps) => 
           setVisible={setPopUpVisible}
         >
           <Text style={{ fontSize: 15, fontWeight: 'bold', textAlign: 'center' }}>Assessment Complete</Text>
-          <Text style={{ paddingVertical: 32, textAlign: 'center', fontSize: 33, color: (!submitted && incorrectAnswers.length > 0) ? '#ff5757' : '#00bf63', fontWeight: 'bold' }}>{!submitted && incorrectAnswers.length > 0 ? '-' : '+'}{points} points</Text>
+          <Text style={{ paddingVertical: 32, textAlign: 'center', fontSize: 33, color: (!submitted && incorrectAnswers.length > 0) ? '#ff5757' : '#00bf63', fontWeight: 'bold' }}>{!submitted && incorrectAnswers.length > 0 ? `- ${points}` : `+ ${pointsLeft}`} points</Text>
           <Text style={{ fontSize: 13, color: '#737373', marginBottom: 24, textAlign: 'center' }}>{!submitted && incorrectAnswers.length > 0 ? popUpMessage['incorrect'] : popUpMessage['correct']}</Text>
           <DefaultButton
             title='Done'
@@ -387,6 +389,7 @@ const MiniTask = ({ renderNext, id, outputLines = 2 }: { renderNext: () => void,
   const [loading, setLoading] = React.useState(true);
   const [submitLoading, setSubmitLoading] = React.useState(false);
   const [points, setPoints] = React.useState(0);
+  const [pointsLeft, setPointsLeft] = React.useState(100);
 
   const [answer, setAnswer] = React.useState<string>('');
   const [completed, setCompleted] = React.useState<boolean>(false);
@@ -419,6 +422,7 @@ const MiniTask = ({ renderNext, id, outputLines = 2 }: { renderNext: () => void,
     }
     try {
       const response = await protectedApi.put(`/home/mini_task/${id}/`, { answer });
+      setPoints(response.data.points);
       if (response.data.correct) {
         setCompleted(true);
         setCorrectAnswer(response.data.answer)
@@ -427,8 +431,8 @@ const MiniTask = ({ renderNext, id, outputLines = 2 }: { renderNext: () => void,
       else {
         setCompleted(false);
         setErrored(true);
+        setPointsLeft(pointsLeft - response.data.points);
       }
-      setPoints(response.data.points);
       setPopUpVisible(true);
     } catch (error: any) {
       console.error('Error submitting mini task answer:', error.response.data);
@@ -516,7 +520,7 @@ const MiniTask = ({ renderNext, id, outputLines = 2 }: { renderNext: () => void,
               setVisible={setPopUpVisible}
             >
               <Text style={{ fontSize: 15, fontWeight: 'bold', textAlign: 'center' }}>{!completed ? 'Incorrect Submission' : 'Successful Submission'}</Text>
-              <Text style={{ paddingVertical: 32, textAlign: 'center', fontSize: 33, color: (!completed) ? '#ff5757' : '#00bf63', fontWeight: 'bold' }}>{!completed ? '-' : '+'}{points} points</Text>
+              <Text style={{ paddingVertical: 32, textAlign: 'center', fontSize: 33, color: (!completed) ? '#ff5757' : '#00bf63', fontWeight: 'bold' }}>{!completed ? `- ${points}` : `+ ${pointsLeft}`} points</Text>
               <Text style={{ fontSize: 13, color: '#737373', marginBottom: 24, textAlign: 'center' }}>{!completed ? "Great Job! Your code passed all test cases and you've earned partial points for this task." : "Oops! Your code didn't pass all the test cases and partial points have been deducted. Don't worry - you can review and try again!"}</Text>
               <DefaultButton
                 title='Done'

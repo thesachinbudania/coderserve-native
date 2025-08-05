@@ -188,7 +188,7 @@ const styles = StyleSheet.create({
     marginBottom: 8
   },
   divider: {
-    height: 2,
+    height: 1,
     backgroundColor: '#f0f0f0',
     marginTop: 16,
   },

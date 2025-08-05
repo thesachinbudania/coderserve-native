@@ -1,1 +1,1 @@
-export const apiUrl = 'https://api.coderserve.com'
+export const apiUrl = 'http://192.168.1.8:8000'

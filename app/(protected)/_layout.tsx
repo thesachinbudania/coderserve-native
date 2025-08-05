@@ -50,6 +50,7 @@ const AppTabs = () => {
             tabBarStyle: {
               display: hiddenSegments.includes(JSON.stringify(segment)) ? 'flex' : 'none',
               height: 54,
+              borderColor: "#f5f5f5"
             },
             headerShown: false,
             tabBarButton: (props) => (

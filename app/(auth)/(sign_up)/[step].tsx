@@ -9,26 +9,26 @@ import { useLocalSearchParams } from 'expo-router';
 
 
 export default function Page() {
-	const { step: screen } = useLocalSearchParams();
-	return (
-		<Wizard>
-			<Controller step={typeof screen === 'string' ? Number(screen) : 1} />
-			<SignUpScreen />
-			<OtpPage />
-			<ChooseUsernameScreen />
-			<ProfileImageScreen />
-			<LocationSelectPage />
-		</Wizard>
+  const { step: screen } = useLocalSearchParams();
+  return (
+    <Wizard>
+      <Controller step={typeof screen === 'string' ? Number(screen) : 1} />
+      <SignUpScreen />
+      <OtpPage />
+      <ProfileImageScreen />
+      <ChooseUsernameScreen />
+      <LocationSelectPage />
+    </Wizard>
 
-	)
+  )
 }
 
 const Controller = ({ step }: { step: number }) => {
-	const { goToStep } = useWizard();
+  const { goToStep } = useWizard();
 
-	React.useEffect(() => {
-		goToStep(step);
-	}, [step]);
+  React.useEffect(() => {
+    goToStep(step);
+  }, [step]);
 
-	return null; // invisible controller
+  return null; // invisible controller
 };

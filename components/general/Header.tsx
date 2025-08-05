@@ -39,7 +39,7 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     paddingHorizontal: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#eeeeee',
+    borderBottomColor: '#f5f5f5',
     alignItems: 'center',
     gap: 8,
     position: 'absolute',
