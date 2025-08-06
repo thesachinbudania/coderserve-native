@@ -17,7 +17,11 @@ export default function FormInput({ value, onChangeText }: { value: string, onCh
         autoComplete="new-password"
         secureTextEntry={!showPassword}
         value={value}
-        onChangeText={onChangeText}
+        onChangeText={(text) => {
+          if (text.length <= 50) {
+            onChangeText(text);
+          }
+        }}
         cursorColor="black"
       />
       <TouchableOpacity style={styles.inputTouch} onPress={() => {
@@ -39,7 +43,8 @@ const styles = StyleSheet.create({
     height: 45,
     marginTop: 8,
     fontSize: 15,
-    width: '100%'
+    width: '100%',
+    paddingRight: 48,
   },
   formView: {
     flexDirection: 'row',

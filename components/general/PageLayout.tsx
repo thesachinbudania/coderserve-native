@@ -4,7 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 const { height } = Dimensions.get('window');
 
-export default function Layout({ headerTitle, children, defaultBack = true, flex1 = true, showHeader = true, scrollEnabled = true, customBack = () => { }, bottomPadding = true }: { headerTitle: string, defaultBack?: boolean, flex1?: boolean, showHeader?: boolean, scrollEnabled?: boolean, bottomPadding?: boolean, customBack?: () => void, children: React.ReactNode }) {
+export default function Layout({ headerTitle, children, defaultBack = true, flex1 = true, showHeader = true, scrollEnabled = true, contentContainerStyle, customBack = () => { }, bottomPadding = true }: { headerTitle: string, defaultBack?: boolean, flex1?: boolean, showHeader?: boolean, scrollEnabled?: boolean, bottomPadding?: boolean, customBack?: () => void, children: React.ReactNode, contentContainerStyle?: any }) {
   const navigation = useNavigation();
   const { top } = useSafeAreaInsets();
   return (
@@ -19,7 +19,7 @@ export default function Layout({ headerTitle, children, defaultBack = true, flex
 
       )}
       <ScrollView
-        contentContainerStyle={[styles.content, bottomPadding ? { paddingBottom: Platform.OS === 'ios' ? 96 : 128, } : { paddingBottom: 60 }]}
+        contentContainerStyle={[styles.content, bottomPadding ? { paddingBottom: Platform.OS === 'ios' ? 96 : 128, } : { paddingBottom: 60 }, contentContainerStyle]}
         scrollEnabled={scrollEnabled}
       >
         <TouchableWithoutFeedback

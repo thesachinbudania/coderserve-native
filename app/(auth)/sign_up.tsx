@@ -8,26 +8,26 @@ import React from 'react';
 
 
 export default function Page({ screen = 5 }: { screen?: number }) {
-	return (
-		<Wizard>
-			<Controller step={screen} />
-			<SignUpScreen
-			/>
-			<OtpPage />
-			<ChooseUsernameScreen />
-			<ProfileImageScreen />
-			<LocationSelectPage />
-		</Wizard>
+  return (
+    <Wizard>
+      <Controller step={screen} />
+      <SignUpScreen
+      />
+      <OtpPage />
+      <ChooseUsernameScreen />
+      <ProfileImageScreen />
+      <LocationSelectPage />
+    </Wizard>
 
-	)
+  )
 }
 
 const Controller = ({ step }: { step: number }) => {
-	const { goToStep } = useWizard();
+  const { goToStep } = useWizard();
 
-	React.useEffect(() => {
-		goToStep(step);
-	}, [step]);
+  React.useEffect(() => {
+    goToStep(step);
+  }, [step]);
 
-	return null; // invisible controller
+  return null; // invisible controller
 };

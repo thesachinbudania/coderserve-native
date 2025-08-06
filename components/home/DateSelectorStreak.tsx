@@ -3,7 +3,6 @@ import { View, Text, StyleSheet, Dimensions } from 'react-native';
 import WheelPicker from 'react-native-wheel-picker-expo';
 
 const ITEM_HEIGHT = 50;
-const VISIBLE_ITEMS = 5; // The number of items visible in the picker wheel
 
 const { width: screenWidth } = Dimensions.get('window');
 
@@ -59,7 +58,7 @@ interface CustomDatePickerProps {
 export const DateSelectorStreak: React.FC<CustomDatePickerProps> = ({
   selectedValue,
   onValueChange,
-  daysRange = 365,
+  daysRange = 182,
 }) => {
   const items = useMemo(() => generateDateItems(daysRange), [daysRange]);
 

@@ -15,9 +15,12 @@ import { useFocusEffect } from 'expo-router';
 
 
 const { width } = Dimensions.get('window');
-function Header() {
+
+
+function Header({ rank }: { rank: number | null }) {
   const user = useUserStore(state => state);
   const { top } = useSafeAreaInsets();
+  const router = useRouter();
   return (
     <View style={[styles.headerContainer, { paddingTop: top + 8 }]} >
       <View style={{ flexDirection: "row", gap: 4 }}>
@@ -31,9 +34,10 @@ function Header() {
             numberOfLines={1}
             ellipsizeMode="tail"
             style={styles.headerName}
-          > {user.first_name} </Text>
+          >{user.first_name}</Text>
           < Text style={styles.secondaryHeaderText} >
-            AI Enthusiast
+            {rank ? `Global Rank #${rank}` : "Your Journey Begins"}
+
           </Text>
         </View>
       </View>
@@ -44,7 +48,9 @@ function Header() {
             style={styles.headerIcon}
           />
         </IconButton>
-        < IconButton >
+        < IconButton
+          onPress={() => router.push('/(freeRoutes)/messages')}
+        >
           <Image
             source={require("@/assets/images/jobs/Chats.png")}
             style={styles.headerIcon}
@@ -54,11 +60,11 @@ function Header() {
     </View>
   );
 }
-const DateRing = ({ date, streak }: { date: string, streak: number }) => {
+const DateRing = ({ date, streak, faded = false }: { date: string, streak: number, faded?: boolean }) => {
   return (
     <View>
-      <ProgressRing progress={streak} />
-      < Text style={{ fontSize: 9, color: '#a6a6a6', marginTop: 4, textAlign: 'center' }}> {date} </Text>
+      <ProgressRing progress={streak} backgroundColor={faded ? '#f5f5f5' : '#eeeeee'} />
+      < Text style={{ fontSize: 9, color: faded ? '#d9d9d9' : '#a6a6a6', marginTop: 4, textAlign: 'center' }}> {date} </Text>
     </View>
   )
 }
@@ -68,6 +74,8 @@ const StreakContainer = () => {
   const [loading, setLoading] = React.useState(true);
   const router = useRouter();
   const date = new Date();
+  const tomorrow = new Date(date);
+  tomorrow.setDate(date.getDate() + 1);
   useFocusEffect(React.useCallback(() => {
     protectedApi.get('/home/last_week_streak/')
       .then((res) => {
@@ -94,13 +102,13 @@ const StreakContainer = () => {
             source={require('@/assets/images/home/streak.png')}
             style={{ width: 24, height: 24, marginRight: 8, objectFit: 'contain' }}
           />
-          < Text style={{ fontSize: 21, fontWeight: 'bold' }}>{(data && data.length > 0) ? data[data.length - 1]['total_increment'] : '0.00'}</Text>
+          < Text style={{ fontSize: 21, fontWeight: 'bold' }}>{(data && data.length > 0) ? data[data.length - 1]['total_increment'].toFixed(2) : '0.00'}</Text>
         </View>
         < View style={streakContainerStyles.datesContainer} >
           {
-            [...Array(7).keys()].map((index, _) => {
+            [...Array(6).keys()].map((index, _) => {
               const currentDate = new Date(date); // clone the date
-              currentDate.setDate(date.getDate() - (6 - index)); // subtract i days
+              currentDate.setDate(date.getDate() - (5 - index)); // subtract i days
 
               const formattedDate = currentDate.toLocaleDateString('en-GB', {
                 day: 'numeric',
@@ -108,7 +116,6 @@ const StreakContainer = () => {
               });
               const streak = data.length > index ? data[index]['total_increment'] : 0;
               return (
-
                 <DateRing
                   key={index}
                   date={formattedDate}
@@ -118,6 +125,14 @@ const StreakContainer = () => {
             }
             )
           }
+          <DateRing
+            date={tomorrow.toLocaleDateString('en-GB', {
+              day: 'numeric',
+              month: 'short'
+            })}
+            streak={0}
+            faded
+          />
         </View>
       </Pressable>
   )
@@ -158,7 +173,10 @@ export const SuggestionCard = ({ name, onPress, rank, points, image }: Suggestio
         size={80}
         uri={image}
       />
-      <Text style={{ fontSize: 13, fontWeight: 'bold', marginTop: 12, textAlign: 'center' }}>
+      <Text
+        numberOfLines={1}
+        ellipsizeMode="tail"
+        style={{ fontSize: 13, fontWeight: 'bold', marginTop: 12, textAlign: 'center', maxWidth: 240 }}>
         {name}
       </Text>
       < Text style={{ fontSize: 11, color: '#a6a6a6', textAlign: 'center', marginTop: 4 }
@@ -184,11 +202,15 @@ export default function Home() {
   const router = useRouter();
   const [topPerformrs, setTopPerformers] = React.useState<any>(null);
   const [loading, setLoading] = React.useState(true);
+  const [userRank, setUserRank] = React.useState<number | null>(null);
+  console.log('userRank', userRank);
+  console.log('topPerformrs', topPerformrs);
 
   React.useEffect(() => {
     protectedApi.get('/home/top_performers/')
       .then((res) => {
-        setTopPerformers(res.data);
+        setTopPerformers(res.data.results);
+        setUserRank(res.data.user_rank);
       })
       .catch((err) => {
         console.error(err);
@@ -201,7 +223,7 @@ export default function Home() {
   return (
     <ScrollView contentContainerStyle={{ backgroundColor: 'white', paddingHorizontal: 16 }
     }>
-      <Header />
+      <Header rank={userRank} />
       < StreakContainer />
       <View style={{ marginTop: 48, gap: 16 }}>
         <Text style={{ fontSize: 15, fontWeight: 'bold' }}> Main Courses </Text>
@@ -227,10 +249,11 @@ export default function Home() {
         <Text style={{ fontSize: 15, fontWeight: 'bold' }}> Your Projects </Text>
         < View style={{ padding: 16, borderWidth: 1, borderRadius: 12, borderColor: '#f5f5f5', alignItems: 'center' }}>
           <View style={{ marginVertical: 64, flexDirection: 'row' }}>
-            <Text style={{ fontSize: 11, color: '#a6a6a6' }}> You have no projects to learn.</Text>
+            <Text style={{ fontSize: 11, color: '#d9d9d9' }}> You have no projects to learn.</Text>
             < SmallTextButton
               title='Add Now'
               style={{ fontSize: 11, textDecorationLine: 'underline', marginLeft: 4 }}
+              onPress={() => router.push('/(protected)/projects')}
             />
           </View>
         </View>
@@ -239,7 +262,7 @@ export default function Home() {
         <Text style={{ fontSize: 15, fontWeight: 'bold', paddingHorizontal: 16 }}>Top 10 Experts</Text>
         {topPerformrs && !loading && (
           < FlatList
-            data={topPerformrs.results}
+            data={topPerformrs}
             renderItem={({ item, index }) => <SuggestionCard
               name={item.first_name}
               id={item.id}

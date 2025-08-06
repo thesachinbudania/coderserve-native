@@ -31,7 +31,7 @@ export default function SearchBar({ onChangeText }: { onChangeText: React.Dispat
 const styles = StyleSheet.create({
   input: {
     borderWidth: 1,
-    borderColor: '#8399ff',
+    borderColor: '#000',
     borderRadius: 8,
     height: 45,
     paddingLeft: 38,

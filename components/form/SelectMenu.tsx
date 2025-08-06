@@ -17,7 +17,7 @@ function MultiTextGreyBgButton({ title, disabled = false, onPress = () => { }, l
       {
         ({ pressed }) => (
           <LinearGradient
-            colors={disabled ? ['#f5f5f5', '#f5f5f5'] : (pressed ? ['#202020', '#202020'] : ['#f4f4f4', '#f4f4f4'])}
+            colors={disabled ? ['#f5f5f5', '#f5f5f5'] : (pressed ? ['#202020', '#202020'] : ['#f5f5f5', '#f5f5f5'])}
             start={{ x: 0, y: 1 }}
             end={{ x: 1, y: 0 }}
             style={buttonStyles.graident}

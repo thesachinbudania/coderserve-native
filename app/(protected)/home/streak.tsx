@@ -142,6 +142,7 @@ export default function Streak() {
   const [selectedDate, setSelectedDate] = React.useState<any>(null);
   const [currentStreak, setCurrentStreak] = React.useState<any>(null);
   const [streakRate, setStreakRate] = React.useState<any>(null);
+  const [todayDate, setTodayDate] = React.useState('');
 
   React.useEffect(() => {
     const today = new Date();
@@ -149,6 +150,7 @@ export default function Streak() {
     today.setUTCHours(0, 0, 0, 0);
     const date = new Date(today.getTime());
     date.setUTCDate(today.getUTCDate() + 0);
+    setTodayDate(date.toISOString());
     setSelectedDate(date.toISOString())
     fetchActivities();
   }, [])
@@ -179,12 +181,12 @@ export default function Streak() {
       setLoaded((prev) => prev + 1);
     })
   }, [])
-
-
+  const date = new Date(selectedDate);
   return (
     <PageLayout
       headerTitle='Streak'
       scrollEnabled={!dateSelectorVisible}
+      contentContainerStyle={{ paddingBottom: 44 }}
     >
       {
         loaded < 2 ? <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', height: '100%' }}>
@@ -216,13 +218,17 @@ export default function Streak() {
                 >
                   {
                     ({ pressed }) => <>
-                      <Text style={[{ fontSize: 11 }, pressed && { color: "#006dff" }]}>Today</Text>
+                      <Text style={[{ fontSize: 11 }, pressed && { color: "#006dff" }]}>{selectedDate === todayDate ? 'Today' : date.toLocaleDateString('en-GB', {
+                        day: '2-digit',
+                        month: 'short',
+                        year: 'numeric'
+                      })}</Text>
                       <Image source={pressed ? require('@/assets/images/home/blueDownArrow.png') : require("@/assets/images/home/greyDownArrow.png")} style={{ height: 12, width: 12, objectFit: 'contain' }} />
                     </>
                   }
                 </Pressable>
               </View>
-              <BottomSheet menuRef={menuRef} height={300}>
+              <BottomSheet menuRef={menuRef} height={308}>
                 <DateSelectorStreak
                   selectedValue={selectedDate}
                   onValueChange={setSelectedDate}
@@ -238,7 +244,7 @@ export default function Streak() {
               {activities && activities.length > 0 ? <ChainComponent
                 data={activities}
               /> : <View style={{ paddingVertical: 96, marginTop: 16, marginBottom: 48, borderWidth: 1, borderRadius: 12, borderColor: '#f5f5f5' }}>
-                <Text style={{ textAlign: 'center', color: "#d9d9d9", fontSize: 11 }}>No Activity Logged</Text>
+                <Text style={{ textAlign: 'center', color: "#d9d9d9", fontSize: 11 }}>{todayDate === selectedDate ? 'Start learning  or posting to see your progress here.' : 'No Activity Logged'}</Text>
               </View>}
             </View>
             < View style={{ gap: 16, marginHorizontal: -16 }}>
