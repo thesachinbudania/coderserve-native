@@ -79,7 +79,6 @@ const StreakContainer = () => {
   useFocusEffect(React.useCallback(() => {
     protectedApi.get('/home/last_week_streak/')
       .then((res) => {
-        console.log(res.data)
         setData(res.data);
       })
       .catch((err) => {
@@ -203,8 +202,6 @@ export default function Home() {
   const [topPerformrs, setTopPerformers] = React.useState<any>(null);
   const [loading, setLoading] = React.useState(true);
   const [userRank, setUserRank] = React.useState<number | null>(null);
-  console.log('userRank', userRank);
-  console.log('topPerformrs', topPerformrs);
 
   React.useEffect(() => {
     protectedApi.get('/home/top_performers/')
@@ -224,7 +221,7 @@ export default function Home() {
     <ScrollView contentContainerStyle={{ backgroundColor: 'white', paddingHorizontal: 16 }
     }>
       <Header rank={userRank} />
-      < StreakContainer />
+      <StreakContainer />
       <View style={{ marginTop: 48, gap: 16 }}>
         <Text style={{ fontSize: 15, fontWeight: 'bold' }}> Main Courses </Text>
         < CourseCard
@@ -232,7 +229,7 @@ export default function Home() {
           time="6 Weeks"
           onPress={() => router.push('/(protected)/home/courses/courses/1')}
         />
-        < CourseCard
+        <CourseCard
           name="Generative AI"
           time="0 Weeks"
           available={false}
