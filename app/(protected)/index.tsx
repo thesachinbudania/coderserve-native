@@ -42,7 +42,9 @@ function Header({ rank }: { rank: number | null }) {
         </View>
       </View>
       < View style={{ flexDirection: 'row', gap: 16 }}>
-        <IconButton>
+        <IconButton
+          onPress={() => router.push('/(freeRoutes)/notifications')}
+        >
           <Image
             source={require("@/assets/images/profile/home/notifications.png")}
             style={styles.headerIcon}
