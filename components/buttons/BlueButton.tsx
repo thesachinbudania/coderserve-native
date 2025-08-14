@@ -2,7 +2,7 @@ import { Pressable, Text, StyleSheet, ActivityIndicator } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import * as Haptics from 'expo-haptics';
 
-export default function BlueButton({ title, dangerButton = false, disabled = false, loading = false, onPress = () => { } }: { title: string, dangerButton?: boolean, disabled?: boolean, loading?: boolean, onPress?: () => void }) {
+export default function BlueButton({ title, dangerButton = false, disabled = false, loading = false, onPress = () => { }, outlined = false }: { title: string, dangerButton?: boolean, disabled?: boolean, loading?: boolean, onPress?: () => void, outlined?: boolean }) {
   return (
     <Pressable
       key={loading.toString()}
@@ -17,14 +17,14 @@ export default function BlueButton({ title, dangerButton = false, disabled = fal
       {
         ({ pressed }) => (
           <LinearGradient
-            colors={disabled ? ['#f4f4f4', '#f4f4f4'] : (pressed || loading ? (dangerButton ? ['#ff5757', '#ff5757'] : ['#006dff', '#006dff']) : ['#202020', '#202020'])}
+            colors={disabled ? ['#f4f4f4', '#f4f4f4'] : (pressed || loading ? (dangerButton ? ['#ff5757', '#ff5757'] : ['#006dff', '#006dff']) : outlined ? ['#fff', '#fff'] : ['#202020', '#202020'])}
             start={{ x: 0, y: 1 }}
             end={{ x: 1, y: 0 }}
-            style={styles.graident}
+            style={[styles.graident, outlined && { borderColor: '#eee', borderWidth: 0.5 }]}
           >
             {
               loading ? <ActivityIndicator color='white' /> : (
-                <Text style={[styles.text, pressed && { color: 'white' }, disabled && { color: '#d9d9d9' }]}>{title}</Text>
+                <Text style={[styles.text, outlined && { color: "#737373", fontWeight: 'normal' }, pressed && { color: 'white' }, disabled && { color: '#d9d9d9' }]}>{title}</Text>
               )
             }
           </LinearGradient>

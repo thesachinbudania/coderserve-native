@@ -1,4 +1,4 @@
-import { ActivityIndicator, Image, Text, View } from 'react-native';
+import { ActivityIndicator, Image, Text, View, FlatList } from 'react-native';
 import PageLayout from '@/components/general/PageLayout';
 import protectedApi from '@/helpers/axios';
 import React from 'react';
@@ -28,6 +28,22 @@ export default function Recipients() {
           <View style={{ width: '100%', flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'white' }}>
             <ActivityIndicator size='large' color='#202020' />
           </View>
+        )
+      }
+      {
+        !initialLoading && !isLoading && combinedData.length > 0 && (
+          <FlatList
+            data={combinedData}
+            keyExtractor={(item) => item.id.toString()}
+            renderItem={({ item }) => (
+              <View style={{ padding: 16, borderBottomWidth: 1, borderBottomColor: '#f0f0f0' }}>
+                <Text style={{ color: '#737373', marginTop: 4 }}>{item.username}</Text>
+              </View>
+            )}
+            onEndReached={handleEndReached}
+            onRefresh={handleRefresh}
+            refreshing={refreshing}
+          />
         )
       }
     </PageLayout>
