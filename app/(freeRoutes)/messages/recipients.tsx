@@ -1,16 +1,32 @@
-import { ActivityIndicator, Image, Text, View, FlatList } from 'react-native';
+import { ActivityIndicator, Image, Text, View, FlatList, Pressable } from 'react-native';
 import PageLayout from '@/components/general/PageLayout';
 import protectedApi from '@/helpers/axios';
 import React from 'react';
 import useFetchData from '@/helpers/general/handleFetchedData';
+import ImageLoader from '@/components/ImageLoader';
+import { useRouter } from 'expo-router';
 
 export default function Recipients() {
+  const router = useRouter();
   React.useEffect(() => {
     protectedApi.get('/home/mutualfollowers_list/').then((res) => {
       console.log(res.data);
     })
   }, [])
   const { isLoading, initialLoading, refreshing, combinedData, handleEndReached, handleRefresh } = useFetchData({ url: '/api/home/mutualfollowers_list/' });
+  const [isInitiating, setIsInitiating] = React.useState(false);
+  function handleInitiateChat(id: number) {
+    if (isInitiating) return;
+    setIsInitiating(true);
+    protectedApi.post('/home/conversations/', { 'participants': [id] }).then((res) => {
+      setIsInitiating(false);
+      console.log(res.data);
+      router.push('/(freeRoutes)/messages/chat/' + res.data.id);
+    }).catch((err) => {
+      console.error(err.response.data);
+      setIsInitiating(false);
+    });
+  }
   return (
     <PageLayout
       headerTitle='Recipients'
@@ -24,25 +40,33 @@ export default function Recipients() {
         )
       }
       {
-        initialLoading && (
+        initialLoading || isInitiating && (
           <View style={{ width: '100%', flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'white' }}>
             <ActivityIndicator size='large' color='#202020' />
           </View>
         )
       }
       {
-        !initialLoading && !isLoading && combinedData.length > 0 && (
+        !isInitiating && !initialLoading && !isLoading && combinedData.length > 0 && (
           <FlatList
             data={combinedData}
             keyExtractor={(item) => item.id.toString()}
             renderItem={({ item }) => (
-              <View style={{ padding: 16, borderBottomWidth: 1, borderBottomColor: '#f0f0f0' }}>
-                <Text style={{ color: '#737373', marginTop: 4 }}>{item.username}</Text>
-              </View>
+              <Pressable
+                style={{ flexDirection: 'row', gap: 8, alignItems: 'center' }}
+                onPress={() => handleInitiateChat(item.id)}
+              >
+                <ImageLoader size={48} uri={item.profile_image} />
+                <View style={{ gap: 4 }}>
+                  <Text style={{ fontWeight: "bold", fontSize: 15 }}>{item.first_name} {item.last_name}</Text>
+                  <Text style={{ fontSize: 13, color: '#737373' }}>@{item.username}</Text>
+                </View>
+              </Pressable>
             )}
             onEndReached={handleEndReached}
             onRefresh={handleRefresh}
             refreshing={refreshing}
+            contentContainerStyle={{ gap: 16 }}
           />
         )
       }

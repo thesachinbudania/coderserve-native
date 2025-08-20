@@ -17,6 +17,8 @@ export default function UserProfile() {
   const [userData, setUserData] = React.useState<any>(null);
   const [userResume, setUserResume] = React.useState<any>(null);
   const [isFollowing, setIsFollowing] = React.useState(false);
+  const [requestSent, setRequestSent] = React.useState(false);
+  console.log(requestSent, 'request sent')
   const router = useRouter();
   const { username: currentUsername } = useUserStore(state => state);
   async function shareProfileAsync() {
@@ -39,6 +41,7 @@ export default function UserProfile() {
         setUserResume(resumeRes.data);
         protectedApi.get('/accounts/verify_following/' + username + '/').then((followRes) => {
           setIsFollowing(followRes.data.is_following)
+          setRequestSent(followRes.data.request_sent);
           setIsLoading(false);
         })
       })
@@ -51,9 +54,10 @@ export default function UserProfile() {
     protectedApi.put(`/accounts/manage_follow/${username}/`).then(() => {
       protectedApi.get('/accounts/verify_following/' + username + '/').then((followRes) => {
         setIsFollowing(followRes.data.is_following)
+        setRequestSent(followRes.data.request_sent);
         setIsFollowLoading(false);
       })
-    })
+    }).catch(err => console.log(err.response.data, 'erroring here'))
   }
   return (
     <>
@@ -90,7 +94,7 @@ export default function UserProfile() {
             <View style={styles.buttonContainer}>
               <View style={{ flex: 1 }}>
                 <BlueButton
-                  title={isFollowing ? 'Unfollow' : 'Follow'}
+                  title={isFollowing ? 'Unfollow' : requestSent ? 'Requested' : 'Follow'}
                   onPress={manageFollow}
                   loading={isFollowLoading}
                 />

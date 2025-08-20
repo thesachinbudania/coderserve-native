@@ -1,0 +1,409 @@
+// app/Chat.tsx
+import React, { useState, useRef, useEffect, useMemo } from 'react';
+import {
+  ActivityIndicator, Image, Text, StyleSheet, View, FlatList,
+  TextInput, Pressable, KeyboardAvoidingView, Platform, Dimensions
+} from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useGlobalSearchParams } from 'expo-router';
+import * as ImagePicker from 'expo-image-picker';
+import protectedApi from '@/helpers/axios';
+import { useUserStore } from '@/zustand/stores';
+import ImageLoader from '@/components/ImageLoader';
+import IconButton from '@/components/profile/IconButton';
+import dayjs from 'dayjs';
+import isToday from 'dayjs/plugin/isToday';
+import isYesterday from 'dayjs/plugin/isYesterday';
+import { useTokensStore } from '@/zustand/stores';
+import { apiUrl } from '@/constants/env';
+import ImageViewing from 'react-native-image-viewing'
+
+dayjs.extend(isToday);
+dayjs.extend(isYesterday);
+
+// --- TYPE DEFINITIONS ---
+type Message = {
+  id: string;
+  text: string | null;
+  imageUrl?: string | null;
+  createdAt: string;
+  timestamp: string;
+  senderId: string;
+  isFirstInGroup?: boolean;
+  // For local uploads
+  localUri?: string;
+  uploadProgress?: number;
+  fileName?: string;
+  fileSize?: number;
+  error?: string;
+};
+
+type DateSeparator = {
+  id: string;
+  date: string;
+  isSeparator: true;
+};
+
+type ChatListItem = Message | DateSeparator;
+
+// --- COMPONENTS ---
+
+function Header({ first_name, profile_image }: { first_name: string; profile_image: string }) {
+  const { top } = useSafeAreaInsets();
+  return (
+    <View style={[styles.headerContainer, { paddingTop: top + 8 }]}>
+      <View style={{ flexDirection: 'row', gap: 4 }}>
+        {profile_image ? <ImageLoader size={48} uri={profile_image} border={1} /> : null}
+        <View style={{ gap: 6, justifyContent: 'center' }}>
+          <Text numberOfLines={1} ellipsizeMode="tail" style={styles.headerName}>{first_name}</Text>
+        </View>
+      </View>
+      <View style={{ flexDirection: 'row', gap: 16 }}>
+        <IconButton>
+          <Image source={require('@/assets/images/profile/home/menu.png')} style={styles.headerIcon} />
+        </IconButton>
+      </View>
+    </View>
+  );
+}
+
+const MessageBubble: React.FC<{ message: Message; currentUserId: string }> = ({ message, currentUserId }) => {
+  const isCurrentUser = message.senderId === currentUserId;
+  const isFirst = message.isFirstInGroup ?? true;
+  const [imageVisible, setImageVisible] = useState(false);
+
+  const renderContent = () => {
+    // UPLOADING STATE
+    if (message.uploadProgress !== undefined) {
+      const sizeInMB = message.fileSize ? (message.fileSize / (1024 * 1024)).toFixed(2) : 0;
+      const fileType = message.fileName?.split('.').pop()?.toUpperCase();
+      return (
+        <View>
+          <Text style={styles.uploadFileName}>{message.fileName}</Text>
+          <Text style={styles.uploadFileInfo}>{sizeInMB} MB {fileType} Uploading {Math.round(message.uploadProgress * 100)}%</Text>
+          <View style={styles.progressBarContainer}>
+            <View style={[styles.progressBar, { width: `${message.uploadProgress * 100}%` }]} />
+          </View>
+        </View>
+      );
+    }
+    // FINAL IMAGE STATE
+    if (message.imageUrl) {
+      return <>
+        <Pressable onPress={() => setImageVisible(true)} style={{ marginHorizontal: -4 }}>
+          <View style={{ backgroundColor: '#003a88', borderRadius: 8 }}>
+            <Text style={{ fontSize: 13, color: 'white', padding: 8 }}>2023499234.png</Text>
+            <View style={{ flexDirection: 'row' }}>
+              <Text style={{ fontSize: 11, color: "#73afff" }}>20 MB</Text>
+              <Text style={{ fontSize: 11, color: "#73afff" }}>PNG</Text>
+            </View>
+          </View>
+        </Pressable>
+        <ImageViewing
+          images={[{ uri: apiUrl.slice(0, apiUrl.length) + message.imageUrl }]}
+          visible={imageVisible}
+          onRequestClose={() => setImageVisible(false)}
+          backgroundColor="black"
+          imageIndex={0}
+          animationType="fade"
+        />
+      </>
+    }
+    // TEXT STATE
+    return <Text style={isCurrentUser ? styles.currentUserMessageText : styles.otherUserMessageText}>{message.text}</Text>;
+  };
+
+  return (
+    <View style={[styles.messageRow, isCurrentUser ? styles.currentUserRow : styles.otherUserRow]}>
+      <View style={[
+        styles.messageBubble,
+        isCurrentUser ? styles.currentUserBubble : styles.otherUserBubble,
+        isFirst && (isCurrentUser ? styles.firstInGroupCurrentUser : styles.firstInGroupOtherUser),
+        // Images have less padding
+        !!message.imageUrl && { padding: 4 }
+      ]}>
+        {renderContent()}
+        <Text style={[styles.timestamp, isCurrentUser ? styles.currentUserTimestamp : styles.otherUserTimestamp]}>
+          {message.timestamp}
+        </Text>
+      </View>
+      {isFirst && <View style={isCurrentUser ? styles.rightArrow : styles.leftArrow} />}
+    </View>
+  );
+};
+
+const DateSeparator: React.FC<{ date: string }> = ({ date }) => (
+  <View style={styles.dateSeparatorContainer}>
+    <Text style={styles.dateSeparatorText}>{date}</Text>
+  </View>
+);
+
+function Input({ value, onChange, onSend, onPickImage, disabled }: { value: string; onChange: (t: string) => void; onSend: () => void; onPickImage: () => void; disabled?: boolean }) {
+  const canSend = value.trim().length > 0 && !disabled;
+  return (
+    <View style={commentStyles.commentInputContainer}>
+      <TextInput
+        onChangeText={onChange}
+        value={value}
+        multiline
+        style={commentStyles.commentInput}
+        placeholder="Write here"
+        cursorColor="black"
+        textAlignVertical="top"
+      />
+      <Pressable
+        onPress={canSend ? onSend : onPickImage}
+        disabled={disabled}
+        style={({ pressed }) => [
+          {
+            height: 45, width: 45, justifyContent: 'center', alignItems: 'center',
+            backgroundColor: canSend ? '#202020' : '#f5f5f5', borderRadius: 45, marginLeft: 8
+          },
+          pressed && canSend && { backgroundColor: '#006dff' }
+        ]}
+      >
+        <Image
+          style={{ transform: [{ rotate: canSend ? '-90deg' : '0deg' }], height: 20, width: 20 }}
+          source={
+            canSend
+              ? require('@/assets/images/arrows/right-arrow-white.png')
+              : require('@/assets/images/messages/clip.png')
+          }
+        />
+      </Pressable>
+    </View>
+  );
+}
+
+// --- MAIN CHAT SCREEN ---
+const Chat: React.FC = () => {
+  const currentUser = useUserStore();
+  const token = useTokensStore((state) => state.access);
+  const username = currentUser?.username || '';
+  const { id } = useGlobalSearchParams<{ id: string }>();
+
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [chatData, setChatData] = useState<any>(null);
+  const [inputText, setInputText] = useState('');
+  const [initialLoading, setInitialLoading] = useState(true);
+  const [sending, setSending] = useState(false);
+  const flatListRef = useRef<FlatList<ChatListItem>>(null);
+  const wsRef = useRef<WebSocket | null>(null);
+
+  const fmtTime = (iso: string) => dayjs(iso).format('h:mm a');
+
+  // --- DATA FETCHING & WEBSOCKET ---
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      try {
+        const res = await protectedApi.get(`/home/conversations/${id}/`);
+        if (!mounted) return;
+        setChatData(res.data);
+        const list: Message[] = res.data.messages.map((m: any) => ({
+          id: String(m.id),
+          text: m.content,
+          imageUrl: m.image_url,
+          createdAt: m.timestamp,
+          timestamp: fmtTime(m.timestamp),
+          senderId: m.sender.username,
+        }));
+        setMessages(list);
+      } catch (e: any) {
+        console.error(e?.response?.data || e?.message);
+      } finally {
+        if (mounted) setInitialLoading(false);
+      }
+    })();
+    return () => { mounted = false; };
+  }, [id]);
+
+  useEffect(() => {
+    if (!token) return;
+    const wsUrlBase = 'ws://192.168.1.8:5000';
+    const ws = new WebSocket(`${wsUrlBase}/ws/chat/${id}/?token=${encodeURIComponent(token)}`);
+    wsRef.current = ws;
+
+    ws.onmessage = (e) => {
+      try {
+        const data = JSON.parse(e.data);
+        if (data?.type === 'chat.message') {
+          const incoming: Message = {
+            id: String(data.id),
+            text: data.content,
+            imageUrl: data.image_url,
+            createdAt: data.created_at,
+            timestamp: fmtTime(data.created_at),
+            senderId: data.sender?.username,
+          };
+          setMessages(prev => [...prev, incoming]);
+        }
+      } catch (err) { console.error('WS parse error', err); }
+    };
+    ws.onerror = (err) => { console.error('WS error', err); };
+    return () => { ws.close(); };
+  }, [id, token]);
+
+  // --- MESSAGE & IMAGE SENDING ---
+  const handleSendText = () => {
+    const text = inputText.trim();
+    if (!text || sending || !wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) return;
+    try {
+      setSending(true);
+      wsRef.current.send(JSON.stringify({ action: 'message.create', content: text }));
+      setInputText('');
+    } catch (e) {
+      console.error('WS send failed', e);
+    } finally {
+      setSending(false);
+    }
+  };
+
+  const handlePickAndUploadImage = async () => {
+    const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (permissionResult.granted === false) {
+      alert("You've refused to allow this app to access your photos!");
+      return;
+    }
+
+    const pickerResult = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      quality: 0.8,
+    });
+
+    if (pickerResult.canceled) return;
+    const asset = pickerResult.assets[0];
+
+    const tempId = `upload-${Date.now()}`;
+    const optimisticMessage: Message = {
+      id: tempId,
+      text: null,
+      senderId: username,
+      createdAt: new Date().toISOString(),
+      timestamp: fmtTime(new Date().toISOString()),
+      localUri: asset.uri,
+      uploadProgress: 0,
+      fileName: asset.fileName || 'image.jpg',
+      fileSize: asset.fileSize,
+    };
+    setMessages(prev => [...prev, optimisticMessage]);
+
+    const formData = new FormData();
+    formData.append('image', {
+      uri: asset.uri,
+      name: asset.fileName || 'image.jpg',
+      type: asset.mimeType || 'image/jpeg',
+    } as any);
+
+    try {
+      const response = await protectedApi.post('/home/upload_chat_image/', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+        onUploadProgress: progressEvent => {
+          const progress = progressEvent.total ? progressEvent.loaded / progressEvent.total : 0;
+          setMessages(prev => prev.map(msg =>
+            msg.id === tempId ? { ...msg, uploadProgress: progress } : msg
+          ));
+        },
+      });
+
+      const imageUrl = response.data.image;
+
+      if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+        wsRef.current.send(JSON.stringify({
+          action: 'message.create',
+          image_url: imageUrl
+        }));
+      }
+      setMessages(prev => prev.filter(msg => msg.id !== tempId));
+
+    } catch (error) {
+      console.error('Image upload failed:', error);
+      setMessages(prev => prev.map(msg =>
+        msg.id === tempId ? { ...msg, error: 'Upload failed' } : msg
+      ));
+    }
+  };
+
+  // --- MESSAGE GROUPING ---
+  const chatListItems = useMemo((): ChatListItem[] => {
+    const items: ChatListItem[] = [];
+    let lastDateLabel: string | null = null;
+    let lastSenderId: string | null = null;
+    messages.forEach(message => {
+      const messageDate = dayjs(message.createdAt);
+      let dateLabel = messageDate.isToday() ? 'Today' : messageDate.isYesterday() ? 'Yesterday' : messageDate.format('D MMM YYYY');
+      if (dateLabel !== lastDateLabel) {
+        items.push({ id: `separator-${dateLabel}`, date: dateLabel, isSeparator: true });
+        lastDateLabel = dateLabel;
+        lastSenderId = null;
+      }
+      const isFirstInGroup = message.senderId !== lastSenderId;
+      items.push({ ...message, isFirstInGroup });
+      lastSenderId = message.senderId;
+    });
+    return items;
+  }, [messages]);
+
+  // --- RENDER ---
+  if (initialLoading) {
+    return <ActivityIndicator style={{ flex: 1 }} size="large" color="#202020" />;
+  }
+  const me = username;
+  const other = chatData?.participants?.find((p: any) => p.username !== me);
+  return (
+    <View style={styles.container}>
+      <Header first_name={other?.first_name || other?.username || 'User'} profile_image={other?.profile_image} />
+      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }} keyboardVerticalOffset={100}>
+        <FlatList
+          ref={flatListRef}
+          data={chatListItems}
+          renderItem={({ item }) => 'isSeparator' in item ? <DateSeparator date={item.date} /> : <MessageBubble message={item} currentUserId={me} />}
+          keyExtractor={(item) => item.id}
+          contentContainerStyle={styles.messagesContainer}
+          onContentSizeChange={() => flatListRef.current?.scrollToEnd({ animated: false })}
+          onLayout={() => flatListRef.current?.scrollToEnd({ animated: false })}
+        />
+        <Input value={inputText} onChange={setInputText} onSend={handleSendText} onPickImage={handlePickAndUploadImage} disabled={sending} />
+      </KeyboardAvoidingView>
+    </View>
+  );
+};
+
+export default Chat;
+
+// --- STYLES ---
+const styles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: 'white' },
+  headerContainer: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", paddingHorizontal: 16, paddingBottom: 12, borderBottomWidth: 1, borderColor: "#f5f5f5" },
+  headerName: { fontSize: 18, fontWeight: "600" },
+  headerIcon: { width: 24, height: 24 },
+  messagesContainer: { paddingHorizontal: 16, paddingVertical: 10, flexGrow: 1 },
+  messageRow: { marginVertical: 4, maxWidth: '85%' },
+  currentUserRow: { alignSelf: 'flex-end' },
+  otherUserRow: { alignSelf: 'flex-start' },
+  messageBubble: { paddingVertical: 10, paddingHorizontal: 15, borderRadius: 10 },
+  currentUserBubble: { backgroundColor: '#004AAD' },
+  otherUserBubble: { backgroundColor: '#F5F5F5' },
+  firstInGroupCurrentUser: { borderTopRightRadius: 0 },
+  firstInGroupOtherUser: { borderTopLeftRadius: 0 },
+  rightArrow: { position: 'absolute', width: 0, height: 0, backgroundColor: "transparent", borderStyle: "solid", borderRightWidth: 16, borderTopWidth: 16, borderRightColor: "transparent", borderTopColor: "#004AAD", right: -8 },
+  leftArrow: { position: 'absolute', width: 0, height: 0, backgroundColor: "transparent", borderStyle: "solid", borderLeftWidth: 16, borderTopWidth: 16, borderLeftColor: "transparent", borderTopColor: "#F5F5F5", left: -8 },
+  currentUserMessageText: { fontSize: 13, color: 'white' },
+  otherUserMessageText: { fontSize: 13, color: 'black' },
+  timestamp: { fontSize: 11, alignSelf: 'flex-end', marginTop: 4 },
+  currentUserTimestamp: { color: '#73afff' },
+  otherUserTimestamp: { color: '#a6a6a6' },
+  dateSeparatorContainer: { alignItems: 'center', marginVertical: 12 },
+  dateSeparatorText: { fontSize: 11, color: '#a6a6a6' },
+  chatImage: { width: Dimensions.get('window').width * 0.6, height: 200, borderRadius: 8 },
+  uploadFileName: { fontSize: 14, color: 'white', fontWeight: 'bold' },
+  uploadFileInfo: { fontSize: 12, color: '#73afff', marginTop: 4 },
+  progressBarContainer: { height: 4, backgroundColor: 'rgba(255,255,255,0.3)', borderRadius: 2, marginTop: 8, overflow: 'hidden' },
+  progressBar: { height: '100%', backgroundColor: '#73afff' },
+});
+
+const commentStyles = StyleSheet.create({
+  commentInput: { fontSize: 13, flex: 1, color: 'black', maxHeight: 100, paddingVertical: 10 },
+  commentInputContainer: { width: '100%', borderTopWidth: 1, borderTopColor: '#eeeeee', paddingHorizontal: 16, paddingVertical: 8, flexDirection: 'row', alignItems: 'flex-start' },
+});

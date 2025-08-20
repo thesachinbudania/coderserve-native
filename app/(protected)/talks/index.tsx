@@ -26,33 +26,9 @@ import useSearchBar from "@/helpers/general/searchBar";
 import useFetchData from "@/helpers/general/handleFetchedData";
 import FullWidthImage from "@/components/FullWidthImage";
 import { formatDistanceToNow } from "date-fns";
+import OptionChip from "@/components/general/OptionChip";
 
 const width = Dimensions.get("window").width;
-type OptionChipProps = {
-  title: string;
-  onPress?: () => void;
-  selected?: boolean;
-};
-
-function OptionChip({
-  title,
-  onPress = () => { },
-  selected = false,
-}: OptionChipProps) {
-  return (
-    <Pressable
-      onPress={onPress}
-      style={[
-        optionChipStyles.container,
-        !selected && { backgroundColor: "#f5f5f5" },
-      ]}
-    >
-      <Text style={[optionChipStyles.text, !selected && { color: "#737373", fontWeight: 'normal' }]}>
-        {title}
-      </Text>
-    </Pressable>
-  );
-}
 
 function HashChip({ title }: { title: string }) {
   return (
@@ -74,21 +50,6 @@ const hashChipStyles = StyleSheet.create({
     padding: 4
   }
 })
-
-const optionChipStyles = StyleSheet.create({
-  container: {
-    height: 38,
-    paddingHorizontal: 16,
-    justifyContent: 'center',
-    borderRadius: 32,
-    backgroundColor: "#202020",
-  },
-  text: {
-    fontSize: 13,
-    fontWeight: "bold",
-    color: "white",
-  },
-});
 
 function Post({ data }: { data: any }) {
   const router = useRouter();
