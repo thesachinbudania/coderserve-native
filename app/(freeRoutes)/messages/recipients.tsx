@@ -10,7 +10,6 @@ export default function Recipients() {
   const router = useRouter();
   React.useEffect(() => {
     protectedApi.get('/home/mutualfollowers_list/').then((res) => {
-      console.log(res.data);
     })
   }, [])
   const { isLoading, initialLoading, refreshing, combinedData, handleEndReached, handleRefresh } = useFetchData({ url: '/api/home/mutualfollowers_list/' });
@@ -20,7 +19,6 @@ export default function Recipients() {
     setIsInitiating(true);
     protectedApi.post('/home/conversations/', { 'participants': [id] }).then((res) => {
       setIsInitiating(false);
-      console.log(res.data);
       router.push('/(freeRoutes)/messages/chat/' + res.data.id);
     }).catch((err) => {
       console.error(err.response.data);

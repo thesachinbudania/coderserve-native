@@ -30,3 +30,13 @@ export function formatDate(isoString: string) {
 
   return `${formattedDate}`;
 }
+
+export function formatTime(isoString: string) {
+  const date = new Date(isoString);
+
+  return date.toLocaleTimeString('en-US', {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: true,
+  }).toLowerCase(); // makes 'AM/PM' lowercase if you prefer
+}

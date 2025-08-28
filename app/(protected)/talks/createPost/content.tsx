@@ -1,6 +1,6 @@
 import TextEditor from '@/components/talks/createPost/Editor';
 import React from 'react';
-import { Pressable, ScrollView, Text, View } from 'react-native';
+import { Image, Pressable, ScrollView, Text, View } from 'react-native';
 import Header from '@/components/general/Header';
 import { useRouter } from 'expo-router';
 import BottomFixedSingleButton from '@/components/general/BottomFixedContainer';
@@ -13,16 +13,39 @@ interface FormatButtonProps {
   toggleable?: boolean;
 }
 
-function FormatButton({ onPress, active, title, toggleable = false }: FormatButtonProps) {
+interface ImageFormatButtonProps extends FormatButtonProps {
+  icon: any
+}
+
+function ImageFormatButton({ onPress, active, icon }: ImageFormatButtonProps) {
   return (
     <Pressable
       style={({ pressed }) => [{ borderWidth: 1, borderRadius: 6, height: 45, width: 45, alignItems: 'center', justifyContent: 'center', },
+      active && { backgroundColor: '#006dff', borderColor: '#006dff' }, pressed && { backgroundColor: '#f5f5f5', borderColor: '#f5f5f5' }]}
+      onPress={onPress}
+    >
+      {
+        ({ pressed }) =>
+          <Image
+            source={icon}
+            style={[{ width: 20, height: 20 }, active ? { tintColor: 'white' } : { tintColor: '#202020' }]}
+          />
+      }
+    </Pressable>
+  )
+
+}
+
+function FormatButton({ onPress, active, title, toggleable = false }: FormatButtonProps) {
+  return (
+    <Pressable
+      style={({ pressed }) => [{ borderWidth: 1, borderRadius: 6, height: 45, paddingHorizontal: 12, alignItems: 'center', justifyContent: 'center', },
       active && { backgroundColor: '#006dff', borderColor: '#006dff' }, !toggleable && pressed && { backgroundColor: '#006dff', borderColor: '#006dff' }]}
       onPress={onPress}
     >
       {
         ({ pressed }) => (
-          <Text style={[(active) && { color: 'white' }, !toggleable && pressed && { color: 'white' }]}>{title}</Text>
+          <Text style={[(active) && { color: 'white' }, !toggleable && pressed && { color: 'white' }, { fontSize: 13 }]}>{title}</Text>
         )
       }
     </Pressable>
@@ -45,6 +68,10 @@ export default function Content() {
   const [changeAddImage, setChangeAddImage] = React.useState(false);
   const [undo, setUndo] = React.useState(false);
   const [redo, setRedo] = React.useState(false);
+  const [isOrderedList, setIsOrderedList] = React.useState(false);
+  const [orderedList, setOrderedList] = React.useState(false);
+  const [isUnorderedList, setIsUnorderedList] = React.useState(false);
+  const [unorderedList, setUnorderedList] = React.useState(false);
   const router = useRouter();
   const [editorState, setEditorState] = React.useState<string | null>(null);
   const [plainText, setPlainText] = React.useState("");
@@ -77,49 +104,70 @@ export default function Content() {
       </View>
       <View style={{ position: 'absolute', bottom: 80, backgroundColor: 'white', borderTopWidth: 1, borderColor: '#eeeeee' }}>
         <ScrollView horizontal={true} showsHorizontalScrollIndicator={false} contentContainerStyle={{ flexDirection: 'row', gap: 16, padding: 16, }}>
-          <FormatButton
-            onPress={() => setChangeBold(!changeBold)}
-            active={isBold}
-            title='B'
-            toggleable
-          />
-          <FormatButton
-            onPress={() => setChangeItalic(!changeItalic)}
-            active={isItalic}
-            title="I"
-            toggleable
-          />
-          <FormatButton
-            onPress={() => setChangeUnderline(!changeUnderline)}
-            active={isUnderline}
-            title="U"
-            toggleable
-          />
-          <FormatButton
+          <ImageFormatButton
             onPress={() => setUndo(!undo)}
             active={false}
-            title="Undo"
+            icon={require('@/assets/images/talks/createPost/undo.png')}
+            title=''
           />
-          <FormatButton
+          <ImageFormatButton
             onPress={() => setRedo(!redo)}
             active={false}
-            title="Redo"
+            icon={require('@/assets/images/talks/createPost/redo.png')}
+            title=''
+          />
+          <ImageFormatButton
+            onPress={() => setChangeBold(!changeBold)}
+            active={isBold}
+            toggleable
+            title=''
+            icon={require('@/assets/images/talks/createPost/bold.png')}
+          />
+          <ImageFormatButton
+            onPress={() => setChangeItalic(!changeItalic)}
+            active={isItalic}
+            toggleable
+            title=''
+            icon={require('@/assets/images/talks/createPost/italic.png')}
+          />
+          <ImageFormatButton
+            onPress={() => setChangeUnderline(!changeUnderline)}
+            active={isUnderline}
+            toggleable
+            title=''
+            icon={require('@/assets/images/talks/createPost/underline.png')}
+          />
+          <ImageFormatButton
+            onPress={() => setChangeAddImage(!changeAddImage)}
+            active={false}
+            title="Img"
+            icon={require('@/assets/images/talks/createPost/image.png')}
+          />
+          {/* --- ADDED LIST BUTTONS --- */}
+          <ImageFormatButton
+            onPress={() => setUnorderedList(!unorderedList)}
+            active={isUnorderedList}
+            toggleable
+            title=''
+            icon={require('@/assets/images/talks/createPost/unorderedList.png')} // Replace with your icon
+          />
+          <ImageFormatButton
+            onPress={() => setOrderedList(!orderedList)}
+            active={isOrderedList}
+            toggleable
+            title=''
+            icon={require('@/assets/images/talks/createPost/orderedList.png')} // Replace with your icon
+          />
+          <FormatButton
+            onPress={() => setChangeHighlight(!changeHighlight)}
+            active={isHighlight}
+            title="Highlight"
+            toggleable
           />
           <FormatButton
             onPress={() => setChangeCodeBlock(!changeCodeBlock)}
             active={false}
             title="Code"
-          />
-          <FormatButton
-            onPress={() => setChangeAddImage(!changeAddImage)}
-            active={false}
-            title="Img"
-          />
-          <FormatButton
-            onPress={() => setChangeHighlight(!changeHighlight)}
-            active={isHighlight}
-            title="H"
-            toggleable
           />
           <FormatButton
             onPress={() => setChangeHeading(!changeHeading)}

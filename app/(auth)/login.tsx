@@ -58,7 +58,7 @@ export default function SignIn() {
   }
 
   return (
-    <AuthLayout title="Welcom Back" secondaryText="Sign in to your Account">
+    <AuthLayout title="Welcome Back" secondaryText="Sign in to your Account">
       <View>
         <FieldHeading>Email/Username</FieldHeading>
         <Controller
