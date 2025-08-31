@@ -104,9 +104,17 @@ h1 {
 }
 
 .editor-text-strikethrough {
-  font-size: 15px;
+  font-size: 17px;
   font-weight: bold;
   color: black;
+}
+
+.editor-text-code{
+  font-size: 15px !important;
+  font-weight: bold;
+  color: black;
+  background-color: white !important;
+  font-family: sans-serif !important;
 }
 
 .editor-text-underlineStrikethrough {

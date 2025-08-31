@@ -14,6 +14,8 @@ import ToolbarPlugin from "./ToolbarPlugin";
 import { $getRoot, EditorState, LexicalEditor } from "lexical";
 import { ImageNode } from './nodes/ImageNode'
 import ImagePlugin from './ImagePlugin'
+import { ListItemNode, ListNode } from '@lexical/list';
+import { ListPlugin } from '@lexical/react/LexicalListPlugin';
 
 const placeholder = "Write the main content of your post here";
 
@@ -22,6 +24,8 @@ const editorConfig = {
   nodes: [
     CodeNode, // Registering CodeNode to handle code blocks
     ImageNode,
+    ListNode,
+    ListItemNode
   ],
   // Handling of errors during update
   onError(error: Error) {
@@ -45,8 +49,16 @@ export default function Editor({
   setIsHighlight,
   changeHeading,
   setIsHeading,
+  changeHeading2,
+  setIsHeading2,
   undo,
-  redo
+  redo,
+  setCanUndo,
+  setCanRedo,
+  setIsOrderedList,
+  setIsUnorderedList,
+  changeOrderedList,
+  changeUnorderedList,
 }: ToolbarPluginProps & {
   setPlainText: React.Dispatch<React.SetStateAction<string>>;
   setEditorState: React.Dispatch<React.SetStateAction<string | null>>;
@@ -70,8 +82,16 @@ export default function Editor({
             setIsHighlight={setIsHighlight}
             changeHeading={changeHeading}
             setIsHeading={setIsHeading}
+            changeHeading2={changeHeading2}
+            setIsHeading2={setIsHeading2}
             undo={undo}
             redo={redo}
+            setCanUndo={setCanUndo}
+            setCanRedo={setCanRedo}
+            changeOrderedList={changeOrderedList}
+            changeUnorderedList={changeUnorderedList}
+            setIsOrderedList={setIsOrderedList}
+            setIsUnorderedList={setIsUnorderedList}
           />
           <div className="editor-inner">
             <RichTextPlugin
@@ -100,6 +120,7 @@ export default function Editor({
             />
             <HistoryPlugin />
             <AutoFocusPlugin />
+            <ListPlugin />
             {/* <TreeViewPlugin /> */}
           </div>
         </div>
