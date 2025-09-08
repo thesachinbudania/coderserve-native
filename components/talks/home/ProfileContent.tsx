@@ -2,6 +2,8 @@ import { View, Text, StyleSheet } from "react-native";
 import BottomText from "@/components/profile/home/BottomName";
 import React from "react";
 import { ResumeDetails } from "@/app/(protected)/jobs/resume/index";
+import { useRouter } from 'expo-router';
+
 export function ProfileSection({
   title,
   content,
@@ -42,6 +44,7 @@ function Square({ level = 0 }: { level?: number }) {
 }
 
 export function LearningStreak() {
+  const router = useRouter();
   return (
     <>
       <Text style={{ marginTop: 48, fontSize: 15, fontWeight: 'bold' }}>Learning Streak</Text>
@@ -69,7 +72,7 @@ export function LearningStreak() {
             <Square level={3} />
             <Text style={{ fontSize: 9 }}>More</Text>
           </View>
-          <Text style={{ fontSize: 9, textDecorationLine: 'underline' }}>Learn how we count Learning Streak</Text>
+          <Text style={{ fontSize: 9, textDecorationLine: 'underline' }} onPress={() => router.push('/(protected)/talks/profile/streakCalculation')}>Learn how we count Learning Streak</Text>
         </View>
         <View style={{ marginTop: 48, flexDirection: 'row', gap: 16 }}>
           <View style={{ flex: 1 / 2, alignItems: 'center', gap: 4, padding: 16, borderColor: '#eeeeee', backgroundColor: '#f5f5f5', borderWidth: 1, borderRadius: 8 }}>

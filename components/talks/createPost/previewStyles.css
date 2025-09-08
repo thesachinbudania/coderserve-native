@@ -1,16 +1,23 @@
-/**
- * Copyright (c) Meta Platforms, Inc. and affiliates.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- *
- */
 
-body {
-  margin: 0;
-  padding-left: 16px;
-  padding-right: 16px;
-  padding-top: 24px;
+.editor-preview-container {
+  width: 100%;
+  background-color: #fff;
+}
+
+.editor-preview-content {
+  outline: none !important;
+  border: none !important;
+  resize: none;
+  caret-color: transparent; /* Hide cursor completely */
+  user-select: text; /* Allow text selection for copying */
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+}
+
+.editor-preview-content:focus {
+  outline: none !important;
+  box-shadow: none !important;
 }
 
 .other h2 {

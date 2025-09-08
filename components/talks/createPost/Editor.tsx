@@ -8,33 +8,21 @@ import { HistoryPlugin } from "@lexical/react/LexicalHistoryPlugin";
 import { RichTextPlugin } from "@lexical/react/LexicalRichTextPlugin";
 import { OnChangePlugin } from "@lexical/react/LexicalOnChangePlugin";
 import type { ToolbarPluginProps } from "./ToolbarPlugin";
-import { CodeNode } from '@lexical/code';
+import { CustomCodeNode } from "./CustomCodeNode";
+import CustomCodePlugin from "./CustomCodePlugin";
 import ExampleTheme from "./Theme";
 import ToolbarPlugin from "./ToolbarPlugin";
 import { $getRoot, EditorState, LexicalEditor } from "lexical";
-import { ImageNode } from './nodes/ImageNode'
-import ImagePlugin from './ImagePlugin'
-import { ListItemNode, ListNode } from '@lexical/list';
-import { ListPlugin } from '@lexical/react/LexicalListPlugin';
+import { ImageNode } from "./nodes/ImageNode";
+import ImagePlugin from "./ImagePlugin";
+import { ListItemNode, ListNode } from "@lexical/list";
+import { ListPlugin } from "@lexical/react/LexicalListPlugin";
+import { CodeNode } from "@lexical/code";
 
 const placeholder = "Write the main content of your post here";
 
-const editorConfig = {
-  namespace: "React.js Demo",
-  nodes: [
-    CodeNode, // Registering CodeNode to handle code blocks
-    ImageNode,
-    ListNode,
-    ListItemNode
-  ],
-  // Handling of errors during update
-  onError(error: Error) {
-    throw error;
-  },
-  // The editor theme
-  theme: ExampleTheme,
-};
 export default function Editor({
+  initialEditorState, // <-- new prop
   setPlainText,
   setEditorState,
   changeBold,
@@ -60,71 +48,88 @@ export default function Editor({
   changeOrderedList,
   changeUnorderedList,
 }: ToolbarPluginProps & {
+  initialEditorState?: string | null; // <-- new type
   setPlainText: React.Dispatch<React.SetStateAction<string>>;
   setEditorState: React.Dispatch<React.SetStateAction<string | null>>;
   changeAddImage: boolean;
-}
-) {
+}) {
+  const editorConfig = {
+    namespace: "React.js Demo",
+    nodes: [CustomCodeNode, ImageNode, ListNode, ListItemNode, CodeNode],
+    onError(error: Error) {
+      throw error;
+    },
+    theme: ExampleTheme,
+    editorState: initialEditorState
+      ? (editor: LexicalEditor) => {
+        try {
+          const parsed = JSON.parse(initialEditorState);
+          const state = editor.parseEditorState(parsed);
+          editor.setEditorState(state);
+        } catch (e) {
+          console.error("Failed to parse initial editor state:", e);
+        }
+      }
+      : undefined,
+  };
+
   return (
-    <>
-      <LexicalComposer initialConfig={editorConfig}>
-        <div className="editor-container">
-          <ImagePlugin changeAddImage={changeAddImage} />
-          <ToolbarPlugin
-            changeBold={changeBold}
-            setIsBold={setIsBold}
-            changeItalic={changeItalic}
-            setIsItalic={setIsItalic}
-            changeUnderline={changeUnderline}
-            setIsUnderline={setIsUnderline}
-            changeCodeBlock={changeCodeBlock}
-            changeHighlight={changeHighlight}
-            setIsHighlight={setIsHighlight}
-            changeHeading={changeHeading}
-            setIsHeading={setIsHeading}
-            changeHeading2={changeHeading2}
-            setIsHeading2={setIsHeading2}
-            undo={undo}
-            redo={redo}
-            setCanUndo={setCanUndo}
-            setCanRedo={setCanRedo}
-            changeOrderedList={changeOrderedList}
-            changeUnorderedList={changeUnorderedList}
-            setIsOrderedList={setIsOrderedList}
-            setIsUnorderedList={setIsUnorderedList}
+    <LexicalComposer initialConfig={editorConfig}>
+      <div className="editor-container">
+        <ImagePlugin changeAddImage={changeAddImage} />
+        <CustomCodePlugin />
+        <ToolbarPlugin
+          changeBold={changeBold}
+          setIsBold={setIsBold}
+          changeItalic={changeItalic}
+          setIsItalic={setIsItalic}
+          changeUnderline={changeUnderline}
+          setIsUnderline={setIsUnderline}
+          changeCodeBlock={changeCodeBlock}
+          changeHighlight={changeHighlight}
+          setIsHighlight={setIsHighlight}
+          changeHeading={changeHeading}
+          setIsHeading={setIsHeading}
+          changeHeading2={changeHeading2}
+          setIsHeading2={setIsHeading2}
+          undo={undo}
+          redo={redo}
+          setCanUndo={setCanUndo}
+          setCanRedo={setCanRedo}
+          changeOrderedList={changeOrderedList}
+          changeUnorderedList={changeUnorderedList}
+          setIsOrderedList={setIsOrderedList}
+          setIsUnorderedList={setIsUnorderedList}
+        />
+        <div className="editor-inner">
+          <RichTextPlugin
+            contentEditable={
+              <ContentEditable
+                className="editor-input"
+                aria-placeholder={placeholder}
+                placeholder={
+                  <div className="editor-placeholder">{placeholder}</div>
+                }
+              />
+            }
+            ErrorBoundary={LexicalErrorBoundary}
           />
-          <div className="editor-inner">
-            <RichTextPlugin
-              contentEditable={
-                <ContentEditable
-                  className="editor-input"
-                  aria-placeholder={placeholder}
-                  placeholder={
-                    <div className="editor-placeholder">{placeholder}</div>
-                  }
-                />
-              }
-              ErrorBoundary={LexicalErrorBoundary}
-            />
-            <OnChangePlugin
-              onChange={(editorState, editor, tags) => {
-                editorState.read(() => {
-                  const root = $getRoot();
-                  const textContent = root.getTextContent();
-                  setPlainText(textContent);
-                });
-                setEditorState(JSON.stringify(editorState.toJSON()));
-              }}
-              ignoreHistoryMergeTagChange
-              ignoreSelectionChange
-            />
-            <HistoryPlugin />
-            <AutoFocusPlugin />
-            <ListPlugin />
-            {/* <TreeViewPlugin /> */}
-          </div>
+          <OnChangePlugin
+            onChange={(editorState, editor) => {
+              editorState.read(() => {
+                const root = $getRoot();
+                setPlainText(root.getTextContent());
+              });
+              setEditorState(JSON.stringify(editorState.toJSON()));
+            }}
+            ignoreHistoryMergeTagChange
+            ignoreSelectionChange
+          />
+          <HistoryPlugin />
+          <AutoFocusPlugin />
+          <ListPlugin />
         </div>
-      </LexicalComposer>
-    </>
+      </div>
+    </LexicalComposer>
   );
 }

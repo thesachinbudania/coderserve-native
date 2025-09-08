@@ -11,7 +11,7 @@ import React from 'react';
 
 export default function CreatePost() {
   const router = useRouter();
-  const { title, hashtags, thumbnail } = useNewPostStore();
+  const { title, hashtags, thumbnail, content } = useNewPostStore();
   const uploadPost = async () => {
     const form: any = new FormData();
     form.append('title', title);
@@ -21,6 +21,7 @@ export default function CreatePost() {
       type: 'image/jpeg',
       name: 'thumbnail.jpg'
     });
+    form.append('content', JSON.stringify(content));
     protectedApi.post('/talks/posts/', form, {
       headers: {
         'Content-Type': 'multipart/form-data'
@@ -72,7 +73,7 @@ export default function CreatePost() {
           <View style={{ flex: 1 / 2 }}>
             <BlueButton
               title='Post '
-              disabled={!title || !hashtags.length || !thumbnail}
+              disabled={!title || !hashtags.length || !thumbnail || !content}
               onPress={uploadPost}
             />
           </View>

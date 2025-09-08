@@ -7,6 +7,7 @@ import BottomFixedSingleButton from '@/components/general/BottomFixedContainer';
 import BlueButton from '@/components/buttons/BlueButton';
 import { Portal } from '@gorhom/portal'
 import { Dimensions, UIManager, findNodeHandle } from 'react-native';
+import { useNewPostStore } from '@/zustand/talks/newPostStore';
 
 interface FormatButtonProps {
   onPress?: () => void;
@@ -231,10 +232,17 @@ export default function Content() {
   const [changeOrderedList, setChangeOrderedList] = React.useState(false); // Fixed: renamed from orderedList
   const [isUnorderedList, setIsUnorderedList] = React.useState(false);
   const [changeUnorderedList, setChangeUnorderedList] = React.useState(false); // Fixed: renamed from unorderedList
-  console.log(canUndo, 'this is can undo', canRedo, 'this is can redo');
   const router = useRouter();
-  const [editorState, setEditorState] = React.useState<string | null>(null);
+  const { setNewPost, content } = useNewPostStore();
+  const [editorState, setEditorState] = React.useState<string | null>(content);
   const [plainText, setPlainText] = React.useState("");
+
+
+  React.useEffect(() => {
+    if (editorState) {
+      setNewPost({ content: editorState });
+    }
+  }, [editorState]);
 
   return (
     <>
@@ -268,31 +276,24 @@ export default function Content() {
           changeUnorderedList={changeUnorderedList} // Fixed: now using correct state variable
           setIsOrderedList={setIsOrderedList}
           setIsUnorderedList={setIsUnorderedList}
+          initialEditorState={editorState}
         />
       </View>
 
       <View style={{ position: 'absolute', bottom: 80, backgroundColor: 'white', borderTopWidth: 1, borderColor: '#eeeeee' }}>
         <ScrollView horizontal={true} showsHorizontalScrollIndicator={false} contentContainerStyle={{ flexDirection: 'row', gap: 16, padding: 16, }}>
-          {
-            canUndo && (
-              <ImageFormatButton
-                onPress={() => setUndo(!undo)}
-                active={false}
-                icon={require('@/assets/images/talks/createPost/undo.png')}
-                title=''
-              />
-            )
-          }
-          {
-            canRedo && (
-              <ImageFormatButton
-                onPress={() => setRedo(!redo)}
-                active={false}
-                icon={require('@/assets/images/talks/createPost/redo.png')}
-                title=''
-              />
-            )
-          }
+          <ImageFormatButton
+            onPress={() => setUndo(!undo)}
+            active={false}
+            icon={require('@/assets/images/talks/createPost/undo.png')}
+            title=''
+          />
+          <ImageFormatButton
+            onPress={() => setRedo(!redo)}
+            active={false}
+            icon={require('@/assets/images/talks/createPost/redo.png')}
+            title=''
+          />
           <TextTypeButton
             isHeading={isHeading}
             isHeading2={isHeading2}
@@ -356,18 +357,13 @@ export default function Content() {
             active={false}
             title="Code"
           />
-          <FormatButton
-            onPress={() => setChangeHeading(!changeHeading)}
-            active={isHeading}
-            title="H1"
-            toggleable
-          />
         </ScrollView>
       </View>
 
       <BottomFixedSingleButton>
         <BlueButton
           title='Save'
+          onPress={() => router.back()}
         />
       </BottomFixedSingleButton>
     </>

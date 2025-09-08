@@ -215,7 +215,5 @@ export default function ToolbarPlugin({
         LowPriority
       )
     );
-  }, [editor, $updateToolbar]);
-
-  return null;
+  }, [editor, $updateToolbar, setCanUndo, setCanRedo]); return null;
 }

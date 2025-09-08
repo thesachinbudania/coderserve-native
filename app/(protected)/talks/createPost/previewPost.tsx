@@ -7,6 +7,7 @@ import IconButton from '@/components/buttons/IconButton';
 import { useUserStore } from '@/zustand/stores';
 import { useNewPostStore } from '@/zustand/talks/newPostStore';
 import FullWidthImage from '@/components/FullWidthImage';
+import EditorPreview from '@/components/talks/createPost/EditorPreview';
 
 const { width } = Dimensions.get('window');
 
@@ -76,43 +77,63 @@ function Header() {
   );
 }
 
-export function PostContent({ title, hashtags, thumbnail }: { title: string, hashtags: string[], thumbnail: string }) {
+export function PostContent({ title, hashtags, thumbnail, content = null }: { title: string, hashtags: string[], thumbnail: string, content?: string | null }) {
+  const [contentHeight, setContentHeight] = React.useState(100);
+  console.log(contentHeight, 'contentHeight');
   return (
-    <View style={styles.postContainer}>
-      {title && (
-        <Text style={styles.postHeading}>
-          {title}
-        </Text>
-      )}
+    <>
+      <View style={[styles.postContainer]}>
+        {title && (
+          <Text style={styles.postHeading}>
+            {title}
+          </Text>
+        )}
+        {
+          title && hashtags.length > 0 && (
+            <View style={styles.hashTagContainer}>
+              {hashtags.map((hashtag, index) => (
+                <HashChip key={index} hashtag={hashtag} />
+              ))}
+            </View>
+          )
+        }
+        {
+          title && hashtags.length > 0 && thumbnail && (
+            <View style={{ marginTop: 16 }}>
+              <FullWidthImage imageUrl={thumbnail} />
+            </View>
+          )
+        }
+      </View>
       {
-        title && hashtags.length > 0 && (
-          <View style={styles.hashTagContainer}>
-            {hashtags.map((hashtag, index) => (
-              <HashChip key={index} hashtag={hashtag} />
-            ))}
-          </View>
+        title && hashtags.length > 0 && thumbnail && content && (
+          <EditorPreview editorState={content} dom={{
+            scrollEnabled: false,
+            style: { height: contentHeight, overflow: 'visible' },
+            onMessage: (event) => {
+              try {
+                const msg = JSON.parse(event.nativeEvent.data);
+                if (msg.type === 'HEIGHT') {
+                  setContentHeight(msg.height);
+                }
+              } catch { }
+            },
+          }} />
         )
       }
-      {
-        title && hashtags.length > 0 && thumbnail && (
-          <View style={{ marginTop: 16 }}>
-            <FullWidthImage imageUrl={thumbnail} />
-          </View>
-        )
-      }
-    </View>
+    </>
   );
 }
 
 
 export default function PreviewPost() {
-  const { title, hashtags, thumbnail } = useNewPostStore();
+  const { title, hashtags, thumbnail, content } = useNewPostStore();
   return (
     <ScrollView
       contentContainerStyle={{ paddingHorizontal: 16, flex: 1, paddingBottom: 48, backgroundColor: 'white' }}
     >
       <Header />
-      <PostContent title={title} hashtags={hashtags} thumbnail={thumbnail.uri} />
+      <PostContent title={title} hashtags={hashtags} thumbnail={thumbnail.uri} content={content} />
     </ScrollView>
   );
 }
@@ -144,9 +165,11 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     borderColor: '#eee',
     padding: 16,
+    marginBottom: 16
   },
   postHeading: {
     fontSize: 13,
+    color: "#737373"
   },
   hashTagContainer: {
     flexDirection: 'row',

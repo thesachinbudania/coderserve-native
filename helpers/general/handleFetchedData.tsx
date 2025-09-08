@@ -4,7 +4,7 @@ import { apiUrl } from '@/constants/env';
 import { ActivityIndicator, FlatList, View } from 'react-native';
 import { useFocusEffect } from 'expo-router';
 
-export default function useFetchData({ url, RenderItem }: { url: string, RenderItem?: ({ item }: { item: any }) => React.JSX.Element }) {
+export default function useFetchData({ url, RenderItem, allowSearch = false }: { url: string, RenderItem?: ({ item }: { item: any }) => React.JSX.Element, allowSearch?: boolean }) {
   const [combinedData, setCombinedData] = React.useState<any[]>([]);
   const [nextPage, setNextPage] = React.useState<string | null>(`${apiUrl}${url}`);
   const [initialLoading, setInitialLoading] = React.useState(true);

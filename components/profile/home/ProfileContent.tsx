@@ -2,6 +2,7 @@ import { View, Text, StyleSheet } from "react-native";
 import BottomText from "./BottomName";
 import React from "react";
 import { EditResume } from "@/app/(protected)/jobs/resume/update/index";
+import SmallTextButton from "@/components/buttons/SmallTextButton";
 
 export function ProfileSection({
   title,
@@ -35,11 +36,71 @@ export function ProfileSection({
   );
 }
 
+const StreakSquare = ({ intensity = 0 }: { intensity?: number }) => {
+  return (
+    <View style={{ width: 10, height: 10, backgroundColor: intensity === 0 ? '#f5f5f5' : intensity === 1 ? '#b7efd4' : intensity === 2 ? '#76e4af' : '#00bf63', borderRadius: 2 }} />
+  )
+}
+
+const StreakRate = () => {
+
+  return (
+    <View style={{ marginTop: 8, borderRadius: 12, padding: 16, borderColor: '#f5f5f5', borderWidth: 1 }}>
+      {
+        Array.from({ length: 7 }).map((_, rowIndex) => {
+          return (
+            <View key={rowIndex} style={{ flexDirection: 'row', marginBottom: 4, justifyContent: 'space-between' }}>
+              {
+                Array.from({ length: 26 }).map((_, colIndex) => {
+                  return (
+                    <View key={colIndex}>
+                      <StreakSquare />
+                    </View>
+                  )
+                })
+              }
+            </View>
+          )
+        }
+        )
+      }
+      <View style={{ marginTop: 16, flexDirection: 'row', gap: 4, justifyContent: 'space-between' }}>
+        <View style={{ flexDirection: 'row', gap: 4 }}>
+          <Text style={{ color: "#a6a6a6", fontSize: 9 }}>Less</Text>
+          <StreakSquare intensity={0} />
+          <StreakSquare intensity={1} />
+          <StreakSquare intensity={2} />
+          <StreakSquare intensity={3} />
+          <Text style={{ color: "#a6a6a6", fontSize: 9 }}>More</Text>
+        </View>
+        <View>
+          <SmallTextButton title="Learn how we count Streak" style={{ fontSize: 9, textDecorationLine: 'underline' }} />
+        </View>
+      </View>
+      <View style={{ flexDirection: 'row', marginTop: 32, gap: 16 }}>
+        <View style={{ flex: 1 / 2, alignItems: 'center', justifyContent: 'center', padding: 16, backgroundColor: "#f5f5f5", borderRadius: 8 }}>
+          <Text style={{ color: "#a6a6a6", fontSize: 11 }}> Streak Rate</Text>
+          <Text style={{ fontWeight: 'bold', fontSize: 15, marginTop: 8 }}>0.00</Text>
+        </View>
+        <View style={{ flex: 1 / 2, alignItems: 'center', justifyContent: 'center', padding: 16, backgroundColor: "#f5f5f5", borderRadius: 8 }}>
+          <Text style={{ color: "#a6a6a6", fontSize: 11 }}> Current Streak</Text>
+          <Text style={{ fontWeight: 'bold', fontSize: 15, marginTop: 8 }}>0 Day</Text>
+        </View>
+      </View>
+    </View>
+  )
+}
+
 export default function ProfileContent() {
   return (
     <>
       <View style={styles.tabContent}>
-        <EditResume />
+        <EditResume showLess />
+        <View style={{ paddingHorizontal: 16, marginTop: 48 }}>
+          <Text style={[styles.detailsHeading]}>Streak</Text>
+          <StreakRate />
+
+        </View>
       </View>
       <BottomText />
     </>

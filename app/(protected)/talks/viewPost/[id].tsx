@@ -4,7 +4,7 @@ import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import ImageLoader from '@/components/ImageLoader';
 import IconButton from '@/components/buttons/IconButton';
-import { PostContent } from '../createPost/previewPost';
+import PreviewPost, { PostContent } from '../createPost/previewPost';
 import protectedApi from '@/helpers/axios';
 import { useGlobalSearchParams } from 'expo-router';
 import { formatDistanceToNow } from 'date-fns';
@@ -14,11 +14,12 @@ import SmallTextButton from '@/components/buttons/SmallTextButton';
 import { apiUrl } from '@/constants/env'
 import BottomName from '@/components/profile/home/BottomName';
 import BottomSheet from '@/components/messsages/BottomSheet';
+import { MenuButton } from '../../jobs';
 
 
 const { width } = Dimensions.get('window');
 
-function Header({ post }: { post: any }) {
+function Header({ post, menuRef }: { post: any, menuRef?: any }) {
   const router = useRouter();
   const { top } = useSafeAreaInsets();
   let result = formatDistanceToNow(new Date(post.created_at), { addSuffix: true });
@@ -43,7 +44,7 @@ function Header({ post }: { post: any }) {
           </Text>
         </View>
       </View>
-      <IconButton onPress={() => router.back()}>
+      <IconButton onPress={() => menuRef?.current?.open()}>
         <View style={{ padding: 2 }}>
           <Image
             source={require("@/assets/images/jobs/Menu.png")}
@@ -126,6 +127,7 @@ const Vote = ({ id, upvoted, downvoted, setUpvoted, setDownvoted, setUpvotes, se
         }
 
       </View>
+
     </View>
   )
 }
@@ -391,6 +393,7 @@ export default function ViewPost() {
   const [downvoted, setDownvoted] = React.useState(false);
   const [upvotes, setUpvotes] = React.useState(0);
   const [downvotes, setDownvotes] = React.useState(0);
+  const menuRef = React.useRef<any>(null);
   React.useEffect(() => {
     if (!id) return;
     protectedApi.get(`/talks/posts/${id}/`)
@@ -409,15 +412,13 @@ export default function ViewPost() {
   return (
     <ScrollView contentContainerStyle={{ minHeight: '100%', backgroundColor: 'white', paddingHorizontal: 16 }}>
       {post && (
-        <><Header post={post} />
+        <><Header post={post} menuRef={menuRef} />
           <PostContent
             title={post.title}
             hashtags={post.hashtags}
             thumbnail={post.thumbnail}
+            content={post.content}
           />
-          <View style={{ height: 500, alignItems: 'center', justifyContent: 'center', }}>
-            <Text>Post content will go here...</Text>
-          </View>
           <Vote
             id={post.id}
             upvoted={upvoted}
@@ -439,6 +440,46 @@ export default function ViewPost() {
           </View>
         </>
       )}
+      <BottomSheet
+        menuRef={menuRef}
+        height={392}>
+        <View style={styles.menuContainer}>
+          <MenuButton
+            onPress={() => {
+              menuRef?.current.close();
+              router.push("/(freeRoutes)/profile/userProfile/" + post.author.username);
+            }}
+          >
+            <Text style={styles.menuButtonHeading}>View Profile</Text>
+            <Text style={styles.menuButtonText}>
+              Visit the public profile of the post's author.
+            </Text>
+          </MenuButton>
+          <MenuButton
+          >
+            <Text style={styles.menuButtonHeading}>Save Post</Text>
+            <Text style={styles.menuButtonText}>
+              Bookmark this post to view it later.
+            </Text>
+          </MenuButton>
+          <MenuButton>
+            <Text style={styles.menuButtonHeading}>Mute</Text>
+            <Text style={styles.menuButtonText}>
+              Hide posts from the user in your feed.
+            </Text>
+          </MenuButton>
+          <MenuButton>
+            <Text
+              style={[styles.menuButtonHeading]}
+            >
+              Report Post
+            </Text>
+            <Text style={[styles.menuButtonText]}>
+              Flag this post to our support team for review.
+            </Text>
+          </MenuButton>
+        </View>
+      </BottomSheet>
     </ScrollView>
   );
 }
@@ -464,6 +505,18 @@ const styles = StyleSheet.create({
   headerIcon: {
     width: 24,
     height: 24,
+  },
+  menuContainer: {
+    gap: 16,
+  },
+  menuButtonHeading: {
+    fontSize: 15,
+    fontWeight: "bold",
+  },
+  menuButtonText: {
+    fontSize: 12,
+    color: "#737373",
+    marginTop: 8,
   },
 
 })

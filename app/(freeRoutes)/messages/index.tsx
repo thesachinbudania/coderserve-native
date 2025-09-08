@@ -32,7 +32,7 @@ export default function Messages() {
           </View>
           <TruncatedText
             style={{ fontSize: 13, color: "#737373" }}
-          >{item.last_message.content}</TruncatedText>
+          >{item.last_message?.content || ''}</TruncatedText>
         </View>
       </Pressable>
     )
