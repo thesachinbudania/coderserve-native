@@ -12,7 +12,6 @@ import {
 } from "react-native";
 import { Header } from "@/app/(protected)/jobs/index";
 import React from "react";
-import SearchBar from "@/components/profile/SearchBar";
 import ImageLoader from "@/components/ImageLoader";
 import BottomName from "@/components/profile/home/BottomName";
 import BottomSheet from "@/components/messsages/BottomSheet";
@@ -27,6 +26,8 @@ import useFetchData from "@/helpers/general/handleFetchedData";
 import FullWidthImage from "@/components/FullWidthImage";
 import { formatDistanceToNow } from "date-fns";
 import OptionChip from "@/components/general/OptionChip";
+import protectedApi from "@/helpers/axios";
+import Search from "@/components/talks/home/Search";
 
 const width = Dimensions.get("window").width;
 
@@ -51,7 +52,7 @@ const hashChipStyles = StyleSheet.create({
   }
 })
 
-function Post({ data }: { data: any }) {
+export function Post({ data }: { data: any }) {
   const router = useRouter();
   let result = formatDistanceToNow(new Date(data.created_at), { addSuffix: true });
   result = result.replace(/^about\s/, '');
@@ -138,6 +139,29 @@ export default function Page() {
   const listRef = React.useRef<ScrollView>(null);
   useTabPressScrollToTop(listRef, 'talks');
   const { isLoading, initialLoading, refreshing, combinedData, handleEndReached, handleRefresh } = useFetchData({ url: '/api/talks/posts/' });
+  const [searchResults, setSearchResults] = React.useState<any[]>([]);
+
+  React.useEffect(() => {
+    const fetchSearchResults = async () => {
+      if (search.trim() === "" || search.length < 3) {
+        setSearchResults([]);
+        return;
+      }
+      try {
+        const response = await protectedApi.get(`talks/search_suggestions/?q=${encodeURIComponent(search)}`);
+        const data = await response.data;
+        setSearchResults(data);
+      } catch (error) {
+        console.error("Error fetching search results:", error);
+      }
+    };
+
+    const delayDebounceFn = setTimeout(() => {
+      fetchSearchResults();
+    }, 300); // Adjust the debounce delay as needed
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [search]);
 
   const { contentWidth, contentOpacity, searchBarMarginTop } = useSearchBar({ setIsSearchFocused, isSearchFocused });
   const handleAddPostPress = () => {
@@ -198,6 +222,7 @@ export default function Page() {
             handleEndReached();
           }
         }}
+        keyboardShouldPersistTaps="handled"
       >
         <Animated.View style={{ width: contentWidth }}>
           <Animated.View style={{ opacity: contentOpacity }}>
@@ -211,10 +236,12 @@ export default function Page() {
               transform: [{ translateY: searchBarMarginTop }],
             }}
           >
-            <SearchBar
-              onChangeText={setSearch}
-              isFocused={isSearchFocused}
-              setIsFocused={setIsSearchFocused}
+            <Search
+              search={search}
+              setSearch={setSearch}
+              isSearchFocused={isSearchFocused}
+              setIsSearchFocused={setIsSearchFocused}
+              searchResults={searchResults}
             />
           </Animated.View>
         </Animated.View>

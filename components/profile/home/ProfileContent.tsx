@@ -3,15 +3,18 @@ import BottomText from "./BottomName";
 import React from "react";
 import { EditResume } from "@/app/(protected)/jobs/resume/update/index";
 import SmallTextButton from "@/components/buttons/SmallTextButton";
+import { useRouter } from 'expo-router';
 
 export function ProfileSection({
   title,
   content,
   onPress = () => { },
+  editable = true
 }: {
   title: string;
   content: string;
   onPress?: () => void;
+  editable?: boolean;
 }) {
   const [pressed, setPressed] = React.useState(false);
   return (
@@ -19,18 +22,22 @@ export function ProfileSection({
       <Text style={styles.detailsHeading}>{title}</Text>
       <Text style={styles.detailsContent}>
         {content}{" "}
-        <Text
-          style={{
-            textDecorationLine: "underline",
-            color: pressed ? "#006dff" : "black",
-          }}
-          onPress={onPress}
-          suppressHighlighting={true}
-          onPressIn={() => setPressed(true)}
-          onPressOut={() => setPressed(false)}
-        >
-          add now
-        </Text>
+        {
+          editable && (
+            <Text
+              style={{
+                textDecorationLine: "underline",
+                color: pressed ? "#006dff" : "black",
+              }}
+              onPress={onPress}
+              suppressHighlighting={true}
+              onPressIn={() => setPressed(true)}
+              onPressOut={() => setPressed(false)}
+            >
+              add now
+            </Text>
+          )
+        }
       </Text>
     </View>
   );
@@ -43,7 +50,7 @@ const StreakSquare = ({ intensity = 0 }: { intensity?: number }) => {
 }
 
 const StreakRate = () => {
-
+  const router = useRouter();
   return (
     <View style={{ marginTop: 8, borderRadius: 12, padding: 16, borderColor: '#f5f5f5', borderWidth: 1 }}>
       {
@@ -74,7 +81,7 @@ const StreakRate = () => {
           <Text style={{ color: "#a6a6a6", fontSize: 9 }}>More</Text>
         </View>
         <View>
-          <SmallTextButton title="Learn how we count Streak" style={{ fontSize: 9, textDecorationLine: 'underline' }} />
+          <SmallTextButton title="Learn how we count Streak" style={{ fontSize: 9, textDecorationLine: 'underline' }} onPress={() => router.push('/(protected)/talks/profile/streakCalculation')} />
         </View>
       </View>
       <View style={{ flexDirection: 'row', marginTop: 32, gap: 16 }}>
@@ -95,11 +102,10 @@ export default function ProfileContent() {
   return (
     <>
       <View style={styles.tabContent}>
-        <EditResume showLess />
+        <EditResume showLess editable={false} />
         <View style={{ paddingHorizontal: 16, marginTop: 48 }}>
           <Text style={[styles.detailsHeading]}>Streak</Text>
           <StreakRate />
-
         </View>
       </View>
       <BottomText />

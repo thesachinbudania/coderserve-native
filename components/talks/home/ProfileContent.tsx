@@ -72,7 +72,7 @@ export function LearningStreak() {
             <Square level={3} />
             <Text style={{ fontSize: 9 }}>More</Text>
           </View>
-          <Text style={{ fontSize: 9, textDecorationLine: 'underline' }} onPress={() => router.push('/(protected)/talks/profile/streakCalculation')}>Learn how we count Learning Streak</Text>
+          <Text style={{ fontSize: 9, textDecorationLine: 'underline' }}>Learn how we count Learning Streak</Text>
         </View>
         <View style={{ marginTop: 48, flexDirection: 'row', gap: 16 }}>
           <View style={{ flex: 1 / 2, alignItems: 'center', gap: 4, padding: 16, borderColor: '#eeeeee', backgroundColor: '#f5f5f5', borderWidth: 1, borderRadius: 8 }}>

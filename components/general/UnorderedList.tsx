@@ -1,14 +1,19 @@
 import { View, Text, StyleSheet } from 'react-native';
 
-const UnorderedList = ({ items }: { items: string[] }) => {
+const UnorderedList = ({ items, gap = 6 }: { items: string[], gap?: number }) => {
   return (
-    <View >
-      {items.map((item, index) => item != '' && (
-        <View style={styles.listItem} key={index}>
-          <Text style={styles.bullet}>{'\u2022'}</Text>
-          <Text style={styles.detailText}>{item}</Text>
-        </View>
-      ))}
+    <View>
+      {items.map((item, index) =>
+        item !== '' && (
+          <View
+            style={[styles.listItem, index !== items.length - 1 && { marginBottom: gap }]}
+            key={index}
+          >
+            <Text style={styles.bullet}>{'\u2022'}</Text>
+            <Text style={styles.detailText}>{item}</Text>
+          </View>
+        )
+      )}
     </View>
   );
 };
@@ -20,15 +25,17 @@ const styles = StyleSheet.create({
   },
   bullet: {
     marginRight: 6,
-    fontSize: 22,
-    lineHeight: 22,
-    color: '#737373'
+    fontSize: 16,
+    lineHeight: 20, // matches detailText lineHeight
+    color: '#737373',
   },
   detailText: {
-    fontSize: 13,
+    flexShrink: 1, // allows wrapping nicely
+    fontSize: 14,
+    lineHeight: 20, // ensures even spacing between wrapped and single-line items
     color: '#737373',
-    textAlign: 'justify'
+    textAlign: 'justify',
   },
-})
+});
 
 export default UnorderedList;
