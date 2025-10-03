@@ -33,7 +33,7 @@ const AppTabs = () => {
   const segment = useSegments()
   return (
     <>
-      <StatusBar backgroundColor={'#202020'} barStyle={'light-content'} />
+      <StatusBar backgroundColor={'#202020'} barStyle={'default'} />
       <View style={{ flex: 1, backgroundColor: 'white' }}
       >
         <Tabs
