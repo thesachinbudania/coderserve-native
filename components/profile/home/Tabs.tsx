@@ -15,7 +15,8 @@ export default function Tabs({ }: { setScrollEnabled?: (enabled: boolean) => voi
           },
           {
             name: 'Posts',
-            content: <PostsTab />
+            content: <PostsTab
+            />
           }
         ]}
       />

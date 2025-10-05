@@ -1,9 +1,13 @@
 import { StyleSheet, Text, View } from 'react-native';
+import protectedApi from '@/helpers/axios';
+import React from 'react';
 
 export default function() {
+
+  console.log('this is the data');
   return (
     <View style={styles.container}>
-      <Text style={styles.text}>You haven't shared any talks yet.</Text>
+      <Text style={styles.text}>You haven't shared any talks  in here yet.</Text>
       <Text style={styles.text}>Let your voice be heard and inspire others.</Text>
       <Text style={styles.link}>Create your first post</Text>
     </View>

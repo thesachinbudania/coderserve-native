@@ -79,6 +79,8 @@ export default function AnimatedTopTabs({ tabs, setScrollEnabled }: Props) {
   }))
 
   const swipeGesture: PanGesture = Gesture.Pan()
+    .activeOffsetX([-15, 15])
+    .failOffsetY([-5, 5])
     .runOnJS(true)
     .onBegin(() => {
       if (setScrollEnabled) runOnJS(setScrollEnabled)(false)

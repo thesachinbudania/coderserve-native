@@ -20,3 +20,22 @@ export default function timeAgo(dateString) {
   if (months < 12) return `${months} month${months !== 1 ? "s" : ""} ago`;
   return `${years} year${years !== 1 ? "s" : ""} ago`;
 }
+
+
+export function formatDateTime(dateString) {
+  const date = new Date(dateString);
+
+  const time = date.toLocaleTimeString("en-US", {
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+  });
+
+  const formattedDate = date.toLocaleDateString("en-US", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
+
+  return { time, date: formattedDate };
+}

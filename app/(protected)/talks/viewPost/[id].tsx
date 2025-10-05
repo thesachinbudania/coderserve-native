@@ -20,7 +20,6 @@ import { MenuButton } from '../../jobs';
 const { width } = Dimensions.get('window');
 
 function Header({ post, menuRef }: { post: any, menuRef?: any }) {
-  const router = useRouter();
   const { top } = useSafeAreaInsets();
   let result = formatDistanceToNow(new Date(post.created_at), { addSuffix: true });
   result = result.replace(/^about\s/, '');
@@ -273,7 +272,7 @@ const Comments = ({ id, commentsCount, last_comment }: CommentsProps) => {
             style={({ pressed }) => [{ flexDirection: 'row', gap: 4, paddingVertical: 8, backgroundColor: 'white', alignItems: 'center', marginHorizontal: -16, paddingHorizontal: 16, marginVertical: -8 }, pressed && { backgroundColor: '#f7f7f7' }]}
             onPress={() => menuRef.current?.open()}
           >
-            <ImageLoader size={48} uri={apiUrl + last_comment.author.profile_image} />
+            <ImageLoader size={48} uri={last_comment.author.profile_image} />
             <Text style={{ width: width - 88, fontSize: 13, color: '#737373' }}>{last_comment.content}</Text>
           </Pressable>
         ) : (

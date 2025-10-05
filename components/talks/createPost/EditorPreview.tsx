@@ -74,6 +74,7 @@ export default function EditorPreview({ editorState, className = "" }: EditorPre
     <LexicalComposer initialConfig={editorConfig}>
       <div
         className={`editor-preview-container ${className}`}
+        style={{fontFamily: 'Roboto, sans-serif'}}
       >
         <LoadStatePlugin editorState={editorState} />
         <RichTextPlugin

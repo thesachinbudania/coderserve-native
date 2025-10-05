@@ -1,7 +1,9 @@
 "use dom";
-import "./styles.css";
+// @ts-ignore
+import './styles.css';
 import { AutoFocusPlugin } from "@lexical/react/LexicalAutoFocusPlugin";
 import { LexicalComposer } from "@lexical/react/LexicalComposer";
+import { useRef, useState, useEffect } from 'react';
 import { ContentEditable } from "@lexical/react/LexicalContentEditable";
 import { LexicalErrorBoundary } from "@lexical/react/LexicalErrorBoundary";
 import { HistoryPlugin } from "@lexical/react/LexicalHistoryPlugin";
@@ -12,12 +14,25 @@ import { CustomCodeNode } from "./CustomCodeNode";
 import CustomCodePlugin from "./CustomCodePlugin";
 import ExampleTheme from "./Theme";
 import ToolbarPlugin from "./ToolbarPlugin";
-import { $getRoot, EditorState, LexicalEditor } from "lexical";
+import { $getRoot, LexicalEditor } from "lexical";
 import { ImageNode } from "./nodes/ImageNode";
 import ImagePlugin from "./ImagePlugin";
 import { ListItemNode, ListNode } from "@lexical/list";
 import { ListPlugin } from "@lexical/react/LexicalListPlugin";
 import { CodeNode } from "@lexical/code";
+
+
+function useDebouncedSetter<T>(value: T, delay = 10) {
+  const [state, setState] = useState<T>(value);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  const setDebouncedState = (value: T) => {
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    timeoutRef.current = setTimeout(() => setState(value), delay);
+  };
+
+  return [state, setDebouncedState] as const;
+}
 
 const placeholder = "Write the main content of your post here";
 
@@ -41,8 +56,10 @@ export default function Editor({
   setIsHeading2,
   undo,
   redo,
-  setCanUndo,
-  setCanRedo,
+  undoEnabled,
+  redoEnabled,
+  setRedoEnabled,
+  setIsUndoEnabled,
   setIsOrderedList,
   setIsUnorderedList,
   changeOrderedList,
@@ -72,10 +89,23 @@ export default function Editor({
       }
       : undefined,
   };
+  const [internalUndoEnabled, setInternalUndoEnabled] = useDebouncedSetter<boolean>(false);
+  const [internalRedoEnabled, setInternalRedoEnabled] = useDebouncedSetter<boolean>(false);
 
+  useEffect(() => {
+    if (internalRedoEnabled!== undefined && internalRedoEnabled!== redoEnabled) {
+      setRedoEnabled(internalRedoEnabled);
+    }
+  }, [internalRedoEnabled]);
+
+  useEffect(() => {
+    if (internalUndoEnabled!== undefined && internalUndoEnabled!== undoEnabled) {
+      setIsUndoEnabled(internalUndoEnabled);
+    }
+  }, [internalUndoEnabled])
   return (
     <LexicalComposer initialConfig={editorConfig}>
-      <div className="editor-container">
+      <div className="editor-container" style={{fontFamily: 'Roboto, sans-serif'}}>
         <ImagePlugin changeAddImage={changeAddImage} />
         <CustomCodePlugin />
         <ToolbarPlugin
@@ -94,8 +124,10 @@ export default function Editor({
           setIsHeading2={setIsHeading2}
           undo={undo}
           redo={redo}
-          setCanUndo={setCanUndo}
-          setCanRedo={setCanRedo}
+          undoEnabled={undoEnabled}
+          redoEnabled={redoEnabled}
+          setIsUndoEnabled={setInternalUndoEnabled}
+          setRedoEnabled={setInternalRedoEnabled}
           changeOrderedList={changeOrderedList}
           changeUnorderedList={changeUnorderedList}
           setIsOrderedList={setIsOrderedList}

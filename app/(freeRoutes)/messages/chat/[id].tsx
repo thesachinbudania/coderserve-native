@@ -16,7 +16,15 @@ import isToday from 'dayjs/plugin/isToday';
 import isYesterday from 'dayjs/plugin/isYesterday';
 import { useTokensStore } from '@/zustand/stores';
 import { apiUrl, websocketUrl } from '@/constants/env';
-import ImageViewing from 'react-native-image-viewing'
+import ImageViewing from 'react-native-image-viewing';
+import BottomDrawer from '@/components/BottomDrawer';
+import BlueButton from '@/components/buttons/BlueButton';
+import GreyBgButton from '@/components/buttons/GreyBgButton';
+import SmallTextButton from '@/components/buttons/SmallTextButton';
+import { useRouter } from 'expo-router';
+import BottomSheet from '@/components/messsages/BottomSheet';
+import { MenuButton } from '@/app/(protected)/jobs/index';
+import UnorderedList from '@/components/general/UnorderedList';
 
 dayjs.extend(isToday);
 dayjs.extend(isYesterday);
@@ -29,6 +37,7 @@ type Message = {
   createdAt: string;
   timestamp: string;
   senderId: string;
+  edited: boolean;
   isFirstInGroup?: boolean;
   // For local uploads
   localUri?: string;
@@ -48,7 +57,7 @@ type ChatListItem = Message | DateSeparator;
 
 // --- COMPONENTS ---
 
-function Header({ first_name, profile_image }: { first_name: string; profile_image: string }) {
+function Header({ first_name, profile_image, menuRef }: { first_name: string; profile_image: string, menuRef: React.RefObject<any> }) {
   const { top } = useSafeAreaInsets();
   return (
     <View style={[styles.headerContainer, { paddingTop: top + 8 }]}>
@@ -59,7 +68,11 @@ function Header({ first_name, profile_image }: { first_name: string; profile_ima
         </View>
       </View>
       <View style={{ flexDirection: 'row', gap: 16 }}>
-        <IconButton>
+        <IconButton
+          onPress={() => {
+            menuRef.current?.open();
+          }}
+        >
           <Image source={require('@/assets/images/profile/home/menu.png')} style={styles.headerIcon} />
         </IconButton>
       </View>
@@ -75,10 +88,15 @@ function extractImageInfo(path: string): { filename: string; fileType: string; u
   return { filename, fileType, uuid };
 }
 
-const MessageBubble: React.FC<{ message: Message; currentUserId: string }> = ({ message, currentUserId }) => {
+const MessageBubble: React.FC<{ message: Message; currentUserId: string, openMessageMenu: (id: string) => void }> = ({ message, currentUserId, openMessageMenu }) => {
   const isCurrentUser = message.senderId === currentUserId;
   const isFirst = message.isFirstInGroup ?? true;
   const [imageVisible, setImageVisible] = useState(false);
+  const now = dayjs().valueOf();
+  const elapsed = now - (dayjs(message.createdAt).valueOf());
+  const remaining = 30000 * 60 - elapsed;
+  const editable = remaining > 15000;
+
 
   const renderContent = () => {
     // UPLOADING STATE
@@ -123,20 +141,28 @@ const MessageBubble: React.FC<{ message: Message; currentUserId: string }> = ({ 
   };
 
   return (
-    <View style={[styles.messageRow, isCurrentUser ? styles.currentUserRow : styles.otherUserRow]}>
-      <View style={[
-        styles.messageBubble,
-        isCurrentUser ? styles.currentUserBubble : styles.otherUserBubble,
-        isFirst && (isCurrentUser ? styles.firstInGroupCurrentUser : styles.firstInGroupOtherUser),
-        (message.imageUrl || message.uploadProgress != undefined) && { paddingHorizontal: 8, paddingTop: 8 }
-      ]}>
-        {renderContent()}
-        <Text style={[styles.timestamp, isCurrentUser ? styles.currentUserTimestamp : styles.otherUserTimestamp]}>
-          {message.timestamp}
-        </Text>
-      </View>
-      {isFirst && <View style={isCurrentUser ? styles.rightArrow : styles.leftArrow} />}
-    </View>
+    <Pressable onLongPress={() => openMessageMenu(message.id)} style={({ pressed }) => [styles.messageRow, isCurrentUser ? styles.currentUserRow : styles.otherUserRow]}>
+      {
+        ({ pressed }) => (
+          <>
+            <View style={[
+              styles.messageBubble,
+              isCurrentUser ? styles.currentUserBubble : styles.otherUserBubble,
+              isFirst && (isCurrentUser ? styles.firstInGroupCurrentUser : styles.firstInGroupOtherUser),
+              (message.imageUrl || message.uploadProgress != undefined) && { paddingHorizontal: 8, paddingTop: 8 },
+              pressed && isCurrentUser && editable && { backgroundColor: "#202020" }
+            ]}>
+              {renderContent()}
+              <Text style={[styles.timestamp, isCurrentUser ? styles.currentUserTimestamp : styles.otherUserTimestamp, pressed && isCurrentUser && { color: "#737373" }]}>
+                {message.edited && 'Edited'}   {message.timestamp}
+              </Text>
+            </View>
+            {isFirst && <View style={[isCurrentUser ? styles.rightArrow : styles.leftArrow, pressed && isCurrentUser && { borderTopColor: "#202020" }]} />}
+          </>
+        )
+      }
+
+    </Pressable>
   );
 };
 
@@ -146,39 +172,60 @@ const DateSeparator: React.FC<{ date: string }> = ({ date }) => (
   </View>
 );
 
-function Input({ value, onChange, onSend, onPickImage, disabled }: { value: string; onChange: (t: string) => void; onSend: () => void; onPickImage: () => void; disabled?: boolean }) {
+function Input({ value, onChange, onSend, onPickImage, disabled, chatDisabled, otherUserName, chat_blocked, blocked }: { otherUserName?: string, chatDisabled: boolean; chat_blocked: boolean; value: string; onChange: (t: string) => void; onSend: () => void; onPickImage: () => void; disabled?: boolean; blocked?: boolean }) {
   const canSend = value.trim().length > 0 && !disabled;
+  const router = useRouter();
   return (
     <View style={commentStyles.commentInputContainer}>
-      <TextInput
-        onChangeText={onChange}
-        value={value}
-        multiline
-        style={commentStyles.commentInput}
-        placeholder="Write here"
-        cursorColor="black"
-        textAlignVertical="top"
-      />
-      <Pressable
-        onPress={canSend ? onSend : onPickImage}
-        disabled={disabled}
-        style={({ pressed }) => [
-          {
-            height: 45, width: 45, justifyContent: 'center', alignItems: 'center',
-            backgroundColor: canSend ? '#202020' : '#f5f5f5', borderRadius: 45, marginLeft: 8
-          },
-          pressed && canSend && { backgroundColor: '#006dff' }
-        ]}
-      >
-        <Image
-          style={{ transform: [{ rotate: canSend ? '-90deg' : '0deg' }], height: 20, width: 20 }}
-          source={
-            canSend
-              ? require('@/assets/images/arrows/right-arrow-white.png')
-              : require('@/assets/images/messages/clip.png')
-          }
-        />
-      </Pressable>
+      {
+        chatDisabled ? (
+          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', paddingVertical: 12, flexDirection: 'row', }}>
+            {
+              !chat_blocked ? (
+                <>
+                  <Text style={{ fontSize: 11, color: "#737373" }}>Messaging Disabled - </Text><SmallTextButton style={{ fontSize: 11 }} title="Know More" onPress={() => { router.push('/(freeRoutes)/messages/messagingDisabled/' + otherUserName) }} />
+                </>
+              ) : (
+                <Text style={{ fontSize: 11, color: "#737373" }}>{blocked ? 'You blocked this user.' : 'Chat Closed'}</Text>
+              )
+            }
+          </View>
+        )
+          : (
+            <>
+              <TextInput
+                onChangeText={onChange}
+                value={value}
+                multiline
+                style={commentStyles.commentInput}
+                placeholder="Write here"
+                cursorColor="black"
+                textAlignVertical="top"
+              />
+              <Pressable
+                onPress={canSend ? onSend : onPickImage}
+                disabled={disabled}
+                style={({ pressed }) => [
+                  {
+                    height: 45, width: 45, justifyContent: 'center', alignItems: 'center',
+                    backgroundColor: canSend ? '#202020' : '#f5f5f5', borderRadius: 45, marginLeft: 8
+                  },
+                  pressed && canSend && { backgroundColor: '#006dff' }
+                ]}
+              >
+                <Image
+                  style={{ transform: [{ rotate: canSend ? '-90deg' : '0deg' }], height: 20, width: 20 }}
+                  source={
+                    canSend
+                      ? require('@/assets/images/arrows/right-arrow-white.png')
+                      : require('@/assets/images/messages/clip.png')
+                  }
+                />
+              </Pressable>
+            </>
+          )
+      }
+
     </View>
   );
 }
@@ -198,39 +245,63 @@ const Chat: React.FC = () => {
   const [seenTimestamp, setSeenTimestamp] = useState<string | null>(null);
   const flatListRef = useRef<FlatList<ChatListItem>>(null);
   const wsRef = useRef<WebSocket | null>(null);
+  const messageMenuRef = useRef<any>(null);
+  const [currentMessageMenuId, setCurrentMessageMenuId] = useState<string | null>(null);
+  const [currentMessageMenuTime, setCurrentMessageMenuTime] = useState<number | null>(null);
+  const [editMode, setEditMode] = useState(false);
+  const [sendMessageEnabled, setSendMessageEnabled] = useState(true);
+  const deleteMessageDrawerRef = useRef<any>(null);
+  const menuRef = useRef<any>(null);
+  const blockDrawerRef = useRef<any>(null);
+  const unblockDrawerRef = useRef<any>(null);
+  const deleteChatRef = useRef<any>(null);
+  const router = useRouter();
+  async function fetchData(mounted: boolean) {
+    try {
+      const res = await protectedApi.get(`/home/conversations/${id}/`);
+      if (!mounted) return;
+      setChatData(res.data);
+      // Find the other participant to get their initial last_seen time
+      const otherParticipant = res.data.participants.find((p: any) => p.username !== username);
+      if (otherParticipant) {
+        setSeenTimestamp(otherParticipant.last_seen);
+      }
+
+      const list: Message[] = res.data.messages.map((m: any) => ({
+        id: String(m.id),
+        text: m.content,
+        imageUrl: m.image_url,
+        createdAt: m.created_at,
+        timestamp: fmtTime(m.timestamp),
+        senderId: m.sender.username,
+        edited: m.edited || false,
+      }));
+      setMessages(list);
+    } catch (e: any) {
+      console.error(e?.response?.data || e?.message);
+    } finally {
+      if (mounted) setInitialLoading(false);
+    }
+  }
+
+  React.useEffect(() => {
+    if (editMode) {
+      setInputText(messages.find(m => m.id === currentMessageMenuId)?.text || '');
+    }
+  }, [editMode]);
+
+  React.useEffect(() => {
+    if (editMode) {
+      inputText.length < 0 ? setSendMessageEnabled(false) : inputText === messages.find(m => m.id === currentMessageMenuId)?.text ? setSendMessageEnabled(false) : setSendMessageEnabled(true);
+    }
+  }, [inputText]);
 
   const fmtTime = (iso: string) => dayjs(iso).format('h:mm a');
 
   // --- DATA FETCHING & WEBSOCKET ---
   useEffect(() => {
     let mounted = true;
-    (async () => {
-      try {
-        const res = await protectedApi.get(`/home/conversations/${id}/`);
-        if (!mounted) return;
-        setChatData(res.data);
-
-        // Find the other participant to get their initial last_seen time
-        const otherParticipant = res.data.participants.find((p: any) => p.username !== username);
-        if (otherParticipant) {
-          setSeenTimestamp(otherParticipant.last_seen);
-        }
-
-        const list: Message[] = res.data.messages.map((m: any) => ({
-          id: String(m.id),
-          text: m.content,
-          imageUrl: m.image_url,
-          createdAt: m.created_at,
-          timestamp: fmtTime(m.timestamp),
-          senderId: m.sender.username,
-        }));
-        setMessages(list);
-      } catch (e: any) {
-        console.error(e?.response?.data || e?.message);
-      } finally {
-        if (mounted) setInitialLoading(false);
-      }
-    })();
+    fetchData(mounted);
     return () => { mounted = false; };
   }, [id, username]);
 
@@ -250,11 +321,34 @@ const Chat: React.FC = () => {
             createdAt: data.created_at,
             timestamp: fmtTime(data.created_at),
             senderId: data.sender?.username,
+            edited: data.edited || false,
           };
           setMessages(prev => [...prev, incoming]);
-        } else if (data?.type === 'seen.update' && data.username !== username) {
+          setChatData((prev: any) => {
+            if (!prev) return prev;
+            const updatedMessages = [...prev.messages, data];
+            return { ...prev, messages: updatedMessages };
+          }
+          );
+        }
+        else if (data?.type === 'chat.message.edit') {
+          // --- handle message edit ---
+          setMessages(prev => prev.map(m =>
+            m.id === String(data.id) ? { ...m, text: data.content, edited: data.edited } : m
+          ));
+
+        }
+        else if (data?.type === 'seen.update' && data.username !== username) {
           // If the seen update is from the other user, update the timestamp
           setSeenTimestamp(new Date().toISOString());
+        }
+        else if (data?.type === 'error') {
+          if (data.detail === 'This conversation is locked.') {
+            setChatData((prev: any) => prev ? { ...prev, messaging_disabled: true } : prev);
+            setInputText('');
+            setMessages((prev) => prev.filter(m => !m.uploadProgress)); // remove any uploading messages
+            setSendMessageEnabled(false);
+          }
         }
       } catch (err) { console.error('WS parse error', err); }
     };
@@ -276,7 +370,28 @@ const Chat: React.FC = () => {
     if (!text || sending || !wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) return;
     try {
       setSending(true);
-      wsRef.current.send(JSON.stringify({ action: 'message.create', content: text }));
+      if (editMode && currentMessageMenuId) {
+        // --- send edit request ---
+        wsRef.current.send(JSON.stringify({
+          action: 'message.edit',
+          id: currentMessageMenuId,
+          content: text
+        }));
+
+        // update local state optimistically
+        setMessages(prev => prev.map(m =>
+          m.id === currentMessageMenuId ? { ...m, text, edited: true } : m
+        ));
+
+        setEditMode(false);
+        setCurrentMessageMenuId(null);
+      } else {
+        // --- send new message ---
+        wsRef.current.send(JSON.stringify({
+          action: 'message.create',
+          content: text
+        }));
+      }
       setInputText('');
     } catch (e) {
       console.error('WS send failed', e);
@@ -286,7 +401,83 @@ const Chat: React.FC = () => {
   };
 
   const handlePickAndUploadImage = async () => {
-    // ... (image picking and uploading logic remains the same)
+    const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (permissionResult.granted === false) {
+      alert("You've refused to allow this app to access your photos!");
+      return;
+    }
+
+    const pickerResult = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      quality: 0.8,
+    });
+
+    if (pickerResult.canceled) return;
+    const asset = pickerResult.assets[0];
+
+    const tempId = `upload-${Date.now()}`;
+    const optimisticMessage: Message = {
+      id: tempId,
+      text: null,
+      senderId: username,
+      createdAt: new Date().toISOString(),
+      timestamp: fmtTime(new Date().toISOString()),
+      localUri: asset.uri,
+      uploadProgress: 0,
+      fileName: asset.fileName || 'image.jpg',
+      fileSize: asset.fileSize,
+      edited: false,
+    };
+    setMessages(prev => [...prev, optimisticMessage]);
+
+    const formData = new FormData();
+    formData.append('image', {
+      uri: asset.uri,
+      name: asset.fileName || 'image.jpg',
+      type: asset.mimeType || 'image/jpeg',
+    } as any);
+
+    try {
+      const response = await protectedApi.post('/home/upload_chat_image/', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+        onUploadProgress: progressEvent => {
+          const progress = progressEvent.total ? progressEvent.loaded / progressEvent.total : 0;
+          setMessages(prev => prev.map(msg =>
+            msg.id === tempId ? { ...msg, uploadProgress: progress } : msg
+          ));
+        },
+      });
+
+      const imageUrl = response.data.image;
+
+      if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+        wsRef.current.send(JSON.stringify({
+          action: 'message.create',
+          image_url: imageUrl
+        }));
+      }
+      setMessages(prev => prev.filter(msg => msg.id !== tempId));
+
+    } catch (error) {
+      console.error('Image upload failed:', error);
+      setMessages(prev => prev.map(msg =>
+        msg.id === tempId ? { ...msg, error: 'Upload failed' } : msg
+      ));
+    }
+  };
+
+
+  const deleteMessage = (ws: WebSocket, messageId: string) => {
+    if (!ws || ws.readyState !== WebSocket.OPEN) {
+      console.warn("WebSocket not connected");
+      return;
+    }
+    console.log('sending delte for message', messageId);
+    ws.send(JSON.stringify({
+      action: "message.delete",
+      id: messageId,
+    }));
   };
 
   // --- MESSAGE GROUPING ---
@@ -329,22 +520,301 @@ const Chat: React.FC = () => {
   const me = username;
   const other = chatData?.participants?.find((p: any) => p.username !== me);
 
+  function manageBlock() {
+    protectedApi.put(`/accounts/block_user/${other.username}/`).then(() => {
+      fetchData(true);
+    }).catch(e => {
+      console.error(e);
+    });
+  }
+
+
+  const openMessageMenu = (id: string) => {
+    setCurrentMessageMenuId(id);
+    const message = chatData.messages.find((m: any) => {
+      return m.id == id;
+    });
+    let time = message?.timestamp
+    if (time === undefined) {
+      time = message?.created_at
+    }
+    const now = dayjs().valueOf();
+    const elapsed = now - (time ? dayjs(time).valueOf() : now);
+    const remaining = 30 * 60 * 1000 - elapsed;
+    if (remaining <= 0) {
+      // If more than 30 minutes have passed, do not open the menu
+      return;
+    }
+    setCurrentMessageMenuTime(time ? dayjs(time).valueOf() : null);
+    messageMenuRef.current?.open();
+  };
+
+  function MenuOption({ title, subTitle, pressTimer = 15, onPress = () => { } }: { title: string, subTitle: string, pressTimer?: number, onPress?: () => void }) {
+    const pressTimerMinutes = pressTimer * 60 * 1000; // 15 minutes in milliseconds
+    const [timeLeft, setTimeLeft] = useState<number | null>(null);
+    useEffect(() => {
+      // show the time remaining for the action based on currentMessageMenuTime and pressTimerMinutes
+      if (currentMessageMenuTime) {
+        const interval = setInterval(() => {
+          const now = dayjs().valueOf();
+          const elapsed = now - currentMessageMenuTime;
+          const remaining = pressTimerMinutes - elapsed;
+          setTimeLeft(remaining > 0 ? Math.ceil(remaining / 1000) : 0);
+          if (remaining <= 0) {
+            clearInterval(interval);
+          }
+        }, 1000);
+        return () => clearInterval(interval);
+      }
+      return;
+    }, [currentMessageMenuTime]);
+    return (
+      timeLeft && timeLeft > 0 && (
+        <Pressable
+          style={{ padding: 16, borderWidth: 1, borderColor: '#f5f5f5', borderRadius: 12 }}
+          onPress={onPress}
+        >
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Text style={{ fontSize: 15, fontWeight: 'bold' }}>{title}</Text>
+            {timeLeft && timeLeft > 0 && (
+              <Text style={{ fontSize: 11, color: '#00bf63', paddingHorizontal: 12, paddingVertical: 4, backgroundColor: '#d3ffea', borderRadius: 12 }}>{
+                `${Math.floor(timeLeft / 60).toString().padStart(2, '0')}:${(timeLeft % 60).toString().padStart(2, '0')}`
+              }</Text>
+            )}
+          </View>
+          <Text style={{ fontSize: 12, color: "#a6a6a6", marginTop: 8 }}>{subTitle}</Text>
+        </Pressable>
+      )
+
+    )
+  }
+
+
   return (
     <View style={styles.container}>
-      <Header first_name={other?.first_name || other?.username || 'User'} profile_image={other?.profile_image} />
+      <Header
+        first_name={other?.first_name || other?.username || 'User'}
+        profile_image={other?.profile_image}
+        menuRef={menuRef}
+      />
       <KeyboardAvoidingView style={{ flex: 1 }}>
         <FlatList
           ref={flatListRef}
           data={chatListItems}
-          renderItem={({ item }) => 'isSeparator' in item ? <DateSeparator date={item.date} /> : <MessageBubble message={item} currentUserId={me} />}
+          renderItem={({ item }) => 'isSeparator' in item ? <DateSeparator date={item.date} /> : <MessageBubble openMessageMenu={openMessageMenu} message={item} currentUserId={me} />}
           keyExtractor={(item) => item.id}
           contentContainerStyle={styles.messagesContainer}
           onContentSizeChange={() => flatListRef.current?.scrollToEnd({ animated: false })}
           onLayout={() => flatListRef.current?.scrollToEnd({ animated: false })}
           ListFooterComponent={renderFooter}
         />
-        <Input value={inputText} onChange={setInputText} onSend={handleSendText} onPickImage={handlePickAndUploadImage} disabled={sending} />
+        <Input value={inputText} onChange={setInputText} onSend={handleSendText} chatDisabled={chatData.messaging_disabled || !sendMessageEnabled} onPickImage={handlePickAndUploadImage} disabled={sending}
+          otherUserName={other.first_name + ' ' + other.last_name}
+          chat_blocked={chatData?.chat_blocked}
+          blocked={other?.is_blocked}
+        />
       </KeyboardAvoidingView>
+      <BottomDrawer sheetRef={messageMenuRef} height={
+        30 * 60 * 1000 - (dayjs().valueOf() - (currentMessageMenuTime ? dayjs(currentMessageMenuTime).valueOf() : dayjs().valueOf())) <= 15000 * 60 ? 120 : 216}
+      >
+        <View style={{ paddingHorizontal: 16, gap: 16 }}>
+          <MenuOption
+            title="Edit Message"
+            subTitle="Make changes to your message content."
+            onPress={() => {
+              setEditMode(true);
+              messageMenuRef.current?.close();
+            }}
+          />
+          <MenuOption
+            title="Delete Message"
+            subTitle="Permanently remove this message."
+            pressTimer={30}
+            onPress={() => {
+              messageMenuRef.current?.close();
+              deleteMessageDrawerRef.current?.open();
+            }}
+          />
+        </View>
+      </BottomDrawer>
+      <BottomDrawer sheetRef={deleteMessageDrawerRef} height={160}>
+        <View style={{ paddingHorizontal: 16 }}>
+          <Text style={{ fontSize: 15, fontWeight: 'bold', textAlign: 'center' }}>Delete Message</Text>
+          <Text style={{ fontSize: 13, color: "#737373", textAlign: 'center', marginTop: 8 }}>This action cannot be undone. Once deleted, your message will be permanently removed.</Text>
+          <View style={{ flexDirection: 'row', gap: 16, marginTop: 16 }}>
+            <View style={{ flex: 1 / 2 }}>
+              <GreyBgButton
+                title="Cancel"
+                onPress={() => {
+                  setCurrentMessageMenuId(null);
+                  setEditMode(false);
+                  deleteMessageDrawerRef.current?.close();
+                }}
+              />
+            </View>
+            <View style={{ flex: 1 / 2 }}>
+              <BlueButton
+                title="Delete"
+                onPress={() => {
+                  if (wsRef.current && currentMessageMenuId) {
+                    deleteMessage(wsRef.current, currentMessageMenuId);
+                    setMessages(prev => prev.filter(m => m.id !== currentMessageMenuId));
+                    setCurrentMessageMenuId(null);
+                    setEditMode(false);
+                    deleteMessageDrawerRef.current?.close();
+                  }
+                }}
+              />
+            </View>
+          </View>
+        </View>
+      </BottomDrawer>
+      <BottomSheet
+        menuRef={menuRef}
+        height={392}>
+        <View style={styles.menuContainer}>
+          <MenuButton
+            onPress={() => {
+              menuRef?.current.close();
+              router.push(`/(freeRoutes)/profile/userProfile/${other?.username}`);
+            }}
+          >
+            <Text style={styles.menuButtonHeading}>View Profile</Text>
+            <Text style={styles.menuButtonText}>
+              Visit the public profile of the chat recipient.
+            </Text>
+          </MenuButton>
+          <MenuButton
+            onPress={() => {
+              menuRef?.current.close();
+              if (other?.is_blocked) {
+                unblockDrawerRef.current?.open();
+                return;
+              }
+              blockDrawerRef.current?.open();
+            }}
+          >
+            <Text style={styles.menuButtonHeading}>{other?.is_blocked ? 'Unblock' : 'Block'}</Text>
+            <Text style={styles.menuButtonText}>
+              {
+                other?.is_blocked ? 'Allow this user to interact with you again.' : 'Restrict this user from interacting with you.'
+              }
+            </Text>
+          </MenuButton>
+          <MenuButton
+            onPress={() => {
+              menuRef?.current.close();
+              deleteChatRef?.current.open();
+            }}
+          >
+            <Text style={styles.menuButtonHeading}>Delete Chat</Text>
+            <Text style={styles.menuButtonText}>
+              Permanently remove this chat.
+            </Text>
+          </MenuButton>
+          <MenuButton >
+            <Text
+              style={[styles.menuButtonHeading]}
+            >
+              Report Chat
+            </Text>
+            <Text style={[styles.menuButtonText]}>
+              Flag this chat to our support team for review.
+            </Text>
+          </MenuButton>
+        </View>
+      </BottomSheet>
+      <BottomSheet
+        menuRef={deleteChatRef}
+        height={168}>
+        <Text style={{ textAlign: 'center', fontSize: 15, fontWeight: 'bold', marginBottom: 16 }}>Delete Chat</Text>
+        <Text style={{ textAlign: 'center', fontSize: 13, color: "#737373", marginBottom: 24 }}>This action cannot be undone. Once deleted, all your messages in this chat will be permanently removed.</Text>
+        <View style={{ flexDirection: 'row', gap: 16 }}>
+          <View style={{ flex: 1 / 2 }}>
+            <GreyBgButton
+              title='Cancel'
+              onPress={() => deleteChatRef?.current.close()}
+            />
+          </View>
+          <View style={{ flex: 1 / 2 }}>
+            <BlueButton
+              title={'Delete'}
+              dangerButton
+              onPress={
+                () => {
+                  protectedApi.delete(`/home/delete_conversation/${id}/`).then(() => {
+                    deleteChatRef?.current.close();
+                    router.back();
+                  }).catch(e => {
+                    console.error(e);
+                  })
+                }
+              }
+            />
+          </View>
+        </View>
+      </BottomSheet>
+      <BottomSheet
+        menuRef={unblockDrawerRef}
+        height={168}>
+        <Text style={{ textAlign: 'center', fontSize: 15, fontWeight: 'bold', marginBottom: 16 }}>Do you want to unblock this user?</Text>
+        <Text style={{ textAlign: 'center', fontSize: 13, color: "#737373", marginBottom: 24 }}>Once unblocked, this user will be able to view your profile and interact with yours posts again.</Text>
+        <View style={{ flexDirection: 'row', gap: 16 }}>
+          <View style={{ flex: 1 / 2 }}>
+            <GreyBgButton
+              title='Cancel'
+              onPress={() => unblockDrawerRef?.current.close()}
+            />
+          </View>
+          <View style={{ flex: 1 / 2 }}>
+            <BlueButton
+              title={'Unblock'}
+              onPress={() => {
+                unblockDrawerRef?.current.close();
+                manageBlock();
+              }}
+            />
+          </View>
+        </View>
+      </BottomSheet>
+      <BottomDrawer sheetRef={blockDrawerRef} height={604}>
+        <View style={{ paddingHorizontal: 16 }}>
+          <Text style={{ fontSize: 15, fontWeight: 'bold', marginTop: 8 }}>What Happens When You Block Someone?</Text>
+          <Text style={{ fontSize: 13, color: "#737373", textAlign: 'left', marginTop: 8, marginBottom: 16 }}>Blocking gives you full control over your experience. When you block a user:</Text>
+          <UnorderedList
+            items={["You won't see their profile, posts, followers, or following list - and they can't see yours.", "If you were following each other, both follow connections are removed."]}
+            gap={16}
+          />
+          <Text style={{ fontSize: 15, fontWeight: 'bold', marginTop: 24, marginBottom: 8 }}>No Interactions Allowed</Text>
+          <UnorderedList items={[
+            "Their posts will no longer appear in your feed or search, and yours will be hidden from them.",
+            'Messaging is disabled, and any existing chat will be closed on your side with the message: "You blocked this user."',
+            "The blocked user won't be notified. However, they can still send up to 5 final replies to your last message - but you won't see them unless you unblock.",
+            'After those 5 replies, the conversation will be permanently locked for them with the message: "Chat Closed". Your profile picture will be hidden, and your name will appear as "Unknown User" in the chat.'
+          ]}
+            gap={16}
+          />
+          <View style={{ flexDirection: 'row', gap: 16, marginTop: 16 }}>
+            <View style={{ flex: 1 / 2 }}>
+              <GreyBgButton
+                title="Cancel"
+                onPress={() => {
+                  blockDrawerRef.current?.close();
+                }}
+              />
+            </View>
+            <View style={{ flex: 1 / 2 }}>
+              <BlueButton
+                title="Block"
+                onPress={() => {
+                  blockDrawerRef.current?.close();
+                  manageBlock()
+                }}
+              />
+            </View>
+          </View>
+        </View>
+      </BottomDrawer>
     </View>
   );
 };
@@ -389,6 +859,18 @@ const styles = StyleSheet.create({
   seenText: {
     fontSize: 11,
     color: '#a6a6a6',
+  },
+  menuContainer: {
+    gap: 16,
+  },
+  menuButtonHeading: {
+    fontSize: 15,
+    fontWeight: "bold",
+  },
+  menuButtonText: {
+    fontSize: 12,
+    color: "#737373",
+    marginTop: 8,
   },
 });
 

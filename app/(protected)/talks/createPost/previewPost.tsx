@@ -1,4 +1,4 @@
-import { Dimensions, Image, Text, View, ScrollView, StyleSheet } from 'react-native';
+import { ActivityIndicator, Dimensions, Image, Text, View, ScrollView, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 import React from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -78,10 +78,10 @@ function Header() {
 }
 
 export function PostContent({ title, hashtags, thumbnail, content = null }: { title: string, hashtags: string[], thumbnail: string, content?: string | null }) {
-  const [contentHeight, setContentHeight] = React.useState(100);
-  console.log(contentHeight, 'contentHeight');
+  const [contentHeight, setContentHeight] = React.useState(1);
+  const [contentLoading, setContentLoading] = React.useState(true);
   return (
-    <>
+    <View style={{flex: 1}}>
       <View style={[styles.postContainer]}>
         {title && (
           <Text style={styles.postHeading}>
@@ -106,6 +106,12 @@ export function PostContent({ title, hashtags, thumbnail, content = null }: { ti
         }
       </View>
       {
+        contentLoading && (
+          <ActivityIndicator size="large" color="#202020" style={{ marginTop: 48, marginBottom: 32}} />
+        )
+      }
+      <View style={{height: contentLoading ? 1 : contentHeight}}>
+      {
         title && hashtags.length > 0 && thumbnail && content && (
           <EditorPreview editorState={content} dom={{
             scrollEnabled: false,
@@ -115,13 +121,15 @@ export function PostContent({ title, hashtags, thumbnail, content = null }: { ti
                 const msg = JSON.parse(event.nativeEvent.data);
                 if (msg.type === 'HEIGHT') {
                   setContentHeight(msg.height);
+                  setContentLoading(false);
                 }
               } catch { }
             },
           }} />
         )
       }
-    </>
+      </View>
+    </View>
   );
 }
 

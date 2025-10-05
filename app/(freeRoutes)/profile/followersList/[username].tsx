@@ -1,5 +1,5 @@
 import DataWrapper from '@/components/general/DataWrapper';
-import { ActivityIndicator, FlatList, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, FlatList, StyleSheet, Text, View, Image } from 'react-native';
 import ImageLoader from '@/components/ImageLoader';
 import React from 'react';
 import { useFetch } from '@/helpers/useFetch';
@@ -79,32 +79,41 @@ export default function FollowingList() {
       header='Followers'
       isLoading={initialLoading}
     >
-      <FlatList
-        data={combinedData}
-        renderItem={({ item }) => <UserListing user={item} />}
-        keyExtractor={(item) => item.id.toString()}
-        contentContainerStyle={{ gap: 16, paddingHorizontal: 16, paddingTop: 24 }}
-        onEndReached={handleEndReached}
-        onEndReachedThreshold={0.5}
-        onRefresh={() => {
-          setRefreshing(true);
-          refetch(`${apiUrl}/api/accounts/followers_list/${username}/`);
-        }}
-        refreshing={refreshing}
-        ListFooterComponent={
-          <>
-            {isLoading || nextPage ? (
-              <View style={{ width: '100%', height: 128, marginBottom: 77, justifyContent: 'center', alignItems: 'center' }}>
-                <ActivityIndicator size='small' color='#202020' />
-              </View>
-            ) : (
-              <View style={{ marginBottom: 77 }}>
-                <BottomName />
-              </View>
-            )}
-          </>
-        }
-      />
+      {
+        combinedData.length === 0 && !isLoading && !initialLoading ? (
+          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 16, marginTop: -57 }}>
+            <Image source={require('@/assets/images/stars.png')} style={{ width: 128, height: 128, marginBottom: 32 }} />
+            <Text style={{ color: '#737373', textAlign: 'center', fontSize: 11 }}>It looks like you don't have any followers yet. Once you start gaining them, their profiles will appear here. Start sharing useful content to build your network.</Text>
+          </View>
+        ) :
+
+          <FlatList
+            data={combinedData}
+            renderItem={({ item }) => <UserListing user={item} />}
+            keyExtractor={(item) => item.id.toString()}
+            contentContainerStyle={{ gap: 16, paddingHorizontal: 16, paddingTop: 24 }}
+            onEndReached={handleEndReached}
+            onEndReachedThreshold={0.5}
+            onRefresh={() => {
+              setRefreshing(true);
+              refetch(`${apiUrl}/api/accounts/followers_list/${username}/`);
+            }}
+            refreshing={refreshing}
+            ListFooterComponent={
+              <>
+                {isLoading || nextPage ? (
+                  <View style={{ width: '100%', height: 128, marginBottom: 77, justifyContent: 'center', alignItems: 'center' }}>
+                    <ActivityIndicator size='small' color='#202020' />
+                  </View>
+                ) : (
+                  <View style={{ marginBottom: 77 }}>
+                    <BottomName />
+                  </View>
+                )}
+              </>
+            }
+          />
+      }
 
     </DataWrapper>
   );

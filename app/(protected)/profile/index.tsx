@@ -5,7 +5,6 @@ import IconButton from '@/components/profile/IconButton';
 import Tabs from '@/components/profile/home/Tabs';
 import { useUserStore } from '@/zustand/stores';
 import ImageLoader from '@/components/ImageLoader';
-import { PortalHost } from '@gorhom/portal';
 import BackgroundMapping from '@/assets/images/profile/Background/backgroundMapping';
 import BackgroundImageLoader from '@/components/BackgroundImageLoader';
 import { useRouter } from 'expo-router';
@@ -32,8 +31,13 @@ export const Profile = ({ user }: { user: any }) => {
     <>
       {
         user.background_type === 'default' ?
-          // @ts-ignore
-          <Image source={BackgroundMapping[user.background_pattern_code]} style={styles.bgImage} /> :
+          user.background_pattern_code == 0 ? (
+            <View style={[styles.bgImage, { backgroundColor: '#202020', justifyContent: 'center', alignItems: 'center' }]} >
+              <Text style={{ fontSize: 11, color: "#545454" }}>Unavailable</Text>
+            </View>
+          ) :
+            // @ts-ignore
+            <Image source={BackgroundMapping[user.background_pattern_code]} style={styles.bgImage} /> :
           user.background_image &&
           <BackgroundImageLoader size={164} uri={user.background_image} />
 
@@ -63,8 +67,10 @@ export const Profile = ({ user }: { user: any }) => {
           </View>
         </View>
         <Text style={styles.name}>{user.first_name} {user.last_name}</Text>
-        <Text style={styles.username}>@{user.username}</Text>
-        <Text style={styles.userLocation}>{user.city}, {user.state}, {user.country}</Text>
+        {user.background_pattern_code == 0 ? null : <>
+          <Text style={styles.username}>@{user.username}</Text>
+          <Text style={styles.userLocation}>{user.city}, {user.state}, {user.country}</Text>
+        </>}
       </View>
     </>
   )

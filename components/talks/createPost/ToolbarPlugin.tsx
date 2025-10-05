@@ -1,4 +1,3 @@
-import "./styles.css";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { mergeRegister } from "@lexical/utils";
 import {
@@ -10,6 +9,8 @@ import {
   REDO_COMMAND,
   SELECTION_CHANGE_COMMAND,
   UNDO_COMMAND,
+  COMMAND_PRIORITY_LOW,
+  COMMAND_PRIORITY_CRITICAL
 } from "lexical";
 import {
   INSERT_ORDERED_LIST_COMMAND,
@@ -23,8 +24,9 @@ import {
 } from "lexical";
 import { useCallback, useEffect, useState } from "react";
 import { toggleCodeBlock } from "./helpers";
+import { useUndoRedoStore } from "@/zustand/talks/newPostStore";
 
-const LowPriority = 1;
+
 
 export interface ToolbarPluginProps {
   changeBold: boolean;
@@ -42,8 +44,10 @@ export interface ToolbarPluginProps {
   setIsHeading2: (isHeading2: boolean) => void;
   undo: boolean;
   redo: boolean;
-  setCanUndo: (canUndo: boolean) => void;
-  setCanRedo: (canRedo: boolean) => void;
+  undoEnabled: boolean;
+  redoEnabled: boolean;
+  setIsUndoEnabled: (canUndo: boolean) => void;
+  setRedoEnabled: (canRedo: boolean) => void;
 
   // New props
   changeOrderedList: boolean;
@@ -68,8 +72,8 @@ export default function ToolbarPlugin({
   setIsHeading2,
   undo,
   redo,
-  setCanRedo,
-  setCanUndo,
+  setRedoEnabled,
+  setIsUndoEnabled,
   changeOrderedList,
   changeUnorderedList,
   setIsOrderedList,
@@ -77,7 +81,8 @@ export default function ToolbarPlugin({
 }: ToolbarPluginProps) {
   const [editor] = useLexicalComposerContext();
 
-  // Text styles
+
+    // Text styles
   useEffect(() => {
     editor.dispatchCommand(FORMAT_TEXT_COMMAND, "bold");
   }, [changeBold, editor]);
@@ -181,39 +186,58 @@ export default function ToolbarPlugin({
         setIsUnorderedList(false);
       }
     }
-  }, [setIsBold, setIsItalic, setIsUnderline, setIsHighlight, setIsHeading, setIsHeading2, setIsOrderedList, setIsUnorderedList]);
 
-  useEffect(() => {
-    return mergeRegister(
-      editor.registerUpdateListener(({ editorState }) => {
-        editorState.read(() => {
-          $updateToolbar();
-        });
-      }),
-      editor.registerCommand(
-        SELECTION_CHANGE_COMMAND,
-        () => {
-          $updateToolbar();
-          return false;
-        },
-        LowPriority
-      ),
-      editor.registerCommand(
-        CAN_UNDO_COMMAND,
-        (payload) => {
-          setCanUndo(payload);
-          return false;
-        },
-        LowPriority
-      ),
-      editor.registerCommand(
-        CAN_REDO_COMMAND,
-        (payload) => {
-          setCanRedo(payload);
-          return false;
-        },
-        LowPriority
-      )
-    );
-  }, [editor, $updateToolbar, setCanUndo, setCanRedo]); return null;
+editor.registerCommand(
+      CAN_UNDO_COMMAND,
+      (payload) => {
+        setIsUndoEnabled(payload); 
+        return false; // observe only, allow others to react
+      },
+      COMMAND_PRIORITY_LOW
+    ),
+
+    editor.registerCommand(
+      CAN_REDO_COMMAND,
+      (payload) => {
+        setRedoEnabled(payload);
+        return false;
+      },
+      COMMAND_PRIORITY_LOW
+    )
+
+  }, [setIsBold, setIsItalic, setIsUnderline, setIsHighlight, setIsHeading, setIsHeading2, setIsOrderedList, setIsUnorderedList, setIsUndoEnabled, setRedoEnabled]);
+
+useEffect(() => {
+
+  // register listeners and commands
+  const unregister = mergeRegister(
+    editor.registerUpdateListener(({ editorState }) => {
+      editorState.read(() => {
+        $updateToolbar();
+        return false;
+      });
+    }),
+
+    editor.registerCommand(
+      SELECTION_CHANGE_COMMAND,
+      () => {
+        // keep selection-driven state synced
+        editor.getEditorState().read($updateToolbar);
+        return false; // don't swallow
+      },
+      COMMAND_PRIORITY_LOW
+    ),
+
+    
+  );
+
+  // initial sync of toolbar UI
+  editor.getEditorState().read(() => {
+    $updateToolbar();
+  });
+
+  return () => unregister();
+}, [editor, $updateToolbar ]);
+
+return <></>
 }

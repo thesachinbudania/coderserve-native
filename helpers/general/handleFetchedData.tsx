@@ -4,22 +4,49 @@ import { apiUrl } from '@/constants/env';
 import { ActivityIndicator, FlatList, View } from 'react-native';
 import { useFocusEffect } from 'expo-router';
 
-export default function useFetchData({ url, RenderItem, allowSearch = false }: { url: string, RenderItem?: ({ item }: { item: any }) => React.JSX.Element, allowSearch?: boolean }) {
+export default function useFetchData({
+  url,
+  RenderItem,
+  gap = 16,
+  paddingTop = 0
+}: {
+  url: string;
+  RenderItem?: ({ item, index }: { item: any, index: number }) => React.JSX.Element;
+  gap?: number;
+  paddingTop?: number;
+}) {
+  // Raw API data (unfiltered)
+  const [allData, setAllData] = React.useState<any[]>([]);
+  // Derived + filtered data
   const [combinedData, setCombinedData] = React.useState<any[]>([]);
-  const [nextPage, setNextPage] = React.useState<string | null>(`${apiUrl}${url}`);
+  const [nextPage, setNextPage] = React.useState<string | null>(
+    `${apiUrl}${url}`
+  );
   const [initialLoading, setInitialLoading] = React.useState(true);
   const [isPaginating, setIsPaginating] = React.useState(false);
   const [refreshing, setRefreshing] = React.useState(false);
+  const [filteredData, setFilteredData] = React.useState(combinedData);
 
+  // Fetch hook
   const { data, isLoading, refetch } = useFetch(nextPage || '');
 
+  // When new data comes in
   React.useEffect(() => {
     if (data) {
       if (refreshing) {
-        setCombinedData([]);
+        setAllData([]);
         setRefreshing(false);
       }
-      setCombinedData(prev => [...prev, ...data.results]);
+
+      // Deduplicate by `id`
+      setAllData((prev) => {
+        const merged = [...prev, ...data.results];
+        const unique = merged.filter(
+          (v, i, a) => a.findIndex((t) => t.id === v.id) === i
+        );
+        return unique;
+      });
+
       setNextPage(data.next);
       setIsPaginating(false);
       if (initialLoading) {
@@ -28,6 +55,13 @@ export default function useFetchData({ url, RenderItem, allowSearch = false }: {
     }
   }, [data]);
 
+  // Update combinedData based on search
+  React.useEffect(() => {
+    setCombinedData(allData);
+    setFilteredData(allData)
+  }, [allData]);
+
+  // Pagination
   const handleEndReached = () => {
     if (!isPaginating && nextPage && !initialLoading) {
       setIsPaginating(true);
@@ -35,42 +69,64 @@ export default function useFetchData({ url, RenderItem, allowSearch = false }: {
     }
   };
 
+  // Pull-to-refresh
   const handleRefresh = () => {
+    setAllData([]);
     setRefreshing(true);
     refetch(`${apiUrl}${url}`);
-  }
+  };
 
+  // Refresh on focus
   useFocusEffect(
     React.useCallback(() => {
-      handleRefresh()
+      handleRefresh();
     }, [url])
   );
 
+  // Render UI
   const RenderData = () => {
     return (
       <>
-        {
-          initialLoading && (
-            <View style={{ width: '100%', flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'white' }}>
-              <ActivityIndicator size='large' color='#202020' />
-            </View>
-          )
-        }
-        {
-          !initialLoading && !isLoading && combinedData.length > 0 && (
+        {initialLoading && (
+          <View
+            style={{
+              width: '100%',
+              flex: 1,
+              justifyContent: 'center',
+              alignItems: 'center',
+              backgroundColor: 'white',
+            }}
+          >
+            <ActivityIndicator size="large" color="#202020" />
+          </View>
+        )}
+
+        {!initialLoading && !isLoading && combinedData.length > 0 && (
+          <>
+
             <FlatList
-              data={combinedData}
+              data={filteredData}
               keyExtractor={(item) => item.id.toString()}
               renderItem={RenderItem}
               onEndReached={handleEndReached}
               onRefresh={handleRefresh}
               refreshing={refreshing}
-              contentContainerStyle={{ gap: 16 }}
+              contentContainerStyle={{ gap: gap }}
             />
-          )
-        }
-      </>)
-  }
-  return { combinedData, initialLoading, refreshing, handleEndReached, isLoading, handleRefresh, RenderData };
+          </>
+        )}
+      </>
+    );
+  };
 
+  return {
+    combinedData,
+    initialLoading,
+    refreshing,
+    handleEndReached,
+    isLoading,
+    handleRefresh,
+    RenderData,
+    setFilteredData
+  };
 }

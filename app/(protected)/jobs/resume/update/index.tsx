@@ -19,7 +19,7 @@ import { apiUrl } from '@/constants/env';
 
 const { width } = Dimensions.get("window");
 
-export function EditResume({ showLess = false }: { showLess?: boolean }) {
+export function EditResume({ showLess = false, editable = true }: { showLess?: boolean, editable?: boolean }) {
   const user = useUserStore(state => state);
   const jobs = useJobsState(state => state);
   const { setResumeEdit } = useResumeEdit(state => state);
@@ -29,33 +29,38 @@ export function EditResume({ showLess = false }: { showLess?: boolean }) {
     <View style={styles.resumeContainer}>
       {jobs.about ? (
         <View>
-          0         <Text style={styles.detailsHeading}>About</Text>
-          <Pressable
-            onPress={() => router.push('/(freeRoutes)/jobs/resume/about')}
-          >
-            {({ pressed }) => (
-              <View
-                style={[
-                  styles.editDetailsContainer,
-                  pressed && { backgroundColor: "#f5f5f5" },
-                ]}
+          <Text style={styles.detailsHeading}>About</Text>
+          {
+            editable ? (
+              <Pressable
+                onPress={() => router.push('/(freeRoutes)/jobs/resume/about')}
               >
-                <ReadMoreText text={jobs.about || ""} />
-              </View>
-            )}
-          </Pressable>
+                {({ pressed }) => (
+                  <View
+                    style={[
+                      styles.editDetailsContainer,
+                      pressed && { backgroundColor: "#f5f5f5" },
+                    ]}
+                  >
+                    <ReadMoreText text={jobs.about || ""} />
+                  </View>
+                )}
+              </Pressable>
+            ) : <ReadMoreText text={jobs.about || ""} />
+          }
         </View>
       ) : (
         <ProfileSection
           title="About"
-          content="You haven't introduced yourself yet. Let the world know about your  story!"
+          content={editable ? "You haven't introduced yourself yet. Let the world know about your  story!" : "This user hasn't shared their story yet."}
           onPress={() => router.push('/(freeRoutes)/jobs/resume/about')}
+          editable={editable}
         />
       )}
       {jobs.previous_experience && jobs.previous_experience.length > 0 ? (
         <View>
           <Text style={styles.detailsHeading}>Experience</Text>
-          {jobs.previous_experience.map((experience, index) => (
+          {editable ? (jobs.previous_experience.map((experience, index) => (
             <ExperienceListing
               image={
                 experience.company.logo
@@ -105,37 +110,85 @@ export function EditResume({ showLess = false }: { showLess?: boolean }) {
                 )}
               </View>
             </ExperienceListing>
-          ))}
-          <View style={styles.addEntryContainer}>
-            <View
-              style={[styles.logoContainer, { backgroundColor: "#f5f5f5" }]}
+          ))) : jobs.previous_experience.map((experience, index) => (
+            <ExperienceListing
+              image={
+                experience.company.logo
+                  ? {
+                    uri:
+                      apiUrl + experience.company.logo,
+                  }
+                  : require("@/assets/images/jobs/experienceImg.png")
+              }
+              key={index}
+              showLine={jobs.previous_experience ? index !== jobs.previous_experience.length - 1 : false}
             >
-              <Image
-                source={require("@/assets/images/jobs/plus.png")}
-                style={styles.logo}
-              />
-            </View>
-            <SmallTextButton
-              title="Add Experience"
-              style={{
-                fontSize: 13,
-                fontWeight: "bold",
-                textDecorationLine: "underline",
-              }}
-              onPress={() => {
-                setResumeEdit({
-                  edit: false,
-                  id: null,
-                })
-                router.push('/(freeRoutes)/jobs/resume/workExperience')
-              }}
-            />
-          </View>
+              <View style={{ marginBottom: 32, width: width - 96 }}>
+                <Text style={styles.containerPrimaryHeading}>
+                  {experience.job_role}
+                </Text>
+                <Text style={styles.containerSecondaryHeading}>
+                  {experience.company.name}
+                </Text>
+                <Text style={styles.containerTertiaryHeading}>
+                  {experience.joining_month.slice(0, 3)}{" "}
+                  {experience.joining_year} -{" "}
+                  {experience.end_month === "Present" ||
+                    experience.end_year === "Present"
+                    ? "Present"
+                    : `${experience.end_month.slice(0, 3)} ${experience.end_year}`}{" "}
+                  ({experience.job_type})
+                </Text>
+                <Text style={styles.containerTertiaryHeading}>
+                  {experience.city}, {experience.country}
+                </Text>
+                {experience.description && (
+                  <View style={{ marginTop: 4, width: width - 96 }}>
+                    <ReadMoreText
+                      text={experience.description}
+                      numberOfLines={2}
+                      textStyle={{ color: "#a6a6a6" }}
+                    />
+                  </View>
+                )}
+              </View>
+            </ExperienceListing>
+          ))
+          }
+          {
+            editable ? (
+              <View style={styles.addEntryContainer}>
+                <View
+                  style={[styles.logoContainer, { backgroundColor: "#f5f5f5" }]}
+                >
+                  <Image
+                    source={require("@/assets/images/jobs/plus.png")}
+                    style={styles.logo}
+                  />
+                </View>
+                <SmallTextButton
+                  title="Add Experience"
+                  style={{
+                    fontSize: 13,
+                    fontWeight: "bold",
+                    textDecorationLine: "underline",
+                  }}
+                  onPress={() => {
+                    setResumeEdit({
+                      edit: false,
+                      id: null,
+                    })
+                    router.push('/(freeRoutes)/jobs/resume/workExperience')
+                  }}
+                />
+              </View>
+            ) : null
+          }
         </View>
       ) : (
         <ProfileSection
           title="Experience"
-          content="You haven’t added any experience yet. Share your journey and expertise!"
+          content={editable ? "You haven’t added any experience yet. Share your journey and expertise!" : "This user hasn't shared their experience yet."}
           onPress={() => {
             setResumeEdit({
               edit: false,
@@ -144,13 +197,14 @@ export function EditResume({ showLess = false }: { showLess?: boolean }) {
             router.push('/(freeRoutes)/jobs/resume/workExperience')
           }
           }
+          editable={editable}
         />
       )}
 
       {jobs.degrees && jobs.degrees.length > 0 ? (
         <View>
           <Text style={styles.detailsHeading}>Education</Text>
-          {jobs.degrees.map((degree, index) => (
+          {editable ? (jobs.degrees.map((degree, index) => (
             <ExperienceListing
               image={require("@/assets/images/jobs/educationImg.png")}
               key={index}
@@ -189,38 +243,74 @@ export function EditResume({ showLess = false }: { showLess?: boolean }) {
                 </Text>
               </View>
             </ExperienceListing>
-          ))}
-          <View style={styles.addEntryContainer}>
-            <View
-              style={[styles.logoContainer, { backgroundColor: "#f5f5f5" }]}
+          ))) : jobs.degrees.map((degree, index) => (
+            <ExperienceListing
+              image={require("@/assets/images/jobs/educationImg.png")}
+              key={index}
+              showLine={jobs.degrees ? index !== jobs.degrees.length - 1 : false}
             >
-              <Image
-                source={require("@/assets/images/jobs/plus.png")}
-                style={styles.logo}
-              />
-            </View>
-            <SmallTextButton
-              title="Add Education"
-              style={{
-                fontSize: 13,
-                fontWeight: "bold",
-                textDecorationLine: "underline",
-              }}
-              onPress={() => {
-                setResumeEdit({
-                  edit: false,
-                  id: null,
-                })
-                router.push('/(freeRoutes)/jobs/resume/education')
-              }
-              }
-            />
-          </View>
+              <View style={{ marginBottom: 32, width: width - 96 }}>
+                <Text style={styles.containerPrimaryHeading}>
+                  {degree.degree}
+                </Text>
+                <Text style={styles.containerSecondaryHeading}>
+                  {degree.field_of_study}
+                </Text>
+                <Text style={styles.containerTertiaryHeading}>
+                  Scored {degree.marks}%
+                </Text>
+                <Text style={styles.containerTertiaryHeading}>
+                  {degree.institution}
+                </Text>
+                <Text style={styles.containerTertiaryHeading}>
+                  {degree.joining_month.slice(0, 3)} {degree.joining_year} -{" "}
+                  {degree.end_month === "Present" ||
+                    degree.end_year === "Present"
+                    ? "Present"
+                    : `${degree.end_month.slice(0, 3)} ${degree.end_year}`}
+                </Text>
+                <Text style={styles.containerTertiaryHeading}>
+                  {degree.city}, {degree.country}
+                </Text>
+              </View>
+            </ExperienceListing>
+          ))
+          }
+          {
+            editable ? (
+              <View style={styles.addEntryContainer}>
+                <View
+                  style={[styles.logoContainer, { backgroundColor: "#f5f5f5" }]}
+                >
+                  <Image
+                    source={require("@/assets/images/jobs/plus.png")}
+                    style={styles.logo}
+                  />
+                </View>
+                <SmallTextButton
+                  title="Add Education"
+                  style={{
+                    fontSize: 13,
+                    fontWeight: "bold",
+                    textDecorationLine: "underline",
+                  }}
+                  onPress={() => {
+                    setResumeEdit({
+                      edit: false,
+                      id: null,
+                    })
+                    router.push('/(freeRoutes)/jobs/resume/education')
+                  }
+                  }
+                />
+              </View>
+            ) : null
+          }
         </View>
       ) : (
         <ProfileSection
           title="Education"
-          content="You haven’t added any education yet. Highlight your academic achievements!"
+          content={editable ? "You haven’t added any education yet. Highlight your academic achievements!" : "This user hasn't shared their education details yet."}
           onPress={() => {
             setResumeEdit({
               edit: false,
@@ -229,13 +319,15 @@ export function EditResume({ showLess = false }: { showLess?: boolean }) {
             router.push('/(freeRoutes)/jobs/resume/education')
           }
           }
+          editable={editable}
         />
       )}
       <View>
         <Text style={styles.detailsHeading}>Certifications</Text>
         <Text style={styles.detailsContent}>
-          You haven't completed any certifications yet. Once you complete one,
-          it'll be showcased here.
+          {editable ? "You haven't completed any certifications yet. Once you complete one, it'll be showcased here." :
+            "This user hasn't completed any certifications yet."
+          }
         </Text>
       </View>
       {jobs.other_certifications && jobs.other_certifications.length > 0 ? (
@@ -247,6 +339,10 @@ export function EditResume({ showLess = false }: { showLess?: boolean }) {
                 certification={certification}
                 key={index}
                 onPress={() => {
+                  if (!editable) {
+                    Linking.openURL(certification.link);
+                    return;
+                  }
                   setResumeEdit({
                     edit: true,
                     id: certification.id,
@@ -274,7 +370,7 @@ export function EditResume({ showLess = false }: { showLess?: boolean }) {
       ) : (
         <ProfileSection
           title="Other Certifications"
-          content="You haven’t added any certifications yet. Showcase your achievements and skills!"
+          content={editable ? "You haven’t added any certifications yet. Showcase your achievements and skills!" : "This user haven't shared any certifications yet."}
           onPress={() => {
             setResumeEdit({
               edit: false,
@@ -283,14 +379,14 @@ export function EditResume({ showLess = false }: { showLess?: boolean }) {
             router.push('/(freeRoutes)/jobs/resume/otherCertifications');
           }
           }
+          editable={editable}
         />
       )}
 
       <View>
         <Text style={styles.detailsHeading}>Projects</Text>
         <Text style={styles.detailsContent}>
-          You haven't completed any project yet. Once you do, they'll be
-          showcased here.
+          {editable ? "You haven't completed any project yet. Once you do, they'll be showcased here." : "This user haven't completed any projects yet."}
         </Text>
       </View>
       {

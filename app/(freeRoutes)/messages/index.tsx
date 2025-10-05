@@ -7,6 +7,7 @@ import useFetchData from '@/helpers/general/handleFetchedData';
 import ImageLoader from '@/components/ImageLoader';
 import TruncatedText from '@/components/general/TruncatedText';
 import { formatTime } from '@/helpers/helpers';
+import SearchBar from '@/components/form/SearchBar';
 
 
 
@@ -37,7 +38,21 @@ export default function Messages() {
       </Pressable>
     )
   }
-  const { RenderData, combinedData, initialLoading, isLoading } = useFetchData({ url: '/api/home/list_conversations/', RenderItem });
+  const [searchQuery, setSearchQuery] = React.useState('');
+  const { RenderData, combinedData, initialLoading, isLoading, setFilteredData } = useFetchData({ url: '/api/home/list_conversations/', RenderItem });
+
+  React.useEffect(() => {
+    if (searchQuery === '') {
+      setFilteredData(combinedData);
+    } else {
+      const filtered = combinedData.filter((item) =>
+        item.other_participant.first_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.last_message?.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.other_participant.username.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+      setFilteredData(filtered);
+    }
+  }, [searchQuery, combinedData]);
 
   return (
     <>
@@ -45,7 +60,12 @@ export default function Messages() {
         headerTitle='Messages'
       >
         {
-          combinedData.length > 0 || initialLoading || isLoading ? <RenderData /> :
+          combinedData.length > 0 || initialLoading || isLoading ?
+            <View style={{ gap: 52 }}>
+              <SearchBar onChangeText={setSearchQuery} />
+              <RenderData />
+            </View>
+            :
 
             <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
               <Image source={require('@/assets/images/messages.png')} style={{ height: 128, width: 128, objectFit: 'contain' }}></Image>

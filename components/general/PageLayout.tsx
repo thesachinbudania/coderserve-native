@@ -8,6 +8,7 @@ export default function Layout({ headerTitle, children, defaultBack = true, flex
   const navigation = useNavigation();
   const { top } = useSafeAreaInsets();
   return (
+    <View style={{ flex: 1, backgroundColor: 'white' }}>
     <View style={{ marginTop: top }}>
       {showHeader && (
         <Header
@@ -41,6 +42,7 @@ export default function Layout({ headerTitle, children, defaultBack = true, flex
           }
         </TouchableWithoutFeedback>
       </ScrollView>
+    </View>
     </View>
   )
 }

@@ -1,6 +1,6 @@
 import { Header } from '@/app/(protected)/jobs/resume/index';
 import React from 'react';
-import { Image, ScrollView, Share, StyleSheet, Text, View } from 'react-native';
+import { Platform, Image, ScrollView, Share, StyleSheet, Text, View } from 'react-native';
 import BackgroundImageLoader from '@/components/BackgroundImageLoader';
 import BackgroundMapping from '@/assets/images/profile/Background/backgroundMapping';
 import BlueButton from '@/components/buttons/BlueButton';
@@ -9,8 +9,11 @@ import ProfileButton from '@/components/general/ProfileButton';
 import Tabs from '@/components/profile/home/Tabs';
 import { useUserStore } from '@/zustand/stores';
 import { useIsFocused } from '@react-navigation/native';
-import Menu, { MenuButton } from '@/components/jobs/Menu';
+import { MenuButton } from '@/app/(protected)/jobs/index';
 import { useRouter } from 'expo-router';
+import BottomSheet from '@/components/messsages/BottomSheet';
+import { Portal } from 'react-native-paper';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export function TopSection() {
   return (
@@ -19,12 +22,13 @@ export function TopSection() {
   )
 }
 
+
 export default function YourProfile() {
   const menuRef = React.useRef<any>(null);
   const user = useUserStore(state => state);
   const focused = useIsFocused();
   const router = useRouter();
-
+  const { top } = useSafeAreaInsets();
 
   async function shareProfileAsync() {
     try {
@@ -45,7 +49,7 @@ export default function YourProfile() {
           menuRef={menuRef}
         />
       }
-      <ScrollView contentContainerStyle={{ paddingTop: 57, backgroundColor: 'white' }}>
+      <ScrollView contentContainerStyle={{ paddingTop: Platform.OS === 'ios' ? top + 57 : 57, backgroundColor: 'white' }}>
         {
           user.background_type === 'default' ?
             // @ts-ignore
@@ -91,36 +95,55 @@ export default function YourProfile() {
             setScrollEnabled={() => { }}
           />
         </View>
-        <Menu
-          menuRef={menuRef}>
-          <MenuButton
-            heading='Update Profile'
-            text='Add/remove profile details.'
-            onPress={() => {
-              menuRef?.current.close();
-              router.push('/(protected)/talks/profile/update')
-            }}
-          />
-          <MenuButton
-            heading='Profile Visitors'
-            text='Find users with similar backgrounds.'
-            onPress={() => { }}
-          />
-          <MenuButton
-            heading='Your Activity'
-            text='View your engagement history.'
-            onPress={() => {
-              menuRef?.current.close();
-              router.push('/(protected)/talks/profile/activity')
-            }}
-          />
-          <MenuButton
-            heading='Go Pro'
-            text='Unlock exclusive features and enhance profile visibility.'
-            dark
-            onPress={() => { }}
-          />
-        </Menu>
+        <Portal>
+          <BottomSheet
+            menuRef={menuRef}
+            height={392}>
+            <View style={styles.menuContainer}>
+              <MenuButton
+                onPress={() => {
+                  menuRef.current?.close();
+                  router.push('/(protected)/talks/profile/update')
+                }}
+              >
+                <Text style={styles.menuButtonHeading}>Update Profile</Text>
+                <Text style={styles.menuButtonText}>
+                  Add/remove profile details.
+                </Text>
+              </MenuButton>
+              <MenuButton
+                onPress={() => {
+                  menuRef.current?.close();
+                  router.push('/(protected)/talks/profile/profileVisitors')
+                }}
+              >
+                <Text style={styles.menuButtonHeading}>Profile Visitors</Text>
+                <Text style={styles.menuButtonText}>
+                  See who viewed your profile.
+                </Text>
+              </MenuButton>
+              <MenuButton onPress={() => {
+                menuRef.current?.close();
+                router.push('/(protected)/talks/profile/activity')
+              }}>
+                <Text style={styles.menuButtonHeading}>Your Activity</Text>
+                <Text style={styles.menuButtonText}>
+                  View your engagement history.
+                </Text>
+              </MenuButton>
+              <MenuButton dark>
+                <Text
+                  style={[styles.menuButtonHeading, { color: "white" }]}
+                >
+                  Go Pro
+                </Text>
+                <Text style={[styles.menuButtonText, { color: "white" }]}>
+                  Unlock exclusive features and enhance profile visibility.
+                </Text>
+              </MenuButton>
+            </View>
+          </BottomSheet>
+        </Portal>
       </ScrollView>
     </>
   )
@@ -187,5 +210,17 @@ const styles = StyleSheet.create({
   buttonContainer: {
     marginTop: 32,
     marginBottom: 16,
+  },
+  menuContainer: {
+    gap: 16,
+  },
+  menuButtonHeading: {
+    fontSize: 15,
+    fontWeight: "bold",
+  },
+  menuButtonText: {
+    fontSize: 12,
+    color: "#737373",
+    marginTop: 8,
   },
 })
