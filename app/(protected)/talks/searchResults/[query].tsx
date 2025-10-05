@@ -7,6 +7,7 @@ import BottomName from '@/components/profile/home/BottomName';
 import CategoryButton from '@/components/talks/CategoryButton';
 import { useRouter } from 'expo-router';
 import ImageLoader from '@/components/ImageLoader';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 
 function SearchBar({ text = '', onChangeText, isFocused, setIsFocused, placeholder = null, placholderText = [] }: { text?: string, onChangeText: React.Dispatch<React.SetStateAction<string>>, isFocused: boolean, placeholder?: string | null, placholderText?: string[], setIsFocused: React.Dispatch<React.SetStateAction<boolean>> }) {
@@ -168,6 +169,7 @@ export default function Search() {
 
 
   return (
+    <SafeAreaView style={{flex: 1, backgroundColor: "white"}}>
     <Pressable style={{ flex: 1, backgroundColor: "#f5f5f5" }}
       onPress={() => Keyboard.dismiss()}
     >
@@ -298,6 +300,7 @@ export default function Search() {
             </View>)
       }
     </Pressable>
+</SafeAreaView>
   )
 }
 

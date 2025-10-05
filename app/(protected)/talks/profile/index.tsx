@@ -1,6 +1,6 @@
 import { Header } from '@/app/(protected)/jobs/resume/index';
 import React from 'react';
-import { Image, ScrollView, Share, StyleSheet, Text, View } from 'react-native';
+import { Platform, Image, ScrollView, Share, StyleSheet, Text, View } from 'react-native';
 import BackgroundImageLoader from '@/components/BackgroundImageLoader';
 import BackgroundMapping from '@/assets/images/profile/Background/backgroundMapping';
 import BlueButton from '@/components/buttons/BlueButton';
@@ -13,6 +13,7 @@ import { MenuButton } from '@/app/(protected)/jobs/index';
 import { useRouter } from 'expo-router';
 import BottomSheet from '@/components/messsages/BottomSheet';
 import { Portal } from 'react-native-paper';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export function TopSection() {
   return (
@@ -21,12 +22,13 @@ export function TopSection() {
   )
 }
 
+
 export default function YourProfile() {
   const menuRef = React.useRef<any>(null);
   const user = useUserStore(state => state);
   const focused = useIsFocused();
   const router = useRouter();
-
+  const { top } = useSafeAreaInsets();
 
   async function shareProfileAsync() {
     try {
@@ -47,7 +49,7 @@ export default function YourProfile() {
           menuRef={menuRef}
         />
       }
-      <ScrollView contentContainerStyle={{ paddingTop: 57, backgroundColor: 'white' }}>
+      <ScrollView contentContainerStyle={{ paddingTop: Platform.OS === 'ios' ? top + 57 : 57, backgroundColor: 'white' }}>
         {
           user.background_type === 'default' ?
             // @ts-ignore

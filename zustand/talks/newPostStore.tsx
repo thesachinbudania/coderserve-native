@@ -16,3 +16,20 @@ export const useNewPostStore = create<NewPostState>((set) => ({
 
   setNewPost: (post) => set(post)
 }))
+
+
+interface UndoRedoState {
+  undoEnabled: boolean;
+  redoEnabled: boolean;
+  setUndoEnabled: (enabled: boolean) => void;
+  setRedoEnabled: (enabled: boolean) => void;
+}
+
+export const useUndoRedoStore = create<UndoRedoState>((set) => ({
+  undoEnabled: false,
+  redoEnabled: false,
+  setUndoEnabled: (enabled) => {
+    set({ undoEnabled: enabled })
+  },
+  setRedoEnabled: (enabled) => set({ redoEnabled: enabled }),
+}));

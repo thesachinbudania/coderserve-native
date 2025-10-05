@@ -302,7 +302,12 @@ export default function Page() {
               Find users with similar backgrounds.
             </Text>
           </MenuButton>
-          <MenuButton>
+          <MenuButton
+          onPress={() => {
+            menuRef?.current.close();
+            router.push("/(protected)/talks/hashtags");
+          }}
+          >
             <Text style={styles.menuButtonHeading}>HashTags</Text>
             <Text style={styles.menuButtonText}>
               Follow topics that interest you the most.

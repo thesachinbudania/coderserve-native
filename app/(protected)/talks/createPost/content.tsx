@@ -1,37 +1,41 @@
 import TextEditor from '@/components/talks/createPost/Editor';
 import React from 'react';
 import { Image, Pressable, ScrollView, Text, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import Header from '@/components/general/Header';
 import { useRouter } from 'expo-router';
 import BottomFixedSingleButton from '@/components/general/BottomFixedContainer';
 import BlueButton from '@/components/buttons/BlueButton';
 import { Portal } from '@gorhom/portal'
-import { Dimensions, UIManager, findNodeHandle } from 'react-native';
+import { KeyboardAvoidingView, Dimensions, UIManager, findNodeHandle, Keyboard } from 'react-native';
 import { useNewPostStore } from '@/zustand/talks/newPostStore';
+import { useUndoRedoStore } from '@/zustand/talks/newPostStore';
+import { useUserStore } from '@/zustand/stores';
 
 interface FormatButtonProps {
   onPress?: () => void;
   active: boolean;
   title: string;
   toggleable?: boolean;
+  disabled?: boolean;
 }
 
 interface ImageFormatButtonProps extends FormatButtonProps {
   icon: any
 }
 
-function ImageFormatButton({ onPress, active, icon }: ImageFormatButtonProps) {
+function ImageFormatButton({ onPress, active, icon, disabled }: ImageFormatButtonProps) {
   return (
     <Pressable
       style={({ pressed }) => [{ borderWidth: 1, borderRadius: 8, borderColor: '#f5f5f5', height: 45, width: 45, alignItems: 'center', justifyContent: 'center', },
-      active && { backgroundColor: '#006dff', borderColor: '#006dff' }, pressed && { backgroundColor: '#f5f5f5', borderColor: '#f5f5f5' }]}
-      onPress={onPress}
+      active && { backgroundColor: '#006dff', borderColor: '#006dff' }, pressed && !disabled && { backgroundColor: '#f5f5f5', borderColor: '#f5f5f5' }]}
+      onPress={disabled ? () => {} : onPress}
     >
       {
         ({ pressed }) =>
           <Image
             source={icon}
-            style={[{ width: 20, height: 20 }, active ? { tintColor: 'white' } : { tintColor: '#202020' }]}
+            style={[{ width: 20, height: 20 }, active ? { tintColor: 'white' } : { tintColor: disabled ? '#d9d9d9' : '#202020' }]}
           />
       }
     </Pressable>
@@ -67,7 +71,7 @@ interface TextTypeButtonProps {
 
 const TextTypeButton = ({ isHeading, isHeading2, setIsHeading, setIsHeading2, changeHeading, changeHeading2, setChangeHeading, setChangeHeading2 }: TextTypeButtonProps) => {
   const [isOpen, setIsOpen] = React.useState(false);
-  const [popupPos, setPopupPos] = React.useState<{ left: number; bottom: number }>({ left: 16, bottom: 16 });
+  const [popupPos, setPopupPos] = React.useState<{ left: number; top: number }>({ left: 16, top: 100 });
   const [leftButtonPos, setLeftButtonPos] = React.useState(16);
   const buttonRef = React.useRef<View>(null);
 
@@ -80,18 +84,26 @@ const TextTypeButton = ({ isHeading, isHeading2, setIsHeading, setIsHeading2, ch
     UIManager.measure(findNodeHandle(buttonRef.current)!, (x, y, width, height, pageX, pageY) => {
       // x,y = relative to parent
       // pageX,pageY = absolute screen coords
-      let left = pageX;
-      const bottom = Dimensions.get('window').height - pageY + 45; // adjust: toolbar height
+      let left = pageX + 1;
+      // compute top so popup appears above the button (use pageY which is button's top)
+      const popupHeight = 140; // approximate popup height including padding
+      let top = pageY - popupHeight - 8; // 8px margin above button
 
-      // Clamp within screen (keeping 16px margin)
+      // If not enough space above, push below the button instead
+      if (top < 16) {
+        top = pageY + height + 8;
+      }
+
+      // Clamp within screen horizontally (keeping 16px margin)
       if (left + popupWidth > screenWidth - 16) {
         left = screenWidth - popupWidth - 16;
       }
       if (left < 16) {
         left = 16;
       }
-      setLeftButtonPos(pageX);
-      setPopupPos({ left, bottom });
+
+      setLeftButtonPos(left);
+      setPopupPos({ left, top });
     });
   };
 
@@ -102,10 +114,27 @@ const TextTypeButton = ({ isHeading, isHeading2, setIsHeading, setIsHeading2, ch
     setIsOpen(!isOpen);
   };
 
+  // Re-measure when keyboard opens/closes or on orientation change so popup stays near the button
+  React.useEffect(() => {
+    const onKeyboard = () => {
+      if (isOpen) measureButton();
+    };
+    const kbShow = Keyboard.addListener('keyboardDidShow', onKeyboard);
+    const kbHide = Keyboard.addListener('keyboardDidHide', onKeyboard);
+    const dimSub = Dimensions.addEventListener('change', onKeyboard);
+    return () => {
+      kbShow.remove();
+      kbHide.remove();
+      // Dimensions event subscription uses remove on newer RN, guard for both
+      try { dimSub?.remove(); } catch (e) { /* ignore */ }
+    };
+  }, [isOpen]);
+
   return (
     <>
       {isOpen && (
         <Portal>
+          <KeyboardAvoidingView behavior="padding" style={{ position: 'absolute', top: 0, bottom: 0, right: 0, left: 0, zIndex: 20 }}>
           <Pressable
             style={{ position: 'absolute', top: 0, bottom: 0, right: 0, left: 0, backgroundColor: 'black', opacity: 0.4 }}
             onPress={() => setIsOpen(false)}
@@ -115,7 +144,7 @@ const TextTypeButton = ({ isHeading, isHeading2, setIsHeading, setIsHeading2, ch
             style={{
               position: 'absolute',
               left: popupPos.left,
-              bottom: 157,
+              top: popupPos.top,
               width: popupWidth,
               backgroundColor: 'white',
               borderWidth: 1,
@@ -165,7 +194,7 @@ const TextTypeButton = ({ isHeading, isHeading2, setIsHeading, setIsHeading2, ch
           <Pressable style={{
             position: 'absolute',
             left: leftButtonPos,
-            bottom: 96,
+            top: popupPos.top + 148,
             width: popupWidth,
             borderWidth: 1,
             borderColor: '#f5f5f5',
@@ -177,10 +206,13 @@ const TextTypeButton = ({ isHeading, isHeading2, setIsHeading, setIsHeading2, ch
             flexDirection: 'row',
             gap: 8,
             backgroundColor: 'white',
-          }} >
+          }} 
+          onPress={togglePopup}
+          >
             <Text style={{ fontSize: 13 }}>{isHeading ? 'Heading 1' : isHeading2 ? 'Heading 2' : 'Paragraph'}</Text>
             <Image source={require('@/assets/images/home/greyDownArrow.png')} style={{ width: 10, height: 8 }} />
           </Pressable>
+          </KeyboardAvoidingView>
         </Portal>
       )}
 
@@ -226,8 +258,7 @@ export default function Content() {
   const [changeAddImage, setChangeAddImage] = React.useState(false);
   const [undo, setUndo] = React.useState(false);
   const [redo, setRedo] = React.useState(false);
-  const [canUndo, setCanUndo] = React.useState(false);
-  const [canRedo, setCanRedo] = React.useState(false);
+  const [redoEnabled, setRedoEnabled] = React.useState(false);
   const [isOrderedList, setIsOrderedList] = React.useState(false);
   const [changeOrderedList, setChangeOrderedList] = React.useState(false); // Fixed: renamed from orderedList
   const [isUnorderedList, setIsUnorderedList] = React.useState(false);
@@ -236,7 +267,7 @@ export default function Content() {
   const { setNewPost, content } = useNewPostStore();
   const [editorState, setEditorState] = React.useState<string | null>(content);
   const [plainText, setPlainText] = React.useState("");
-
+  const [undoEnabled, setUndoEnabled] = React.useState(false);
 
   React.useEffect(() => {
     if (editorState) {
@@ -245,7 +276,7 @@ export default function Content() {
   }, [editorState]);
 
   return (
-    <>
+    <SafeAreaView style={{ flex: 1, backgroundColor: 'white' }}>
       <View style={{ flex: 1, backgroundColor: 'white', paddingTop: 57, paddingBottom: 172 }}>
         <Header
           title='Post Content'
@@ -270,8 +301,10 @@ export default function Content() {
           setIsHeading2={setIsHeading2}
           undo={undo}
           redo={redo}
-          setCanUndo={setCanUndo}
-          setCanRedo={setCanRedo}
+          undoEnabled={undoEnabled}
+          redoEnabled={redoEnabled}
+          setIsUndoEnabled={setUndoEnabled}
+          setRedoEnabled={setRedoEnabled}
           changeOrderedList={changeOrderedList} // Fixed: now using correct state variable
           changeUnorderedList={changeUnorderedList} // Fixed: now using correct state variable
           setIsOrderedList={setIsOrderedList}
@@ -280,19 +313,24 @@ export default function Content() {
         />
       </View>
 
-      <View style={{ position: 'absolute', bottom: 80, backgroundColor: 'white', borderTopWidth: 1, borderColor: '#eeeeee' }}>
+      <KeyboardAvoidingView 
+        style={{ position: 'absolute', bottom: 80, backgroundColor: 'white', borderTopWidth: 1, borderColor: '#eeeeee' }}
+        behavior="padding" 
+      >
         <ScrollView horizontal={true} showsHorizontalScrollIndicator={false} contentContainerStyle={{ flexDirection: 'row', gap: 16, padding: 16, }}>
           <ImageFormatButton
             onPress={() => setUndo(!undo)}
             active={false}
             icon={require('@/assets/images/talks/createPost/undo.png')}
             title=''
+            disabled={!undoEnabled}
           />
           <ImageFormatButton
             onPress={() => setRedo(!redo)}
             active={false}
             icon={require('@/assets/images/talks/createPost/redo.png')}
             title=''
+            disabled={!redoEnabled}
           />
           <TextTypeButton
             isHeading={isHeading}
@@ -305,21 +343,30 @@ export default function Content() {
             setChangeHeading2={setChangeHeading2}
           />
           <ImageFormatButton
-            onPress={() => setChangeBold(!changeBold)}
+            onPress={() => {
+              setChangeBold(!changeBold)
+              setIsBold(!isBold) // Immediate visual feedback 
+            }}
             active={isBold}
             toggleable
             title=''
             icon={require('@/assets/images/talks/createPost/bold.png')}
           />
           <ImageFormatButton
-            onPress={() => setChangeItalic(!changeItalic)}
+            onPress={() => {
+              setChangeItalic(!changeItalic)
+              setIsItalic(!isItalic) // Immediate visual feedback
+            }}
             active={isItalic}
             toggleable
             title=''
             icon={require('@/assets/images/talks/createPost/italic.png')}
           />
           <ImageFormatButton
-            onPress={() => setChangeUnderline(!changeUnderline)}
+            onPress={() => {
+              setChangeUnderline(!changeUnderline)
+              setIsUnderline(!isUnderline) // Immediate visual feedback
+            }}
             active={isUnderline}
             toggleable
             title=''
@@ -358,7 +405,7 @@ export default function Content() {
             title="Code"
           />
         </ScrollView>
-      </View>
+      </KeyboardAvoidingView>
 
       <BottomFixedSingleButton>
         <BlueButton
@@ -366,6 +413,6 @@ export default function Content() {
           onPress={() => router.back()}
         />
       </BottomFixedSingleButton>
-    </>
+    </SafeAreaView>
   );
 }
