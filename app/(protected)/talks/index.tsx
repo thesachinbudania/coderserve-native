@@ -28,10 +28,11 @@ import { formatDistanceToNow } from "date-fns";
 import OptionChip from "@/components/general/OptionChip";
 import protectedApi from "@/helpers/axios";
 import Search from "@/components/talks/home/Search";
+import { useFocusEffect } from 'expo-router';
 
 const width = Dimensions.get("window").width;
 
-function HashChip({ title }: { title: string }) {
+export function HashChip({ title }: { title: string }) {
   return (
     <View style={hashChipStyles.container}>
       <Text style={hashChipStyles.text}>{title}</Text>
@@ -134,11 +135,15 @@ export default function Page() {
   const [isSearchFocused, setIsSearchFocused] = React.useState(false);
   const [search, setSearch] = React.useState("");
   const [incompleteProfileText, setIncompleteProfileText] = React.useState("");
+  const [postsUrl, setPostsUrl] = React.useState('/api/talks/posts/');
+  const [selectedTab, setSelectedTab] = React.useState<'trending' | 'following' | 'custom'>('trending');
+  const [userHashtags, setUserHashtags] = React.useState<string[]>([]);
+  const [loadingPrefs, setLoadingPrefs] = React.useState(false);
   const navigation = useNavigation();
   const focused = useIsFocused();
   const listRef = React.useRef<ScrollView>(null);
   useTabPressScrollToTop(listRef, 'talks');
-  const { isLoading, initialLoading, refreshing, combinedData, handleEndReached, handleRefresh } = useFetchData({ url: '/api/talks/posts/' });
+  const { isLoading, initialLoading, refreshing, combinedData, handleEndReached, handleRefresh } = useFetchData({ url: postsUrl });
   const [searchResults, setSearchResults] = React.useState<any[]>([]);
 
   React.useEffect(() => {
@@ -162,6 +167,31 @@ export default function Page() {
 
     return () => clearTimeout(delayDebounceFn);
   }, [search]);
+
+  // Fetch user's hashtag preferences to determine whether to show the Custom chip
+  const fetchPreferences = React.useCallback(async () => {
+    setLoadingPrefs(true);
+    try {
+      const resp = await protectedApi.get('/talks/preferences/hashtags/');
+      const names = (resp.data?.hashtags || []).map((h: any) => h.name);
+      setUserHashtags(names);
+    } catch (err) {
+      console.error('Error fetching hashtag preferences', err);
+    } finally {
+      setLoadingPrefs(false);
+    }
+  }, []);
+
+  React.useEffect(() => {
+    fetchPreferences();
+  }, [fetchPreferences]);
+
+  // Also refetch preferences when screen gains focus so Custom chip updates immediately
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchPreferences();
+    }, [fetchPreferences])
+  );
 
   const { contentWidth, contentOpacity, searchBarMarginTop } = useSearchBar({ setIsSearchFocused, isSearchFocused });
   const handleAddPostPress = () => {
@@ -262,8 +292,37 @@ export default function Page() {
             >
               <Image source={require('@/assets/images/jobs/plus.png')} style={styles.addHashImage} />
             </Pressable>
-            <OptionChip title="Trending" selected={true} />
-            <OptionChip title="Following" selected={false} />
+            <OptionChip
+              title="Trending"
+              selected={selectedTab === 'trending'}
+              onPress={() => {
+                setSelectedTab('trending');
+                setPostsUrl('/api/talks/posts/');
+              }}
+            />
+            <OptionChip
+              title="Following"
+              selected={selectedTab === 'following'}
+              onPress={() => {
+                // For now, leave following behavior as-is (no feed filter change)
+                setSelectedTab('following');
+              }}
+            />
+            {
+              loadingPrefs ? <ActivityIndicator style={{ marginLeft: 8 }} /> : (
+                userHashtags.length > 0 && (
+                  <OptionChip
+                    title="Custom"
+                    selected={selectedTab === 'custom'}
+                    onPress={async () => {
+                      setSelectedTab('custom');
+                      // Use the dedicated preferences posts endpoint which returns posts matching user's hashtag preferences
+                      setPostsUrl('/api/talks/preferences/posts/');
+                    }}
+                  />
+                )
+              )
+            }
           </View>
         </Animated.View>
         {initialLoading && (
