@@ -15,9 +15,10 @@ export default function OptionChip({
   return (
     <Pressable
       onPress={onPress}
-      style={[
+      style={({pressed}) =>[
         optionChipStyles.container,
         !selected && { backgroundColor: "#f5f5f5" },
+        !selected && pressed && {backgroundColor: "#d9d9d9"}
       ]}
     >
       <Text style={[optionChipStyles.text, !selected && { color: "#737373", fontWeight: 'normal' }]}>
@@ -37,7 +38,6 @@ const optionChipStyles = StyleSheet.create({
   },
   text: {
     fontSize: 13,
-    fontWeight: "bold",
     color: "white",
   },
 });
