@@ -292,6 +292,21 @@ export default function Page() {
             >
               <Image source={require('@/assets/images/jobs/plus.png')} style={styles.addHashImage} />
             </Pressable>
+{
+              loadingPrefs ? <ActivityIndicator style={{ marginLeft: 8 }} /> : (
+                userHashtags.length > 0 && (
+                  <OptionChip
+                    title="Custom"
+                    selected={selectedTab === 'custom'}
+                    onPress={async () => {
+                      setSelectedTab('custom');
+                      // Use the dedicated preferences posts endpoint which returns posts matching user's hashtag preferences
+                      setPostsUrl('/api/talks/preferences/posts/');
+                    }}
+                  />
+                )
+              )
+            }
             <OptionChip
               title="Trending"
               selected={selectedTab === 'trending'}
@@ -308,21 +323,6 @@ export default function Page() {
                 setSelectedTab('following');
               }}
             />
-            {
-              loadingPrefs ? <ActivityIndicator style={{ marginLeft: 8 }} /> : (
-                userHashtags.length > 0 && (
-                  <OptionChip
-                    title="Custom"
-                    selected={selectedTab === 'custom'}
-                    onPress={async () => {
-                      setSelectedTab('custom');
-                      // Use the dedicated preferences posts endpoint which returns posts matching user's hashtag preferences
-                      setPostsUrl('/api/talks/preferences/posts/');
-                    }}
-                  />
-                )
-              )
-            }
           </View>
         </Animated.View>
         {initialLoading && (
