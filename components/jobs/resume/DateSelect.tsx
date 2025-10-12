@@ -97,7 +97,7 @@ const styles = StyleSheet.create({
   },
   boxText: {
     fontSize: 15,
-    color: '#cbe1ff',
+    color: '#cfdbe6',
     paddingLeft: 12,
   },
   downArrow: {

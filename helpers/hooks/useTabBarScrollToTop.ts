@@ -3,12 +3,14 @@ import { addListener, removeListener } from '@alexsandersarmento/react-native-ev
 
 export const useTabPressScrollToTop = (
   scrollRef: React.RefObject<any>,
-  tabName: string
+  tabName: string,
+  refresh?: () => void
 ) => {
   useEffect(() => {
     const eventName = `tabPress:${tabName}`
     const handler = () => {
       scrollRef.current?.scrollTo({ y: 0, animated: true })
+      refresh?.()
     }
 
     addListener(eventName, handler)

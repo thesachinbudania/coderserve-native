@@ -1,9 +1,10 @@
 import { Pressable, Text, StyleSheet } from 'react-native';
 
-export default function ProfileButton({ count, title }: { count: number, title: string }) {
+export default function ProfileButton({ count, title, onPress }: { count: number, title: string, onPress?: () => void }) {
   return (
     <Pressable
       style={({ pressed }) => [styles.countBox, pressed && { backgroundColor: '#f4f4f4' }]}
+      onPress={onPress}
     >
       <Text style={styles.countText}>{count}</Text>
       <Text style={styles.countHeading}>{title}</Text>

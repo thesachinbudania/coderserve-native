@@ -44,7 +44,7 @@ export default function StreakCalculation() {
             <Text style={styles.tableText}>25% Streak</Text>
           </View>
         </View>
-        <Text style={{ marginTop: 16, fontSize: 11, color: "#737373" }}>Note: Streak percentage caps at 100% per day. Any extra effort is appreciated, but won't cout beyond that limit.</Text>
+        <Text style={{ marginTop: 16, fontSize: 11, color: "#a6a6a6" }}>Note: Streak percentage caps at 100% per day. Any extra effort is appreciated, but won't cout beyond that limit.</Text>
       </View>
       <Text style={{ marginTop: 48, fontSize: 15, fontWeight: "bold", marginBottom: 4 }}>Example Streak Combinations</Text>
       <UnorderedList items={['Complete 50% of a module (50%) + post something useful (25%) = 75% streak', 'Complete 1 full module (100%) + post something = still 100%', 'Only post a helpful update = 25% streak', 'No activity = 0% streak']} gap={16} />

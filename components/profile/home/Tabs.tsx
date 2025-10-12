@@ -4,7 +4,7 @@ import { View } from 'react-native';
 import PostsTab from './PostsTab';
 import AnimatedTopTabs from '@/components/general/TopTabs';
 
-export default function Tabs({ }: { setScrollEnabled?: (enabled: boolean) => void }) {
+export default function Tabs({index, setIndex }: {index?: number, setScrollEnabled?: (enabled: boolean) => void, setIndex?: (index: number) => void}) {
   return (
     <View style={{ marginTop: 16 }}>
       <AnimatedTopTabs
@@ -19,6 +19,8 @@ export default function Tabs({ }: { setScrollEnabled?: (enabled: boolean) => voi
             />
           }
         ]}
+        index={index}
+        setIndex={setIndex}
       />
     </View>
   );

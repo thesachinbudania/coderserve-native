@@ -15,17 +15,19 @@ export default function Activity() {
       return (
         <View style={{ flexDirection: 'row', gap: 12 }}>
           <View style={{ alignItems: 'center' }}>
-            <View style={{ width: 10, height: 10, borderRadius: 16, backgroundColor: '#202020' }} />
+            <View style={{ width: 8, height: 8, borderRadius: 16, backgroundColor: '#202020' }} />
             {
               index !== combinedData.length - 1 && (
-                <View style={{ flex: 1, backgroundColor: '#f5f5f5', width: 3 }} />
+                <View style={{ flex: 1, backgroundColor: '#f5f5f5', width: 2 }} />
               )
             }
           </View>
           <View style={{ paddingBottom: 48, marginTop: -4, gap: 8 }}>
             <View style={{ flexDirection: 'row', gap: 4 }}>
               <Text style={{ fontSize: 13 }}>You {item.action}{item.action === 'commented' && ' on '} Post</Text>
-              <SmallTextButton title={`#${String(item.related_post.id).padStart(12, "0")}`} style={{ textDecorationLine: "underline", fontSize: 13 }}></SmallTextButton>
+              <SmallTextButton 
+              onPress={() => router.push(`/talks/viewPost/${item.related_post.id}`)}
+              title={`#${String(item.related_post.id).padStart(12, "0")}`} style={{ textDecorationLine: "underline", fontSize: 13 }}></SmallTextButton>
             </View>
             {
               item.action === 'commented' && (

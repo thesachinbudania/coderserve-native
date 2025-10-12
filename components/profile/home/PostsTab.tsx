@@ -3,6 +3,7 @@ import protectedApi from '@/helpers/axios';
 import React from 'react';
 import BottomName from './BottomName';
 import { useRouter } from 'expo-router';
+import SmallTextButton from '@/components/buttons/SmallTextButton';
 
 const Post = ({ item }: { item: any }) => {
   const Hashtag = ({ tag }: { tag: string }) => (
@@ -43,6 +44,7 @@ export default function({ editable = true }: { editable?: boolean }) {
   return (
     <>
       {data && data.results.length > 0 ? (
+        <>
         <View style={{ marginTop: -16, marginHorizontal: -16, gap: 8, backgroundColor: "#f5f5f5" }}>
           {data.results.map((item: any) => (
             <Pressable
@@ -53,19 +55,20 @@ export default function({ editable = true }: { editable?: boolean }) {
             </Pressable>
           ))}
         </View>
+      <BottomName />
+      </>
       ) :
         <View style={styles.container}>
           {editable ? (
             <>
               <Text style={styles.text}>You haven't shared any talks yet.</Text>
               <Text style={styles.text}>Let your voice be heard and inspire others.</Text>
-              <Text style={styles.link}>Create your first post</Text>
+              <SmallTextButton title="Create your first post" style={styles.link} />
             </>
           ) :
             <Text style={styles.text}>User hasn't shared any talks yet.</Text>
           }
         </View>}
-      <BottomName />
     </>
   )
 }
@@ -73,15 +76,16 @@ const styles = StyleSheet.create({
   container: {
   },
   text: {
-    fontSize: 15,
+    fontSize: 13,
     textAlign: 'center',
-    fontWeight: 'bold',
+    color: "#737373",
   },
   link: {
     marginTop: 16,
     textAlign: 'center',
     textDecorationLine: 'underline',
-    fontSize: 13,
+    fontSize: 15,
+    fontWeight: 'bold',
 
   }
 })
