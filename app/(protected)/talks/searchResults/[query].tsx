@@ -4,10 +4,10 @@ import { ActivityIndicator, Dimensions, Image, TextInput, StyleSheet, ScrollView
 import protectedApi from '@/helpers/axios';
 import { Post } from '..';
 import BottomName from '@/components/profile/home/BottomName';
-import CategoryButton from '@/components/talks/CategoryButton';
 import { useRouter } from 'expo-router';
 import ImageLoader from '@/components/ImageLoader';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import OptionChip from '@/components/general/OptionChip';
 
 
 function SearchBar({ text = '', onChangeText, isFocused, setIsFocused, placeholder = null, placholderText = [] }: { text?: string, onChangeText: React.Dispatch<React.SetStateAction<string>>, isFocused: boolean, placeholder?: string | null, placholderText?: string[], setIsFocused: React.Dispatch<React.SetStateAction<boolean>> }) {
@@ -145,7 +145,6 @@ export default function Search() {
   const fetchSearchResults = async (q: string, filter: string) => {
     try {
       setIsLoading(true);
-      console.log('Fetching search results for:', search, 'with filter:', filter);
       const response = await protectedApi.get('/talks/search/', {
         params: {
           q: q,
@@ -166,7 +165,7 @@ export default function Search() {
       'posts'
     );
   }, [])
-
+  console.log(searchResults, 'search results')
 
   return (
     <SafeAreaView style={{flex: 1, backgroundColor: "white"}}>
@@ -220,7 +219,7 @@ export default function Search() {
       {
         !isFocused && (
           <View style={{ padding: 16, flexDirection: 'row', gap: 16, backgroundColor: 'white' }}>
-            <CategoryButton
+            <OptionChip
               title="Posts"
               selected={filter === 0}
               onPress={() => {
@@ -228,7 +227,7 @@ export default function Search() {
                 fetchSearchResults(search, 'posts');
               }}
             />
-            <CategoryButton
+            <OptionChip
               title="Accounts"
               selected={filter === 1}
               onPress={() => {
@@ -236,7 +235,7 @@ export default function Search() {
                 fetchSearchResults(search, 'accounts');
               }}
             />
-            <CategoryButton
+            <OptionChip
               title="Companies"
             />
           </View>
@@ -250,14 +249,15 @@ export default function Search() {
             </View> :
             <View>
               {
-                searchResults.results.length > 1 ? (
+                searchResults.results.length > 0 ? (
                   filter === 0 ? (
                     <ScrollView style={{ height: height - 172 }}>
-                      {searchResults.results.map((post: any) => (
+                      {searchResults.results.map((post: any) => {
+                        return (
                         <View style={{ marginTop: 8 }} key={post.id}>
                           <Post key={post.id} data={post} />
                         </View>
-                      ))}
+                      )})}
                       <View style={{ backgroundColor: 'white' }}>
                         <BottomName />
                       </View>

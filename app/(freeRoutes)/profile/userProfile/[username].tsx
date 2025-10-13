@@ -17,6 +17,7 @@ import { MenuButton } from '@/app/(protected)/jobs';
 import GreyBgButton from '@/components/buttons/GreyBgButton';
 import UnorderedList from '@/components/general/UnorderedList';
 import RBSheet from 'react-native-raw-bottom-sheet';
+import { LearningStreak } from '@/components/talks/home/ProfileContent';
 
 const { height } = Dimensions.get('window');
 
@@ -433,7 +434,16 @@ export default function UserProfile() {
                   <View style={{ marginHorizontal: -16, marginTop: 32 }}>
                     <AnimatedTopTabs
                       tabs={[
-                        { name: 'Profile', content: <View style={{ marginTop: -48 }}><ResumeDetails jobsState={userResume} userState={userData} /></View> },
+                        {
+                          name: 'Profile', content: <View style={{ marginTop: -48 }}><ResumeDetails
+                            jobsState={userResume}
+                            userState={userData}
+                            showLess
+                          />
+                            <LearningStreak />
+
+                          </View>
+                        },
                         { name: 'Posts', content: <PostsTab editable={false} /> },
                       ]}
                     />

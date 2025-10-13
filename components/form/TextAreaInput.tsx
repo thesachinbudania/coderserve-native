@@ -38,7 +38,7 @@ export default function TextAreaInput({ placeholder, numberOfLines = 100, maxLen
             fontSize: 15,
             textAlignVertical: 'top',
           }, focused && { borderColor: '#006dff' }, styles]}
-          placeholderTextColor={'#cbe1ff'}
+          placeholderTextColor={'#cfdbe6'}
           onFocus={() => setFocused(true)}
           onBlur={() => setFocused(false)}
           value={text}

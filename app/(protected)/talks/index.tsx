@@ -9,6 +9,7 @@ import {
   StyleSheet,
   Text,
   View,
+  LayoutChangeEvent
 } from "react-native";
 import { Header } from "@/app/(protected)/jobs/index";
 import React from "react";
@@ -43,11 +44,11 @@ export function HashChip({ title }: { title: string }) {
 const hashChipStyles = StyleSheet.create({
   text: {
     fontSize: 11,
-    color: '#737373',
+    color: '#a6a6a6',
   },
   container: {
     borderWidth: 0.5,
-    borderColor: '#737373',
+    borderColor: '#a6a6a6',
     borderRadius: 6,
     padding: 4
   }
@@ -60,7 +61,6 @@ export function Post({ data }: { data: any }) {
   result = result.replace(/^almost\s/, '');
   result = result.replace(/^in\s/, '');
   result = result.replace(/^less than\s/, '');
-
   return (
     <Pressable
       android_ripple={{ color: '#f5f5f5' }}
@@ -68,14 +68,22 @@ export function Post({ data }: { data: any }) {
       onPress={() => {
         router.push(`/talks/viewPost/${data.id}`);
       }}
+    // enable interaction of child pressable
     >
-      <View style={postStyles.headContainer} pointerEvents="none">
-        <ImageLoader
-          size={48}
-          uri={data.author.profile_image}
-        />
+      <View style={postStyles.headContainer}>
+        <Pressable
+          onPress={(event) => {
+            event.stopPropagation();
+            router.push('/(freeRoutes)/profile/userProfile/' + data.author.username);
+          }}
+        >
+          <ImageLoader
+            size={48}
+            uri={data.author.profile_image}
+          />
+        </Pressable>
         <View style={{ gap: 6 }}>
-          <Text style={postStyles.name}>{data.author.first_name} {data.author.last_name}</Text>
+          <Text style={postStyles.name}>{data.author.first_name}</Text>
           <Text style={postStyles.time}>{result}</Text>
         </View>
       </View>
@@ -84,12 +92,14 @@ export function Post({ data }: { data: any }) {
           {data.title}
         </Text>
       </View>
-      <View style={{ marginTop: 16, flexDirection: 'row', gap: 8, flexWrap: 'wrap' }} pointerEvents="none">
-        {
-          data.hashtags.map((hashtag: string, index: number) => (
-            <HashChip key={index} title={`#${hashtag}`} />
-          ))
-        }
+      <View
+        style={{ marginTop: 16 }}
+        pointerEvents="none"
+        onLayout={(e) => {
+          // container width is handled via state inside Hashtags component if needed; this inline approach measures per post
+        }}
+      >
+        <SingleLineHashtags hashtags={data.hashtags} />
       </View>
       <View style={{ marginTop: 16 }} pointerEvents="none">
         <FullWidthImage imageUrl={data.thumbnail} />
@@ -105,7 +115,7 @@ const postStyles = StyleSheet.create({
   },
   headContainer: {
     flexDirection: "row",
-    gap: 4,
+    gap: 8,
     alignItems: 'center',
   },
   name: {
@@ -114,11 +124,10 @@ const postStyles = StyleSheet.create({
   },
   time: {
     fontSize: 11,
-    color: "#737373",
+    color: "#a6a6a6",
   },
   content: {
     fontSize: 15,
-    fontWeight: "bold",
     textAlign: "justify",
   },
   image: {
@@ -127,6 +136,71 @@ const postStyles = StyleSheet.create({
     borderRadius: 12,
   }
 });
+
+function SingleLineHashtags({ hashtags }: { hashtags: string[] }) {
+  const [containerWidth, setContainerWidth] = React.useState(0);
+  const [chipWidths, setChipWidths] = React.useState<number[]>([]);
+  const [ready, setReady] = React.useState(false);
+
+  const onContainerLayout = (e: LayoutChangeEvent) => {
+    const w = e.nativeEvent.layout.width;
+    setContainerWidth(prev => (Math.abs(prev - w) > 1 ? w : prev));
+  };
+
+  const onChipLayout = (index: number, w: number) => {
+    setChipWidths(prev => {
+      const next = [...prev];
+      next[index] = w;
+      // when all chips are measured, mark ready
+      if (next.filter(Boolean).length === hashtags.length) {
+        setReady(true);
+      }
+      return next;
+    });
+  };
+
+  // compute visible count only when ready
+  const visibleCount = React.useMemo(() => {
+    if (!ready || !containerWidth) return hashtags.length;
+
+    const gap = 8;
+    let used = 0;
+    let count = 0;
+
+    for (let i = 0; i < chipWidths.length; i++) {
+      const w = chipWidths[i] || 0;
+      const extra = count === 0 ? 0 : gap;
+      if (used + extra + w <= containerWidth) {
+        used += extra + w;
+        count++;
+      } else break;
+    }
+    return count;
+  }, [ready, containerWidth, chipWidths, hashtags.length]);
+
+  const overflow = Math.max(0, hashtags.length - visibleCount);
+
+  return (
+    <View
+      style={{ flexDirection: 'row', gap: 8, alignItems: 'center' }}
+      onLayout={onContainerLayout}
+    >
+      {hashtags.map((h, i) => (
+        <View
+          key={`${h}-${i}`}
+        >
+          <HashChip title={`#${h}`} />
+        </View>
+      ))}
+
+      {ready && overflow > 0 && (
+        <View style={{ marginLeft: 8 }}>
+          <HashChip title={`+${overflow}`} />
+        </View>
+      )}
+    </View>
+  );
+}
 
 export default function Page() {
   const menuRef = React.useRef<any>(null);
@@ -142,8 +216,8 @@ export default function Page() {
   const navigation = useNavigation();
   const focused = useIsFocused();
   const listRef = React.useRef<ScrollView>(null);
-  useTabPressScrollToTop(listRef, 'talks');
   const { isLoading, initialLoading, refreshing, combinedData, handleEndReached, handleRefresh } = useFetchData({ url: postsUrl });
+  useTabPressScrollToTop(listRef, 'talks', handleRefresh);
   const [searchResults, setSearchResults] = React.useState<any[]>([]);
 
   React.useEffect(() => {
@@ -292,6 +366,21 @@ export default function Page() {
             >
               <Image source={require('@/assets/images/jobs/plus.png')} style={styles.addHashImage} />
             </Pressable>
+            {
+              loadingPrefs ? <ActivityIndicator style={{ marginLeft: 8 }} /> : (
+                userHashtags.length > 0 && (
+                  <OptionChip
+                    title="Custom"
+                    selected={selectedTab === 'custom'}
+                    onPress={async () => {
+                      setSelectedTab('custom');
+                      // Use the dedicated preferences posts endpoint which returns posts matching user's hashtag preferences
+                      setPostsUrl('/api/talks/preferences/posts/');
+                    }}
+                  />
+                )
+              )
+            }
             <OptionChip
               title="Trending"
               selected={selectedTab === 'trending'}
@@ -308,24 +397,9 @@ export default function Page() {
                 setSelectedTab('following');
               }}
             />
-            {
-              loadingPrefs ? <ActivityIndicator style={{ marginLeft: 8 }} /> : (
-                userHashtags.length > 0 && (
-                  <OptionChip
-                    title="Custom"
-                    selected={selectedTab === 'custom'}
-                    onPress={async () => {
-                      setSelectedTab('custom');
-                      // Use the dedicated preferences posts endpoint which returns posts matching user's hashtag preferences
-                      setPostsUrl('/api/talks/preferences/posts/');
-                    }}
-                  />
-                )
-              )
-            }
           </View>
         </Animated.View>
-        {initialLoading && (
+        {(initialLoading || isLoading) && (
           <View style={{ width: '100%', flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'white' }}>
             <ActivityIndicator size='large' color='#202020' />
           </View>
@@ -333,7 +407,12 @@ export default function Page() {
         {!initialLoading && combinedData.length > 0 && combinedData.map((data, index) => (
           <Animated.View key={index} style={{ backgroundColor: '#f5f5f5', paddingTop: 8, opacity: contentOpacity, width: '100%' }}><Post data={data} /></Animated.View>
         ))}
-        {!initialLoading && <BottomName />}
+        {!initialLoading &&
+          <View style={{ paddingTop: 8, backgroundColor: "#f5f5f5", width: '100%' }}>
+            <View style={{ width: '100%', backgroundColor: "white" }}>
+              <BottomName />
+            </View>
+          </View>}
       </ScrollView>
       <BottomSheet
         menuRef={menuRef}
@@ -362,10 +441,10 @@ export default function Page() {
             </Text>
           </MenuButton>
           <MenuButton
-          onPress={() => {
-            menuRef?.current.close();
-            router.push("/(protected)/talks/hashtags");
-          }}
+            onPress={() => {
+              menuRef?.current.close();
+              router.push("/(protected)/talks/hashtags");
+            }}
           >
             <Text style={styles.menuButtonHeading}>HashTags</Text>
             <Text style={styles.menuButtonText}>
@@ -390,7 +469,7 @@ export default function Page() {
         <View style={{ gap: 32 }}>
           <View style={{ gap: 8 }}>
             <Text style={{ textAlign: 'center', fontWeight: 'bold', fontSize: 15 }}>Complete Your Profile</Text>
-            <Text style={{ textAlign: 'center', color: '#737373', fontSize: 13 }}>
+            <Text style={{ textAlign: 'center', color: '#a6a6a6', fontSize: 13 }}>
               {incompleteProfileText}
             </Text>
           </View>
@@ -428,7 +507,8 @@ const styles = StyleSheet.create({
   },
   addHashImage: {
     height: 20,
-    width: 20
+    width: 20,
+    tintColor: "#737373"
   },
   menuContainer: {
     gap: 16,
@@ -439,7 +519,7 @@ const styles = StyleSheet.create({
   },
   menuButtonText: {
     fontSize: 12,
-    color: "#737373",
+    color: "#a6a6a6",
     marginTop: 8,
   },
 });

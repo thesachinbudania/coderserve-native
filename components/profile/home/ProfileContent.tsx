@@ -81,7 +81,7 @@ const StreakRate = () => {
           <Text style={{ color: "#a6a6a6", fontSize: 9 }}>More</Text>
         </View>
         <View>
-          <SmallTextButton title="Learn how we count Streak" style={{ fontSize: 9, textDecorationLine: 'underline' }} onPress={() => router.push('/(protected)/talks/profile/streakCalculation')} />
+          <SmallTextButton title="Learn how we count Streak" style={{ fontSize: 9, textDecorationLine: 'underline', color: "#a6a6a6" }} onPress={() => router.push('/(protected)/talks/profile/streakCalculation')} />
         </View>
       </View>
       <View style={{ flexDirection: 'row', marginTop: 32, gap: 16 }}>

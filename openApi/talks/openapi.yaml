@@ -413,25 +413,24 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/UserHashtagPreference'
-    patch:
-      summary: Patch authenticated user's hashtag preferences (same as put behavior)
+  /talks/preferences/posts/:
+    get:
+      summary: List posts matching the authenticated user's hashtag preferences
+      description: |
+        Returns posts that match any of the authenticated user's preferred hashtags. Results are ordered
+        by most upvoted first, then newest. Pagination is applied by the API (standard DRF pagination).
       security:
         - TokenAuth: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                hashtags:
-                  type: array
-                  items:
-                    type: string
       responses:
         '200':
-          description: Updated user hashtag preference
+          description: A paginated list of posts matching preferences
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UserHashtagPreference'
+                type: object
+                properties:
+                  results:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Post'
+    

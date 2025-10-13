@@ -370,7 +370,7 @@ export function EditResume({ showLess = false, editable = true }: { showLess?: b
       ) : (
         <ProfileSection
           title="Other Certifications"
-          content={editable ? "You haven’t added any certifications yet. Showcase your achievements and skills!" : "This user haven't shared any certifications yet."}
+          content={editable ? "You haven’t added any certifications yet. Showcase your achievements and skills!" : "This user hasn't shared any certifications yet."}
           onPress={() => {
             setResumeEdit({
               edit: false,
@@ -386,7 +386,7 @@ export function EditResume({ showLess = false, editable = true }: { showLess?: b
       <View>
         <Text style={styles.detailsHeading}>Projects</Text>
         <Text style={styles.detailsContent}>
-          {editable ? "You haven't completed any project yet. Once you do, they'll be showcased here." : "This user haven't completed any projects yet."}
+          {editable ? "You haven't completed any project yet. Once you do, they'll be showcased here." : "This user hasn't completed any projects yet."}
         </Text>
       </View>
       {

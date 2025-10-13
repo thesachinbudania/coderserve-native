@@ -30,19 +30,21 @@ type Tab = {
 interface Props {
   tabs: Tab[]
   setScrollEnabled?: (enabled: boolean) => void
+  index?: number
+  setIndex?: (index: number) => void
 }
 
 const MIN_TAB_WIDTH = 80
-const HORIZONTAL_PADDING = 16
+const HORIZONTAL_PADDING = 0  
 
-export default function AnimatedTopTabs({ tabs, setScrollEnabled }: Props) {
+export default function AnimatedTopTabs({ tabs, setScrollEnabled, index, setIndex }: Props) {
   const { width: screenWidth } = useWindowDimensions()
   const totalRequiredWidth = tabs.length * MIN_TAB_WIDTH
-  const isScrollable = totalRequiredWidth + HORIZONTAL_PADDING * 2 > screenWidth
+  const isScrollable = totalRequiredWidth + 16 * 2 > screenWidth
 
   const tabWidth = isScrollable
     ? MIN_TAB_WIDTH
-    : (screenWidth - HORIZONTAL_PADDING * 2) / tabs.length
+    : (screenWidth - 16 * 2) / tabs.length
 
   const [activeIndex, setActiveIndex] = useState(0)
   const indicatorX = useSharedValue(activeIndex * tabWidth)
@@ -53,6 +55,7 @@ export default function AnimatedTopTabs({ tabs, setScrollEnabled }: Props) {
 
   const handleTabChange = (index: number) => {
     setActiveIndex(index)
+    if (setIndex) setIndex(index)
     indicatorX.value = withTiming(index * tabWidth, { duration: 250 })
     contentX.value = withTiming(-index * screenWidth, { duration: 300 })
 
@@ -64,6 +67,12 @@ export default function AnimatedTopTabs({ tabs, setScrollEnabled }: Props) {
     }
   }
 
+  React.useEffect(() => {
+    if (typeof index === 'number' && index !== activeIndex) {
+      handleTabChange(index)
+    }
+  }, [index])
+
   const handlePress = (index: number) => {
     if (index !== activeIndex) {
       handleTabChange(index)
@@ -71,7 +80,7 @@ export default function AnimatedTopTabs({ tabs, setScrollEnabled }: Props) {
   }
 
   const indicatorStyle = useAnimatedStyle(() => ({
-    transform: [{ translateX: indicatorX.value + HORIZONTAL_PADDING }],
+    transform: [{ translateX: indicatorX.value }],
   }))
 
   const contentStyle = useAnimatedStyle(() => ({
@@ -113,7 +122,7 @@ export default function AnimatedTopTabs({ tabs, setScrollEnabled }: Props) {
     })
 
   return (
-    <GestureHandlerRootView>
+    <GestureHandlerRootView >
       <View style={styles.tabRowContainer}>
         <ScrollView
           ref={scrollRef}
@@ -121,7 +130,6 @@ export default function AnimatedTopTabs({ tabs, setScrollEnabled }: Props) {
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={[
             styles.tabRow,
-            { paddingHorizontal: HORIZONTAL_PADDING },
           ]}
           scrollEnabled={isScrollable}
         >
@@ -165,7 +173,7 @@ export default function AnimatedTopTabs({ tabs, setScrollEnabled }: Props) {
               key={i}
               style={{
                 width: screenWidth,
-                paddingHorizontal: HORIZONTAL_PADDING,
+                paddingHorizontal: 16,
               }}
             >
               {tab.content}
@@ -186,6 +194,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#f5f5f5',
     backgroundColor: '#fff',
+    marginHorizontal: 16
   },
   tabRow: {
     flexDirection: 'row',

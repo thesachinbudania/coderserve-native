@@ -29,6 +29,7 @@ export default function YourProfile() {
   const focused = useIsFocused();
   const router = useRouter();
   const { top } = useSafeAreaInsets();
+  const [index, setIndex] = React.useState(0);
 
   async function shareProfileAsync() {
     try {
@@ -69,14 +70,17 @@ export default function YourProfile() {
               <ProfileButton
                 count={0}
                 title="Posts"
+                onPress={() => setIndex(1)}
               />
               <ProfileButton
                 count={0}
                 title="Followers"
+                onPress={() => router.push('/(freeRoutes)/profile/followersList/' + user.username)}
               />
               <ProfileButton
                 count={0}
                 title="Following"
+                onPress={() => router.push('/(freeRoutes)/profile/followingList/' + user.username)}
               />
             </View>
           </View>
@@ -93,6 +97,8 @@ export default function YourProfile() {
         <View >
           <Tabs
             setScrollEnabled={() => { }}
+            index={index}
+            setIndex={setIndex}
           />
         </View>
         <Portal>
@@ -220,7 +226,7 @@ const styles = StyleSheet.create({
   },
   menuButtonText: {
     fontSize: 12,
-    color: "#737373",
+    color: "#a6a6a6",
     marginTop: 8,
   },
 })

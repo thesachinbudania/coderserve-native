@@ -35,7 +35,7 @@ export default function SearchBar({ text = '', onChangeText, isFocused, setIsFoc
           placeholder={!isFocused && placeholder ? placeholder : (placholderText.length > 0 && !isFocused ? '' : 'Search')}
           value={text}
           onChangeText={onChangeText}
-          placeholderTextColor={!isFocused && placeholder ? '#cbe1ff' : '#d9d9d9'}
+          placeholderTextColor={!isFocused && placeholder ? '#cfdbe6' : '#d9d9d9'}
         />
         {
           !isFocused && placholderText.length > 0 && (

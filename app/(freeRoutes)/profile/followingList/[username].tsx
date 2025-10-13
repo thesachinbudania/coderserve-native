@@ -83,7 +83,7 @@ export default function FollowingList() {
         combinedData.length === 0 && !isLoading && !initialLoading ? (
           <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 16, marginTop: -57 }}>
             <Image source={require('@/assets/images/stars.png')} style={{ width: 128, height: 128, marginBottom: 32 }} />
-            <Text style={{ color: '#737373', textAlign: 'center', fontSize: 11 }}>
+            <Text style={{ color: '#a6a6a6', textAlign: 'center', fontSize: 11 }}>
               It looks like you're not following anyone yet. Once you follow someone, their profiles will appear here. Start exploring and connect with interesting profiles to build your network.
             </Text>
           </View>
