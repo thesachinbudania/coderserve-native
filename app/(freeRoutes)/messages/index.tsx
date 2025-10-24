@@ -61,8 +61,12 @@ export default function Messages() {
       >
         {
           combinedData.length > 0 || initialLoading || isLoading ?
-            <View style={{ gap: 52 }}>
+            <View style={{ gap: 52, flex: 1 }}>
+              {
+                combinedData.length > 0 && (
               <SearchBar onChangeText={setSearchQuery} />
+                )
+              }
               <RenderData />
             </View>
             :

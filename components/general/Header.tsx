@@ -11,7 +11,7 @@ export default function Header({ fixedHeader = false, onBackPress, title }: { fi
     fixedHeader ?
       isFocused &&
       <Portal>
-        <View style={[styles.header, Platform.OS === 'ios' && {}]}>
+        <View style={[styles.header, Platform.OS === 'ios' && {marginTop: top}]}>
           <IconButton onPress={() => {
             onBackPress()
           }}>

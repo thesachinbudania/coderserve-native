@@ -28,6 +28,8 @@ import { useIsFocused } from "@react-navigation/native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useJobsState } from "@/zustand/jobsStore";
 import { useTabPressScrollToTop } from "@/helpers/hooks/useTabBarScrollToTop";
+import { syncUser } from "@/zustand/stores";
+import { useFocusEffect } from "expo-router";
 
 const width = Dimensions.get("window").width;
 
@@ -40,8 +42,14 @@ export function Header({ menuRef, forTalks = false }: { forTalks?: boolean, menu
     jobRole = resume.previous_experience[0].job_role;
   }
   const { top } = useSafeAreaInsets();
+
+  useFocusEffect(
+    React.useCallback(() => {
+      syncUser().then().catch(() => console.log('error syncing user'));
+    }, [])
+  )
   return (
-    <View style={[styles.headerContainer, { paddingTop: top + 8 }]}>
+    <View style={[styles.headerContainer, { paddingTop: forTalks ? 8 : top + 8 }]}>
       <View style={{ flexDirection: "row", gap: 4 }}>
         {user.profile_image && (
           <ImageLoader size={48} uri={user.profile_image} border={1} />
@@ -53,12 +61,12 @@ export function Header({ menuRef, forTalks = false }: { forTalks?: boolean, menu
             style={styles.headerName}
           >{user.first_name}</Text>
           <Text style={styles.secondaryHeaderText}>
-            {forTalks ? "0 Followers" : jobRole || "What's your job role?"}
+            {forTalks ? user.followers + " Followers" : jobRole || "What's your job role?"}
           </Text>
         </View>
       </View>
       <View style={{ gap: 16, flexDirection: "row" }}>
-        <IconButton onPress={() => router.push('/jobs/messages')}>
+        <IconButton onPress={() => router.push('/(freeRoutes)/messages')}>
           <Image
             source={require("@/assets/images/jobs/Chats.png")}
             style={styles.headerIcon}
@@ -304,7 +312,7 @@ export default function Home() {
 
   React.useEffect(() => {
     if (!isSearchFocused && focused) {
-      navigation.getParent()?.setOptions({ tabBarStyle: { display: "flex", height: 54 } });
+      navigation.getParent()?.setOptions({ tabBarStyle: { display: "flex", height: 54, borderColor: "#f5f5f5" } });
     } else {
       navigation.getParent()?.setOptions({
         tabBarStyle: {

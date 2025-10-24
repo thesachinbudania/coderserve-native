@@ -7,6 +7,14 @@ import React from 'react';
 
 export default function Search({ search, setSearch, isSearchFocused, setIsSearchFocused, searchResults }: { search: string, setSearch: React.Dispatch<React.SetStateAction<string>>, isSearchFocused: boolean, setIsSearchFocused: React.Dispatch<React.SetStateAction<boolean>>, searchResults: Array<{ first_name: string, last_name: string, username: string, profile_image: string }> }) {
   const router = useRouter();
+  const onSubmit = () => {
+    Keyboard.dismiss();
+    if (search && search.trim().length > 0) {
+      router.push('/(protected)/talks/searchResults/' + search);
+      setSearch('');
+      setIsSearchFocused(false);
+    }
+  }
   return (
     <>
       <SearchBar
@@ -14,6 +22,7 @@ export default function Search({ search, setSearch, isSearchFocused, setIsSearch
         onChangeText={setSearch}
         isFocused={isSearchFocused}
         setIsFocused={setIsSearchFocused}
+        onSubmitEditing={onSubmit}
       />
       <View style={{ height: '100%', gap: 16, paddingTop: 24, paddingHorizontal: 16, width: '100%', backgroundColor: 'white', display: isSearchFocused ? 'flex' : 'none' }} >
         {

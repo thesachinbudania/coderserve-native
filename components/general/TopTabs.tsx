@@ -25,6 +25,7 @@ import {
 type Tab = {
   name: string
   content: React.ReactNode
+  height?: number
 }
 
 interface Props {
@@ -121,6 +122,9 @@ export default function AnimatedTopTabs({ tabs, setScrollEnabled, index, setInde
       if (setScrollEnabled) runOnJS(setScrollEnabled)(true)
     })
 
+    // not being use currently anywhere
+    const [heights, setHeights] = useState<any>({});
+
   return (
     <GestureHandlerRootView >
       <View style={styles.tabRowContainer}>
@@ -164,7 +168,6 @@ export default function AnimatedTopTabs({ tabs, setScrollEnabled, index, setInde
         <Animated.View
           style={[
             styles.contentWrapper,
-            { width: screenWidth * tabs.length },
             contentStyle,
           ]}
         >
@@ -176,7 +179,20 @@ export default function AnimatedTopTabs({ tabs, setScrollEnabled, index, setInde
                 paddingHorizontal: 16,
               }}
             >
-              {tab.content}
+              <View 
+                onLayout={(event) => {
+                  const height = event.nativeEvent.layout.height;
+                  setHeights((prev: any) => {
+                    const next = { ...prev, [i]: height };
+                    return next;
+                  })
+                }}
+              >
+              {
+               // only render active tab content to measure height 
+                i === activeIndex ? tab.content : null
+              }
+              </View>
             </View>
           ))}
         </Animated.View>

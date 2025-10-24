@@ -43,7 +43,7 @@ export default function YourProfile() {
 
 
   return (
-    <>
+    <View style={{ flex: 1, backgroundColor: 'white' }}>
       {
         focused && <Header
           title='Your Profile'
@@ -73,18 +73,19 @@ export default function YourProfile() {
                 onPress={() => setIndex(1)}
               />
               <ProfileButton
-                count={0}
+                count={user.followers || 0}
                 title="Followers"
                 onPress={() => router.push('/(freeRoutes)/profile/followersList/' + user.username)}
               />
               <ProfileButton
-                count={0}
+                count={user.following || 0}
                 title="Following"
                 onPress={() => router.push('/(freeRoutes)/profile/followingList/' + user.username)}
               />
             </View>
           </View>
           <Text style={styles.name}>{user.first_name} {user.last_name}</Text>
+          <Text style={{color: "#004aad", marginTop: 8, fontSize: 13, fontWeight: "bold"}}>Ranked #50</Text>
           <Text style={styles.username}>@{user.username}</Text>
           <Text style={styles.userLocation}>{user.city}, {user.state}, {user.country}</Text>
           <View style={styles.buttonContainer}>
@@ -143,7 +144,7 @@ export default function YourProfile() {
                 >
                   Go Pro
                 </Text>
-                <Text style={[styles.menuButtonText, { color: "white" }]}>
+                <Text style={[styles.menuButtonText, { color: "#a6a6a6" }]}>
                   Unlock exclusive features and enhance profile visibility.
                 </Text>
               </MenuButton>
@@ -151,7 +152,7 @@ export default function YourProfile() {
           </BottomSheet>
         </Portal>
       </ScrollView>
-    </>
+    </View>
   )
 }
 

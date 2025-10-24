@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Dimensions, Image, Pressable, ScrollView, View, Text, Share, StyleSheet } from 'react-native';
+import {ActivityIndicator, Dimensions, Image, Pressable, ScrollView, View, Text, Share, StyleSheet } from 'react-native';
 import BlueButton from '@/components/buttons/BlueButton';
 import IconButton from '@/components/profile/IconButton';
 import Tabs from '@/components/profile/home/Tabs';
@@ -10,13 +10,15 @@ import BackgroundImageLoader from '@/components/BackgroundImageLoader';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTabPressScrollToTop } from '@/helpers/hooks/useTabBarScrollToTop';
+import { syncUser } from '@/zustand/stores';
+import { useFocusEffect } from 'expo-router';
 
 
-export function ProfileButton({ count, onPress = () => { }, title }: { count: number, onPress?: () => void, title: string }) {
+export function ProfileButton({ count, onPress = () => { }, title, disabled = false }: { count: number, disabled?: boolean, onPress?: () => void, title: string }) {
   return (
     <Pressable
-      style={({ pressed }) => [styles.countBox, pressed && { backgroundColor: '#f4f4f4' }]}
-      onPress={onPress}
+      style={({ pressed }) => [styles.countBox, pressed && !disabled && { backgroundColor: '#f4f4f4' }]}
+      onPress={disabled ? () => {} : onPress}
     >
       <Text style={styles.countText}>{count}</Text>
       <Text style={styles.countHeading}>{title}</Text>
@@ -25,7 +27,7 @@ export function ProfileButton({ count, onPress = () => { }, title }: { count: nu
   )
 }
 
-export const Profile = ({ user }: { user: any }) => {
+export const Profile = ({ user, onPostPress }: { user: any, onPostPress?: () => void }) => {
   const router = useRouter();
   return (
     <>
@@ -48,21 +50,26 @@ export const Profile = ({ user }: { user: any }) => {
             <ImageLoader
               size={96}
               uri={user.profile_image}
+              viewable
             />}
           <View style={styles.countRow}>
             <ProfileButton
               count={0}
               title="Posts"
+              onPress={onPostPress}
+              disabled={user.background_pattern_code === 0}
             />
             <ProfileButton
               count={user.followers || 0}
               title="Followers"
               onPress={() => router.push(`/(freeRoutes)/profile/followersList/${user.username}`)}
+              disabled={user.background_pattern_code === 0}
             />
             <ProfileButton
               count={user.following || 0}
               title="Following"
               onPress={() => router.push(`/(freeRoutes)/profile/followingList/${user.username}`)}
+              disabled={user.background_pattern_code === 0} 
             />
           </View>
         </View>
@@ -88,6 +95,13 @@ export default function ProfileHome() {
   const [scrollEnabled, setScrollEnabled] = React.useState(true);
   useTabPressScrollToTop(scrollRef, 'profile')
 
+  const [loading, setLoading] = React.useState(true);
+
+  useFocusEffect(
+    React.useCallback(() => {
+    syncUser().then().catch(() => console.log('error syncing user')).finally(() => setLoading(false));
+  }, []))
+
   async function shareProfileAsync() {
     try {
       await Share.share({
@@ -100,7 +114,7 @@ export default function ProfileHome() {
 
   return (
     <ScrollView
-      contentContainerStyle={{ backgroundColor: 'white', paddingTop: top }}
+      contentContainerStyle={[{ backgroundColor: 'white', paddingTop: top}, loading && { flex: 1 }]}
       nestedScrollEnabled
       onScroll={(e) => {
         if (e.nativeEvent.contentOffset.y > 0) {
@@ -120,7 +134,13 @@ export default function ProfileHome() {
           <Image source={require('@/assets/images/profile/home/menu.png')} style={styles.menuIcon} />
         </IconButton>
       </View>
-      <Profile user={user} />
+      {
+        loading ? (
+          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }} >
+            <ActivityIndicator size="large" color="#202020" />
+          </View>
+        ) : <>
+              <Profile user={user} />
       <View style={styles.body}>
         <View style={styles.buttonContainer}>
           <View style={{ width: (width - 32) * 0.5 - 8 }}>
@@ -139,11 +159,15 @@ export default function ProfileHome() {
         <View style={{ marginHorizontal: -16 }}>
           <Tabs
             setScrollEnabled={setScrollEnabled}
+            profileEditable={true}
           />
         </View>
       </View>
       <View >
       </View>
+</>
+      }
+
     </ScrollView>
   )
 }

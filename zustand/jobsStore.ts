@@ -95,11 +95,12 @@ export const useResumeEdit = create<ResumeEdit>((set) => ({
 
 export const isTalksProfileCompleted = () => {
   const { about, previous_experience, degrees } = useJobsState.getState();
-
   return (
     about !== null &&
     previous_experience !== null &&
     degrees !== null &&
-    degrees.length > 0
+    degrees.length > 0 &&
+    about != '' && 
+    previous_experience.length > 0
   );
 }

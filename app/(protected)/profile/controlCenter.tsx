@@ -124,22 +124,14 @@ export default function ControlCentre() {
                   <Section title='Your Account'>
                     <SectionOption
                       title='Account Center'
-                      subTitle='Manage email, password, pro membership, ad preferences, account status, device permissions, and login activity.'
+                      subTitle='Manage email, password, pro membership, ad preferences, account status, device permissions, and login history.'
                       onPress={() => router.push('/profile/accountCenter')}
                     />
                   </Section>
-                  <Section title='Privacy & Safety Controls'>
+                  <Section title='Privacy & Safety'>
                     <SectionOption
                       title='Account Visibility'
                       subTitle='Toggle profile between public and private.'
-                    />
-                    <SectionOption
-                      title='Blocked Users'
-                      subTitle='Restrict specific users from interacting with you.'
-                    />
-                    <SectionOption
-                      title='Muted Profile'
-                      subTitle='Hide posts from selected profiles in your feed.'
                     />
                     <SectionOption
                       title='Tag Permissions'
@@ -150,38 +142,46 @@ export default function ControlCentre() {
                       subTitle='See who can comment on your posts.'
                     />
                   </Section>
-                  <Section title='Communication Settings'>
+                  <Section title='Interaction Controls'>
                     <SectionOption
-                      title='Messaging Settings'
-                      subTitle='Manage incoming message requests.'
-                    />
+                      title='Muted Profile'
+                      subTitle='Hide posts from selected profiles.'
+                      /> 
+                      <SectionOption
+                      title='Blocked Users'
+                      subTitle='Prevent specific users from interacting with you.'
+                      />
                   </Section>
-                  <Section title='Content Engagement & Activity'>
+                  <Section title='Content & Activity'>
                     <SectionOption
                       title='Saved Posts'
                       subTitle="View all posts you've bookmarked."
+                      onPress={() => router.push('/profile/savedPosts')}
                     />
                     <SectionOption
-                      title='Liked Posts'
-                      subTitle="See a list of posts you've liked."
+                      title='Voted Posts'
+                      subTitle="See posts you've upvoted or downvoted."
+                      onPress={() => router.push('/profile/votedPosts')}
                     />
                     <SectionOption
                       title='Comment History'
-                      subTitle='Review your comments across posts.'
+                      subTitle='See all your comments in one place.'
+                      onPress={() => router.push('/profile/commentHistory')}
                     />
                     <SectionOption
                       title='Tagged Content'
-                      subTitle='Find posts where you have been tagged.'
+                      subTitle='See posts where you have been tagged.'
+                      onPress={() => router.push('/profile/taggedContent')}
                     />
                   </Section>
-                  <Section title='More Info & Support'>
+                  <Section title='Support & Info'>
                     <SectionOption
                       title='Help Center'
-                      subTitle='Access support and troubleshooting resources.'
+                      subTitle='Get help and troubleshooting guides.'
                     />
                     <SectionOption
                       title='About'
-                      subTitle='Learn about policies and terms.'
+                      subTitle='Read our policies and terms.'
                     />
                   </Section>
                   <DangerButton

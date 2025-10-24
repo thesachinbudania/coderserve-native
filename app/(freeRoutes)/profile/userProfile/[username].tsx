@@ -2,6 +2,7 @@ import { ActivityIndicator, Dimensions, Image, ScrollView, Share, StyleSheet, Te
 import IconButton from '@/components/buttons/IconButton';
 import { Profile } from '@/app/(protected)/profile/index';
 import BlueButton from '@/components/buttons/BlueButton';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { ResumeDetails } from '@/app/(protected)/jobs/resume';
 import AnimatedTopTabs from '@/components/general/TopTabs';
 import PostsTab from '@/components/profile/home/PostsTab';
@@ -18,6 +19,8 @@ import GreyBgButton from '@/components/buttons/GreyBgButton';
 import UnorderedList from '@/components/general/UnorderedList';
 import RBSheet from 'react-native-raw-bottom-sheet';
 import { LearningStreak } from '@/components/talks/home/ProfileContent';
+import { Header } from '@/app/(protected)/jobs/resume';
+import Menu from '@/components/jobs/Menu';
 
 const { height } = Dimensions.get('window');
 
@@ -29,9 +32,11 @@ export default function UserProfile() {
   const [isFollowing, setIsFollowing] = React.useState(false);
   const [muted, setIsMuted] = React.useState(false);
   const [requestSent, setRequestSent] = React.useState(false);
+  const [isFollower, setIsFollower] = React.useState(false);
   const router = useRouter();
   const { username: currentUsername } = useUserStore(state => state);
   const [blocked, setIsBlocked] = React.useState(false);
+  const [index, setIndex] = React.useState(0);
 
 
   // function to share profile
@@ -57,9 +62,10 @@ export default function UserProfile() {
         protectedApi.get('/accounts/verify_following/' + username + '/').then((followRes) => {
           setIsFollowing(followRes.data.is_following)
           setRequestSent(followRes.data.request_sent);
-          setIsLoading(false);
           setIsMuted(res.data.is_muted);
           setIsBlocked(res.data.is_blocked);
+          setIsFollower(res.data.is_follower);
+          setIsLoading(false);
         })
       })
     })
@@ -106,6 +112,12 @@ export default function UserProfile() {
     }).catch(err => console.log(err.response.data, 'erroring here'))
   }
 
+  // function to remove follower
+  const removeFollower = () => {
+    protectedApi.put(`/accounts/remove_follower/${username}/`).then(() => {
+      fetchData();
+    }).catch(err => console.log(err.response.data, 'erroring here'))
+  }
 
   // refs for bottom sheets
   const menuRef = React.useRef<any>(null);
@@ -113,9 +125,10 @@ export default function UserProfile() {
   const muteRef = React.useRef<any>(null);
   const blockDrawerRef = React.useRef<any>(null);
   const unblockRef = React.useRef<any>(null);
-
+  const unfollowRef = React.useRef<any>(null);
+  const removeFollowerRef = React.useRef<any>(null);
   return (
-    <>
+    <SafeAreaView style={{ flex: 1, backgroundColor: 'white', paddingTop: 57 }}>
       {isLoading && (
         <View style={{ height: '100%', backgroundColor: 'white', justifyContent: 'center', alignItems: 'center' }}>
           <ActivityIndicator size='large' color='#202020' />
@@ -130,7 +143,7 @@ export default function UserProfile() {
             <Portal>
               <RBSheet
                 ref={blockDrawerRef}
-                height={604}
+                height={654}
                 draggable={true}
                 customStyles={{
                   wrapper: {
@@ -183,6 +196,29 @@ export default function UserProfile() {
                   </View>
                 </View>
               </RBSheet>
+<BottomSheet
+                menuRef={unfollowRef}
+                height={184}>
+                <Text style={{ textAlign: 'center', fontSize: 15, fontWeight: 'bold', marginBottom: 16 }}>Unfollow this user?</Text>
+                <Text style={{ textAlign: 'center', fontSize: 13, color: "#737373", marginBottom: 24 }}>You'll stop seeing their posts in your feed and messaging will be disabled. You can follow them again anytime.</Text>
+                <View style={{ flexDirection: 'row', gap: 16 }}>
+                  <View style={{ flex: 1 / 2 }}>
+                    <GreyBgButton
+                      title='Cancel'
+                      onPress={() => unfollowRef?.current.close()}
+                    />
+                  </View>
+                  <View style={{ flex: 1 / 2 }}>
+                    <BlueButton
+                      title={'Unfollow'}
+                      onPress={() => {
+                        unfollowRef?.current.close();
+                        manageFollow();
+                      }}
+                    />
+                  </View>
+                </View>
+              </BottomSheet>
               <BottomSheet
                 menuRef={unblockRef}
                 height={168}>
@@ -230,6 +266,30 @@ export default function UserProfile() {
                   </View>
                 </View>
               </BottomSheet>
+<BottomSheet
+                menuRef={removeFollowerRef}
+                height={180}>
+                <Text style={{ textAlign: 'center', fontSize: 15, fontWeight: 'bold', marginBottom: 16 }}>Remove this follower?</Text>
+                <Text style={{ textAlign: 'center', fontSize: 13, color: "#737373", marginBottom: 24 }}>If you remove this user, they'll no longer follow you or see your updates in their feed. This action won't notify them.</Text>
+                <View style={{ flexDirection: 'row', gap: 16 }}>
+                  <View style={{ flex: 1 / 2 }}>
+                    <GreyBgButton
+                      title='Cancel'
+                      onPress={() => removeFollowerRef?.current.close()}
+                    />
+                  </View>
+                  <View style={{ flex: 1 / 2 }}>
+                    <BlueButton
+                      title='Remove'
+                      onPress={() => {
+                        removeFollowerRef?.current.close();
+                        removeFollower();
+                      }}
+                      loading={isFollowLoading}
+                    />
+                  </View>
+                </View>
+              </BottomSheet>
               <BottomSheet
                 menuRef={followMenuRef}
                 height={168}>
@@ -256,7 +316,7 @@ export default function UserProfile() {
               </BottomSheet>
               <BottomSheet
                 menuRef={menuRef}
-                height={blocked ? 208 : (requestSent || isFollowing) ? 584 : 492}>
+                height={blocked ? 196.6: (requestSent || isFollowing) ? (isFollower ? 648: 557.8) : (isFollower ? 467.5: 377.2)}>
                 <View style={styles.menuContainer}>
                   {
                     !blocked && (
@@ -273,13 +333,31 @@ export default function UserProfile() {
                       </MenuButton>
                     )
                   }
-
+                  {
+                    isFollower && (
+                      <MenuButton
+                        onPress={() => {
+                          menuRef?.current.close();
+                          setTimeout(() => {
+                            removeFollowerRef?.current.open();
+                          }, 300)
+                        }}
+                      >
+                        <Text style={styles.menuButtonHeading}>Remove Follower</Text>
+                        <Text style={styles.menuButtonText}>
+                          Remove this user from your followers list.
+                        </Text>
+                      </MenuButton>
+                    )
+                  }
                   {
                     requestSent && !blocked && (
                       <MenuButton
                         onPress={() => {
                           menuRef?.current.close();
-                          followMenuRef?.current.open();
+                          setTimeout(() => {
+                            followMenuRef?.current.open();
+                          }, 300)
                         }}
                       >
                         <Text style={styles.menuButtonHeading}>Remove Request</Text>
@@ -294,7 +372,9 @@ export default function UserProfile() {
                       <MenuButton
                         onPress={() => {
                           menuRef?.current.close();
-                          manageFollow();
+                          setTimeout(() => {
+                            unfollowRef?.current.open();
+                          }, 300)
                         }}
                       >
                         <Text style={styles.menuButtonHeading}>Unfollow</Text>
@@ -305,7 +385,7 @@ export default function UserProfile() {
                     )
                   }
                   {
-                    !blocked && (
+                    !blocked && (isFollowing || requestSent) && (
                       <MenuButton
                         onPress={() => {
                           menuRef?.current.close();
@@ -324,7 +404,9 @@ export default function UserProfile() {
                       <MenuButton
                         onPress={() => {
                           menuRef?.current.close();
+                          setTimeout(() => {
                           muteRef?.current.open();
+                          }, 300)
                         }}
                       >
                         <Text
@@ -342,11 +424,15 @@ export default function UserProfile() {
                     onPress={() => {
                       if (!blocked) {
                         menuRef?.current.close();
+                        setTimeout(() => {
                         blockDrawerRef?.current.open();
+                        }, 300)
                       }
                       else {
                         menuRef?.current.close();
+                        setTimeout(() => {
                         unblockRef?.current?.open();
+                        }, 300)
                       }
                     }}
                   >
@@ -372,26 +458,11 @@ export default function UserProfile() {
                 </View>
               </BottomSheet>
             </Portal>
-            <View style={styles.header}>
-              <IconButton
-                onPress={() => router.back()}
-              >
-                <Image
-                  source={require('@/assets/images/Back.png')}
-                  style={{ width: 24, height: 24 }}
-                />
-              </IconButton>
-              <IconButton
-                onPress={() => menuRef?.current.open()}
-              >
-                <Image
-                  source={require('@/assets/images/profile/home/menu.png')}
-                  style={{ width: 24, height: 24 }}
-                />
-              </IconButton>
-            </View>
+            <Header 
+              menuRef={menuRef} 
+            />
             <View style={{ marginHorizontal: -16 }}>
-              <Profile user={userData} />
+              <Profile user={userData} onPostPress={() => setIndex(1)}/>
             </View>
             <View style={styles.buttonContainer}>
               <View style={{ flex: 1 }}>
@@ -404,7 +475,16 @@ export default function UserProfile() {
                     />
                   ) : <GreyBgButton
                     title={isFollowing ? "Message" : "Requested"}
-                    onPress={isFollowing ? () => { } : manageFollow}
+                    onPress={isFollowing ? () => {
+                      setIsFollowLoading(true);
+protectedApi.post('/home/conversations/', { 'participants': [userData.id] }).then((res) => {
+      setIsFollowLoading(false);
+      router.push('/(freeRoutes)/messages/chat/' + res.data.id);
+    }).catch((err) => {
+      console.error(err.response.data);
+      setIsFollowLoading(false);
+    });
+                     } : requestSent ? () => {followMenuRef.current?.open()} : manageFollow}
                     loading={isFollowLoading}
                   />
                 }
@@ -423,8 +503,8 @@ export default function UserProfile() {
             {
               userData?.is_blocked ? (
                 <View style={{ flex: 1, height: height - 431, alignItems: 'center' }}>
-                  <View style={{ borderWidth: 1, borderColor: "black", borderRadius: 64, marginTop: 128 }}>
-                    <Image source={require('@/assets/images/lockGreyed.png')} style={{ width: 32, height: 32, objectFit: 'contain', margin: 24 }} />
+                  <View style={{ borderWidth: 2, borderColor: "black", borderRadius: 64, marginTop: 128 }}>
+                    <Image source={require('@/assets/images/talks/lock.png')} style={{ width: 32, height: 32, objectFit: 'contain', margin: 24 }} />
                   </View>
                   <Text style={{ fontSize: 19, fontWeight: 'bold', marginTop: 16 }}>You've blocked this account</Text>
                   <Text style={{ fontSize: 13, color: "#a6a6a6", marginTop: 4 }}>Unblock to view their profile and interact again.</Text>
@@ -441,14 +521,21 @@ export default function UserProfile() {
                             showLess
                           />
                             <LearningStreak />
-
+                            <BottomName />
                           </View>
                         },
-                        { name: 'Posts', content: <PostsTab editable={false} /> },
+                        { name: 'Posts', content: 
+                          <>
+                        <PostsTab editable={false} username={
+userData.username
+                        }/> 
+                        </>
+                      },
                       ]}
+                      index={index}
+                      setIndex={setIndex}
                     />
                   </View>
-                  <BottomName />
                 </>
               )
             }
@@ -457,7 +544,7 @@ export default function UserProfile() {
         )
       }
 
-    </>
+    </SafeAreaView>
   );
 }
 
@@ -471,18 +558,19 @@ const styles = StyleSheet.create({
   },
   menuButtonText: {
     fontSize: 12,
-    color: "#737373",
+    color: "#a6a6a6",
     marginTop: 8,
   },
   header: {
     backgroundColor: 'white',
     top: 0,
+    position: 'absolute',
     width: '100%',
     zIndex: 1,
     paddingVertical: 8,
     gap: 16,
     flexDirection: 'row',
-    justifyContent: 'space-between'
+    justifyContent: 'flex-end'
   },
   buttonContainer: {
     marginTop: 32,

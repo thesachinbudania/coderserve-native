@@ -29,7 +29,7 @@ import { formatDistanceToNow } from "date-fns";
 import OptionChip from "@/components/general/OptionChip";
 import protectedApi from "@/helpers/axios";
 import Search from "@/components/talks/home/Search";
-import { useFocusEffect } from 'expo-router';
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const width = Dimensions.get("window").width;
 
@@ -77,10 +77,12 @@ export function Post({ data }: { data: any }) {
             router.push('/(freeRoutes)/profile/userProfile/' + data.author.username);
           }}
         >
+          <View>
           <ImageLoader
             size={48}
             uri={data.author.profile_image}
           />
+</View>
         </Pressable>
         <View style={{ gap: 6 }}>
           <Text style={postStyles.name}>{data.author.first_name}</Text>
@@ -137,77 +139,71 @@ const postStyles = StyleSheet.create({
   }
 });
 
-function SingleLineHashtags({ hashtags }: { hashtags: string[] }) {
-  const [containerWidth, setContainerWidth] = React.useState(0);
-  const [chipWidths, setChipWidths] = React.useState<number[]>([]);
-  const [ready, setReady] = React.useState(false);
+export function SingleLineHashtags({ hashtags }: { hashtags: string[] }) {
+  const containerWidth = Dimensions.get("window").width - 32; // example padding
+  const [visibleCount, setVisibleCount] = React.useState(hashtags.length);
+  const [measuredWidths, setMeasuredWidths] = React.useState<number[]>([]);
 
-  const onContainerLayout = (e: LayoutChangeEvent) => {
-    const w = e.nativeEvent.layout.width;
-    setContainerWidth(prev => (Math.abs(prev - w) > 1 ? w : prev));
-  };
+  React.useEffect(() => {
+    if (measuredWidths.length === hashtags.length) {
+      let total = 0;
+      let count = 0;
 
-  const onChipLayout = (index: number, w: number) => {
-    setChipWidths(prev => {
-      const next = [...prev];
-      next[index] = w;
-      // when all chips are measured, mark ready
-      if (next.filter(Boolean).length === hashtags.length) {
-        setReady(true);
-      }
-      return next;
-    });
-  };
-
-  // compute visible count only when ready
-  const visibleCount = React.useMemo(() => {
-    if (!ready || !containerWidth) return hashtags.length;
-
-    const gap = 8;
-    let used = 0;
-    let count = 0;
-
-    for (let i = 0; i < chipWidths.length; i++) {
-      const w = chipWidths[i] || 0;
-      const extra = count === 0 ? 0 : gap;
-      if (used + extra + w <= containerWidth) {
-        used += extra + w;
+      for (let i = 0; i < measuredWidths.length; i++) {
+        if (total + measuredWidths[i] > containerWidth - 40) break;
+        total += measuredWidths[i] + 8; // add gap
         count++;
-      } else break;
-    }
-    return count;
-  }, [ready, containerWidth, chipWidths, hashtags.length]);
+      }
 
-  const overflow = Math.max(0, hashtags.length - visibleCount);
+      setVisibleCount(count);
+    }
+  }, [measuredWidths]);
 
   return (
     <View
-      style={{ flexDirection: 'row', gap: 8, alignItems: 'center' }}
-      onLayout={onContainerLayout}
+      style={{
+        flexDirection: "row",
+        flexWrap: "nowrap",
+        alignItems: "center",
+      }}
     >
-      {hashtags.map((h, i) => (
+      {hashtags.slice(0, visibleCount).map((tag, index) => (
         <View
-          key={`${h}-${i}`}
+          key={tag}
+          onLayout={(e) => {
+            const { width } = e.nativeEvent.layout;
+            setMeasuredWidths((prev) => {
+              const copy = [...prev];
+              copy[index] = width;
+              return copy;
+            });
+          }}
+          style={{
+            marginRight: 8,
+          }}
         >
-          <HashChip title={`#${h}`} />
+          <HashChip title={'#' + tag} />
         </View>
       ))}
 
-      {ready && overflow > 0 && (
-        <View style={{ marginLeft: 8 }}>
-          <HashChip title={`+${overflow}`} />
-        </View>
+      {visibleCount < hashtags.length && (
+       <HashChip title={`+${hashtags.length - visibleCount}`} /> 
       )}
     </View>
   );
-}
-
+}  
 export default function Page() {
   const menuRef = React.useRef<any>(null);
   const similarProfileInactiveMenuRef = React.useRef<any>(null);
   const router = useRouter();
   const [isSearchFocused, setIsSearchFocused] = React.useState(false);
   const [search, setSearch] = React.useState("");
+
+  React.useEffect(() => {
+    if (!isSearchFocused) {
+      setSearch("");
+    }
+  },[isSearchFocused]) 
   const [incompleteProfileText, setIncompleteProfileText] = React.useState("");
   const [postsUrl, setPostsUrl] = React.useState('/api/talks/posts/');
   const [selectedTab, setSelectedTab] = React.useState<'trending' | 'following' | 'custom'>('trending');
@@ -216,7 +212,8 @@ export default function Page() {
   const navigation = useNavigation();
   const focused = useIsFocused();
   const listRef = React.useRef<ScrollView>(null);
-  const { isLoading, initialLoading, refreshing, combinedData, handleEndReached, handleRefresh } = useFetchData({ url: postsUrl });
+  const { isLoading, initialLoading, refreshing, combinedData, handleEndReached, handleRefresh } = useFetchData({ url: postsUrl, refreshOnFocus: false });
+  const pageLoading = initialLoading || loadingPrefs;
   useTabPressScrollToTop(listRef, 'talks', handleRefresh);
   const [searchResults, setSearchResults] = React.useState<any[]>([]);
 
@@ -260,12 +257,7 @@ export default function Page() {
     fetchPreferences();
   }, [fetchPreferences]);
 
-  // Also refetch preferences when screen gains focus so Custom chip updates immediately
-  useFocusEffect(
-    React.useCallback(() => {
-      fetchPreferences();
-    }, [fetchPreferences])
-  );
+
 
   const { contentWidth, contentOpacity, searchBarMarginTop } = useSearchBar({ setIsSearchFocused, isSearchFocused });
   const handleAddPostPress = () => {
@@ -290,7 +282,7 @@ export default function Page() {
 
   React.useEffect(() => {
     if (!isSearchFocused && focused) {
-      navigation.getParent()?.setOptions({ tabBarStyle: { display: "flex", height: 54 } });
+      navigation.getParent()?.setOptions({ tabBarStyle: { display: "flex", height: 54, borderColor: "#f5f5f5" } });
     } else {
       navigation.getParent()?.setOptions({
         tabBarStyle: {
@@ -301,7 +293,7 @@ export default function Page() {
   }, [isSearchFocused, focused]);
 
   return (
-    <>
+    <SafeAreaView style={{ flex: 1, backgroundColor: 'white' }}>
       <ScrollView
         contentContainerStyle={{
           backgroundColor: !isSearchFocused ? "white" : "#f7f7f7",
@@ -309,12 +301,13 @@ export default function Page() {
           minHeight: '100%'
         }}
         ref={listRef}
-        refreshControl={
+        // Disable pull-to-refresh while the page is loading or when the search bar is focused
+        refreshControl={!pageLoading && !isSearchFocused ? (
           <RefreshControl
             refreshing={refreshing}
             onRefresh={handleRefresh}
           />
-        }
+        ) : undefined}
         scrollEnabled={!isSearchFocused}
         onScroll={({ nativeEvent }) => {
           const { layoutMeasurement, contentOffset, contentSize } = nativeEvent;
@@ -329,25 +322,28 @@ export default function Page() {
         keyboardShouldPersistTaps="handled"
       >
         <Animated.View style={{ width: contentWidth }}>
-          <Animated.View style={{ opacity: contentOpacity }}>
+          <Animated.View style={{ opacity: initialLoading ? 1 : contentOpacity }}>
             <Header
               menuRef={menuRef}
               forTalks
             />
           </Animated.View>
-          <Animated.View
-            style={{
-              transform: [{ translateY: searchBarMarginTop }],
-            }}
-          >
-            <Search
-              search={search}
-              setSearch={setSearch}
-              isSearchFocused={isSearchFocused}
-              setIsSearchFocused={setIsSearchFocused}
-              searchResults={searchResults}
-            />
-          </Animated.View>
+          {/* Hide search while page is loading so only header + centered loader are visible */}
+          {!pageLoading && (
+            <Animated.View
+              style={{
+                transform: [{ translateY: searchBarMarginTop }],
+              }}
+            >
+              <Search
+                search={search}
+                setSearch={setSearch}
+                isSearchFocused={isSearchFocused}
+                setIsSearchFocused={setIsSearchFocused}
+                searchResults={searchResults}
+              />
+            </Animated.View>
+          )}
         </Animated.View>
         <Animated.View
           style={{
@@ -357,28 +353,30 @@ export default function Page() {
             marginBottom: 16,
           }}
         >
-          <View style={{ flexDirection: "row", gap: 16 }}>
+          {/* Hide chips/filters while page is loading */}
+          {!pageLoading && (
+            <View style={{paddingBottom: 8, backgroundColor: "#f5f5f5", marginHorizontal: -16, marginBottom: -16}}>
+            <View style={{ flexDirection: "row", gap: 16, backgroundColor: "white", paddingHorizontal: 16, paddingBottom: 16 }}>
             <Pressable
               style={({ pressed }) => [styles.addHashContainer, pressed && { backgroundColor: '#d9d9d9' }]}
               onPress={() => {
-                handleAddPostPress();
+              handleAddPostPress();
               }}
             >
               <Image source={require('@/assets/images/jobs/plus.png')} style={styles.addHashImage} />
             </Pressable>
             {
-              loadingPrefs ? <ActivityIndicator style={{ marginLeft: 8 }} /> : (
-                userHashtags.length > 0 && (
-                  <OptionChip
-                    title="Custom"
-                    selected={selectedTab === 'custom'}
-                    onPress={async () => {
-                      setSelectedTab('custom');
-                      // Use the dedicated preferences posts endpoint which returns posts matching user's hashtag preferences
-                      setPostsUrl('/api/talks/preferences/posts/');
-                    }}
-                  />
-                )
+              // don't show the small prefs loader separately; pageLoading covers it
+              userHashtags.length > 0 && (
+                <OptionChip
+                  title="Custom"
+                  selected={selectedTab === 'custom'}
+                  onPress={async () => {
+                    setSelectedTab('custom');
+                    // Use the dedicated preferences posts endpoint which returns posts matching user's hashtag preferences
+                    setPostsUrl('/api/talks/preferences/posts/');
+                  }}
+                />
               )
             }
             <OptionChip
@@ -393,26 +391,65 @@ export default function Page() {
               title="Following"
               selected={selectedTab === 'following'}
               onPress={() => {
-                // For now, leave following behavior as-is (no feed filter change)
+                // Activate following feed and load following posts
                 setSelectedTab('following');
+                setPostsUrl('api/talks/following_posts/');
               }}
             />
-          </View>
+            </View>
+</View>
+          )}
         </Animated.View>
-        {(initialLoading || isLoading) && (
+        {pageLoading ? (
+          // Show a single centered loader while page data (posts + prefs) is loading. Header remains visible above.
           <View style={{ width: '100%', flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'white' }}>
             <ActivityIndicator size='large' color='#202020' />
           </View>
-        )}
-        {!initialLoading && combinedData.length > 0 && combinedData.map((data, index) => (
-          <Animated.View key={index} style={{ backgroundColor: '#f5f5f5', paddingTop: 8, opacity: contentOpacity, width: '100%' }}><Post data={data} /></Animated.View>
-        ))}
-        {!initialLoading &&
-          <View style={{ paddingTop: 8, backgroundColor: "#f5f5f5", width: '100%' }}>
-            <View style={{ width: '100%', backgroundColor: "white" }}>
-              <BottomName />
+        ) : (
+          // Normal content (search, chips, posts, bottom name)
+          <>
+            {/* Grey posts container: shown below chips. Loader and posts render inside this area */}
+            <View style={{ width: '100%'}}>
+              {/* If we're loading posts and have no posts yet, show a posts-area centered loader */}
+              {isLoading && combinedData.length === 0 && (
+                <View style={{ width: '100%', justifyContent: 'center', alignItems: 'center', paddingVertical: 64 }}>
+                  <ActivityIndicator size='large' color='#202020' />
+                </View>
+              )}
+
+              {combinedData.length > 0 && combinedData.map((data, index) => (
+                <Animated.View key={index} style={{ paddingBottom: 8, backgroundColor: "#f5f5f5", opacity: contentOpacity, width: '100%' }}><Post data={data} /></Animated.View>
+              ))}
+
+              {/* If we have posts and are loading more, show a small inline loader */}
+              {isLoading && combinedData.length > 0 && (
+                <View style={{ width: '100%', paddingVertical: 12, justifyContent: 'center', alignItems: 'center' }}>
+                  <ActivityIndicator size='small' color='#202020' />
+                </View>
+              )}
             </View>
-          </View>}
+
+            {/* Bottom area below grey posts container */}
+            {!pageLoading &&
+              <>
+                {
+                  combinedData.length === 0 && !pageLoading && !isLoading && !refreshing && (
+                    <Animated.View style={{ paddingTop: 112, backgroundColor: 'white' }}>
+                      <Image source={require('@/assets/images/stars.png')} style={{ marginHorizontal: 'auto', height: 128, width: 128, marginBottom: 32 }} />
+                      <Text style={{ fontSize: 11, color: "#a6a6a6", textAlign: 'center', paddingHorizontal: 16 }}>
+                        Follow people or connect with those who share similar backgrounds to start seeing relevant posts and conversations here.
+                      </Text>
+                    </Animated.View>
+                  )
+                }
+                {combinedData.length > 0 &&
+                  <View style={{ width: '100%', backgroundColor: "white" }}>
+                    <BottomName />
+                  </View>
+                }
+              </>}
+          </>
+        )}
       </ScrollView>
       <BottomSheet
         menuRef={menuRef}
@@ -457,7 +494,7 @@ export default function Page() {
             >
               Go Pro
             </Text>
-            <Text style={[styles.menuButtonText, { color: "white" }]}>
+            <Text style={[styles.menuButtonText, { color: "#a6a6a6" }]}>
               Unlock exclusive features and enhance profile visibility.
             </Text>
           </MenuButton>
@@ -482,7 +519,7 @@ export default function Page() {
           />
         </View>
       </BottomSheet>
-    </>
+    </SafeAreaView>
   );
 }
 

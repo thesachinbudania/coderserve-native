@@ -37,22 +37,9 @@ export default function() {
                 size={96}
                 uri={user.profile_image}
               />}
-            <View style={styles.countRow}>
-              <ProfileButton
-                count={0}
-                title="Posts"
-              />
-              <ProfileButton
-                count={0}
-                title="Followers"
-              />
-              <ProfileButton
-                count={0}
-                title="Following"
-              />
-            </View>
           </View>
           <Text style={styles.name}>{user.first_name} {user.last_name}</Text>
+<Text style={{color: "#004aad", marginTop: 8, fontSize: 13, fontWeight: "bold"}}>Ranked #50</Text>
           <Text style={styles.username}>@{user.username}</Text>
           <Text style={styles.userLocation}>{user.city}, {user.state}, {user.country}</Text>
         </View>

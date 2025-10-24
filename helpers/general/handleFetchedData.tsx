@@ -8,12 +8,14 @@ export default function useFetchData({
   url,
   RenderItem,
   gap = 16,
-  paddingTop = 0
+  paddingTop = 0,
+  refreshOnFocus = true,
 }: {
   url: string;
   RenderItem?: ({ item, index }: { item: any, index: number }) => React.JSX.Element;
   gap?: number;
   paddingTop?: number;
+  refreshOnFocus?: boolean;
 }) {
   // Raw API data (unfiltered)
   const [allData, setAllData] = React.useState<any[]>([]);
@@ -55,6 +57,18 @@ export default function useFetchData({
     }
   }, [data]);
 
+  // When the requested URL changes (e.g. switching tabs/filters), reset and fetch the new feed
+  React.useEffect(() => {
+    // clear accumulated data and reset pagination state
+    setAllData([]);
+    setCombinedData([]);
+    setFilteredData([]);
+    setNextPage(`${apiUrl}${url}`);
+    // trigger a refetch for the new URL
+    refetch(`${apiUrl}${url}`);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [url]);
+
   // Update combinedData based on search
   React.useEffect(() => {
     setCombinedData(allData);
@@ -76,12 +90,14 @@ export default function useFetchData({
     refetch(`${apiUrl}${url}`);
   };
 
-  // Refresh on focus
-  useFocusEffect(
-    React.useCallback(() => {
-      handleRefresh();
-    }, [url])
-  );
+  // Refresh on focus (optional)
+  if (refreshOnFocus) {
+    useFocusEffect(
+      React.useCallback(() => {
+        handleRefresh();
+      }, [url])
+    );
+  }
 
   // Render UI
   const RenderData = () => {

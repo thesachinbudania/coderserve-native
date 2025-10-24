@@ -18,7 +18,7 @@ export default function Activity() {
             <View style={{ width: 8, height: 8, borderRadius: 16, backgroundColor: '#202020' }} />
             {
               index !== combinedData.length - 1 && (
-                <View style={{ flex: 1, backgroundColor: '#f5f5f5', width: 2 }} />
+                <View style={{ flex: 1, backgroundColor: '#f5f5f5', width: 1 }} />
               )
             }
           </View>

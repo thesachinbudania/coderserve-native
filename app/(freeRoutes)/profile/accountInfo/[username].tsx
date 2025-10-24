@@ -9,6 +9,7 @@ import AnimatedTopTabs from '@/components/general/TopTabs';
 import { useRouter } from 'expo-router';
 import { useAccountInfoStore } from '@/zustand/talks/accountInfoStore';
 import { toWords } from 'number-to-words';
+import { useUserStore } from '@/zustand/stores';
 
 function Content({ content, pressable = true, onPress = () => { } }: { content?: string, pressable?: boolean, onPress?: () => void }) {
   return (
@@ -65,7 +66,7 @@ function AccountInfo({ fullName, joined, isFollowing, votedPostsCount, comments_
         onPress={() => router.push('/(freeRoutes)/profile/detailedAccountInfo/2')}
       />
       <Content
-        content={username_changes_count ? `${fullName} has changed their username ${numberRepresentation(username_changes_count)} before.` : `${fullName} haven't changed their username before.`}
+        content={username_changes_count ? `${fullName} has changed their username ${numberRepresentation(username_changes_count)} before.` : `${fullName} hasn't changed their username before.`}
         onPress={() => router.push('/(freeRoutes)/profile/formerUsernames/0')}
       />
     </View>
@@ -77,8 +78,8 @@ function SelfAccountInfo({ fullName, joined, isFollowing, votedPostsCount, comme
   const router = useRouter();
   return (
     <View style={{ gap: 16 }}>
-      <Content content={`You joined in ${joined}.`} />
-      <Content content={isFollowing ? `You are following ${fullName}` : `You aren't following ${fullName}`} />
+      <Content content={`You joined in ${joined}.`} pressable={false}/>
+      <Content content={isFollowing ? `You are following ${fullName}` : `You aren't following ${fullName}`} pressable={false}/>
       <Content
         content={votedPostsCount ? `You have voted on ${toWords(votedPostsCount)} of ${fullName}'s ${votedPostsCount > 1 ? 'posts' : 'post'}.` : `You haven't voted on any of ${fullName}'s posts.`}
         onPress={() => router.push('/(freeRoutes)/profile/detailedAccountInfo/3')}
@@ -106,6 +107,8 @@ export default function UserProfile() {
   const [userData, setUserData] = React.useState<any>(null);
   const { setAccountInfo } = useAccountInfoStore();
   const [isLoading, setIsLoading] = React.useState(true);
+  const [tabIndex, setTabIndex] = React.useState(0);
+  const {first_name, last_name, profile_image} = useUserStore();
 
   React.useEffect(() => {
     protectedApi.get(`/accounts/account_info/${username}/`).then((res) => {
@@ -125,6 +128,7 @@ export default function UserProfile() {
     })
   }, [])
 
+
   return (
     <PageLayout
       headerTitle='Account Info'
@@ -137,11 +141,12 @@ export default function UserProfile() {
         ) : (
           <>
             <View style={{ alignItems: 'center' }}>
-              <ImageLoader size={80} uri={apiUrl + userData?.profile_image} />
-              <Text style={{ fontSize: 15, fontWeight: 'bold', marginTop: 12 }}>{userData?.first_name} {userData?.last_name}</Text>
+              <ImageLoader size={80} uri={tabIndex === 0 ? apiUrl + userData?.profile_image : profile_image ? profile_image : apiUrl + 'media/images/default.png'} />
+              <Text style={{ fontSize: 15, fontWeight: 'bold', marginTop: 12 }}>{tabIndex === 0 ? userData?.first_name : first_name} {tabIndex === 0 ? userData?.last_name : last_name}</Text>
             </View>
             <View style={{ marginTop: 48, marginHorizontal: -16 }}>
               <AnimatedTopTabs
+              setIndex={setTabIndex}
                 tabs={[
                   {
                     name: 'Account User', content: <AccountInfo
@@ -150,7 +155,7 @@ export default function UserProfile() {
                       isFollowing={userData?.is_following}
                       votedPostsCount={userData?.voted_posts_count}
                       comments_count={userData?.comments_count}
-                      comments_mentions={userData?.comments_mentions}
+                      comments_mentions={userData?.comment_mentioned_posts.length}
                       username_changes_count={userData?.username_changes.length}
                     />
                   },
@@ -161,7 +166,7 @@ export default function UserProfile() {
                       isFollowing={userData?.you_following}
                       votedPostsCount={userData?.your_voted_posts_count}
                       comments_count={userData?.your_comments_count}
-                      comments_mentions={userData?.your_comments_mentions}
+                      comments_mentions={userData?.your_comment_mentioned_posts.length}
                       username_changes_count={userData?.your_username_changes.length}
                     />
                   },

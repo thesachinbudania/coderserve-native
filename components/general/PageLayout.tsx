@@ -22,13 +22,9 @@ export default function Layout({ headerTitle, children, defaultBack = true, flex
       <ScrollView
         contentContainerStyle={[styles.content, bottomPadding ? { paddingBottom: Platform.OS === 'ios' ? 96 : 128, } : { paddingBottom: 60 }, contentContainerStyle]}
         scrollEnabled={scrollEnabled}
+        keyboardShouldPersistTaps='handled'
       >
-        <TouchableWithoutFeedback
-          onPress={() => {
-            Keyboard.dismiss();
-          }}
-          style={{ flex: 1 }}
-        >
+        
           {
             flex1 ? (
               <View style={{ flex: 1, backgroundColor: 'white' }}>
@@ -40,7 +36,6 @@ export default function Layout({ headerTitle, children, defaultBack = true, flex
               </>
             )
           }
-        </TouchableWithoutFeedback>
       </ScrollView>
     </View>
     </View>

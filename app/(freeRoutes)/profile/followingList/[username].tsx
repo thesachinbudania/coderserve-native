@@ -1,25 +1,36 @@
 import DataWrapper from '@/components/general/DataWrapper';
-import { ActivityIndicator, FlatList, StyleSheet, Text, View, Image } from 'react-native';
+import { ActivityIndicator,Pressable, FlatList, StyleSheet, Text, View, Image } from 'react-native';
 import ImageLoader from '@/components/ImageLoader';
 import React from 'react';
 import { useFetch } from '@/helpers/useFetch';
 import { apiUrl } from '@/constants/env';
 import BottomName from '@/components/profile/home/BottomName';
+import SearchBar from '@/components/form/SearchBar';
 import { useGlobalSearchParams } from 'expo-router';
+import { useRouter } from 'expo-router';
+
 
 
 const UserListing = ({ user }: { user: any }) => {
+  const router = useRouter();
   return (
-    <View style={userStyles.container}>
+    <Pressable 
+      style={userStyles.container}
+      onPress={() => {
+        router.push('/(freeRoutes)/profile/userProfile/' + user.username);
+      }}
+    >
+      <View>
       <ImageLoader
         size={48}
         uri={user.profile_image}
       />
+</View>
       <View>
         <Text style={userStyles.name}>{user.first_name} {user.last_name}</Text>
         <Text style={userStyles.username}>@{user.username}</Text>
       </View>
-    </View>
+    </Pressable>
   )
 }
 
@@ -43,6 +54,8 @@ const userStyles = StyleSheet.create({
 
 export default function FollowingList() {
   const { username } = useGlobalSearchParams();
+
+  const [query, setQuery] = React.useState('');
 
   const [combinedData, setCombinedData] = React.useState<any[]>([]);
   const [nextPage, setNextPage] = React.useState<string | null>(`${apiUrl}/api/accounts/following_list/${username}/`);
@@ -68,11 +81,21 @@ export default function FollowingList() {
   }, [data]);
 
   const handleEndReached = () => {
-    if (!isPaginating && nextPage && !initialLoading) {
+    if (!isPaginating && nextPage && !initialLoading && !query) {
       setIsPaginating(true);
       refetch();
     }
   };
+
+  const filteredData = React.useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (!q) return combinedData;
+    return combinedData.filter((u: any) => {
+      const fullName = `${u.first_name || ''} ${u.last_name || ''}`.toLowerCase();
+      const usernameStr = (u.username || '').toLowerCase();
+      return fullName.includes(q) || usernameStr.includes(q);
+    });
+  }, [combinedData, query]);
 
   return (
     <DataWrapper
@@ -80,17 +103,20 @@ export default function FollowingList() {
       isLoading={initialLoading}
     >
       {
-        combinedData.length === 0 && !isLoading && !initialLoading ? (
+        filteredData.length === 0 && !isLoading && !initialLoading ? (
           <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 16, marginTop: -57 }}>
             <Image source={require('@/assets/images/stars.png')} style={{ width: 128, height: 128, marginBottom: 32 }} />
             <Text style={{ color: '#a6a6a6', textAlign: 'center', fontSize: 11 }}>
-              It looks like you're not following anyone yet. Once you follow someone, their profiles will appear here. Start exploring and connect with interesting profiles to build your network.
+              {query ? 'No users match your search.' : "It looks like you're not following anyone yet. Once you follow someone, their profiles will appear here. Start exploring and connect with interesting profiles to build your network."}
             </Text>
           </View>
         ) :
 
           <FlatList
-            data={combinedData}
+            data={filteredData}
+            ListHeaderComponent={
+        <SearchBar onChangeText={setQuery} />
+            }
             renderItem={({ item }) => <UserListing user={item} />}
             keyExtractor={(item) => item.id.toString()}
             contentContainerStyle={{ gap: 16, paddingHorizontal: 16, paddingTop: 24 }}
@@ -109,7 +135,9 @@ export default function FollowingList() {
                   </View>
                 ) : (
                   <View style={{ marginBottom: 77 }}>
-                    <BottomName />
+{
+                      combinedData.length > 8 && <BottomName />
+                    }
                   </View>
                 )}
               </>

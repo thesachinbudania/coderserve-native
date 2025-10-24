@@ -3,7 +3,7 @@ import { Image, TextInput, StyleSheet, TouchableWithoutFeedback, View } from 're
 import Typewriter from '@/components/Typewriter';
 
 
-export default function SearchBar({ text = '', onChangeText, isFocused, setIsFocused, placeholder = null, placholderText = [] }: { text?: string, onChangeText: React.Dispatch<React.SetStateAction<string>>, isFocused: boolean, placeholder?: string | null, placholderText?: string[], setIsFocused: React.Dispatch<React.SetStateAction<boolean>> }) {
+export default function SearchBar({ text = '', onChangeText, isFocused, setIsFocused, placeholder = null, placholderText = [], onSubmitEditing }: { text?: string, onChangeText: React.Dispatch<React.SetStateAction<string>>, isFocused: boolean, placeholder?: string | null, placholderText?: string[], setIsFocused: React.Dispatch<React.SetStateAction<boolean>>, onSubmitEditing?: () => void }) {
   const inputRef = React.useRef<TextInput>(null);
 
   const handleFocus = () => {
@@ -35,6 +35,7 @@ export default function SearchBar({ text = '', onChangeText, isFocused, setIsFoc
           placeholder={!isFocused && placeholder ? placeholder : (placholderText.length > 0 && !isFocused ? '' : 'Search')}
           value={text}
           onChangeText={onChangeText}
+          onSubmitEditing={() => onSubmitEditing && onSubmitEditing()}
           placeholderTextColor={!isFocused && placeholder ? '#cfdbe6' : '#d9d9d9'}
         />
         {

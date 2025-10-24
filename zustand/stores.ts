@@ -1,5 +1,7 @@
 import { create } from 'zustand'
 import * as SecureStore from 'expo-secure-store'
+import protectedApi from '@/helpers/axios'
+import { useJobsState } from './jobsStore'
 
 export interface UserState {
   username: string | null
@@ -86,3 +88,12 @@ export const useTokensStore = create<TokensState>((set) => ({
     await SecureStore.deleteItemAsync('refreshToken')
   }
 }))
+
+export async function syncUser() {
+  const { setUser } = useUserStore.getState()
+  const { setJobsState } = useJobsState.getState()
+  const response = await protectedApi.get('/accounts/auth_token_validator/')
+  setUser(response.data)
+  const resumeState = await protectedApi.get('/jobs/resume/update_resume/')
+  setJobsState(resumeState.data)
+}

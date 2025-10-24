@@ -1,8 +1,8 @@
 // app/Chat.tsx
 import React, { useState, useRef, useEffect, useMemo } from 'react';
 import {
-  ActivityIndicator, Image, Text, StyleSheet, View, FlatList,
-  TextInput, Pressable, KeyboardAvoidingView, Platform, Dimensions
+  ActivityIndicator, Keyboard, Image, Text, StyleSheet, View, FlatList,
+  TextInput, Pressable, KeyboardAvoidingView, Platform, Dimensions, InteractionManager, Animated
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useGlobalSearchParams } from 'expo-router';
@@ -62,7 +62,7 @@ function Header({ first_name, profile_image, menuRef }: { first_name: string; pr
   return (
     <View style={[styles.headerContainer, { paddingTop: top + 8 }]}>
       <View style={{ flexDirection: 'row', gap: 4 }}>
-        {profile_image ? <ImageLoader size={48} uri={profile_image} border={1} /> : null}
+        {profile_image ? <ImageLoader size={40} uri={profile_image} border={1} /> : null}
         <View style={{ gap: 6, justifyContent: 'center' }}>
           <Text numberOfLines={1} ellipsizeMode="tail" style={styles.headerName}>{first_name}</Text>
         </View>
@@ -175,11 +175,39 @@ const DateSeparator: React.FC<{ date: string }> = ({ date }) => (
 function Input({ value, onChange, onSend, onPickImage, disabled, chatDisabled, otherUserName, chat_blocked, blocked }: { otherUserName?: string, chatDisabled: boolean; chat_blocked: boolean; value: string; onChange: (t: string) => void; onSend: () => void; onPickImage: () => void; disabled?: boolean; blocked?: boolean }) {
   const canSend = value.trim().length > 0 && !disabled;
   const router = useRouter();
+  const {bottom} = useSafeAreaInsets();
+  // check if keyboard is open
+  const [keyboardOpen, setKeyboardOpen] = useState(false);
+  useEffect(() => {
+    const showSubscription = Keyboard.addListener("keyboardDidShow", () => {
+      setKeyboardOpen(true);
+    });
+    const hideSubscription = Keyboard.addListener("keyboardDidHide", () => {
+      setKeyboardOpen(false);
+    });
+    return () => {
+      showSubscription.remove();
+      hideSubscription.remove();
+    };
+  }, []);
+
+  // animated margin for input row: animate between safe-area bottom and 0 when keyboard opens/closes
+  const animatedMargin = useRef(new Animated.Value(bottom)).current;
+
+  // update animated margin when keyboard opens/closes
+  useEffect(() => {
+    Animated.timing(animatedMargin, {
+      toValue: keyboardOpen ? 0 : bottom,
+      duration: 180,
+      useNativeDriver: false,
+    }).start();
+  }, [keyboardOpen, bottom]);
+
   return (
     <View style={commentStyles.commentInputContainer}>
       {
         chatDisabled ? (
-          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', paddingVertical: 12, flexDirection: 'row', }}>
+          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', paddingVertical: 12, flexDirection: 'row', marginBottom: bottom }}>
             {
               !chat_blocked ? (
                 <>
@@ -192,15 +220,16 @@ function Input({ value, onChange, onSend, onPickImage, disabled, chatDisabled, o
           </View>
         )
           : (
-            <>
+            <Animated.View style={{flexDirection: 'row', marginBottom: animatedMargin, alignItems: 'center'}}>
               <TextInput
                 onChangeText={onChange}
                 value={value}
                 multiline
-                style={commentStyles.commentInput}
+                style={[commentStyles.commentInput]}
                 placeholder="Write here"
                 cursorColor="black"
                 textAlignVertical="top"
+                placeholderTextColor={'#cfdbe6'}
               />
               <Pressable
                 onPress={canSend ? onSend : onPickImage}
@@ -208,21 +237,27 @@ function Input({ value, onChange, onSend, onPickImage, disabled, chatDisabled, o
                 style={({ pressed }) => [
                   {
                     height: 45, width: 45, justifyContent: 'center', alignItems: 'center',
-                    backgroundColor: canSend ? '#202020' : '#f5f5f5', borderRadius: 45, marginLeft: 8
+                    backgroundColor: canSend ? '#202020' : '#f5f5f5', borderRadius: 45, margin: 8,
                   },
-                  pressed && canSend && { backgroundColor: '#006dff' }
+                  pressed && canSend && { backgroundColor: '#006dff' },
+                  pressed && !canSend && {backgroundColor: "#202020"}
                 ]}
               >
-                <Image
-                  style={{ transform: [{ rotate: canSend ? '-90deg' : '0deg' }], height: 20, width: 20 }}
+                {
+                  ({ pressed }) => (
+<Image
+                  style={[{ transform: [{ rotate: canSend ? '-90deg' : '0deg' }], height: 20, width: 20}]}
                   source={
                     canSend
-                      ? require('@/assets/images/arrows/right-arrow-white.png')
+                      ? require('@/assets/images/arrows/right-arrow-white.png') :
+                      pressed ? require('@/assets/images/messages/clip-white.png')
                       : require('@/assets/images/messages/clip.png')
                   }
                 />
+                  )
+                }
               </Pressable>
-            </>
+            </Animated.View>
           )
       }
 
@@ -245,9 +280,28 @@ const Chat: React.FC = () => {
   const [seenTimestamp, setSeenTimestamp] = useState<string | null>(null);
   const flatListRef = useRef<FlatList<ChatListItem>>(null);
   const wsRef = useRef<WebSocket | null>(null);
+
+  // Reliable scroll-to-bottom helper: defer until after interactions/layout settle
+  const scrollToBottom = (animated = true) => {
+    InteractionManager.runAfterInteractions(() => {
+      requestAnimationFrame(() => {
+        try {
+          flatListRef.current?.scrollToEnd({ animated });
+        } catch (e) {
+          // ignore
+        }
+      });
+    });
+  };
+
+
   const messageMenuRef = useRef<any>(null);
   const [currentMessageMenuId, setCurrentMessageMenuId] = useState<string | null>(null);
   const [currentMessageMenuTime, setCurrentMessageMenuTime] = useState<number | null>(null);
+  // Track which options and height are available for the current message
+  const [currentMenuOptions, setCurrentMenuOptions] = useState<{edit: boolean, delete: boolean}>({edit: false, delete: false});
+  const [currentMenuHeight, setCurrentMenuHeight] = useState(120);
+
   const [editMode, setEditMode] = useState(false);
   const [sendMessageEnabled, setSendMessageEnabled] = useState(true);
   const deleteMessageDrawerRef = useRef<any>(null);
@@ -271,7 +325,7 @@ const Chat: React.FC = () => {
         id: String(m.id),
         text: m.content,
         imageUrl: m.image_url,
-        createdAt: m.created_at,
+        createdAt: m.timestamp,
         timestamp: fmtTime(m.timestamp),
         senderId: m.sender.username,
         edited: m.edited || false,
@@ -324,6 +378,8 @@ const Chat: React.FC = () => {
             edited: data.edited || false,
           };
           setMessages(prev => [...prev, incoming]);
+          // ensure visible after new incoming message
+          scrollToBottom(true);
           setChatData((prev: any) => {
             if (!prev) return prev;
             const updatedMessages = [...prev.messages, data];
@@ -356,6 +412,14 @@ const Chat: React.FC = () => {
     return () => { ws.close(); };
   }, [id, token, username]);
 
+  // Scroll to bottom once initial load completes or whenever messages length changes
+  useEffect(() => {
+    if (!initialLoading && messages.length > 0) {
+      // on initial load we don't animate, afterwards we animate
+      scrollToBottom(false);
+    }
+  }, [initialLoading, messages.length]);
+
   // --- EFFECT TO MARK MESSAGES AS SEEN ---
   useEffect(() => {
     // Only run after the initial messages have loaded and the WebSocket is ready.
@@ -371,6 +435,18 @@ const Chat: React.FC = () => {
     try {
       setSending(true);
       if (editMode && currentMessageMenuId) {
+        // Ensure edit window (15 minutes) hasn't expired
+        const msgToEdit = messages.find(m => m.id === currentMessageMenuId) || chatData?.messages?.find((m: any) => String(m.id) === String(currentMessageMenuId));
+        const msgCreatedAt = msgToEdit ? (msgToEdit.createdAt || msgToEdit.created_at) : null;
+        if (msgCreatedAt) {
+          const elapsed = dayjs().valueOf() - dayjs(msgCreatedAt).valueOf();
+          if (elapsed > 15 * 60 * 1000) {
+            alert('Edit window has expired for this message.');
+            setEditMode(false);
+            setCurrentMessageMenuId(null);
+            return;
+          }
+        }
         // --- send edit request ---
         wsRef.current.send(JSON.stringify({
           action: 'message.edit',
@@ -393,6 +469,8 @@ const Chat: React.FC = () => {
         }));
       }
       setInputText('');
+      // ensure the sent message will be visible (WS will append the real message)
+      scrollToBottom(true);
     } catch (e) {
       console.error('WS send failed', e);
     } finally {
@@ -430,6 +508,8 @@ const Chat: React.FC = () => {
       edited: false,
     };
     setMessages(prev => [...prev, optimisticMessage]);
+  // make sure optimistic message is visible
+  scrollToBottom(true);
 
     const formData = new FormData();
     formData.append('image', {
@@ -458,6 +538,8 @@ const Chat: React.FC = () => {
         }));
       }
       setMessages(prev => prev.filter(msg => msg.id !== tempId));
+      // after removing temp id we still want the real message (arriving via WS) to show; ensure scroll
+      scrollToBottom(true);
 
     } catch (error) {
       console.error('Image upload failed:', error);
@@ -500,7 +582,6 @@ const Chat: React.FC = () => {
     });
     return items;
   }, [messages]);
-
   // --- RENDER LOGIC ---
   const renderFooter = () => {
     const lastMessage = messages[messages.length - 1];
@@ -534,26 +615,32 @@ const Chat: React.FC = () => {
     const message = chatData.messages.find((m: any) => {
       return m.id == id;
     });
-    let time = message?.timestamp
-    if (time === undefined) {
-      time = message?.created_at
-    }
+    // Prefer the canonical created_at ISO timestamp for calculations
+    const createdAt = message?.created_at || message?.createdAt || message?.timestamp || null;
     const now = dayjs().valueOf();
-    const elapsed = now - (time ? dayjs(time).valueOf() : now);
-    const remaining = 30 * 60 * 1000 - elapsed;
-    if (remaining <= 0) {
+    const messageTimeMs = createdAt ? dayjs(createdAt).valueOf() : null;
+    const elapsed = messageTimeMs ? now - messageTimeMs : 0;
+    // Option logic: delete allowed within 30min, edit within 15min
+    const canDelete = elapsed <= 30 * 60 * 1000;
+    const canEdit = elapsed <= 15 * 60 * 1000;
+    if (!canDelete) {
       // If more than 30 minutes have passed, do not open the menu
       return;
     }
-    setCurrentMessageMenuTime(time ? dayjs(time).valueOf() : null);
-    messageMenuRef.current?.open();
+    const opts = {edit: canEdit, delete: canDelete};
+    setCurrentMenuOptions(opts);
+    setCurrentMenuHeight(opts.edit && opts.delete ? 216 : 120);
+    setCurrentMessageMenuTime(messageTimeMs);
+    // Wait for state to update, then open the drawer (ensures correct height)
+    setTimeout(() => {
+      messageMenuRef.current?.open();
+    }, 0);
   };
 
   function MenuOption({ title, subTitle, pressTimer = 15, onPress = () => { } }: { title: string, subTitle: string, pressTimer?: number, onPress?: () => void }) {
     const pressTimerMinutes = pressTimer * 60 * 1000; // 15 minutes in milliseconds
     const [timeLeft, setTimeLeft] = useState<number | null>(null);
     useEffect(() => {
-      // show the time remaining for the action based on currentMessageMenuTime and pressTimerMinutes
       if (currentMessageMenuTime) {
         const interval = setInterval(() => {
           const now = dayjs().valueOf();
@@ -585,9 +672,9 @@ const Chat: React.FC = () => {
           <Text style={{ fontSize: 12, color: "#a6a6a6", marginTop: 8 }}>{subTitle}</Text>
         </Pressable>
       )
-
     )
   }
+
 
 
   return (
@@ -597,44 +684,64 @@ const Chat: React.FC = () => {
         profile_image={other?.profile_image}
         menuRef={menuRef}
       />
-      <KeyboardAvoidingView style={{ flex: 1 }}>
-        <FlatList
-          ref={flatListRef}
-          data={chatListItems}
-          renderItem={({ item }) => 'isSeparator' in item ? <DateSeparator date={item.date} /> : <MessageBubble openMessageMenu={openMessageMenu} message={item} currentUserId={me} />}
-          keyExtractor={(item) => item.id}
-          contentContainerStyle={styles.messagesContainer}
-          onContentSizeChange={() => flatListRef.current?.scrollToEnd({ animated: false })}
-          onLayout={() => flatListRef.current?.scrollToEnd({ animated: false })}
-          ListFooterComponent={renderFooter}
-        />
-        <Input value={inputText} onChange={setInputText} onSend={handleSendText} chatDisabled={chatData.messaging_disabled || !sendMessageEnabled} onPickImage={handlePickAndUploadImage} disabled={sending}
-          otherUserName={other.first_name + ' ' + other.last_name}
-          chat_blocked={chatData?.chat_blocked}
-          blocked={other?.is_blocked}
-        />
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      >
+        <View style={{ flex: 1}}>
+          <FlatList
+            ref={flatListRef}
+            data={chatListItems}
+            renderItem={({ item }) => 'isSeparator' in item ? <DateSeparator date={item.date} /> : <MessageBubble openMessageMenu={openMessageMenu} message={item} currentUserId={me} />}
+            keyExtractor={(item) => item.id}
+            contentContainerStyle={styles.messagesContainer}
+            onContentSizeChange={() => scrollToBottom(false)}
+              onLayout={() => scrollToBottom(false)}
+            ListFooterComponent={renderFooter}
+          />
+          <Input
+            value={inputText}
+            onChange={setInputText}
+            onSend={handleSendText}
+            // chatDisabled should only reflect server-side conversation lock
+            chatDisabled={chatData.messaging_disabled}
+            onPickImage={handlePickAndUploadImage}
+            // disable send when sending or when send is not enabled (e.g. editing with unchanged text)
+            disabled={sending || !sendMessageEnabled}
+            otherUserName={other.first_name + ' ' + other.last_name}
+            chat_blocked={chatData?.chat_blocked}
+            blocked={other?.is_blocked}
+          />
+        </View>
       </KeyboardAvoidingView>
-      <BottomDrawer sheetRef={messageMenuRef} height={
-        30 * 60 * 1000 - (dayjs().valueOf() - (currentMessageMenuTime ? dayjs(currentMessageMenuTime).valueOf() : dayjs().valueOf())) <= 15000 * 60 ? 120 : 216}
+      <BottomDrawer
+        sheetRef={messageMenuRef}
+        height={currentMenuHeight}
       >
         <View style={{ paddingHorizontal: 16, gap: 16 }}>
-          <MenuOption
-            title="Edit Message"
-            subTitle="Make changes to your message content."
-            onPress={() => {
-              setEditMode(true);
-              messageMenuRef.current?.close();
-            }}
-          />
-          <MenuOption
-            title="Delete Message"
-            subTitle="Permanently remove this message."
-            pressTimer={30}
-            onPress={() => {
-              messageMenuRef.current?.close();
-              deleteMessageDrawerRef.current?.open();
-            }}
-          />
+          {currentMenuOptions.edit && (
+            <MenuOption
+              title="Edit Message"
+              subTitle="Make changes to your message content."
+              onPress={() => {
+                setEditMode(true);
+                messageMenuRef.current?.close();
+              }}
+            />
+          )}
+          {currentMenuOptions.delete && (
+            <MenuOption
+              title="Delete Message"
+              subTitle="Permanently remove this message."
+              pressTimer={30}
+              onPress={() => {
+                messageMenuRef.current?.close();
+                setTimeout(() => {
+                deleteMessageDrawerRef.current?.open();
+                }, 300)
+              }}
+            />
+          )}
         </View>
       </BottomDrawer>
       <BottomDrawer sheetRef={deleteMessageDrawerRef} height={160}>
@@ -657,6 +764,18 @@ const Chat: React.FC = () => {
                 title="Delete"
                 onPress={() => {
                   if (wsRef.current && currentMessageMenuId) {
+                    // Verify delete window (30 minutes) hasn't expired
+                    const msgToDelete = messages.find(m => m.id === currentMessageMenuId) || chatData?.messages?.find((m: any) => String(m.id) === String(currentMessageMenuId));
+                    const msgCreatedAt = msgToDelete ? (msgToDelete.createdAt || msgToDelete.created_at) : null;
+                    if (msgCreatedAt) {
+                      const elapsed = dayjs().valueOf() - dayjs(msgCreatedAt).valueOf();
+                      if (elapsed > 30 * 60 * 1000) {
+                        alert('Delete window has expired for this message.');
+                        deleteMessageDrawerRef.current?.close();
+                        setCurrentMessageMenuId(null);
+                        return;
+                      }
+                    }
                     deleteMessage(wsRef.current, currentMessageMenuId);
                     setMessages(prev => prev.filter(m => m.id !== currentMessageMenuId));
                     setCurrentMessageMenuId(null);
@@ -687,11 +806,13 @@ const Chat: React.FC = () => {
           <MenuButton
             onPress={() => {
               menuRef?.current.close();
-              if (other?.is_blocked) {
+              setTimeout(() => {
+if (other?.is_blocked) {
                 unblockDrawerRef.current?.open();
                 return;
               }
               blockDrawerRef.current?.open();
+              }, 300)
             }}
           >
             <Text style={styles.menuButtonHeading}>{other?.is_blocked ? 'Unblock' : 'Block'}</Text>
@@ -704,7 +825,9 @@ const Chat: React.FC = () => {
           <MenuButton
             onPress={() => {
               menuRef?.current.close();
+              setTimeout(() => {
               deleteChatRef?.current.open();
+              }, 300)
             }}
           >
             <Text style={styles.menuButtonHeading}>Delete Chat</Text>
@@ -777,7 +900,7 @@ const Chat: React.FC = () => {
           </View>
         </View>
       </BottomSheet>
-      <BottomDrawer sheetRef={blockDrawerRef} height={604}>
+      <BottomDrawer sheetRef={blockDrawerRef} height={652}>
         <View style={{ paddingHorizontal: 16 }}>
           <Text style={{ fontSize: 15, fontWeight: 'bold', marginTop: 8 }}>What Happens When You Block Someone?</Text>
           <Text style={{ fontSize: 13, color: "#737373", textAlign: 'left', marginTop: 8, marginBottom: 16 }}>Blocking gives you full control over your experience. When you block a user:</Text>
@@ -825,13 +948,13 @@ export default Chat;
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: 'white' },
   headerContainer: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", paddingHorizontal: 16, paddingBottom: 12, borderBottomWidth: 1, borderColor: "#f5f5f5" },
-  headerName: { fontSize: 18, fontWeight: "600" },
+  headerName: { fontSize: 15, fontWeight: "600" },
   headerIcon: { width: 24, height: 24 },
   messagesContainer: { paddingHorizontal: 16, paddingVertical: 10, flexGrow: 1 },
-  messageRow: { marginVertical: 4, width: '80%' },
+  messageRow: { marginVertical: 4 },
   currentUserRow: { alignSelf: 'flex-end' },
   otherUserRow: { alignSelf: 'flex-start' },
-  messageBubble: { paddingVertical: 16, paddingHorizontal: 16, borderRadius: 10 },
+  messageBubble: { paddingVertical: 16, paddingHorizontal: 16, borderRadius: 10, maxWidth: '80%' },
   currentUserBubble: { backgroundColor: '#004AAD' },
   otherUserBubble: { backgroundColor: '#F5F5F5' },
   firstInGroupCurrentUser: { borderTopRightRadius: 0 },
@@ -875,6 +998,25 @@ const styles = StyleSheet.create({
 });
 
 const commentStyles = StyleSheet.create({
-  commentInput: { fontSize: 13, flex: 1, color: 'black', maxHeight: 100, paddingVertical: 10 },
-  commentInputContainer: { width: '100%', borderTopWidth: 1, borderTopColor: '#eeeeee', paddingHorizontal: 16, paddingVertical: 8, flexDirection: 'row', alignItems: 'flex-start' },
+  commentInput: {
+    fontSize: 13,
+    flex: 1,
+    color: 'black',
+    maxHeight: 100,
+    minHeight: 40,
+    paddingTop: 16,
+    paddingBottom: 16,
+    paddingLeft: 16,
+    textAlignVertical: 'center',
+    // No paddingRight so the send button is flush
+  },
+  commentInputContainer: {
+    width: '100%',
+    borderTopWidth: 1,
+    borderTopColor: '#eeeeee',
+    paddingHorizontal: 0, // remove horizontal padding so input's left padding is used
+    paddingVertical: 0, // remove vertical padding so input's top/bottom padding is used
+    flexDirection: 'row',
+    alignItems: 'center', // center input and button vertically
+  },
 });

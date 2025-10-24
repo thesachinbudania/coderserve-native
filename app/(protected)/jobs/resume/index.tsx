@@ -47,21 +47,29 @@ export function ExperienceListing({ children, image, onPress = () => { }, showLi
   )
 }
 
-export function Header({ menuRef, title }: { menuRef: React.RefObject<any>, title: string }) {
+export function Header({ menuRef, title }: { menuRef: React.RefObject<any>, title?: string }) {
   const { top } = useSafeAreaInsets();
   const router = useRouter();
+  const focused = useIsFocused();
   return (
+    focused && 
     <Portal>
       <View style={[styles.header, { top: 0, paddingTop: top + 8 }]}>
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+        {
+          title && (
+<View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
           <IconButton onPress={() => router.back()}>
             <Image source={require('@/assets/images/Back.png')} style={styles.menuIcon} />
           </IconButton>
           <Text style={styles.headerText}>{title}</Text>
         </View>
+          )
+        }
+        <View style={[!title && {flex: 1, alignItems: 'flex-end' }]}> 
         <IconButton onPress={() => menuRef?.current.open()}>
           <Image source={require('@/assets/images/profile/home/menu.png')} style={styles.menuIcon} />
         </IconButton>
+</View>
       </View>
     </Portal>
 
@@ -83,7 +91,7 @@ export function ResumeDetails({ showLess = false, jobsState, userState }: { show
     user = userState;
   }
   return (
-    <View style={styles.container}>
+    <View style={[styles.container]}>
       <View>
         <Text style={styles.heading}>About</Text>
         {jobs.about ? <ReadMore

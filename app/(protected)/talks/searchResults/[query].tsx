@@ -77,7 +77,7 @@ const styles = StyleSheet.create({
   },
   headContainer: {
     flexDirection: "row",
-    gap: 4,
+    gap: 8,
     alignItems: 'center',
   },
   name: {
@@ -165,11 +165,10 @@ export default function Search() {
       'posts'
     );
   }, [])
-  console.log(searchResults, 'search results')
 
   return (
     <SafeAreaView style={{flex: 1, backgroundColor: "white"}}>
-    <Pressable style={{ flex: 1, backgroundColor: "#f5f5f5" }}
+    <Pressable style={{ flex: 1, backgroundColor: "#fff" }}
       onPress={() => Keyboard.dismiss()}
     >
       <SearchBar
@@ -178,7 +177,7 @@ export default function Search() {
         isFocused={isFocused}
         setIsFocused={setIsFocused}
       />
-      <View style={{ height: '100%', gap: 16, paddingTop: 24, paddingHorizontal: 16, width: '100%', backgroundColor: 'white', display: isFocused ? 'flex' : 'none' }} >
+      <View style={{ height: '100%', paddingTop: 24, paddingHorizontal: 16, width: '100%', backgroundColor: 'white', display: isFocused ? 'flex' : 'none' }} >
         {
           search.length > 0 && (
             <Pressable
@@ -197,17 +196,19 @@ export default function Search() {
           searchTerms.map((data: any, index: number) => (
             <Pressable
               key={index}
-              style={styles.headContainer}
+              style={[styles.headContainer, {marginTop: 16}]}
               onPress={() => {
                 setSearch("");
                 Keyboard.dismiss();
                 router.push('/(freeRoutes)/profile/userProfile/' + data.username);
               }}
             >
+              <View>
               <ImageLoader
                 size={48}
                 uri={data.profile_image}
               />
+              </View>
               <View style={{ gap: 6 }}>
                 <Text style={styles.name}>{data.first_name} {data.last_name}</Text>
                 <Text style={styles.time}>@{data.username}</Text>
@@ -218,6 +219,7 @@ export default function Search() {
       </View>
       {
         !isFocused && (
+          <View style={{ paddingBottom: 8, backgroundColor: "#f5f5f5" }}>
           <View style={{ padding: 16, flexDirection: 'row', gap: 16, backgroundColor: 'white' }}>
             <OptionChip
               title="Posts"
@@ -239,6 +241,7 @@ export default function Search() {
               title="Companies"
             />
           </View>
+      </View>
         )
       }
       {
@@ -254,7 +257,7 @@ export default function Search() {
                     <ScrollView style={{ height: height - 172 }}>
                       {searchResults.results.map((post: any) => {
                         return (
-                        <View style={{ marginTop: 8 }} key={post.id}>
+                        <View style={{paddingBottom: 8, backgroundColor: '#f5f5f5' }} key={post.id}>
                           <Post key={post.id} data={post} />
                         </View>
                       )})}
@@ -263,7 +266,7 @@ export default function Search() {
                       </View>
                     </ScrollView>
                   ) : (
-                    <View style={{ marginTop: 8, height: height - 172, backgroundColor: 'white' }}>
+                    <ScrollView style={{ marginTop: 8, height: height - 172, backgroundColor: 'white'}}>
                       {searchResults.results.map((user: any) => (
                         <Pressable
                           key={user.id}
@@ -274,18 +277,22 @@ export default function Search() {
                             router.push('/(freeRoutes)/profile/userProfile/' + user.username);
                           }}
                         >
+                          <View>
                           <ImageLoader
                             size={48}
                             uri={user.profile_image}
                           />
+</View>
                           <View style={{ gap: 6 }}>
                             <Text style={styles.name}>{user.first_name} {user.last_name}</Text>
                             <Text style={styles.time}>@{user.username}</Text>
                           </View>
                         </Pressable>
                       ))}
-                      <BottomName />
-                    </View>
+                      {
+                        searchResults.results.length > 8 && <BottomName />
+                      }
+                    </ScrollView>
                   )
                 ) : (
                   <ScrollView contentContainerStyle={{ height: height - 172, alignItems: 'center', backgroundColor: 'white', paddingTop: 192 }}>

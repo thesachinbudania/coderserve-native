@@ -85,7 +85,6 @@ export default function Education() {
     editDegree = currentDegrees?.find((degree) => degree.id === id);
   }
   const [scrollEnabled, setScrollEnabled] = React.useState(true);
-  console.log(editDegree?.type, 'this is the type of degree')
   const [page, setPage] = React.useState(editDegree ? editDegree.type : 0);
   return (
     <PageLayout

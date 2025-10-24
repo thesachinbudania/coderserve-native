@@ -15,6 +15,7 @@ export default function BottomDrawer({ sheetRef, children, draggableIconHeight =
           draggableIcon: {
             backgroundColor: '#eee',
             height: draggableIconHeight,
+            marginTop: 8
           },
           container: {
             backgroundColor: 'white',

@@ -49,7 +49,7 @@ const StreakSquare = ({ intensity = 0 }: { intensity?: number }) => {
   )
 }
 
-const StreakRate = () => {
+export const StreakRate = () => {
   const router = useRouter();
   return (
     <View style={{ marginTop: 8, borderRadius: 12, padding: 16, borderColor: '#f5f5f5', borderWidth: 1 }}>
@@ -98,11 +98,21 @@ const StreakRate = () => {
   )
 }
 
-export default function ProfileContent() {
+export default function ProfileContent({
+  editable,
+  setHeight,
+}: {
+  editable?: boolean;
+  setHeight?: (height: number) => void;
+}) {
+  const lastHeightRef = React.useRef(0);
+  const timeoutRef = React.useRef<NodeJS.Timeout | null>(null);
+
+
   return (
     <>
       <View style={styles.tabContent}>
-        <EditResume showLess editable={false} />
+        <EditResume showLess editable={editable} />
         <View style={{ paddingHorizontal: 16, marginTop: 48 }}>
           <Text style={[styles.detailsHeading]}>Streak</Text>
           <StreakRate />
@@ -112,6 +122,7 @@ export default function ProfileContent() {
     </>
   );
 }
+
 
 const styles = StyleSheet.create({
   buttonContainer: {},

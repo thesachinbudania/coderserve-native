@@ -9,10 +9,11 @@ export default function SearchSuggestion({
 }) {
 	const { width } = Dimensions.get("window");
 	return (
-		<Pressable onPress={onPress}>
+		<Pressable 
+			onPress={onPress}
+		>
 			{({ pressed }) => (
 				<View
-					pointerEvents="none"
 					style={[{ padding: 16, flexDirection: "row", gap: 8 }]}
 				>
 					<Image

@@ -6,15 +6,19 @@ import { useFetch } from '@/helpers/useFetch';
 import { apiUrl } from '@/constants/env';
 import BottomName from '@/components/profile/home/BottomName';
 import { useGlobalSearchParams } from 'expo-router';
+import SearchBar from '@/components/form/SearchBar';
 
 
 const UserListing = ({ user }: { user: any }) => {
+  console.log(user.profile_image, user.first_name);
   return (
     <View style={userStyles.container}>
+      <View >
       <ImageLoader
         size={48}
         uri={user.profile_image}
       />
+      </View>
       <View>
         <Text style={userStyles.name}>{user.first_name} {user.last_name}</Text>
         <Text style={userStyles.username}>@{user.username}</Text>
@@ -44,6 +48,8 @@ const userStyles = StyleSheet.create({
 export default function FollowingList() {
   const { username } = useGlobalSearchParams();
 
+  const [query, setQuery] = React.useState('');
+
   const [combinedData, setCombinedData] = React.useState<any[]>([]);
   const [nextPage, setNextPage] = React.useState<string | null>(`${apiUrl}/api/accounts/followers_list/${username}/`);
   const [initialLoading, setInitialLoading] = React.useState(true);
@@ -68,28 +74,42 @@ export default function FollowingList() {
   }, [data]);
 
   const handleEndReached = () => {
-    if (!isPaginating && nextPage && !initialLoading) {
+    if (!isPaginating && nextPage && !initialLoading && !query) {
       setIsPaginating(true);
       refetch();
     }
   };
+
+  const filteredData = React.useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (!q) return combinedData;
+    return combinedData.filter((u: any) => {
+      const fullName = `${u.first_name || ''} ${u.last_name || ''}`.toLowerCase();
+      const usernameStr = (u.username || '').toLowerCase();
+      return fullName.includes(q) || usernameStr.includes(q);
+    });
+  }, [combinedData, query]);
 
   return (
     <DataWrapper
       header='Followers'
       isLoading={initialLoading}
     >
+      
       {
-        combinedData.length === 0 && !isLoading && !initialLoading ? (
+        filteredData.length === 0 && !isLoading && !initialLoading ? (
           <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 16, marginTop: -57 }}>
             <Image source={require('@/assets/images/stars.png')} style={{ width: 128, height: 128, marginBottom: 32 }} />
-            <Text style={{ color: '#a6a6a6', textAlign: 'center', fontSize: 11 }}>It looks like you don't have any followers yet. Once you start gaining them, their profiles will appear here. Start sharing useful content to build your network.</Text>
+            <Text style={{ color: '#a6a6a6', textAlign: 'center', fontSize: 11 }}>{query ? 'No followers match your search.' : "It looks like you don't have any followers yet. Once you start gaining them, their profiles will appear here. Start sharing useful content to build your network."}</Text>
           </View>
         ) :
 
           <FlatList
-            data={combinedData}
+            data={filteredData}
             renderItem={({ item }) => <UserListing user={item} />}
+            ListHeaderComponent={
+        <SearchBar onChangeText={setQuery} />
+            }
             keyExtractor={(item) => item.id.toString()}
             contentContainerStyle={{ gap: 16, paddingHorizontal: 16, paddingTop: 24 }}
             onEndReached={handleEndReached}
@@ -106,8 +126,10 @@ export default function FollowingList() {
                     <ActivityIndicator size='small' color='#202020' />
                   </View>
                 ) : (
-                  <View style={{ marginBottom: 77 }}>
-                    <BottomName />
+                  <View style={{ }}>
+                    {
+                      combinedData.length > 8 && <BottomName />
+                    }
                   </View>
                 )}
               </>

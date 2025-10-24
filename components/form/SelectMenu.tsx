@@ -4,7 +4,7 @@ import GreyBgButton from '../../components/buttons/GreyBgButton';
 import SearchBar from '../../components/form/SearchBar';
 import LinearGradient from 'react-native-linear-gradient';
 import * as Haptics from 'expo-haptics';
-import BottomSheet from '../messsages/BottomSheet';
+import BottomDrawer from '../BottomDrawer';
 
 function MultiTextGreyBgButton({ title, disabled = false, onPress = () => { }, loading = false }: { title: string[], disabled?: boolean, onPress?: () => void, loading?: boolean },) {
   return (
@@ -78,8 +78,8 @@ export default function SelectMenu({ allowSearch = true, error = false, placehol
           </View>
         )}
       </Pressable>
-      <BottomSheet
-        menuRef={sheetRef}
+      <BottomDrawer
+        sheetRef={sheetRef}
         height={600}
       >
         <View style={styles.menu}>
@@ -137,7 +137,7 @@ export default function SelectMenu({ allowSearch = true, error = false, placehol
             )
           }
         </View>
-      </BottomSheet>
+      </BottomDrawer>
     </>
   )
 }
@@ -173,5 +173,6 @@ const styles = StyleSheet.create({
   },
   menu: {
     gap: 24,
+    paddingHorizontal: 16,
   }
 })

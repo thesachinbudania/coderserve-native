@@ -15,6 +15,8 @@ import { apiUrl } from '@/constants/env'
 import BottomName from '@/components/profile/home/BottomName';
 import BottomSheet from '@/components/messsages/BottomSheet';
 import { MenuButton } from '../../jobs';
+import DefaultButton from '@/components/buttons/NoBgButton';
+import BlueButton from '@/components/buttons/BlueButton';
 
 
 const { width } = Dimensions.get('window');
@@ -392,12 +394,38 @@ export default function ViewPost() {
   const [downvoted, setDownvoted] = React.useState(false);
   const [upvotes, setUpvotes] = React.useState(0);
   const [downvotes, setDownvotes] = React.useState(0);
+  const [postSaved, setPostSaved] = React.useState(false);
   const menuRef = React.useRef<any>(null);
+  const postSaveRef = React.useRef<any>(null);
+  const toggleSave = async () => {
+    if (!post?.id) return;
+    try {
+      // Close the menu first
+      menuRef?.current?.close();
+      const resp = await protectedApi.put('/talks/saved_posts/', { post_id: post.id });
+      // If saved (created)
+      if (resp.status === 201 || (resp.data && resp.data.detail && resp.data.detail.toLowerCase().includes('saved'))) {
+        // open the saved confirmation sheet
+        if (resp.status === 201){
+          setPostSaved(true);
+        }
+        else if (resp.status === 200) {
+          setPostSaved(false);
+        }
+        setTimeout(() => postSaveRef?.current?.open(), 200);
+      }
+      // If unsaved (toggled off), do nothing special for now
+    } catch (err: any) {
+      // handle errors minimally
+      console.error('Error toggling save post:', err?.response?.data || err?.message || err);
+    }
+  }
   React.useEffect(() => {
     if (!id) return;
     protectedApi.get(`/talks/posts/${id}/`)
       .then(res => {
         setPost(res.data);
+        setPostSaved(res.data.saved)
         setUpvoted(res.data.upvoted);
         setDownvoted(res.data.downvoted);
         setUpvotes(res.data.upvotes);
@@ -440,6 +468,16 @@ export default function ViewPost() {
         </>
       )}
       <BottomSheet
+      menuRef={postSaveRef}
+      height={192}
+      >
+        <Image source={require('@/assets/images/blueTick.png')} style={{width: 48, height: 48, marginHorizontal: 'auto', tintColor: '#202020'}}/>
+        <Text style={{textAlign: 'center', fontSize: 13, color: "#737373", marginTop: 16, marginBottom: 32}}>
+          {postSaved ? 'This post has been saved successfully.' : 'This post has been removed from your saved list.'}
+        </Text>
+        <BlueButton title="Okay" onPress={() => postSaveRef.current.close()} />
+      </BottomSheet>
+      <BottomSheet
         menuRef={menuRef}
         height={392}>
         <View style={styles.menuContainer}>
@@ -455,10 +493,13 @@ export default function ViewPost() {
             </Text>
           </MenuButton>
           <MenuButton
+            onPress={toggleSave}
           >
-            <Text style={styles.menuButtonHeading}>Save Post</Text>
+            <Text style={styles.menuButtonHeading}>{postSaved ? 'Unsave Post' : 'Save Post'}</Text>
             <Text style={styles.menuButtonText}>
-              Bookmark this post to view it later.
+              {
+                postSaved? 'Remove this post from your saved list.' : 'Bookmark this post to view it later.'
+              }
             </Text>
           </MenuButton>
           <MenuButton>

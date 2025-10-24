@@ -83,7 +83,6 @@ export default function Education({ page, setPage, setShowHeader, setScrollEnabl
   }
 
   const handleSave: SubmitHandler<FormData> = async (data) => {
-    console.log('triggering with dat', data)
     await protectedApi.put('/jobs/resume/add_degree/', { new_degree: data }).then((response) => {
       console.log(response.data)
       if (response.data) {
@@ -294,7 +293,7 @@ export default function Education({ page, setPage, setShowHeader, setScrollEnabl
     );
 
     return () => backHandler.remove();
-  })
+  }, [])
   return (
     <>
       <PopUpMessage
@@ -332,7 +331,7 @@ export default function Education({ page, setPage, setShowHeader, setScrollEnabl
                 style={{
                   display: degreeFocused ? "flex" : "none",
                   height: "100%",
-                  backgroundColor: "#f7f7f7",
+                  backgroundColor: "#fff",
                 }}
               >
                 {

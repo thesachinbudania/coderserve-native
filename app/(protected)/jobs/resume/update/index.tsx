@@ -352,8 +352,9 @@ export function EditResume({ showLess = false, editable = true }: { showLess?: b
                 }
               />
             ))}
-          </View>
-          <View style={styles.buttonContainer}>
+          </View>{
+            editable && (
+<View style={styles.buttonContainer}>
             <NoBgButton
               title="Add More"
               onPress={() => {
@@ -366,6 +367,9 @@ export function EditResume({ showLess = false, editable = true }: { showLess?: b
               }
             />
           </View>
+            )
+          }
+          
         </View>
       ) : (
         <ProfileSection
