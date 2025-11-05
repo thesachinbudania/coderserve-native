@@ -1,5 +1,5 @@
 import React from 'react';
-import { Dimensions, Image, TextInput, Pressable, View, StyleSheet, Text, ScrollView } from 'react-native';
+import { Dimensions, Image, TextInput, KeyboardAvoidingView, Pressable, View, StyleSheet, Text, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import ImageLoader from '@/components/ImageLoader';
@@ -15,7 +15,6 @@ import { apiUrl } from '@/constants/env'
 import BottomName from '@/components/profile/home/BottomName';
 import BottomSheet from '@/components/messsages/BottomSheet';
 import { MenuButton } from '../../jobs';
-import DefaultButton from '@/components/buttons/NoBgButton';
 import BlueButton from '@/components/buttons/BlueButton';
 
 
@@ -154,23 +153,23 @@ const commentTimeCalculator = (created_at: string) => {
   const diffInSeconds = Math.floor((now.getTime() - commentDate.getTime()) / 1000);
 
   if (diffInSeconds < 60) {
-    return `${diffInSeconds}s`;
+    return `Just now`;
   } else if (diffInSeconds < 3600) {
     const minutes = Math.floor(diffInSeconds / 60);
-    return `${minutes}m`;
+    return `${minutes} min ago`;
   } else if (diffInSeconds < 86400) {
     const hours = Math.floor(diffInSeconds / 3600);
-    return `${hours}H`;
+    return `${hours} ${hours === 1 ? 'hour ago' : 'hours ago'}`;
   } else if (diffInSeconds < 2592000) { // 30 days
     const days = Math.floor(diffInSeconds / 86400);
-    return `${days}D`;
+    return `${days} ${days === 1 ? 'day ago' : 'days ago'}`;
   }
   else if (diffInSeconds < 31536000) { // 1 year
     const months = Math.floor(diffInSeconds / 2592000);
-    return `${months}M`;
+    return `${months} ${months === 1 ? 'month ago' : 'months ago'}`;
   } else {
     const years = Math.floor(diffInSeconds / 31536000);
-    return `${years}Y`;
+    return `${years} ${years === 1 ? 'year ago' : 'years ago'}`;
   }
 }
 const Comment = ({ first_name, username, id, replies, created_at, reply = false, comment, profile_image, setReplyingTo, setReplyingId }: { first_name: string, username: string, created_at: any, reply?: boolean, replies: any[], id: string, comment: string, profile_image: string, setReplyingId: (replyingId: string | null) => void, setReplyingTo: (replyingTo: string | null) => void }) => {
@@ -257,12 +256,18 @@ const Comments = ({ id, commentsCount, last_comment }: CommentsProps) => {
     }).catch(err => console.log(err.response.data));
   }, [])
   const postComment = () => {
+    if (comment.trim().length === 0) {
+      return;
+    }
     const url = replyingId ? `/talks/posts/${id}/comments/${replyingId}/reply/` : `/talks/posts/${id}/comments/`;
     protectedApi.post(url, {
       content: comment,
     }).then((res) => {
       setComments(res.data);
       commentInputRef.current?.clear();
+      setComment('');
+      setReplyingId(null);
+      setReplyingTo(null);
     }).catch(err => console.log(err.response.data));
   }
   return (
@@ -291,8 +296,9 @@ const Comments = ({ id, commentsCount, last_comment }: CommentsProps) => {
         sheetRef={menuRef}
         height={750}
       >
+            <KeyboardAvoidingView style={{flex: 1}} behavior={'padding'}>
         <View style={{ flex: 1, position: 'relative' }}>
-          <ScrollView contentContainerStyle={{ gap: 32, paddingBottom: 128 }} style={{ flex: 1 }}>
+          <ScrollView contentContainerStyle={{ gap: 32, paddingBottom: 96}} style={{ flex: 1 }}>
             <Text style={{ fontSize: 11, color: '#a6a6a6', textAlign: 'center' }}>Comments</Text>
             {
               comments.length > 0 && comments.filter((comment) => comment.reply_to === null).map((comment) => (
@@ -314,10 +320,10 @@ const Comments = ({ id, commentsCount, last_comment }: CommentsProps) => {
           <View style={{ position: 'absolute', bottom: 0, left: 0, width: '100%', backgroundColor: 'white', zIndex: 1 }}>
             {
               replyingTo && (
-                <View style={{ backgroundColor: '#f7f7f7', padding: 16, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <Text style={{ fontSize: 13, color: '#a6a6a6' }}>Replying to @{replyingTo}</Text>
-                  <Pressable onPress={() => setReplyingTo(null)} style={({ pressed }) => [{ padding: 6, borderRadius: 50, backgroundColor: '#eeeeee' }, pressed && { backgroundColor: '#a6a6a6' }]}>
-                    <Image source={require('@/assets/images/close.png')} style={{ width: 12, height: 12 }} />
+                <View style={{ backgroundColor: '#737373', padding: 16, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <Text style={{ fontSize: 13, color: 'white' }}>Replying to @{replyingTo}</Text>
+                  <Pressable onPress={() => setReplyingTo(null)} style={({ pressed }) => [{ padding: 4, borderRadius: 50, backgroundColor: '#eeeeee' }, pressed && { backgroundColor: '#a6a6a6' }]}>
+                    <Image source={require('@/assets/images/close.png')} style={{ width: 6, height: 6}} />
                   </Pressable>
                 </View>
               )
@@ -325,7 +331,7 @@ const Comments = ({ id, commentsCount, last_comment }: CommentsProps) => {
             <View style={commentStyles.commentInputContainer}>
               {
                 replyingTo &&
-                <Text style={{ color: '#006dff' }}>@{replyingTo} </Text>
+                <Text style={{ color: '#006dff', marginLeft: 16, marginRight: -16 }}>@{replyingTo} </Text>
               }
               <TextInput
                 onChangeText={setComment}
@@ -341,12 +347,13 @@ const Comments = ({ id, commentsCount, last_comment }: CommentsProps) => {
               </TextInput>
               <Pressable
                 onPress={postComment}
-                style={({ pressed }) => [{ height: 45, width: 45, justifyContent: 'center', alignItems: 'center', backgroundColor: '#202020', borderRadius: 45 }, pressed && { backgroundColor: '#006dff' }]}>
-                <Image style={{ transform: [{ rotate: '-90deg' }], height: 20, width: 20 }} source={require('@/assets/images/arrows/right-arrow-white.png')} />
+                style={({ pressed }) => [{ height: 45, width: 45, justifyContent: 'center', alignItems: 'center', backgroundColor: '#202020', borderRadius: 45, margin: 8, marginRight: 16 }, pressed && comment.length != 0 && { backgroundColor: '#006dff' }, comment.length == 0 && {backgroundColor: "#f5f5f5"}]}>
+                <Image style={[{ transform: [{ rotate: '-90deg' }], height: 20, width: 20 }, { tintColor: comment.length === 0 ? '#d9d9d9' : 'white'}]} source={require('@/assets/images/arrows/right-arrow-white.png')} />
               </Pressable>
             </View>
           </View>
         </View>
+</KeyboardAvoidingView>
       </BottomDrawer>
     </View>
   );
@@ -370,19 +377,24 @@ const commentStyles = StyleSheet.create({
     borderRadius: 45,
   },
   commentInput: {
-    fontSize: 13,
+fontSize: 13,
     flex: 1,
     color: 'black',
+    maxHeight: 100,
+    minHeight: 40,
+    paddingTop: 16,
+    paddingBottom: 16,
+    paddingLeft: 16,
+    textAlignVertical: 'center',
   },
   commentInputContainer: {
     width: '100%',
     borderTopWidth: 1,
     borderTopColor: '#eeeeee',
-    padding: 16,
+    paddingHorizontal: 0, // remove horizontal padding so input's left padding is used
+    paddingVertical: 0, // remove vertical padding so input's top/bottom padding is used
     flexDirection: 'row',
-    paddingBottom: 0,
-    justifyContent: 'center',
-    alignItems: 'center'
+    alignItems: 'center',
   }
 })
 
@@ -462,8 +474,10 @@ export default function ViewPost() {
             commentsCount={post.comments_count}
             last_comment={post.last_comment}
           />
-          <View style={{ backgroundColor: "#f5f5f5", width: width, marginHorizontal: -16 }}>
-            <BottomName />
+          <View style={{ backgroundColor: "#f5f5f5", width: width, marginHorizontal: -16, paddingTop: 8 }}>
+            <View style={{backgroundColor: 'white'}}>
+                        <BottomName />
+                        </View>
           </View>
         </>
       )}

@@ -10,7 +10,7 @@ import {
   SELECTION_CHANGE_COMMAND,
   UNDO_COMMAND,
   COMMAND_PRIORITY_LOW,
-  COMMAND_PRIORITY_CRITICAL
+  INSERT_PARAGRAPH_COMMAND
 } from "lexical";
 import {
   INSERT_ORDERED_LIST_COMMAND,
@@ -25,6 +25,7 @@ import {
 import { useCallback, useEffect, useState } from "react";
 import { toggleCodeBlock } from "./helpers";
 import { useUndoRedoStore } from "@/zustand/talks/newPostStore";
+import { is } from "date-fns/locale";
 
 
 
@@ -39,8 +40,10 @@ export interface ToolbarPluginProps {
   changeHighlight: boolean;
   setIsHighlight: (isHighlight: boolean) => void;
   changeHeading: boolean;
+  isHeading: boolean;
   setIsHeading: (isHeading: boolean) => void;
   changeHeading2: boolean;
+  isHeading2: boolean;
   setIsHeading2: (isHeading2: boolean) => void;
   undo: boolean;
   redo: boolean;
@@ -67,8 +70,10 @@ export default function ToolbarPlugin({
   changeHighlight,
   setIsHighlight,
   changeHeading,
+  isHeading,
   setIsHeading,
   changeHeading2,
+  isHeading2,
   setIsHeading2,
   undo,
   redo,
@@ -104,10 +109,16 @@ export default function ToolbarPlugin({
   }, [changeHighlight, editor]);
 
   useEffect(() => {
+    if (!isHeading2) {
+    editor.dispatchCommand(INSERT_PARAGRAPH_COMMAND, undefined);
+    }
     editor.dispatchCommand(FORMAT_TEXT_COMMAND, "strikethrough");
   }, [changeHeading, editor]);
 
   useEffect(() => {
+    if (!isHeading) {
+      editor.dispatchCommand(INSERT_PARAGRAPH_COMMAND, undefined);
+    }
     editor.dispatchCommand(FORMAT_TEXT_COMMAND, "code");
   }, [changeHeading2, editor]);
 

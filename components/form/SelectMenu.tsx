@@ -5,6 +5,7 @@ import SearchBar from '../../components/form/SearchBar';
 import LinearGradient from 'react-native-linear-gradient';
 import * as Haptics from 'expo-haptics';
 import BottomDrawer from '../BottomDrawer';
+import BottomSheet from '../messsages/BottomSheet';
 
 function MultiTextGreyBgButton({ title, disabled = false, onPress = () => { }, loading = false }: { title: string[], disabled?: boolean, onPress?: () => void, loading?: boolean },) {
   return (
@@ -68,7 +69,7 @@ export default function SelectMenu({ allowSearch = true, error = false, placehol
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
       } : () => {
         Haptics.selectionAsync();
-        sheetRef.current?.open();
+          sheetRef.current?.open();
       }
       }>
         {({ pressed }) => (

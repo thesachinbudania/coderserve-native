@@ -13,7 +13,7 @@ export default function GreyBgButton({ bold = true, color = 'gray', title, disab
       {
         ({ pressed }) => (
           <LinearGradient
-            colors={disabled ? ['#f5f5f5', '#f5f5f5'] : (pressed ? (['#202020', '#202020']) : ['#f5f5f5', '#f5f5f5'])}
+            colors={disabled ? ['#f5f5f5', '#f5f5f5'] : (pressed ? (['#006dff', '#006dff']) : ['#f5f5f5', '#f5f5f5'])}
             start={{ x: 0, y: 1 }}
             end={{ x: 1, y: 0 }}
             style={styles.graident}

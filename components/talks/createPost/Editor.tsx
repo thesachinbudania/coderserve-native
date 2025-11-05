@@ -51,7 +51,9 @@ export default function Editor({
   changeHighlight,
   setIsHighlight,
   changeHeading,
+  isHeading,
   setIsHeading,
+  isHeading2,
   changeHeading2,
   setIsHeading2,
   undo,
@@ -119,6 +121,8 @@ export default function Editor({
           changeHighlight={changeHighlight}
           setIsHighlight={setIsHighlight}
           changeHeading={changeHeading}
+          isHeading={isHeading}
+          isHeading2={isHeading2}
           setIsHeading={setIsHeading}
           changeHeading2={changeHeading2}
           setIsHeading2={setIsHeading2}

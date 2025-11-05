@@ -6,9 +6,9 @@ import React from 'react';
 import TextAreaInput from '@/components/form/TextAreaInput';
 import BlueButton from '@/components/buttons/BlueButton';
 import { Image, Pressable } from 'react-native';
-import PopUpMessage from '@/components/jobs/resume/PopUpMessage';
 import { useNewPostStore } from '@/zustand/talks/newPostStore';
 import { useRouter } from 'expo-router';
+import GreyBgButton from '@/components/buttons/GreyBgButton';
 
 interface HashChipProps {
   hashtag: string;
@@ -64,16 +64,16 @@ export default function Hashtags() {
   const [newHashtag, setNewHashtag] = React.useState<string>('');
   const { hashtags: currentHashtags, setNewPost } = useNewPostStore();
   const [hashtags, setHashtags] = React.useState<string[]>(currentHashtags || []);
-  const [showPopUp, setShowPopUp] = React.useState<boolean>(false);
+  const deleteConfirmSheet = React.useRef<any>(null);
   const [deleteIndex, setDeleteIndex] = React.useState<number | null>(null);
   const router = useRouter();
   const onDeleteHashtag = () => {
     setHashtags(hashtags.filter((_, i) => i !== deleteIndex));
     setDeleteIndex(null);
-    setShowPopUp(false);
+    deleteConfirmSheet.current?.close();
   }
   const handleDelete = (index: number) => {
-    setShowPopUp(true);
+    deleteConfirmSheet.current?.open();
     setDeleteIndex(index);
 
   }
@@ -86,15 +86,30 @@ export default function Hashtags() {
   }
   return (
     <>
-      <PopUpMessage
-        heading='Delete this education?'
-        text='This action will permanently remove this education from your resume. You won’t be able to undo this.'
-        visible={showPopUp}
-        setVisible={setShowPopUp}
-        onPress={onDeleteHashtag}
-        isLoading={false}
-      />
-
+     <BottomSheet
+        menuRef={deleteConfirmSheet}
+        height={172}
+      >
+        <>
+        <Text style={{ fontSize: 15, fontWeight: 'bold', textAlign: 'center', marginBottom: 12 }}>Delete this hashtag?</Text>
+        <Text style={{fontSize: 13, color: "#a6a6a6", textAlign: 'center',marginBottom: 16}}>Are you sure you want to remove this hashtag from your post? This will be permanent, you won't be able to undo this.</Text>
+        <View style={{flexDirection: 'row', gap: 16}}>
+          <View style={{flex: 1/2}}>
+            <GreyBgButton
+              title='Cancel'
+              onPress={() => { deleteConfirmSheet.current?.close() }}
+              color='blue'
+            />
+          </View>
+          <View style={{flex: 1/2}}>
+            <BlueButton
+              title='Delete'
+              onPress={onDeleteHashtag}
+            />
+          </View>
+        </View>
+        </>
+     </BottomSheet> 
       <PageLayout
         headerTitle='Hashtags'
       >

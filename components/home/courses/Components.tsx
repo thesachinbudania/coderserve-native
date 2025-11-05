@@ -7,6 +7,7 @@ import protectedApi from '@/helpers/axios';
 import PopUp from '@/components/messsages/PopUp';
 import DefaultButton from '@/components/buttons/DefaultButton';
 import Clipboard from '@react-native-clipboard/clipboard';
+import BottomSheet from '@/components/messsages/BottomSheet';
 
 function Heading({ children }: { children: string }) {
   return (
@@ -199,9 +200,12 @@ const Quiz = ({ topMargin = 8, bottomMargin = 0, renderNext, id }: McqProps) => 
   const [submitLoading, setSubmitLoading] = React.useState(false);
   const [submitted, setSubmitted] = React.useState(false);
   const [correctAnswers, setCorrectAnswers] = React.useState<number[]>([]);
-  const [popUpVisible, setPopUpVisible] = React.useState(false);
+  const sheetRef = React.useRef<any>(null);
+  // temporarily store the points from backend on submit quiz
   const [points, setPoints] = React.useState(0);
   const [pointsLeft, setPointsLeft] = React.useState(100);
+
+  const [submittedResponse, setSubmittedResponse] = React.useState<any>(null);
 
   React.useEffect(() => {
     async function fetchQuestions() {
@@ -226,10 +230,16 @@ const Quiz = ({ topMargin = 8, bottomMargin = 0, renderNext, id }: McqProps) => 
     setSubmitLoading(true);
     try {
       const response = await protectedApi.put('/home/quiz/' + id + '/', answers);
-      setPoints(response.data.points);
+      setPoints(response.data.points)
       if (response.data.correct === false) {
         setIncorrectAnswers(response.data.incorrect);
-        setPointsLeft(pointsLeft - points)
+        // use functional update to avoid stale closure over pointsLeft
+        setPointsLeft(prev => {
+          const next = prev - response.data.points;
+          console.log('points left updated:', prev, '-', response.data.points, '=', next);
+          return next;
+        });
+        setSubmittedResponse(answers);
       }
       else {
         setSubmitted(true);
@@ -241,7 +251,7 @@ const Quiz = ({ topMargin = 8, bottomMargin = 0, renderNext, id }: McqProps) => 
       console.error('Error submitting quiz:', error.response.data);
     } finally {
       setSubmitLoading(false);
-      setPopUpVisible(true);
+      sheetRef.current?.open();
     }
   }
 
@@ -255,18 +265,20 @@ const Quiz = ({ topMargin = 8, bottomMargin = 0, renderNext, id }: McqProps) => 
       <ActivityIndicator size="large" color="#202020" />
     </View> :
       <View style={{ marginTop: topMargin, marginBottom: bottomMargin, gap: 32 }}>
-        <PopUp
-          visible={popUpVisible}
-          setVisible={setPopUpVisible}
+        <BottomSheet
+        menuRef={sheetRef}
+        height={272}
         >
+          <>
           <Text style={{ fontSize: 15, fontWeight: 'bold', textAlign: 'center' }}>Assessment Complete</Text>
           <Text style={{ paddingVertical: 32, textAlign: 'center', fontSize: 33, color: (!submitted && incorrectAnswers.length > 0) ? '#ff5757' : '#00bf63', fontWeight: 'bold' }}>{!submitted && incorrectAnswers.length > 0 ? `- ${points}` : `+ ${pointsLeft}`} points</Text>
           <Text style={{ fontSize: 13, color: '#737373', marginBottom: 24, textAlign: 'center' }}>{!submitted && incorrectAnswers.length > 0 ? popUpMessage['incorrect'] : popUpMessage['correct']}</Text>
           <DefaultButton
-            title='Done'
-            onPress={() => setPopUpVisible(false)}
+            title='Okay'
+            onPress={() => sheetRef.current?.close()}
           />
-        </PopUp>
+</>
+        </BottomSheet>
         {questions.map((question: any, index: number) => (
           <View
             key={index}
@@ -291,7 +303,7 @@ const Quiz = ({ topMargin = 8, bottomMargin = 0, renderNext, id }: McqProps) => 
             buttonTitle='Done'
             onPress={submitQuiz}
             loading={submitLoading}
-            disabled={questions.length != Object.keys(answers).length}
+            disabled={questions.length != Object.keys(answers).length || (submittedResponse !== null && submittedResponse == answers)}
           />
         }
       </View>
@@ -302,11 +314,12 @@ const Quiz = ({ topMargin = 8, bottomMargin = 0, renderNext, id }: McqProps) => 
 const GradientBoxWithButton = ({ disabled = false, text, onPress, buttonTitle, loading = false }: { loading?: boolean, buttonTitle: string, disabled?: boolean, text: string, onPress?: () => void }) => {
   return (
     <LinearGradient
-      colors={['#691a00', '#ae2a00']}
-      style={{ padding: 16, borderRadius: 12, marginTop: 16 }}
+      colors={['#00362f', '#399d96']}
+      style={{ borderRadius: 12, marginTop: 16, }}
       start={{ x: 0, y: 1 }}
       end={{ x: 1, y: 0 }}
     >
+      <View style={{ padding: 16 }} >
       <Text style={{ color: 'white', fontSize: 13 }}>
         {text}
       </Text>
@@ -318,6 +331,7 @@ const GradientBoxWithButton = ({ disabled = false, text, onPress, buttonTitle, l
           loading={loading}
         />
       </View>
+      </View>
     </LinearGradient>
   )
 }
@@ -325,12 +339,16 @@ const GradientBoxWithButton = ({ disabled = false, text, onPress, buttonTitle, l
 const YellowButton = ({ title, onPress, disabled, loading = false }: { title: string, onPress?: () => void, disabled?: boolean, loading?: boolean }) => {
   return (
     <Pressable
-      style={({ pressed }) => [{ borderRadius: 32, paddingHorizontal: 32, paddingVertical: 16, backgroundColor: pressed ? '#ffe370' : 'white' }, disabled && { backgroundColor: "#d98a71" }]}
-      onPress={onPress}
+      style={({ pressed }) => [{ borderRadius: 32, paddingHorizontal: 32, paddingVertical: 16, backgroundColor: pressed ? '#00362f' : 'white' }, disabled && { backgroundColor: "#aec5c1" }]}
+      onPress={disabled ? () => { } : onPress}
     >
-      {loading ? <ActivityIndicator size="small" color="#202020" /> :
-        <Text style={disabled && { color: '#691a00' }}>{title}</Text>
-      }
+    {
+      ({pressed}) => (
+loading ? <ActivityIndicator size="small" color="#202020" /> :
+        <Text style={[pressed && {color: "white"}, disabled && { color: '#3b5350' }]}>{title}</Text>
+      )
+   }
+      
     </Pressable>
   )
 }
@@ -431,7 +449,7 @@ const MiniTask = ({ renderNext, id, outputLines = 2 }: { renderNext: () => void,
       else {
         setCompleted(false);
         setErrored(true);
-        setPointsLeft(pointsLeft - response.data.points);
+        setPointsLeft(prev => prev - response.data.points);
       }
       setPopUpVisible(true);
     } catch (error: any) {

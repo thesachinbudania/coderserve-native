@@ -3,7 +3,6 @@ import RBSheet from 'react-native-raw-bottom-sheet';
 
 export default function BottomDrawer({ sheetRef, children, draggableIconHeight = 3, height = 600 }: { draggableIconHeight?: number, height?: number, sheetRef: React.RefObject<any>, children: React.ReactNode }) {
   return (
-    <Portal>
       <RBSheet
         ref={sheetRef}
         height={height}
@@ -28,6 +27,5 @@ export default function BottomDrawer({ sheetRef, children, draggableIconHeight =
       >
         {children}
       </RBSheet>
-    </Portal>
   )
 }

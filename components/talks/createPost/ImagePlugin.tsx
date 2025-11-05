@@ -4,6 +4,7 @@ import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext
 import { $insertNodes } from 'lexical';
 import { $createImageNode } from './nodes/ImageNode';
 import React from 'react';
+import {Button} from 'react-native';
 import {
   $getSelection,
   $isRangeSelection,
@@ -31,13 +32,14 @@ export default function ImagePlugin({ changeAddImage }: { changeAddImage: boolea
   const [editor] = useLexicalComposerContext();
 
   const pickImage = async () => {
+    console.log("Picking image...");
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ['images'],
       allowsEditing: true,
       quality: 1,
       aspect: [3, 1]
     });
-
+    console.log("Image pick result:", result);
     if (!result.canceled && result.assets && result.assets.length > 0) {
       const asset = result.assets[0];
 

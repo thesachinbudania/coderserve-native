@@ -79,7 +79,7 @@ function Header() {
 
 export function PostContent({ title, hashtags, thumbnail, content = null }: { title: string, hashtags: string[], thumbnail: string, content?: string | null }) {
   const [contentHeight, setContentHeight] = React.useState(1);
-  const [contentLoading, setContentLoading] = React.useState(true);
+  const [contentLoading, setContentLoading] = React.useState(content ? true : false);
   return (
     <View style={{flex: 1}}>
       <View style={[styles.postContainer]}>
@@ -100,7 +100,7 @@ export function PostContent({ title, hashtags, thumbnail, content = null }: { ti
         {
           title && hashtags.length > 0 && thumbnail && (
             <View style={{ marginTop: 16 }}>
-              <FullWidthImage imageUrl={thumbnail} />
+              <Image source={{uri: thumbnail}} style={{width: '100%', height :144, borderRadius: 12}}/>
             </View>
           )
         }
@@ -112,7 +112,7 @@ export function PostContent({ title, hashtags, thumbnail, content = null }: { ti
       }
       <View style={{height: contentLoading ? 1 : contentHeight}}>
       {
-        title && hashtags.length > 0 && thumbnail && content && (
+        title && hashtags.length > 0 && content && (
           <EditorPreview editorState={content} dom={{
             scrollEnabled: false,
             style: { height: contentHeight, overflow: 'visible' },
@@ -141,7 +141,7 @@ export default function PreviewPost() {
       contentContainerStyle={{ paddingHorizontal: 16, flex: 1, paddingBottom: 48, backgroundColor: 'white' }}
     >
       <Header />
-      <PostContent title={title} hashtags={hashtags} thumbnail={thumbnail.uri} content={content} />
+      <PostContent title={title} hashtags={hashtags} thumbnail={thumbnail ? thumbnail.uri : undefined} content={content} />
     </ScrollView>
   );
 }

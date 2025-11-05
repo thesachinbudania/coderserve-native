@@ -546,4 +546,7 @@ pre::-webkit-scrollbar-thumb {
   list-style-type: none;
 }
 
-
+.editor-text-highlight{
+  background-color: #737373;
+  color: white;
+}

@@ -13,7 +13,6 @@ import * as zod from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { useNewPostStore } from '@/zustand/talks/newPostStore';
-import { BlurView } from 'expo-blur';
 import FullWidthImage from '@/components/FullWidthImage';
 
 const formSchema = zod.object({
@@ -103,7 +102,7 @@ export default function UploadBackground() {
           <Image source={require('@/assets/images/profile/uploadIcon.png')} style={styles.uploadIcon} />
         </View>
         :
-        <FullWidthImage imageUrl={image.uri} />
+        <Image style={{width: '100%', height: 144, borderRadius: 12}} source={{uri: image.uri}} />
       }
       <View style={{ gap: 16, marginTop: 48 }}>
         {(currentThumbnail && (image && image.uri != currentThumbnail.uri)) || (!currentThumbnail && image) ?

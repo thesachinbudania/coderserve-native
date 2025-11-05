@@ -73,7 +73,7 @@ export default function CreatePost() {
           <View style={{ flex: 1 / 2 }}>
             <BlueButton
               title='Post '
-              disabled={!title || !hashtags.length || !thumbnail || !content}
+              disabled={!title || !hashtags.length || !content}
               onPress={uploadPost}
             />
           </View>

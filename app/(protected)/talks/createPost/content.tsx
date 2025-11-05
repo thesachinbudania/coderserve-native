@@ -28,7 +28,7 @@ function ImageFormatButton({ onPress, active, icon, disabled }: ImageFormatButto
   return (
     <Pressable
       style={({ pressed }) => [{ borderWidth: 1, borderRadius: 8, borderColor: '#f5f5f5', height: 45, width: 45, alignItems: 'center', justifyContent: 'center', },
-      active && { backgroundColor: '#006dff', borderColor: '#006dff' }, pressed && !disabled && { backgroundColor: '#f5f5f5', borderColor: '#f5f5f5' }]}
+      active && { backgroundColor: '#006dff', borderColor: '#006dff' }, pressed && !disabled && { backgroundColor: active ? '#202020' :'#f5f5f5', borderColor: active ? '#202020' : '#f5f5f5' }]}
       onPress={disabled ? () => {} : onPress}
     >
       {
@@ -46,7 +46,8 @@ function FormatButton({ onPress, active, title, toggleable = false }: FormatButt
   return (
     <Pressable
       style={({ pressed }) => [{ borderWidth: 1, borderRadius: 8, height: 45, borderColor: '#f5f5f5', paddingHorizontal: 16, alignItems: 'center', justifyContent: 'center', },
-      active && { backgroundColor: '#006dff', borderColor: '#006dff' }, !toggleable && pressed && { backgroundColor: '#006dff', borderColor: '#006dff' }]}
+        
+      active && { backgroundColor: '#006dff', borderColor: '#006dff' }, !toggleable && pressed && { backgroundColor: '#006dff', borderColor: '#006dff' }, pressed && {backgroundColor: active ? '#202020' : "#f5f5f5" , borderColor: active ? '#202020' : "#f5f5f5" }]}
       onPress={onPress}
     >
       {
@@ -296,8 +297,10 @@ export default function Content() {
           changeHighlight={changeHighlight}
           setIsHighlight={setIsHighlight}
           changeHeading={changeHeading}
+          isHeading={isHeading}
           setIsHeading={setIsHeading}
           changeHeading2={changeHeading2}
+          isHeading2={isHeading2}
           setIsHeading2={setIsHeading2}
           undo={undo}
           redo={redo}
@@ -394,7 +397,10 @@ export default function Content() {
             icon={require('@/assets/images/talks/createPost/orderedList.png')}
           />
           <FormatButton
-            onPress={() => setChangeHighlight(!changeHighlight)}
+            onPress={() => {
+              setChangeHighlight(!changeHighlight)
+              setIsHighlight(!isHighlight) // Immediate visual feedback
+            }}
             active={isHighlight}
             title="Highlight"
             toggleable
