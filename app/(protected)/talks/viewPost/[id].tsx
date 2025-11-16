@@ -11,15 +11,18 @@ import { formatDistanceToNow } from 'date-fns';
 import VoteButton from '@/components/buttons/VoteButton';
 import BottomDrawer from '@/components/BottomDrawer';
 import SmallTextButton from '@/components/buttons/SmallTextButton';
-import { apiUrl } from '@/constants/env'
 import BottomName from '@/components/profile/home/BottomName';
 import BottomSheet from '@/components/messsages/BottomSheet';
 import { MenuButton } from '../../jobs';
 import BlueButton from '@/components/buttons/BlueButton';
+import { useUserStore } from '@/zustand/stores';
+import { useNewPostStore } from '@/zustand/talks/newPostStore';
+import { useFocusEffect } from 'expo-router';
 
 
 const { width } = Dimensions.get('window');
 
+// --- Header component: displays post author and menu button ---
 function Header({ post, menuRef }: { post: any, menuRef?: any }) {
   const { top } = useSafeAreaInsets();
   let result = formatDistanceToNow(new Date(post.created_at), { addSuffix: true });
@@ -56,6 +59,7 @@ function Header({ post, menuRef }: { post: any, menuRef?: any }) {
   );
 }
 
+// --- Vote component: handles upvote/downvote logic and UI ---
 const Vote = ({ id, upvoted, downvoted, setUpvoted, setDownvoted, setUpvotes, setDownvotes, upvotes, downvotes }: { id: string, upvoted: boolean, downvoted: boolean, setUpvoted: (downvoted: boolean) => void, setDownvoted: (upvoted: boolean) => void, setUpvotes: (upvotes: number) => void, setDownvotes: (downvotes: number) => void, upvotes: number, downvotes: number }) => {
   const upvotePost = () => {
     protectedApi.put(`/talks/posts/${id}/upvote/`)
@@ -147,6 +151,7 @@ const voteStyles = StyleSheet.create({
   }
 })
 
+// --- Utility: formats comment time for display ---
 const commentTimeCalculator = (created_at: string) => {
   const now = new Date();
   const commentDate = new Date(created_at);
@@ -172,6 +177,8 @@ const commentTimeCalculator = (created_at: string) => {
     return `${years} ${years === 1 ? 'year ago' : 'years ago'}`;
   }
 }
+
+// --- Comment component: displays a single comment and its replies ---
 const Comment = ({ first_name, username, id, replies, created_at, reply = false, comment, profile_image, setReplyingTo, setReplyingId }: { first_name: string, username: string, created_at: any, reply?: boolean, replies: any[], id: string, comment: string, profile_image: string, setReplyingId: (replyingId: string | null) => void, setReplyingTo: (replyingTo: string | null) => void }) => {
   const [showReplies, setShowReplies] = React.useState(false);
   replies.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
@@ -242,6 +249,7 @@ interface CommentsProps {
   last_comment: any;
 }
 
+// --- Comments section: handles comment list, posting, and reply logic ---
 const Comments = ({ id, commentsCount, last_comment }: CommentsProps) => {
   const menuRef = React.useRef<any>(null);
   const [comment, setComment] = React.useState('');
@@ -398,7 +406,9 @@ fontSize: 13,
   }
 })
 
+// --- Main post view: fetches post, handles save, renders all sections ---
 export default function ViewPost() {
+  // --- State and refs ---
   const { id } = useGlobalSearchParams();
   const router = useRouter();
   const [post, setPost] = React.useState<any | null>(null);
@@ -408,7 +418,19 @@ export default function ViewPost() {
   const [downvotes, setDownvotes] = React.useState(0);
   const [postSaved, setPostSaved] = React.useState(false);
   const menuRef = React.useRef<any>(null);
+  const selfMenuRef = React.useRef<any>(null);
   const postSaveRef = React.useRef<any>(null);
+  const {username} = useUserStore();
+  const {setNewPost, editId} = useNewPostStore();
+
+  // set the newPost store to empty if there is editId on focusing this screen
+  useFocusEffect(React.useCallback(() => {
+    if (editId){
+      setNewPost({title: '', hashtags: [], thumbnail: undefined, content: null})
+    }
+  }, [])) 
+
+  // --- Save/unsave post logic ---
   const toggleSave = async () => {
     if (!post?.id) return;
     try {
@@ -432,6 +454,8 @@ export default function ViewPost() {
       console.error('Error toggling save post:', err?.response?.data || err?.message || err);
     }
   }
+
+  // --- Fetch post data on mount ---
   React.useEffect(() => {
     if (!id) return;
     protectedApi.get(`/talks/posts/${id}/`)
@@ -448,16 +472,23 @@ export default function ViewPost() {
         router.back();
       });
   }, [])
+
+  // --- Render ---
   return (
     <ScrollView contentContainerStyle={{ minHeight: '100%', backgroundColor: 'white', paddingHorizontal: 16 }}>
+      {/* Render post if loaded */}
       {post && (
-        <><Header post={post} menuRef={menuRef} />
+        <>
+          {/* Header: author info and menu */}
+          <Header post={post} menuRef={post.author.username === username ? selfMenuRef : menuRef} />
+          {/* Post content preview */}
           <PostContent
             title={post.title}
             hashtags={post.hashtags}
             thumbnail={post.thumbnail}
             content={post.content}
           />
+          {/* Voting section */}
           <Vote
             id={post.id}
             upvoted={upvoted}
@@ -469,21 +500,24 @@ export default function ViewPost() {
             setUpvotes={setUpvotes}
             setDownvotes={setDownvotes}
           />
+          {/* Comments section */}
           <Comments
             id={post.id}
             commentsCount={post.comments_count}
             last_comment={post.last_comment}
           />
+          {/* Bottom name bar */}
           <View style={{ backgroundColor: "#f5f5f5", width: width, marginHorizontal: -16, paddingTop: 8 }}>
             <View style={{backgroundColor: 'white'}}>
-                        <BottomName />
-                        </View>
+              <BottomName />
+            </View>
           </View>
         </>
       )}
+      {/* Saved post confirmation sheet */}
       <BottomSheet
-      menuRef={postSaveRef}
-      height={192}
+        menuRef={postSaveRef}
+        height={192}
       >
         <Image source={require('@/assets/images/blueTick.png')} style={{width: 48, height: 48, marginHorizontal: 'auto', tintColor: '#202020'}}/>
         <Text style={{textAlign: 'center', fontSize: 13, color: "#737373", marginTop: 16, marginBottom: 32}}>
@@ -491,6 +525,7 @@ export default function ViewPost() {
         </Text>
         <BlueButton title="Okay" onPress={() => postSaveRef.current.close()} />
       </BottomSheet>
+      {/* Menu for other user's post */}
       <BottomSheet
         menuRef={menuRef}
         height={392}>
@@ -534,10 +569,75 @@ export default function ViewPost() {
           </MenuButton>
         </View>
       </BottomSheet>
+      {/* Menu for own post */}
+      <BottomSheet
+        menuRef={selfMenuRef}
+        height={486}
+      >
+        <View style={styles.menuContainer}>
+          <MenuButton
+            onPress={() => {
+              selfMenuRef?.current.close();
+              setNewPost({
+                editId: post.id,
+                title: post.title,
+                hashtags: post.hashtags,
+                thumbnail: post.thumbnail,
+                content: post.content,
+              });
+              router.push("/(protected)/talks/createPost");
+            }}
+          >
+            <Text style={styles.menuButtonHeading}>Edit Post</Text>
+            <Text style={styles.menuButtonText}>
+              Make changes to your content.
+            </Text>
+          </MenuButton>
+          <MenuButton
+            onPress={() => {
+              selfMenuRef?.current.close();
+              router.push('/(freeRoutes)/profile/commentPermissions')
+            }}
+          >
+            <Text style={styles.menuButtonHeading}>Comment Permissions</Text>
+            <Text style={styles.menuButtonText}>
+             Set who can comment on your post. 
+            </Text>
+          </MenuButton>
+          <MenuButton>
+            <Text style={styles.menuButtonHeading}>Share Post</Text>
+            <Text style={styles.menuButtonText}>
+              Share your post with more people.
+            </Text>
+          </MenuButton>
+          <MenuButton>
+            <Text
+              style={[styles.menuButtonHeading]}
+            >
+              Delete Post
+            </Text>
+            <Text style={[styles.menuButtonText]}>
+              Permanently remove this post.
+            </Text>
+          </MenuButton>
+          <MenuButton
+          dark>
+            <Text
+              style={[styles.menuButtonHeading, {color: '#fff'}]}
+            >
+              Boost Post
+            </Text>
+            <Text style={[styles.menuButtonText, {color: "#a6a6a6"}]}>
+              Promote your post to reach a larger audience.
+            </Text>
+          </MenuButton>
+        </View>
+      </BottomSheet>
     </ScrollView>
   );
 }
 
+// --- Styles ---
 const styles = StyleSheet.create({
   headerContainer: {
     paddingBottom: 0,

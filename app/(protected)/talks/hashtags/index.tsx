@@ -10,6 +10,7 @@ import BlueButton from "@/components/buttons/BlueButton";
 import { useRouter } from "expo-router";
 import DefaultButton from "@/components/buttons/NoBgButton";
 import BottomSheet from "@/components/messsages/BottomSheet";
+import { useGeneralStore } from "@/zustand/talks/generalStore";
 
 export default function Hashtags() {
     const [search, setSearch] = React.useState("");
@@ -23,6 +24,7 @@ export default function Hashtags() {
     const [saving, setSaving] = React.useState(false);
     const [initialHashtags, setInitialHashtags] = React.useState<string[]>([]);
     const router = useRouter();
+    const {setHashtagsFollowed} = useGeneralStore();
 
     const sheetRef = React.useRef<any>(null);
 
@@ -130,6 +132,7 @@ export default function Hashtags() {
             const savedNames = (resp.data?.hashtags || []).map((h: any) => h.name);
             setInitialHashtags(savedNames);
             setSelectedHashtags(savedNames);
+            setHashtagsFollowed(savedNames);
             sheetRef.current?.open();
         } catch (err) {
             console.error('Error saving hashtag preferences', err);
@@ -160,8 +163,8 @@ export default function Hashtags() {
                 <FlatList
                     data={searchResults !== null ? searchResults : orderedHashtags}
                     keyExtractor={(item) => item.id?.toString() ?? item.name}
-                    numColumns={3}
-                    columnWrapperStyle={{ justifyContent: 'flex-start', gap: 16, marginBottom: 12 }}
+                    numColumns={10}
+                    columnWrapperStyle={{ justifyContent: 'flex-start', flexWrap: 'wrap', gap: 16, marginBottom: 12 }}
                     renderItem={({ item }: ListRenderItemInfo<any>) => (
                         <OptionChip
                             title={item.name}
@@ -218,6 +221,7 @@ export default function Hashtags() {
                             const resp = await protectedApi.put('/talks/preferences/hashtags/', { hashtags: [] });
                             setInitialHashtags([]);
                             setSelectedHashtags([]);
+                            setHashtagsFollowed([]);
                             sheetRef.current?.open();
                         } catch (err) {
                             console.error('Error resetting hashtags', err);

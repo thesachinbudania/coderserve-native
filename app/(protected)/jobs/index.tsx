@@ -52,7 +52,7 @@ export function Header({ menuRef, forTalks = false }: { forTalks?: boolean, menu
     <View style={[styles.headerContainer, { paddingTop: forTalks ? 8 : top + 8 }]}>
       <View style={{ flexDirection: "row", gap: 4 }}>
         {user.profile_image && (
-          <ImageLoader size={48} uri={user.profile_image} border={1} />
+          <ImageLoader size={45} uri={user.profile_image} border={1} />
         )}
         <View style={{ gap: 6, justifyContent: "center" }}>
           <Text
@@ -312,7 +312,7 @@ export default function Home() {
 
   React.useEffect(() => {
     if (!isSearchFocused && focused) {
-      navigation.getParent()?.setOptions({ tabBarStyle: { display: "flex", height: 54, borderColor: "#f5f5f5" } });
+      navigation.getParent()?.setOptions({ tabBarStyle: { display: "flex", height: 56, borderColor: "#f5f5f5" } });
     } else {
       navigation.getParent()?.setOptions({
         tabBarStyle: {

@@ -8,6 +8,7 @@ export default function Layout({ headerTitle, children, defaultBack = true, flex
   const navigation = useNavigation();
   const { top } = useSafeAreaInsets();
   return (
+    <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()} accessible={false}>
     <View style={{ flex: 1, backgroundColor: 'white' }}>
     <View style={{ marginTop: top }}>
       {showHeader && (
@@ -39,6 +40,7 @@ export default function Layout({ headerTitle, children, defaultBack = true, flex
       </ScrollView>
     </View>
     </View>
+    </TouchableWithoutFeedback>
   )
 }
 

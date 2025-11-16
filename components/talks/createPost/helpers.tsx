@@ -5,7 +5,7 @@ import {
   $createTextNode,
   LexicalEditor
 } from 'lexical';
-import { $isCodeNode, $createCodeNode } from '@lexical/code';
+import { $isCustomCodeNode, $createCustomCodeNode } from './CustomCodeNode';
 
 export function toggleCodeBlock(editor: LexicalEditor) {
   editor.update(() => {
@@ -14,21 +14,22 @@ export function toggleCodeBlock(editor: LexicalEditor) {
 
     const anchorNode = selection.anchor.getNode();
     const topLevelNode = anchorNode.getTopLevelElementOrThrow();
-    const isInCodeBlock = $isCodeNode(topLevelNode);
+    const isInCodeBlock = $isCustomCodeNode(topLevelNode);
 
     if (isInCodeBlock) {
-      // CASE 1: Exit code block to new paragraph
-      const newParagraph = $createParagraphNode();
-      topLevelNode.insertAfter(newParagraph);
-      newParagraph.selectStart();
+      // Exit code block
+      const paragraph = $createParagraphNode();
+      topLevelNode.insertAfter(paragraph);
+      paragraph.selectStart();
     } else {
-      // CASE 2: Enter code block from paragraph
-      const newCodeBlock = $createCodeNode();
-      const placeholderText = $createTextNode(''); // Empty code block
-      newCodeBlock.append(placeholderText);
-
-      topLevelNode.insertAfter(newCodeBlock);
-      placeholderText.select();
+      // Create new editable code block
+      const codeNode = $createCustomCodeNode();
+      const textNode = $createTextNode('');
+      codeNode.append(textNode);
+      topLevelNode.insertAfter(codeNode);
+      textNode.select();
     }
   });
 }
+
+

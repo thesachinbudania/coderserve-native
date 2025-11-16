@@ -9,8 +9,8 @@ import BlueButton from '@/components/buttons/BlueButton';
 import { Portal } from '@gorhom/portal'
 import { KeyboardAvoidingView, Dimensions, UIManager, findNodeHandle, Keyboard } from 'react-native';
 import { useNewPostStore } from '@/zustand/talks/newPostStore';
-import { useUndoRedoStore } from '@/zustand/talks/newPostStore';
-import { useUserStore } from '@/zustand/stores';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import * as ImagePicker from 'expo-image-picker'
 
 interface FormatButtonProps {
   onPress?: () => void;
@@ -27,7 +27,7 @@ interface ImageFormatButtonProps extends FormatButtonProps {
 function ImageFormatButton({ onPress, active, icon, disabled }: ImageFormatButtonProps) {
   return (
     <Pressable
-      style={({ pressed }) => [{ borderWidth: 1, borderRadius: 8, borderColor: '#f5f5f5', height: 45, width: 45, alignItems: 'center', justifyContent: 'center', },
+      style={({ pressed }) => [{ borderWidth: 1, borderRadius: 8, borderColor: '#f5f5f5', height: 40, width: 40, alignItems: 'center', justifyContent: 'center', },
       active && { backgroundColor: '#006dff', borderColor: '#006dff' }, pressed && !disabled && { backgroundColor: active ? '#202020' :'#f5f5f5', borderColor: active ? '#202020' : '#f5f5f5' }]}
       onPress={disabled ? () => {} : onPress}
     >
@@ -45,7 +45,7 @@ function ImageFormatButton({ onPress, active, icon, disabled }: ImageFormatButto
 function FormatButton({ onPress, active, title, toggleable = false }: FormatButtonProps) {
   return (
     <Pressable
-      style={({ pressed }) => [{ borderWidth: 1, borderRadius: 8, height: 45, borderColor: '#f5f5f5', paddingHorizontal: 16, alignItems: 'center', justifyContent: 'center', },
+      style={({ pressed }) => [{ borderWidth: 1, borderRadius: 8, height: 40, borderColor: '#f5f5f5', paddingHorizontal: 16, alignItems: 'center', justifyContent: 'center', },
         
       active && { backgroundColor: '#006dff', borderColor: '#006dff' }, !toggleable && pressed && { backgroundColor: '#006dff', borderColor: '#006dff' }, pressed && {backgroundColor: active ? '#202020' : "#f5f5f5" , borderColor: active ? '#202020' : "#f5f5f5" }]}
       onPress={onPress}
@@ -200,7 +200,7 @@ const TextTypeButton = ({ isHeading, isHeading2, setIsHeading, setIsHeading2, ch
             borderWidth: 1,
             borderColor: '#f5f5f5',
             borderRadius: 6,
-            height: 45,
+            height: 40,
             paddingHorizontal: 16,
             alignItems: 'center',
             justifyContent: 'center',
@@ -224,7 +224,7 @@ const TextTypeButton = ({ isHeading, isHeading2, setIsHeading, setIsHeading2, ch
             borderWidth: 1,
             borderColor: '#f5f5f5',
             borderRadius: 6,
-            height: 45,
+            height: 40,
             paddingHorizontal: 16,
             alignItems: 'center',
             justifyContent: 'center',
@@ -269,6 +269,21 @@ export default function Content() {
   const [editorState, setEditorState] = React.useState<string | null>(content);
   const [plainText, setPlainText] = React.useState("");
   const [undoEnabled, setUndoEnabled] = React.useState(false);
+  const {bottom} = useSafeAreaInsets();
+  const [image, setImage] = React.useState<any>(null);
+
+  const pickImage = async () => {
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ['images'],
+      allowsEditing: true,
+      quality: 1,
+      aspect: [3, 1]
+    })
+    if (!result.canceled && result.assets && result.assets.length > 0) {
+      const asset = result.assets[0];
+      setImage(asset);
+    }
+  }
 
   React.useEffect(() => {
     if (editorState) {
@@ -285,6 +300,7 @@ export default function Content() {
         />
         <TextEditor
           setPlainText={setPlainText}
+          image={image}
           setEditorState={setEditorState}
           changeBold={changeBold}
           setIsBold={setIsBold}
@@ -305,6 +321,7 @@ export default function Content() {
           undo={undo}
           redo={redo}
           undoEnabled={undoEnabled}
+          setChangeCodeBlock={setChangeCodeBlock}
           redoEnabled={redoEnabled}
           setIsUndoEnabled={setUndoEnabled}
           setRedoEnabled={setRedoEnabled}
@@ -317,7 +334,7 @@ export default function Content() {
       </View>
 
       <KeyboardAvoidingView 
-        style={{ position: 'absolute', bottom: 80, backgroundColor: 'white', borderTopWidth: 1, borderColor: '#eeeeee' }}
+        style={{ position: 'absolute', bottom:bottom > 16 ? bottom + 28 : 77, backgroundColor: 'white', borderTopWidth: 1, borderColor: '#f5f5f5' }}
         behavior="padding" 
       >
         <ScrollView horizontal={true} showsHorizontalScrollIndicator={false} contentContainerStyle={{ flexDirection: 'row', gap: 16, padding: 16, }}>
@@ -376,7 +393,7 @@ export default function Content() {
             icon={require('@/assets/images/talks/createPost/underline.png')}
           />
           <ImageFormatButton
-            onPress={() => setChangeAddImage(!changeAddImage)}
+            onPress={pickImage}
             active={false}
             title="Img"
             icon={require('@/assets/images/talks/createPost/image.png')}
@@ -407,8 +424,9 @@ export default function Content() {
           />
           <FormatButton
             onPress={() => setChangeCodeBlock(!changeCodeBlock)}
-            active={false}
+            active={changeCodeBlock}
             title="Code"
+            toggleable
           />
         </ScrollView>
       </KeyboardAvoidingView>
@@ -417,6 +435,7 @@ export default function Content() {
         <BlueButton
           title='Save'
           onPress={() => router.back()}
+          disabled={editorState === null || plainText.trim().length === 0 || editorState === ''}
         />
       </BottomFixedSingleButton>
     </SafeAreaView>

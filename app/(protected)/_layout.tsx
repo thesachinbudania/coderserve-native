@@ -12,8 +12,9 @@ import hiddenSegments from '@/constants/hiddenFooterRoutes'
 import * as SecureStore from 'expo-secure-store'
 import DeviceInfo from 'react-native-device-info'
 import React from 'react'
-import { View, ActivityIndicator, StatusBar, TouchableWithoutFeedback, Pressable } from 'react-native';
+import { View, ActivityIndicator, StatusBar, Keyboard, TouchableWithoutFeedback, Pressable} from 'react-native';
 import { notify } from '@alexsandersarmento/react-native-event-emitter'
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 function LoadingScreen() {
   return (
@@ -31,11 +32,12 @@ function LoadingScreen() {
 }
 const AppTabs = () => {
   const segment = useSegments()
+  const {bottom} = useSafeAreaInsets();
   return (
-    <>
+    <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()} accessible={false}>
+      <>
       <StatusBar backgroundColor={'#202020'} barStyle={'default'} />
-      <View style={{ flex: 1, backgroundColor: 'white' }}
-      >
+      <View style={{ flex: 1, backgroundColor: 'white', paddingBottom: bottom }}>
         <Tabs
           screenListeners={() => ({
             tabPress: () => {
@@ -49,11 +51,12 @@ const AppTabs = () => {
             tabBarInactiveTintColor: '#d9d9d9',
             tabBarStyle: {
               display: hiddenSegments.includes(JSON.stringify(segment)) ? 'flex' : 'none',
-              height: 54,
-              borderColor: "#f5f5f5"
+              height: 56,
+              borderColor: "#f5f5f5",
             },
             headerShown: false,
             tabBarButton: (props) => (
+             // @ts-ignore 
               <Pressable
                 {...props}
                 android_ripple={{ color: '#f5f5f5', borderless: true }}
@@ -64,12 +67,12 @@ const AppTabs = () => {
           <Tabs.Screen name='index' options={{ tabBarIcon: HomeIcon, tabBarLabel: "Home" }} />
           <Tabs.Screen name='talks' options={{ tabBarIcon: TalksIcon, tabBarLabel: "Talks" }} />
           <Tabs.Screen name='jobs' options={{ tabBarIcon: JobsIcon, tabBarLabel: "Jobs" }} />
-          <Tabs.Screen name='projects' options={{ tabBarIcon: ProjectsIcon, tabBarLabel: 'Projects' }} />
           <Tabs.Screen name='profile' options={{ tabBarIcon: ProfileIcon, tabBarLabel: 'Profile' }} />
           <Tabs.Screen name='home' options={{ href: null }} />
         </Tabs>
       </View>
-    </>
+      </>
+    </TouchableWithoutFeedback>
   )
 }
 

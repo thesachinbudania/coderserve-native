@@ -1,10 +1,10 @@
 import { StyleSheet, Text, View } from 'react-native';
 import PageLayout from '@/components/general/PageLayout';
-import NoBgButton from '@/components/buttons/NoBgButton';
 import BottomSheet from '@/components/messsages/BottomSheet';
 import React from 'react';
 import TextAreaInput from '@/components/form/TextAreaInput';
 import BlueButton from '@/components/buttons/BlueButton';
+import BottomFixedSingleButton from '@/components/general/BottomFixedContainer';
 import { Image, Pressable } from 'react-native';
 import { useNewPostStore } from '@/zustand/talks/newPostStore';
 import { useRouter } from 'expo-router';
@@ -92,7 +92,7 @@ export default function Hashtags() {
       >
         <>
         <Text style={{ fontSize: 15, fontWeight: 'bold', textAlign: 'center', marginBottom: 12 }}>Delete this hashtag?</Text>
-        <Text style={{fontSize: 13, color: "#a6a6a6", textAlign: 'center',marginBottom: 16}}>Are you sure you want to remove this hashtag from your post? This will be permanent, you won't be able to undo this.</Text>
+        <Text style={{fontSize: 13, color: "#a6a6a6", textAlign: 'center',marginBottom: 32}}>Are you sure you want to remove this hashtag from your post? This will be permanent, you won't be able to undo this.</Text>
         <View style={{flexDirection: 'row', gap: 16}}>
           <View style={{flex: 1/2}}>
             <GreyBgButton
@@ -137,18 +137,21 @@ export default function Hashtags() {
           )
         }
         <View style={styles.buttonsContainer}>
-          <NoBgButton
+          <BlueButton
             title='Add Hashtag'
             onPress={() => { menuRef.current?.open() }}
             disabled={hashtags.length >= 8}
           />
-          <BlueButton
+          
+        </View>
+      </PageLayout>
+      <BottomFixedSingleButton>
+<BlueButton
             title='Save'
             disabled={hashtags.length < 1 || (currentHashtags && hashtags == currentHashtags)}
             onPress={setHashtag}
           />
-        </View>
-      </PageLayout>
+      </BottomFixedSingleButton>
       <BottomSheet
         menuRef={menuRef}
         height={284}
@@ -158,9 +161,13 @@ export default function Hashtags() {
           placeholder='Write here'
           maxLength={40}
           text={newHashtag}
-          setText={setNewHashtag}
+          setText={(hashtag: any) => {
+            // hashtag should be lowercase and no spaces
+            const formattedHashtag = hashtag.replace(/\s+/g, '').toLowerCase();
+            setNewHashtag(formattedHashtag);
+          }}
           styles={{ height: 128 }}
-          contentContainerStyle={{ marginBottom: 48 }}
+          contentContainerStyle={{ marginBottom: 32}}
         />
         <BlueButton
           title='Add'
@@ -181,14 +188,14 @@ const styles = StyleSheet.create({
     height: 144,
     justifyContent: 'center',
     borderWidth: 1,
-    borderColor: '#eeeeee',
+    borderColor: '#f5f5f5',
     borderRadius: 12,
   },
   hashTagContainer: {
     minHeight: 144,
     padding: 16,
     borderWidth: 1,
-    borderColor: '#eeeeee',
+    borderColor: '#f5f5f5',
     borderRadius: 12,
     flexDirection: 'row',
     gap: 8,

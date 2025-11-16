@@ -52,6 +52,7 @@ export default function UploadBackground() {
       mediaTypes: ['images'],
       allowsEditing: true,
       quality: 1,
+      aspect: [3, 1]
     })
     if (!result.canceled) {
       setValue('background_image', result.assets[0])
@@ -102,7 +103,7 @@ export default function UploadBackground() {
           <Image source={require('@/assets/images/profile/uploadIcon.png')} style={styles.uploadIcon} />
         </View>
         :
-        <Image style={{width: '100%', height: 144, borderRadius: 12}} source={{uri: image.uri}} />
+        <Image style={{width: '100%', height: 144, borderRadius: 12}} source={{uri: image.uri || image}} />
       }
       <View style={{ gap: 16, marginTop: 48 }}>
         {(currentThumbnail && (image && image.uri != currentThumbnail.uri)) || (!currentThumbnail && image) ?

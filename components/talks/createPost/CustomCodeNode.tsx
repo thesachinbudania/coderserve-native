@@ -1,27 +1,16 @@
 import {
   $applyNodeReplacement,
-  DecoratorNode,
+  ElementNode,
+  $createTextNode,
   NodeKey,
   LexicalNode,
-  SerializedLexicalNode,
-  LexicalEditor,
+  SerializedElementNode,
   EditorConfig,
-  DOMExportOutput,
   Spread
 } from 'lexical';
-import React from 'react';
-import CodeBlockWithCopy from './CodeBlockWithCopy';
 
-export type SerializedCustomCodeNode = Spread<
-  {
-    code: string;
-    language?: string;
-  },
-  SerializedLexicalNode
->;
 
-export class CustomCodeNode extends DecoratorNode<JSX.Element> {
-  __code: string;
+export class CustomCodeNode extends ElementNode {
   __language?: string;
 
   static getType(): string {
@@ -29,85 +18,47 @@ export class CustomCodeNode extends DecoratorNode<JSX.Element> {
   }
 
   static clone(node: CustomCodeNode): CustomCodeNode {
-    return new CustomCodeNode(node.__code, node.__language, node.__key);
+    return new CustomCodeNode(node.__language, node.__key);
   }
 
-  constructor(code: string, language?: string, key?: NodeKey) {
+  constructor(language?: string, key?: NodeKey) {
     super(key);
-    this.__code = code;
     this.__language = language;
   }
 
-  createDOM(config: EditorConfig): HTMLElement {
-    const element = document.createElement('div');
-    element.className = 'custom-code-node';
-    return element;
+  createDOM(): HTMLElement {
+    const pre = document.createElement('pre');
+    pre.className = 'custom-code-node';
+    const code = document.createElement('code');
+    pre.appendChild(code);
+    return pre;
   }
 
-  updateDOM(): false {
+  updateDOM(): boolean {
     return false;
   }
 
-  exportDOM(): DOMExportOutput {
-    const element = document.createElement('pre');
-    element.className = 'custom-code-export';
-    const codeElement = document.createElement('code');
-    codeElement.textContent = this.__code;
-    element.appendChild(codeElement);
-    return { element };
-  }
-
-  static importJSON(serializedNode: SerializedCustomCodeNode): CustomCodeNode {
-    const { code, language } = serializedNode;
-    return $createCustomCodeNode(code, language);
-  }
-
-  exportJSON(): SerializedCustomCodeNode {
+  exportJSON(): SerializedElementNode {
     return {
-      code: this.__code,
-      language: this.__language,
+      ...super.exportJSON(),
       type: 'custom-code',
       version: 1,
     };
   }
 
-  setCode(code: string): void {
-    const writable = this.getWritable();
-    writable.__code = code;
-  }
-
-  getCode(): string {
-    return this.__code;
-  }
-
-  setLanguage(language: string): void {
-    const writable = this.getWritable();
-    writable.__language = language;
-  }
-
-  getLanguage(): string | undefined {
-    return this.__language;
-  }
-
   getTextContent(): string {
-    return this.__code;
-  }
-
-  decorate(editor: LexicalEditor, config: EditorConfig): JSX.Element {
-    return <CodeBlockWithCopy code={this.__code} language={this.__language} />;
+    return this.getChildren()
+      .map((child) => child.getTextContent())
+      .join('');
   }
 
   isInline(): false {
     return false;
   }
-
-  isKeyboardSelectable(): boolean {
-    return true;
-  }
 }
 
-export function $createCustomCodeNode(code: string = '', language?: string): CustomCodeNode {
-  return $applyNodeReplacement(new CustomCodeNode(code, language));
+export function $createCustomCodeNode(language?: string): CustomCodeNode {
+  return $applyNodeReplacement(new CustomCodeNode(language));
 }
 
 export function $isCustomCodeNode(node: LexicalNode | null | undefined): node is CustomCodeNode {

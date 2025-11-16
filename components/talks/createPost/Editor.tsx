@@ -47,6 +47,7 @@ export default function Editor({
   changeUnderline,
   setIsUnderline,
   changeCodeBlock,
+  setChangeCodeBlock,
   changeAddImage,
   changeHighlight,
   setIsHighlight,
@@ -66,11 +67,14 @@ export default function Editor({
   setIsUnorderedList,
   changeOrderedList,
   changeUnorderedList,
+  image
 }: ToolbarPluginProps & {
   initialEditorState?: string | null; // <-- new type
   setPlainText: React.Dispatch<React.SetStateAction<string>>;
   setEditorState: React.Dispatch<React.SetStateAction<string | null>>;
   changeAddImage: boolean;
+  image: any;
+  setChangeCodeBlock?: (isCode: boolean) => void;
 }) {
   const editorConfig = {
     namespace: "React.js Demo",
@@ -108,7 +112,7 @@ export default function Editor({
   return (
     <LexicalComposer initialConfig={editorConfig}>
       <div className="editor-container" style={{fontFamily: 'Roboto, sans-serif'}}>
-        <ImagePlugin changeAddImage={changeAddImage} />
+        <ImagePlugin changeAddImage={changeAddImage} image={image}/>
         <CustomCodePlugin />
         <ToolbarPlugin
           changeBold={changeBold}
@@ -118,6 +122,7 @@ export default function Editor({
           changeUnderline={changeUnderline}
           setIsUnderline={setIsUnderline}
           changeCodeBlock={changeCodeBlock}
+          setChangeCodeBlock={setChangeCodeBlock}
           changeHighlight={changeHighlight}
           setIsHighlight={setIsHighlight}
           changeHeading={changeHeading}

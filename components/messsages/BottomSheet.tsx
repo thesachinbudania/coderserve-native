@@ -1,4 +1,5 @@
 import RBSheet from 'react-native-raw-bottom-sheet';
+import {View, TouchableWithoutFeedback, Keyboard} from 'react-native';
 
 
 export default function BottomSheet({ height, children, menuRef }: { height: number, children: React.ReactNode, menuRef: React.RefObject<any> }) {
@@ -18,7 +19,11 @@ export default function BottomSheet({ height, children, menuRef }: { height: num
         },
       }}
     >
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <View>
       {children}
+      </View>
+      </TouchableWithoutFeedback>
     </RBSheet>
   )
 }

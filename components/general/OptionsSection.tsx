@@ -77,7 +77,7 @@ const sectionStyles = StyleSheet.create({
 	},
 	section: {
 		borderWidth: 1,
-		borderColor: '#eeeeee',
+		borderColor: '#f5f5f5',
 		borderRadius: 14,
 		gap: 16,
 		overflow: 'hidden',

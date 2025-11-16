@@ -4,7 +4,7 @@ import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext
 import { $insertNodes } from 'lexical';
 import { $createImageNode } from './nodes/ImageNode';
 import React from 'react';
-import {Button} from 'react-native';
+
 import {
   $getSelection,
   $isRangeSelection,
@@ -28,20 +28,11 @@ function insertNewLine(editor: any) {
     textNode.select();
   });
 }
-export default function ImagePlugin({ changeAddImage }: { changeAddImage: boolean }) {
+export default function ImagePlugin({ changeAddImage, image }: { changeAddImage: boolean, image: any }) {
   const [editor] = useLexicalComposerContext();
 
   const pickImage = async () => {
-    console.log("Picking image...");
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ['images'],
-      allowsEditing: true,
-      quality: 1,
-      aspect: [3, 1]
-    });
-    console.log("Image pick result:", result);
-    if (!result.canceled && result.assets && result.assets.length > 0) {
-      const asset = result.assets[0];
+      const asset = image; 
 
       const originalWidth = asset.width || 400;
       const originalHeight = asset.height || 300;
@@ -53,7 +44,6 @@ export default function ImagePlugin({ changeAddImage }: { changeAddImage: boolea
       const base64 = `data:image/jpeg;base64,${asset.base64}`;
 
       insertImage(base64, targetWidth, targetHeight);
-    }
   };
 
   const insertImage = (src: string, width: number, height: number) => {
@@ -61,9 +51,12 @@ export default function ImagePlugin({ changeAddImage }: { changeAddImage: boolea
       const node = $createImageNode({ src, width, height });
       $insertNodes([node]);
     });
-  }; React.useEffect(() => {
-    pickImage();
-  }, [changeAddImage])
+  };
+  React.useEffect(() => {
+    if (image){
+      pickImage();
+    }
+  }, [image])
 
   return (
     null

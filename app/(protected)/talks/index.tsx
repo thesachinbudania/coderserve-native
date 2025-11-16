@@ -29,7 +29,8 @@ import { formatDistanceToNow } from "date-fns";
 import OptionChip from "@/components/general/OptionChip";
 import protectedApi from "@/helpers/axios";
 import Search from "@/components/talks/home/Search";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useGeneralStore } from "@/zustand/talks/generalStore";
 
 const width = Dimensions.get("window").width;
 
@@ -79,7 +80,7 @@ export function Post({ data }: { data: any }) {
         >
           <View>
           <ImageLoader
-            size={48}
+            size={45}
             uri={data.author.profile_image}
           />
 </View>
@@ -104,7 +105,7 @@ export function Post({ data }: { data: any }) {
         <SingleLineHashtags hashtags={data.hashtags} />
       </View>
       <View style={{ marginTop: 16 }} pointerEvents="none">
-        <FullWidthImage imageUrl={data.thumbnail} />
+<Image style={{width: '100%', height: 144, borderRadius: 12}} source={{uri: data.thumbnail}} />
       </View>
     </Pressable>
   );
@@ -198,6 +199,7 @@ export default function Page() {
   const router = useRouter();
   const [isSearchFocused, setIsSearchFocused] = React.useState(false);
   const [search, setSearch] = React.useState("");
+  const {top} = useSafeAreaInsets();
 
   React.useEffect(() => {
     if (!isSearchFocused) {
@@ -207,7 +209,7 @@ export default function Page() {
   const [incompleteProfileText, setIncompleteProfileText] = React.useState("");
   const [postsUrl, setPostsUrl] = React.useState('/api/talks/posts/');
   const [selectedTab, setSelectedTab] = React.useState<'trending' | 'following' | 'custom'>('trending');
-  const [userHashtags, setUserHashtags] = React.useState<string[]>([]);
+  const {hashtagsFollowed, setHashtagsFollowed} = useGeneralStore();
   const [loadingPrefs, setLoadingPrefs] = React.useState(false);
   const navigation = useNavigation();
   const focused = useIsFocused();
@@ -245,7 +247,7 @@ export default function Page() {
     try {
       const resp = await protectedApi.get('/talks/preferences/hashtags/');
       const names = (resp.data?.hashtags || []).map((h: any) => h.name);
-      setUserHashtags(names);
+      setHashtagsFollowed(names);
     } catch (err) {
       console.error('Error fetching hashtag preferences', err);
     } finally {
@@ -282,7 +284,7 @@ export default function Page() {
 
   React.useEffect(() => {
     if (!isSearchFocused && focused) {
-      navigation.getParent()?.setOptions({ tabBarStyle: { display: "flex", height: 54, borderColor: "#f5f5f5" } });
+      navigation.getParent()?.setOptions({ tabBarStyle: { display: "flex", height: 56, borderColor: "#f5f5f5" } });
     } else {
       navigation.getParent()?.setOptions({
         tabBarStyle: {
@@ -293,7 +295,7 @@ export default function Page() {
   }, [isSearchFocused, focused]);
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: 'white' }}>
+    <View style={{ flex: 1, backgroundColor: 'white', paddingTop: top  }}>
       <ScrollView
         contentContainerStyle={{
           backgroundColor: !isSearchFocused ? "white" : "#f7f7f7",
@@ -356,7 +358,7 @@ export default function Page() {
           {/* Hide chips/filters while page is loading */}
           {!pageLoading && (
             <View style={{paddingBottom: 8, backgroundColor: "#f5f5f5", marginHorizontal: -16, marginBottom: -16}}>
-            <View style={{ flexDirection: "row", gap: 16, backgroundColor: "white", paddingHorizontal: 16, paddingBottom: 16 }}>
+            <View style={{ flexDirection: "row", gap: 16, backgroundColor: "white", paddingHorizontal: 16, paddingBottom: 16}}>
             <Pressable
               style={({ pressed }) => [styles.addHashContainer, pressed && { backgroundColor: '#d9d9d9' }]}
               onPress={() => {
@@ -367,7 +369,7 @@ export default function Page() {
             </Pressable>
             {
               // don't show the small prefs loader separately; pageLoading covers it
-              userHashtags.length > 0 && (
+              hashtagsFollowed.length > 0 && (
                 <OptionChip
                   title="Custom"
                   selected={selectedTab === 'custom'}
@@ -433,7 +435,7 @@ export default function Page() {
             {!pageLoading &&
               <>
                 {
-                  combinedData.length === 0 && !pageLoading && !isLoading && !refreshing && (
+                  combinedData.length === 0 && !pageLoading && !isLoading && !refreshing && selectedTab == 'following' && (
                     <Animated.View style={{ paddingTop: 112, backgroundColor: 'white' }}>
                       <Image source={require('@/assets/images/stars.png')} style={{ marginHorizontal: 'auto', height: 128, width: 128, marginBottom: 32 }} />
                       <Text style={{ fontSize: 11, color: "#a6a6a6", textAlign: 'center', paddingHorizontal: 16 }}>
@@ -519,7 +521,7 @@ export default function Page() {
           />
         </View>
       </BottomSheet>
-    </SafeAreaView>
+    </View>
   );
 }
 
@@ -536,8 +538,8 @@ const styles = StyleSheet.create({
   },
   addHashContainer: {
     backgroundColor: '#f5f5f5',
-    height: 36,
-    width: 36,
+    height: 38,
+    width: 38,
     borderRadius: 36,
     alignItems: 'center',
     justifyContent: 'center',

@@ -717,6 +717,7 @@ const Chat: React.FC = () => {
       <BottomDrawer
         sheetRef={messageMenuRef}
         height={currentMenuHeight}
+        draggableIconHeight={0}
       >
         <View style={{ paddingHorizontal: 16, gap: 16 }}>
           {currentMenuOptions.edit && (
@@ -744,7 +745,7 @@ const Chat: React.FC = () => {
           )}
         </View>
       </BottomDrawer>
-      <BottomDrawer sheetRef={deleteMessageDrawerRef} height={160}>
+      <BottomDrawer sheetRef={deleteMessageDrawerRef} height={160} draggableIconHeight={0}>
         <View style={{ paddingHorizontal: 16 }}>
           <Text style={{ fontSize: 15, fontWeight: 'bold', textAlign: 'center' }}>Delete Message</Text>
           <Text style={{ fontSize: 13, color: "#737373", textAlign: 'center', marginTop: 8 }}>This action cannot be undone. Once deleted, your message will be permanently removed.</Text>

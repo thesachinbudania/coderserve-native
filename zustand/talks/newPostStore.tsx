@@ -5,6 +5,7 @@ interface NewPostState {
   hashtags: string[];
   thumbnail: any;
   content: string | null;
+  editId: string | null;
   setNewPost: (post: Partial<NewPostState>) => void;
 }
 
@@ -13,6 +14,7 @@ export const useNewPostStore = create<NewPostState>((set) => ({
   hashtags: [],
   thumbnail: null,
   content: null,
+  editId: null,
 
   setNewPost: (post) => set(post)
 }))

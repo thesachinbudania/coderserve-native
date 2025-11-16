@@ -1,5 +1,6 @@
 
 'use dom'
+// @ts-ignore
 import "./previewStyles.css"
 import { LexicalComposer } from "@lexical/react/LexicalComposer";
 import { ContentEditable } from "@lexical/react/LexicalContentEditable";
