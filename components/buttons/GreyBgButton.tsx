@@ -2,7 +2,7 @@ import { Pressable, Text, StyleSheet, ActivityIndicator } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import * as Haptics from 'expo-haptics';
 
-export default function GreyBgButton({ bold = true, color = 'gray', title, disabled = false, onPress = () => { }, loading = false }: { bold?: boolean, color?: 'blue' | 'gray', title: string, disabled?: boolean, onPress?: () => void, loading?: boolean },) {
+export default function GreyBgButton({ bold = true, color = 'gray', title, disabled = false, style, onPress = () => { }, loading = false }: { bold?: boolean, style?: object,color?: 'blue' | 'gray', title: string, disabled?: boolean, onPress?: () => void, loading?: boolean },) {
   return (
     <Pressable onPress={() => {
       if (!disabled) {
@@ -16,7 +16,7 @@ export default function GreyBgButton({ bold = true, color = 'gray', title, disab
             colors={disabled ? ['#f5f5f5', '#f5f5f5'] : (pressed ? (['#006dff', '#006dff']) : ['#f5f5f5', '#f5f5f5'])}
             start={{ x: 0, y: 1 }}
             end={{ x: 1, y: 0 }}
-            style={styles.graident}
+            style={[styles.graident, style]}
           >
             {
               loading ? <ActivityIndicator color='white' /> : (

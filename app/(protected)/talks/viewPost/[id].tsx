@@ -179,7 +179,7 @@ const commentTimeCalculator = (created_at: string) => {
 }
 
 // --- Comment component: displays a single comment and its replies ---
-const Comment = ({ first_name, username, id, replies, created_at, reply = false, comment, profile_image, setReplyingTo, setReplyingId }: { first_name: string, username: string, created_at: any, reply?: boolean, replies: any[], id: string, comment: string, profile_image: string, setReplyingId: (replyingId: string | null) => void, setReplyingTo: (replyingTo: string | null) => void }) => {
+const Comment = ({ first_name, can_reply, username, id, replies, created_at, reply = false, comment, profile_image, setReplyingTo, setReplyingId }: { can_reply?: boolean, first_name: string, username: string, created_at: any, reply?: boolean, replies: any[], id: string, comment: string, profile_image: string, setReplyingId: (replyingId: string | null) => void, setReplyingTo: (replyingTo: string | null) => void }) => {
   const [showReplies, setShowReplies] = React.useState(false);
   replies.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
   return (
@@ -193,7 +193,7 @@ const Comment = ({ first_name, username, id, replies, created_at, reply = false,
           <Text style={{ fontSize: 13, marginTop: 4, color: '#737373' }}>{comment}</Text>
           <View style={{ flexDirection: 'row', gap: 8, marginTop: 8 }}>
             {
-              !reply && (
+              !reply && can_reply && (
                 <SmallTextButton
                   title='Reply'
                   style={{ fontSize: 11, color: '#a6a6a6' }}
@@ -257,10 +257,12 @@ const Comments = ({ id, commentsCount, last_comment }: CommentsProps) => {
   const commentInputRef = React.useRef<TextInput>(null);
   const [replyingTo, setReplyingTo] = React.useState<string | null>(null);
   const [replyingId, setReplyingId] = React.useState<string | null>(null);
+  const [canComment, setCanComment] = React.useState<boolean>(false);
 
   React.useEffect(() => {
     protectedApi.get('/talks/posts/' + id + '/comments/').then(res => {
-      setComments(res.data);
+      setComments(res.data.comments);
+      setCanComment(res.data.can_comment);
     }).catch(err => console.log(err.response.data));
   }, [])
   const postComment = () => {
@@ -319,6 +321,7 @@ const Comments = ({ id, commentsCount, last_comment }: CommentsProps) => {
                   profile_image={comment.author.profile_image}
                   setReplyingTo={setReplyingTo}
                   setReplyingId={setReplyingId}
+                  can_reply={canComment && comment.can_tag}
                   replies={comments.filter((c) => c.reply_to === comment.id)}
                   created_at={comment.created_at}
                 />
@@ -336,7 +339,9 @@ const Comments = ({ id, commentsCount, last_comment }: CommentsProps) => {
                 </View>
               )
             }
-            <View style={commentStyles.commentInputContainer}>
+            {
+              canComment && 
+<View style={commentStyles.commentInputContainer}>
               {
                 replyingTo &&
                 <Text style={{ color: '#006dff', marginLeft: 16, marginRight: -16 }}>@{replyingTo} </Text>
@@ -359,6 +364,7 @@ const Comments = ({ id, commentsCount, last_comment }: CommentsProps) => {
                 <Image style={[{ transform: [{ rotate: '-90deg' }], height: 20, width: 20 }, { tintColor: comment.length === 0 ? '#d9d9d9' : 'white'}]} source={require('@/assets/images/arrows/right-arrow-white.png')} />
               </Pressable>
             </View>
+            }
           </View>
         </View>
 </KeyboardAvoidingView>

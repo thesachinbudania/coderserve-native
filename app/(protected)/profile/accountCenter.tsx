@@ -47,40 +47,45 @@ export default function AccountCenter() {
         <Text style={styles.joinDate}>Member since {dateJoined}</Text>
       </View>
       <SectionContainer>
-        <Section>
+        <Section title='Account Access'>
           <SectionOption
             title='Update Email'
-            subTitle='Change email address associated with your account.'
+            subTitle='Keep your email updated for access.'
             onPress={() => router.push('/profile/updateEmail')}
           />
           <SectionOption
             title='Update Password'
-            subTitle='Change your account password.'
+            subTitle='Reset your password anytime for safety.'
             onPress={() => router.push('/profile/changePassword')}
           />
           <SectionOption
+            title='Login History'
+            subTitle="Check where and when you've logged in"
+            onPress={() => router.push('/profile/loginHistory')}
+          />
+          </Section>
+          <Section title="Memebership & Ads">
+          <SectionOption
             title='Go Pro'
-            subTitle='Subsribe to or manage your pro membership.'
+            subTitle='Enjoy extra features or manage your Pro plan.'
           />
           <SectionOption
-            title='Ad Management'
-            subTitle='Customize the ads you see.'
+            title='Ad Center'
+            subTitle='See your ad history and preferences.'
             onPress={() => router.push('/profile/adManagement')}
           />
+          </Section>
+          <Section title="Status & Permissions">
           <SectionOption
             title='Account Status'
-            subTitle="Check your account's current status."
+            subTitle="See what you can use and what's restricted."
             onPress={() => router.push('/profile/accountStatus')} />
           <SectionOption
             title='Device Permissions'
             subTitle='Control app and device permissions'
             onPress={() => router.push('/profile/devicePermissions')}
           />
-          <SectionOption
-            title='Login Activity'
-            subTitle='View your login history, devices and locations.'
-            onPress={() => router.push('/profile/loginHistory')}
-          />
+          
         </Section>
       </SectionContainer>
     </Layout>

@@ -1,2 +1,2 @@
-export const apiUrl = 'http://192.168.1.9:8000/'
-export const websocketUrl = 'ws://192.168.1.9:8001/'
+export const apiUrl = 'http://192.168.1.6:8000/'
+export const websocketUrl = 'wss://api.coderserve.com/'

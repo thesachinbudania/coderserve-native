@@ -1,4 +1,4 @@
-import { Animated, BackHandler, Dimensions, Keyboard, View, SafeAreaView, TouchableWithoutFeedback, useAnimatedValue } from 'react-native';
+import { Animated, Text, BackHandler, Dimensions, Keyboard, View, SafeAreaView, TouchableWithoutFeedback, useAnimatedValue } from 'react-native';
 import SearchBar from '@/components/profile/SearchBar';
 import React from 'react';
 import Header from '@/components/general/Header';
@@ -7,6 +7,9 @@ import { useRouter, useNavigation } from 'expo-router';
 import DangerButton from '@/components/buttons/DangerButton';
 import protectedApi from '@/helpers/axios';
 import { useTokensStore } from '@/zustand/stores';
+import BottomDrawer from '@/components/BottomDrawer';
+import GreyBgButton from '@/components/buttons/GreyBgButton';
+import BlueButton from '@/components/buttons/BlueButton';
 
 export default function ControlCentre() {
   const [search, setSearch] = React.useState('');
@@ -20,6 +23,7 @@ export default function ControlCentre() {
   const { setTokens, refresh } = useTokensStore()
   const [isLoading, setIsLoading] = React.useState(false);
   const [keyboardVisible, setKeyboardVisible] = React.useState(false);
+  const logoutDrawerRef = React.useRef<any>(null);
 
   React.useEffect(() => {
     const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => {
@@ -132,24 +136,29 @@ export default function ControlCentre() {
                     <SectionOption
                       title='Account Visibility'
                       subTitle='Toggle profile between public and private.'
+                      onPress={() => router.push('/(protected)/profile/accountVisibility')}
                     />
                     <SectionOption
                       title='Tag Permissions'
                       subTitle='Control who can tag you.'
+                      onPress={() => router.push('/(protected)/profile/tagPermissions')}
                     />
                     <SectionOption
                       title='Comment Permissions'
                       subTitle='See who can comment on your posts.'
+                      onPress={() => router.push('/(freeRoutes)/profile/commentPermissions')}
                     />
                   </Section>
                   <Section title='Interaction Controls'>
                     <SectionOption
                       title='Muted Profile'
                       subTitle='Hide posts from selected profiles.'
+                      onPress={() => router.push('/(protected)/profile/mutedProfile')}
                       /> 
                       <SectionOption
                       title='Blocked Users'
                       subTitle='Prevent specific users from interacting with you.'
+                      onPress={() => router.push('/(protected)/profile/blockedUsers')}
                       />
                   </Section>
                   <Section title='Content & Activity'>
@@ -187,7 +196,7 @@ export default function ControlCentre() {
                   <DangerButton
                     title='Logout'
                     dangerButton
-                    onPress={() => { logout() }}
+                    onPress={() => logoutDrawerRef.current?.open()}
                     loading={isLoading}
                   />
                 </SectionContainer>
@@ -196,6 +205,31 @@ export default function ControlCentre() {
           </TouchableWithoutFeedback>
         </Animated.ScrollView>
       </View>
+      <BottomDrawer sheetRef={logoutDrawerRef} height={192} draggableIconHeight={0}>
+              <View style={{paddingHorizontal: 16}}>
+                <Text style={{fontSize: 15, fontWeight: 'bold', textAlign: 'center'}}>
+                   Logging out already? 
+                </Text>
+                <Text style={{fontSize: 13, color: "#a6a6a6", textAlign: 'center', marginTop: 12}}>
+                  We'll miss you! Don't worry, your account will be right here waiting when you come back.
+                </Text>
+                <View style={{flexDirection: 'row', gap: 16, width: '100%', marginTop: 24}}>
+                  <View style={{flex: 1/2}}>
+                    <GreyBgButton
+                      title='Cancel'
+                      onPress={() => logoutDrawerRef.current?.close()}
+                    />
+                  </View>
+                  <View style={{flex: 1/2}}>
+                    <BlueButton
+                        title='Confirm'
+                        onPress={logout}    
+                        loading={isLoading}
+                    />
+                  </View>
+                </View>
+              </View>
+            </BottomDrawer>
     </SafeAreaView>
   )
 }

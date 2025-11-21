@@ -37,7 +37,7 @@ const AppTabs = () => {
     <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()} accessible={false}>
       <>
       <StatusBar backgroundColor={'#202020'} barStyle={'default'} />
-      <View style={{ flex: 1, backgroundColor: 'white', paddingBottom: bottom }}>
+      <View style={{ flex: 1, backgroundColor: 'white', paddingBottom: 0}}>
         <Tabs
           screenListeners={() => ({
             tabPress: () => {

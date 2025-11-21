@@ -12,11 +12,11 @@ import GreyBgButton from "@/components/buttons/GreyBgButton";
 import protectedApi from "@/helpers/axios";
 
 const options = [
-{'Everyone' : 'Anyone can comment on my posts.'},
-{'Followers Only': 'Only users who follow me can comment on my posts.'},
-{'Mutual Followers Only': 'Only users who follow me and I follow back can comment on my posts.'},
-{'Following Only': 'Only users I follow can comment on my posts.'},
-{'Followers and Following Only': "Only users who follow me or whom I follow can comment on my posts."}
+{'Everyone' : 'Anyone can tag me in their posts and comments.'},
+{'Followers Only': 'Only users who follow me can tag me in their posts and comments.'},
+{'Mutual Followers Only': 'Only users who follow me and I follow back can tag me in their posts and comments.'},
+{'Following Only': 'Only users I follow can tag me in their posts and comments.'},
+{'Followers and Following Only': "Only users who follow me or whom I follow can tag me in their posts and comments."}
 ]
 
 const formSchema = zod.object({
@@ -43,9 +43,9 @@ export default function CommentPersmissions(){
   React.useEffect(() => {
     async function fetchCurrentPermission() {
       try {
-        const response = await protectedApi.get('/accounts/comment_permission/');
-        setValue('permission_status', response.data.comment_permissions);
-        setCurrentPermission(response.data.comment_permissions);
+        const response = await protectedApi.get('/accounts/tag_permission/');
+        setValue('permission_status', response.data.tag_permissions);
+        setCurrentPermission(response.data.tag_permissions);
         setInitialLoading(false);
       } catch (error) {
         console.error('Error fetching current permission status:', error);
@@ -56,8 +56,8 @@ export default function CommentPersmissions(){
 
   const onSubmit: SubmitHandler<FormData> = async (data) => {
     try {
-      await protectedApi.put('/accounts/comment_permission/', {
-        comment_permissions: data.permission_status
+      await protectedApi.put('/accounts/tag_permission/', {
+        tag_permissions: data.permission_status
       });
       setCurrentPermission(data.permission_status || 0);
       drawerRef.current?.close();
@@ -67,7 +67,7 @@ export default function CommentPersmissions(){
   }; 
   return(
         <PageLayout
-        headerTitle="Comment Permissions"
+        headerTitle="Tag Permissions"
         flex1={initialLoading}
         >
           {
@@ -107,8 +107,8 @@ export default function CommentPersmissions(){
             />
             <BottomDrawer sheetRef={drawerRef} height={192} draggableIconHeight={0}>
               <View style={{paddingHorizontal: 16}}>
-                <Text style={{fontSize: 15, fontWeight: 'bold', textAlign: 'center'}}>Apply Comment Settings?</Text>
-                <Text style={{fontSize: 13, color: "#a6a6a6", textAlign: 'center', marginTop: 12}}>Your new comment preference will apply to all existing and future posts. Are you sure you want to proceed?</Text>
+                <Text style={{fontSize: 15, fontWeight: 'bold', textAlign: 'center'}}>Apply Tag Settings?</Text>
+                <Text style={{fontSize: 13, color: "#a6a6a6", textAlign: 'center', marginTop: 12}}>Your new tag preference . Are you sure you want to proceed?</Text>
                 <View style={{flexDirection: 'row', gap: 16, width: '100%', marginTop: 24}}>
                   <View style={{flex: 1/2}}>
                     <GreyBgButton

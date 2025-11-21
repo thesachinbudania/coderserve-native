@@ -1,4 +1,4 @@
-import { DecoratorNode, DOMConversionMap, DOMConversionOutput, DOMExportOutput, NodeKey } from 'lexical';
+import { DecoratorNode, DOMConversionMap, DOMConversionOutput, DOMExportOutput, EditorConfig, NodeKey } from 'lexical';
 
 export const $createImageNode = ({ height, width, src }: { height?: number, width?: number, src: string }) => {
   return new ImageNode({
@@ -78,6 +78,10 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
         return { conversion: convertImageElement, priority: 0 }
       }
     }
+  }
+
+  updateDOM(_prevNode: unknown, _dom: HTMLElement, _config: EditorConfig): boolean {
+    return false;
   }
 }
 

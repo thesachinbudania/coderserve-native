@@ -37,6 +37,7 @@ export default function UserProfile() {
   const { username: currentUsername } = useUserStore(state => state);
   const [blocked, setIsBlocked] = React.useState(false);
   const [index, setIndex] = React.useState(0);
+  const [canView, setCanView] = React.useState(false);
 
 
   // function to share profile
@@ -49,14 +50,13 @@ export default function UserProfile() {
       console.error('Error sharing profile:', error);
     }
   }
-
-
-
+  
   // function to fetch user data and resume data
   function fetchData() {
     setIsLoading(true);
     protectedApi.get(`/accounts/user_profile/${username}/`).then((res) => {
       setUserData(res.data);
+      setCanView(res.data.can_view_profile);
       protectedApi.get(`/jobs/user_resume/${username}/`).then((resumeRes) => {
         setUserResume(resumeRes.data);
         protectedApi.get('/accounts/verify_following/' + username + '/').then((followRes) => {
@@ -510,6 +510,7 @@ protectedApi.post('/home/conversations/', { 'participants': [userData.id] }).the
                   <Text style={{ fontSize: 13, color: "#a6a6a6", marginTop: 4 }}>Unblock to view their profile and interact again.</Text>
                 </View>
               ) : userData.background_pattern_code == 0 ? null : (
+                canView ?
                 <>
                   <View style={{ marginHorizontal: -16, marginTop: 32 }}>
                     <AnimatedTopTabs
@@ -536,7 +537,8 @@ userData.username
                       setIndex={setIndex}
                     />
                   </View>
-                </>
+                </> :
+                    <PostsTab canView={canView} editable={false} username={userData.username } />
               )
             }
 

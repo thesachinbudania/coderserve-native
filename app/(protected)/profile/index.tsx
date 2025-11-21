@@ -75,8 +75,12 @@ export const Profile = ({ user, onPostPress }: { user: any, onPostPress?: () => 
         </View>
         <Text style={styles.name}>{user.first_name} {user.last_name}</Text>
         {user.background_pattern_code == 0 ? null : <>
+          <Text style={{fontSize: 13, color: "#004aad", fontWeight: 'bold', marginTop: 8}}>Ranked #59</Text>
           <Text style={styles.username}>@{user.username}</Text>
-          <Text style={styles.userLocation}>{user.city}, {user.state}, {user.country}</Text>
+          {
+            user.can_view_profile &&  
+              <Text style={styles.userLocation}>{user.city}, {user.state}, {user.country}</Text>
+          }
         </>}
       </View>
     </>

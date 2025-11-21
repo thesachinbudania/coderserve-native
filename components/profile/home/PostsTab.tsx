@@ -20,11 +20,11 @@ const Post = ({ item }: { item: any }) => {
   )
 }
 
-export default function({ editable = true, username }: { editable?: boolean, username?: string }) {
+export default function({ editable = true, username, canView = true }: { canView?: boolean; editable?: boolean, username?: string }) {
   const [data, setData] = React.useState<any>(null);
   const sheetRef = React.useRef<any>(null);
   React.useEffect(() => {
-    const route = editable ? '/talks/self_posts/' : `/talks/posts/by_username/${username}/`;
+    const route = editable ? '/talks/self_posts/' : `/talks/user_posts/${username}/`;
     protectedApi.get(route).then((response) => {
       setData(response.data);
     }).catch((error) => {
@@ -36,7 +36,7 @@ export default function({ editable = true, username }: { editable?: boolean, use
     <>
       {data && data.results.length > 0 ? (
         <>
-        <View style={{ marginTop: -16, marginHorizontal: -16, gap: 8, backgroundColor: "#f5f5f5", paddingBottom: 8 }}>
+        <View style={{ marginTop: canView ? -16 : 32,paddingTop: canView ? 0 : 8, marginHorizontal: -16, gap: 8, backgroundColor: "#f5f5f5", paddingBottom: 8 }}>
           {data.results.map((item: any) => (
             <Pressable
               android_ripple={{ color: '#f5f5f5' }}
