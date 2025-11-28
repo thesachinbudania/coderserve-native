@@ -30,8 +30,10 @@ function insertNewLine(editor: any) {
 }
 export default function ImagePlugin({ changeAddImage, image }: { changeAddImage: boolean, image: any }) {
   const [editor] = useLexicalComposerContext();
+  const lastInsertedRef = React.useRef<string | null>(null);
 
   const pickImage = async () => {
+    console.log("Picking image...");
       const asset = image; 
 
       const originalWidth = asset.width || 400;
@@ -42,8 +44,14 @@ export default function ImagePlugin({ changeAddImage, image }: { changeAddImage:
       const targetHeight = Math.round(originalHeight * scale);
 
       const base64 = `data:image/jpeg;base64,${asset.base64}`;
+      // avoid inserting the same image multiple times if `image` prop doesn't change identity
+      if (lastInsertedRef.current === base64) {
+        return;
+      }
 
       insertImage(base64, targetWidth, targetHeight);
+      insertNewLine(editor);
+      lastInsertedRef.current = base64;
   };
 
   const insertImage = (src: string, width: number, height: number) => {
@@ -53,7 +61,7 @@ export default function ImagePlugin({ changeAddImage, image }: { changeAddImage:
     });
   };
   React.useEffect(() => {
-    if (image){
+    if (image) {
       pickImage();
     }
   }, [image])

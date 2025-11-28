@@ -10,8 +10,8 @@ import { HistoryPlugin } from "@lexical/react/LexicalHistoryPlugin";
 import { RichTextPlugin } from "@lexical/react/LexicalRichTextPlugin";
 import { OnChangePlugin } from "@lexical/react/LexicalOnChangePlugin";
 import type { ToolbarPluginProps } from "./ToolbarPlugin";
-import { CustomCodeNode } from "./CustomCodeNode";
-import CustomCodePlugin from "./CustomCodePlugin";
+import {CodeBlockNode} from './nodes/CodeBlockNode'
+import CodeBlockPlugin from './plugins/CodeBlockPlugin'
 import ExampleTheme from "./Theme";
 import ToolbarPlugin from "./ToolbarPlugin";
 import { $getRoot, LexicalEditor } from "lexical";
@@ -19,7 +19,9 @@ import { ImageNode } from "./nodes/ImageNode";
 import ImagePlugin from "./ImagePlugin";
 import { ListItemNode, ListNode } from "@lexical/list";
 import { ListPlugin } from "@lexical/react/LexicalListPlugin";
-import { CodeNode } from "@lexical/code";
+import {useFonts, Roboto_400Regular} from '@expo-google-fonts/roboto'
+
+
 
 
 function useDebouncedSetter<T>(value: T, delay = 10) {
@@ -47,6 +49,7 @@ export default function Editor({
   changeUnderline,
   setIsUnderline,
   changeCodeBlock,
+  setIsCodeBlock,
   setChangeCodeBlock,
   changeAddImage,
   changeHighlight,
@@ -78,7 +81,7 @@ export default function Editor({
 }) {
   const editorConfig = {
     namespace: "React.js Demo",
-    nodes: [CustomCodeNode, ImageNode, ListNode, ListItemNode, CodeNode],
+    nodes: [ImageNode, ListNode, ListItemNode, CodeBlockNode],
     onError(error: Error) {
       throw error;
     },
@@ -103,7 +106,9 @@ export default function Editor({
       setRedoEnabled(internalRedoEnabled);
     }
   }, [internalRedoEnabled]);
-
+const [loaded] = useFonts({
+  Roboto_400Regular,
+});
   useEffect(() => {
     if (internalUndoEnabled!== undefined && internalUndoEnabled!== undoEnabled) {
       setIsUndoEnabled(internalUndoEnabled);
@@ -111,9 +116,9 @@ export default function Editor({
   }, [internalUndoEnabled])
   return (
     <LexicalComposer initialConfig={editorConfig}>
-      <div className="editor-container" style={{fontFamily: 'Roboto, sans-serif'}}>
+      <div className="editor-container" style={{fontFamily: 'Roboto, sans-serif', paddingBottom: 16}}>
         <ImagePlugin changeAddImage={changeAddImage} image={image}/>
-        <CustomCodePlugin />
+        <CodeBlockPlugin />
         <ToolbarPlugin
           changeBold={changeBold}
           setIsBold={setIsBold}
@@ -122,6 +127,7 @@ export default function Editor({
           changeUnderline={changeUnderline}
           setIsUnderline={setIsUnderline}
           changeCodeBlock={changeCodeBlock}
+          setIsCodeBlock={setIsCodeBlock}
           setChangeCodeBlock={setChangeCodeBlock}
           changeHighlight={changeHighlight}
           setIsHighlight={setIsHighlight}

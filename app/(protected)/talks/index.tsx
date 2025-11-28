@@ -104,9 +104,12 @@ export function Post({ data }: { data: any }) {
       >
         <SingleLineHashtags hashtags={data.hashtags} />
       </View>
-      <View style={{ marginTop: 16 }} pointerEvents="none">
+      {
+        data.thumbnail && <View style={{ marginTop: 16 }} pointerEvents="none">
 <Image style={{width: '100%', height: 144, borderRadius: 12}} source={{uri: data.thumbnail}} />
       </View>
+      }
+      
     </Pressable>
   );
 }

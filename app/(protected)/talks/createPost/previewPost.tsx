@@ -1,4 +1,4 @@
-import { ActivityIndicator, Dimensions, Image, Text, View, ScrollView, StyleSheet } from 'react-native';
+import { ActivityIndicator, Dimensions, Image, Text, View, ScrollView, StyleSheet, SafeAreaView } from 'react-native';
 import { useRouter } from 'expo-router';
 import React from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -81,7 +81,7 @@ export function PostContent({ title, hashtags, thumbnail, content = null }: { ti
   const [contentHeight, setContentHeight] = React.useState(1);
   const [contentLoading, setContentLoading] = React.useState(content ? true : false);
   return (
-    <View style={{flex: 1}}>
+    <View>
       <View style={[styles.postContainer]}>
         {title && (
           <Text style={styles.postHeading}>
@@ -110,7 +110,7 @@ export function PostContent({ title, hashtags, thumbnail, content = null }: { ti
           <ActivityIndicator size="large" color="#202020" style={{ marginTop: 48, marginBottom: 32}} />
         )
       }
-      <View style={{height: contentLoading ? 1 : contentHeight}}>
+      <View style={{height: contentLoading ? 1 : contentHeight, overflow: 'hidden'}}>
       {
         title && hashtags.length > 0 && content && (
           <EditorPreview editorState={content} dom={{
@@ -137,12 +137,13 @@ export function PostContent({ title, hashtags, thumbnail, content = null }: { ti
 export default function PreviewPost() {
   const { title, hashtags, thumbnail, content } = useNewPostStore();
   return (
-    <ScrollView
-      contentContainerStyle={{ paddingHorizontal: 16, flex: 1, paddingBottom: 48, backgroundColor: 'white' }}
-    >
-      <Header />
-      <PostContent title={title} hashtags={hashtags} thumbnail={thumbnail ? thumbnail.uri : undefined} content={content} />
-    </ScrollView>
+      <ScrollView
+        style={{ flex: 1 }}
+        contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 48, backgroundColor: 'white' }}
+      >
+        <Header />
+        <PostContent title={title} hashtags={hashtags} thumbnail={thumbnail ? thumbnail.uri : undefined} content={content} />
+      </ScrollView>
   );
 }
 

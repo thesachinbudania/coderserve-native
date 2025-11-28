@@ -304,7 +304,6 @@ const Comments = ({ id, commentsCount, last_comment }: CommentsProps) => {
 
       <BottomDrawer
         sheetRef={menuRef}
-        height={750}
       >
             <KeyboardAvoidingView style={{flex: 1}} behavior={'padding'}>
         <View style={{ flex: 1, position: 'relative' }}>

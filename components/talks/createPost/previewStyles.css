@@ -118,24 +118,9 @@ h1 {
   color: black;
 }
 
-.editor-text-code{
-  font-size: 15px !important;
-  font-weight: bold;
-  color: black;
-  background-color: white !important;
-  font-family: sans-serif !important;
-  padding: 0 !important;
-}
 
 .editor-text-underlineStrikethrough {
   text-decoration: underline line-through;
-}
-
-.editor-text-code {
-  background-color: rgb(240, 242, 245);
-  padding: 1px 0.25rem;
-  font-family: Menlo, Consolas, Monaco, monospace;
-  font-size: 94%;
 }
 
 .editor-link {
@@ -154,21 +139,6 @@ h1 {
   position: relative;
   overflow: auto;
   line-height: 14px;
-}
-
-.editor-code {
-  background-color: #202020;
-  display: block;
-  padding: 16px;
-  line-height: 1.53;
-  font-size: 13px;
-  margin: 0;
-  margin-top: 8px;
-  margin-bottom: 8px;
-  overflow-x: auto;
-  position: relative;
-  color: white;
-  border-radius: 12px;
 }
 
 .editor-tokenComment {
@@ -407,122 +377,6 @@ pre::-webkit-scrollbar-thumb {
   background-size: contain;
 }
 
-.custom-code-node {
-  margin: 16px 0;
-  border-radius: 8px;
-  overflow: hidden;
-}
-
-.code-block-container {
-  background: #1e1e1e;
-  border-radius: 8px;
-  overflow: hidden;
-  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-}
-
-/* Code Block Header */
-.code-block-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 8px 16px;
-  background: #2d2d2d;
-  border-bottom: 1px solid #3e3e3e;
-}
-
-.code-language {
-  color: #858585;
-  font-size: 12px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-/* Copy Button */
-.copy-button {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  padding: 4px 12px;
-  background: transparent;
-  border: 1px solid #4a4a4a;
-  border-radius: 4px;
-  color: #e0e0e0;
-  font-size: 12px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  outline: none;
-}
-
-.copy-button:hover {
-  background: #3a3a3a;
-  border-color: #5a5a5a;
-}
-
-.copy-button:active {
-  transform: scale(0.95);
-}
-
-.copy-button svg {
-  stroke: currentColor;
-}
-
-/* Code Block Content */
-.code-block-content {
-  margin: 0;
-  padding: 16px;
-  overflow-x: auto;
-  background: #1e1e1e;
-}
-
-.code-block-content code {
-  color: #e0e0e0;
-  font-size: 14px;
-  line-height: 1.6;
-  white-space: pre;
-  display: block;
-}
-
-/* Success state for copy button */
-.copy-button[data-copied="true"] {
-  background: #2e7d32;
-  border-color: #2e7d32;
-  color: white;
-}
-
-/* Export styles */
-.custom-code-export {
-  background: #1e1e1e;
-  padding: 16px;
-  border-radius: 8px;
-  margin: 16px 0;
-}
-
-.custom-code-export code {
-  color: #e0e0e0;
-  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-  font-size: 14px;
-  line-height: 1.6;
-}
-
-/* Dark theme scrollbar for code blocks */
-.code-block-content::-webkit-scrollbar {
-  height: 8px;
-  width: 8px;
-}
-
-.code-block-content::-webkit-scrollbar-track {
-  background: #2d2d2d;
-}
-
-.code-block-content::-webkit-scrollbar-thumb {
-  background: #4a4a4a;
-  border-radius: 4px;
-}
-
-.code-block-content::-webkit-scrollbar-thumb:hover {
-  background: #5a5a5a;
-}
-
 .editor-listitem {
   font-size: 13px;
   color: #737373;
@@ -553,4 +407,40 @@ pre::-webkit-scrollbar-thumb {
   list-style-type: none;
 }
 
+.code-block-container {
+  background-color: #1c202c;
+  border-radius: 12px;
+  overflow: hidden;
+  color: white;
+  padding: 16px;
+  font-size: 13px;
+}
 
+.code-block-header {
+  display: flex;
+  justify-content: flex-end;
+  background-color: #2a2f41;
+  padding: 16px;
+  margin: -16px;
+  margin-bottom: 16px;
+}
+
+.copy-btn {
+  border: none;
+  font-size: 11px;
+  color: white;
+  padding: 0;
+  background-color: transparent;
+}
+
+.code-block-pre {
+  margin: 0;
+  overflow-x: auto;
+}
+
+.code-block-code {
+  display: block;
+  outline: none;
+  font-family: "Roboto", 'sans-serif' !important;
+  font-size: 23px !important;
+}

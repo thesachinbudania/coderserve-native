@@ -102,22 +102,20 @@ export default function useFetchData({
   // Render UI
   const RenderData = () => {
     return (
-      <>
-        {initialLoading && (
+initialLoading ?(
           <View
             style={{
               width: '100%',
               flex: 1,
               justifyContent: 'center',
               alignItems: 'center',
-              backgroundColor: 'white',
             }}
           >
             <ActivityIndicator size="large" color="#202020" />
           </View>
-        )}
-
-        {!initialLoading && !isLoading && combinedData.length > 0 && (
+        ) :
+      <>
+          {!initialLoading && !isLoading && combinedData.length > 0 && (
           <>
 
             <FlatList

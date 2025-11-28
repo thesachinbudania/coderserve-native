@@ -71,8 +71,8 @@ export default function Messages() {
             </View>
             :
 
-            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-              <Image source={require('@/assets/images/messages.png')} style={{ height: 128, width: 128, objectFit: 'contain' }}></Image>
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+              <Image source={require('@/assets/images/messages.png')} style={{ height: 128, width: 138, objectFit: 'contain' }}></Image>
               <Text style={[styles.emptyText, { marginTop: 32 }]}>Private chats with people you follow - and those who follow you - will show up here.</Text>
               <Text style={styles.emptyText}>Start a converstion and stay connected!</Text>
             </View>

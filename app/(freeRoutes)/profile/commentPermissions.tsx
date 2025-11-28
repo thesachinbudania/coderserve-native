@@ -105,7 +105,7 @@ export default function CommentPersmissions(){
                 onPress={() => drawerRef.current?.open()}
                 disabled={currentPermission === permissionStatus}
             />
-            <BottomDrawer sheetRef={drawerRef} height={192} draggableIconHeight={0}>
+            <BottomDrawer sheetRef={drawerRef} draggableIconHeight={0}>
               <View style={{paddingHorizontal: 16}}>
                 <Text style={{fontSize: 15, fontWeight: 'bold', textAlign: 'center'}}>Apply Comment Settings?</Text>
                 <Text style={{fontSize: 13, color: "#a6a6a6", textAlign: 'center', marginTop: 12}}>Your new comment preference will apply to all existing and future posts. Are you sure you want to proceed?</Text>

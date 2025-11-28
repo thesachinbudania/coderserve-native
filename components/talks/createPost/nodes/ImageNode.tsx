@@ -83,5 +83,20 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
   updateDOM(_prevNode: unknown, _dom: HTMLElement, _config: EditorConfig): boolean {
     return false;
   }
+
+  exportJSON(): any {
+    return {
+      type: 'image',
+      version: 1,
+      src: this.__src,
+      width: this.__width,
+      height: this.__height,
+    };
+  }
+
+  static importJSON(serializedNode: any): ImageNode {
+    const { src, width, height } = serializedNode;
+    return $createImageNode({ src, width: width || 300, height: height || 200 });
+  }
 }
 

@@ -18,7 +18,7 @@ export default function VotedPosts() {
 
     return (
         <PageLayout headerTitle="Voted Posts" >
-            <View style={{marginHorizontal: -16, marginTop: -24}}>
+            <View style={[{marginHorizontal: -16, marginTop: -24}, initialLoading && {flex: 1}]}>
             <RenderData />
 </View>
 {

@@ -24,7 +24,8 @@ import {
 } from "lexical";
 import { $isCodeNode } from '@lexical/code';
 import { useCallback, useEffect, useState } from "react";
-import { toggleCodeBlock } from "./helpers";
+import { INSERT_CODE_BLOCK_COMMAND} from "./plugins/CodeBlockPlugin";
+import { $isCodeBlockNode } from "./nodes/CodeBlockNode";
 
 
 
@@ -36,6 +37,7 @@ export interface ToolbarPluginProps {
   changeUnderline: boolean;
   setIsUnderline: (isUnderline: boolean) => void;
   changeCodeBlock: boolean;
+  setIsCodeBlock: (isCode: boolean) => void;
   setChangeCodeBlock?: (isCode: boolean) => void;
   changeHighlight: boolean;
   setIsHighlight: (isHighlight: boolean) => void;
@@ -67,6 +69,7 @@ export default function ToolbarPlugin({
   changeUnderline,
   setIsUnderline,
   changeCodeBlock,
+  setIsCodeBlock,
   changeHighlight,
   setIsHighlight,
   changeHeading,
@@ -77,7 +80,6 @@ export default function ToolbarPlugin({
   setIsHeading2,
   undo,
   redo,
-  setChangeCodeBlock,
   setRedoEnabled,
   setIsUndoEnabled,
   changeOrderedList,
@@ -102,23 +104,7 @@ export default function ToolbarPlugin({
   }, [changeUnderline, editor]);
 
   useEffect(() => {
-    // Only toggle when the editor's current block state differs from the requested state.
-    editor.update(() => {
-      const selection = $getSelection();
-      if (!$isRangeSelection(selection)) return;
-      try {
-        const anchorNode = selection.anchor.getNode();
-        const topLevelNode = anchorNode.getTopLevelElementOrThrow();
-        const isInCodeBlock = $isCodeNode(topLevelNode);
-        // If requested state differs from actual state, perform the toggle.
-        if (Boolean(isInCodeBlock) !== Boolean(changeCodeBlock)) {
-          toggleCodeBlock(editor);
-        }
-      } catch (e) {
-        // if detection fails, fall back to toggling once
-        toggleCodeBlock(editor);
-      }
-    });
+    editor.dispatchCommand(INSERT_CODE_BLOCK_COMMAND, undefined);
   }, [changeCodeBlock, editor]);
 
   useEffect(() => {
@@ -213,13 +199,11 @@ export default function ToolbarPlugin({
         setIsOrderedList(false);
         setIsUnorderedList(false);
       }
-      // detect code block nodes (custom-code or default code node)
-      try {
-        const nodeType = topLevelNode.getType ? topLevelNode.getType() : '';
-        const isCustom = nodeType === 'custom-code' || nodeType === 'code';
-        if (setChangeCodeBlock) setChangeCodeBlock(isCustom);
-      } catch (e) {
-        // ignore
+      if ($isCodeBlockNode(topLevelNode)) {
+        setIsCodeBlock(true);
+      }
+      else {
+        setIsCodeBlock(false);
       }
     }
 

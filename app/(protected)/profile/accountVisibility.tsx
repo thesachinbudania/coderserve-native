@@ -85,7 +85,7 @@ const { handleSubmit, setValue, watch, formState: { isSubmitting, errors } } = u
         <Text style={{fontSize: 12, color: "#a6a6a6", textAlign: 'justify', marginTop: 16}}>
             A Private profile gives you more control. The essentials (your profile image, name, global rank, username, background image, and posts) stay visible to everyone so they can still find and recognize you. But all the other details are shared only with your followers.
         </Text>
-        <BottomDrawer sheetRef={drawerRef} height={permissionStatus === 0 ? 216 : 192} draggableIconHeight={0}>
+        <BottomDrawer sheetRef={drawerRef} draggableIconHeight={0}>
               <View style={{paddingHorizontal: 16}}>
                 <Text style={{fontSize: 15, fontWeight: 'bold', textAlign: 'center'}}>
                     {permissionStatus === 0 ? "Switch to Private Profile" : "Make Your Profile Public?"}

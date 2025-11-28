@@ -12,6 +12,8 @@ import { ImageNode } from './nodes/ImageNode';
 import { ListItemNode, ListNode } from '@lexical/list';
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { useEffect } from "react";
+import { CodeBlockNode } from "./nodes/CodeBlockNode";
+import CodeBlockPlugin from "./plugins/CodeBlockPlugin";
 
 interface EditorPreviewProps {
   editorState: string | null;
@@ -22,10 +24,10 @@ interface EditorPreviewProps {
 const editorConfig = {
   namespace: "Preview Mode",
   nodes: [
-    CodeNode,
     ImageNode,
     ListNode,
-    ListItemNode
+    ListItemNode,
+    CodeBlockNode
   ],
   editable: false, // read-only
   onError(error: Error) {

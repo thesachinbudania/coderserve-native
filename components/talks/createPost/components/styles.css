@@ -1,0 +1,38 @@
+.code-container {
+    background-color: #1c202c;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.button-container {
+    display: flex;
+    justify-content: flex-end;
+    background-color: #2a2f41;
+    padding: 16px;
+}
+
+.copy-button {
+    border: none;
+    font-size: 11px;
+    color: "white";
+    padding: 0;
+}
+
+.copy-button:active {
+    background-color: transparent;
+    transform: scale(1);
+}
+
+.code-textarea {
+    width: 100%;
+    background-color: transparent;
+    color: #fff;
+    border: none;
+    outline: none;
+    resize: none;
+    font-size: 13px;
+    padding: 16px;
+    padding-bottom: 8px;
+    box-sizing: border-box;
+    caret-color: #fff;
+}

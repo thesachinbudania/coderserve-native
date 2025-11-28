@@ -16,8 +16,8 @@ export default function CommentHistory() {
 
     const { RenderData, combinedData, initialLoading} = useFetchData({ url: '/api/talks/saved_posts/', RenderItem });
     return (
-        <PageLayout headerTitle="Comment History" >
-            <View style={{marginHorizontal: -16, marginTop: -24}}>
+        <PageLayout headerTitle="Saved Posts" flex1={initialLoading} >
+            <View style={[{marginHorizontal: -16, marginTop: -24}, initialLoading && {flex: 1}]}>
             <RenderData />
 </View>
 {

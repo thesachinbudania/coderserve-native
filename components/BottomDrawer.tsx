@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { View, Dimensions, StyleSheet } from 'react-native';
 import RBSheet from 'react-native-raw-bottom-sheet';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const SCREEN_HEIGHT = Dimensions.get('window').height;
+const SCREEN_WIDTH = Dimensions.get('window').width;
 
 export default function BottomDrawer({
   sheetRef,
@@ -11,11 +13,12 @@ export default function BottomDrawer({
 }: {
   draggableIconHeight?: number,
   sheetRef: React.RefObject<any>,
-  children: React.ReactNode
+  children: React.ReactNode,
 }) {
   
   const [measuredHeight, setMeasuredHeight] = useState<number | null>(null);
-
+  const {bottom} = useSafeAreaInsets();
+  
   return (
     <>
       {/* Invisible off-screen measurement */}
@@ -24,7 +27,7 @@ export default function BottomDrawer({
         onLayout={(e) => {
           const h = e.nativeEvent.layout.height;
           const maxHeight = SCREEN_HEIGHT * 0.85; // cap
-          setMeasuredHeight(Math.min(h, maxHeight) + 32);
+          setMeasuredHeight(bottom > 0 ? Math.min(h, maxHeight) + bottom + 16 : Math.min(h, maxHeight) + 32);
         }}
       >
         {children}
@@ -33,7 +36,7 @@ export default function BottomDrawer({
       {/* Actual Bottom Sheet WITH perfect height */}
       <RBSheet
         ref={sheetRef}
-        height={measuredHeight ?? 200} // fallback until measured
+        height={(measuredHeight) ?? 200} // fallback until measured
         draggable={true}
         customStyles={{
           wrapper: { height: "75%" },
@@ -46,7 +49,6 @@ export default function BottomDrawer({
             backgroundColor: "white",
             borderTopLeftRadius: 24,
             borderTopRightRadius: 24,
-            paddingBottom: 16,
             width: "100%",
           },
         }}
@@ -63,5 +65,6 @@ const styles = StyleSheet.create({
     top: -9999,
     left: -9999,
     opacity: 0,
+    width: SCREEN_WIDTH,
   },
 });

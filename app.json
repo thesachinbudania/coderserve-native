@@ -60,7 +60,8 @@
     "plugins": [
       "expo-secure-store",
       "expo-asset",
-      "expo-router"
+      "expo-router",
+      "expo-font"
     ]
   }
 }

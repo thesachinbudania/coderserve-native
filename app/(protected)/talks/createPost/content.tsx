@@ -1,6 +1,6 @@
 import TextEditor from '@/components/talks/createPost/Editor';
 import React from 'react';
-import { Image, Pressable, ScrollView, Text, View } from 'react-native';
+import { Image, Platform, Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Header from '@/components/general/Header';
 import { useRouter } from 'expo-router';
@@ -256,6 +256,7 @@ export default function Content() {
   const [changeHeading2, setChangeHeading2] = React.useState(false);
   const [isHeading2, setIsHeading2] = React.useState(false);
   const [changeCodeBlock, setChangeCodeBlock] = React.useState(false);
+  const [isCodeBlock, setIsCodeBlock] = React.useState(false);
   const [changeAddImage, setChangeAddImage] = React.useState(false);
   const [undo, setUndo] = React.useState(false);
   const [redo, setRedo] = React.useState(false);
@@ -276,6 +277,7 @@ export default function Content() {
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ['images'],
       allowsEditing: true,
+      base64: true,
       quality: 1,
       aspect: [3, 1]
     })
@@ -293,7 +295,7 @@ export default function Content() {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: 'white' }}>
-      <View style={{ flex: 1, backgroundColor: 'white', paddingTop: 57, paddingBottom: 172 }}>
+      <View style={{ flex: 1, backgroundColor: 'white', paddingTop: 57, paddingBottom: bottom > 16 ?  134: 149}}>
         <Header
           title='Post Content'
           onBackPress={() => router.back()}
@@ -309,6 +311,7 @@ export default function Content() {
           changeUnderline={changeUnderline}
           setIsUnderline={setIsUnderline}
           changeCodeBlock={changeCodeBlock}
+          setIsCodeBlock={setIsCodeBlock}
           changeAddImage={changeAddImage}
           changeHighlight={changeHighlight}
           setIsHighlight={setIsHighlight}
@@ -334,10 +337,14 @@ export default function Content() {
       </View>
 
       <KeyboardAvoidingView 
-        style={{ position: 'absolute', bottom:bottom > 16 ? bottom + 28 : 77, backgroundColor: 'white', borderTopWidth: 1, borderColor: '#f5f5f5' }}
-        behavior="padding" 
+        style={{ position: 'absolute', bottom:bottom > 16 ? bottom + 61: 77, backgroundColor: 'white', borderTopWidth: 1, borderColor: '#f5f5f5' }}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
-        <ScrollView horizontal={true} showsHorizontalScrollIndicator={false} contentContainerStyle={{ flexDirection: 'row', gap: 16, padding: 16, }}>
+        <ScrollView 
+          horizontal={true} 
+          showsHorizontalScrollIndicator={false} 
+          contentContainerStyle={{ flexDirection: 'row', gap: 16, padding: 16, }}
+        >
           <ImageFormatButton
             onPress={() => setUndo(!undo)}
             active={false}
@@ -423,8 +430,9 @@ export default function Content() {
             toggleable
           />
           <FormatButton
-            onPress={() => setChangeCodeBlock(!changeCodeBlock)}
-            active={changeCodeBlock}
+            onPress={() => {
+              setChangeCodeBlock(!changeCodeBlock)}}
+            active={isCodeBlock}
             title="Code"
             toggleable
           />
