@@ -9,13 +9,12 @@ import {
   StyleSheet,
   Text,
   View,
-  LayoutChangeEvent
 } from "react-native";
 import { Header } from "@/app/(protected)/jobs/index";
 import React from "react";
 import ImageLoader from "@/components/ImageLoader";
 import BottomName from "@/components/profile/home/BottomName";
-import BottomSheet from "@/components/messsages/BottomSheet";
+import BottomDrawer from "@/components/BottomDrawer";
 import { MenuButton } from "@/app/(protected)/jobs/index";
 import { useRouter, useNavigation } from "expo-router";
 import { useIsFocused } from "@react-navigation/native";
@@ -23,14 +22,14 @@ import { isTalksProfileCompleted } from "@/zustand/jobsStore";
 import DefaultButton from "@/components/buttons/BlueButton";
 import { useTabPressScrollToTop } from "@/helpers/hooks/useTabBarScrollToTop";
 import useSearchBar from "@/helpers/general/searchBar";
-import useFetchData from "@/helpers/general/handleFetchedData";
-import FullWidthImage from "@/components/FullWidthImage";
+import {useFetchData} from "@/helpers/general/handleFetchedData";
 import { formatDistanceToNow } from "date-fns";
 import OptionChip from "@/components/general/OptionChip";
 import protectedApi from "@/helpers/axios";
 import Search from "@/components/talks/home/Search";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useGeneralStore } from "@/zustand/talks/generalStore";
+import { useFocusEffect } from "expo-router";
 
 const width = Dimensions.get("window").width;
 
@@ -223,6 +222,15 @@ export default function Page() {
   const [searchResults, setSearchResults] = React.useState<any[]>([]);
 
   React.useEffect(() => {
+    if (hashtagsFollowed.length == 0) {
+      if (selectedTab === 'custom') {
+        setSelectedTab('trending');
+        setPostsUrl('/api/talks/posts/');
+      } 
+    }
+  }, [hashtagsFollowed]);
+
+  React.useEffect(() => {
     const fetchSearchResults = async () => {
       if (search.trim() === "" || search.length < 3) {
         setSearchResults([]);
@@ -296,6 +304,13 @@ export default function Page() {
       });
     }
   }, [isSearchFocused, focused]);
+
+  // refetch posts on focus
+  useFocusEffect(
+    React.useCallback(() => {
+      handleRefresh();
+    }, [])
+  );
 
   return (
     <View style={{ flex: 1, backgroundColor: 'white', paddingTop: top  }}>
@@ -408,7 +423,7 @@ export default function Page() {
         {pageLoading ? (
           // Show a single centered loader while page data (posts + prefs) is loading. Header remains visible above.
           <View style={{ width: '100%', flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'white' }}>
-            <ActivityIndicator size='large' color='#202020' />
+            <ActivityIndicator size={'large'}/>
           </View>
         ) : (
           // Normal content (search, chips, posts, bottom name)
@@ -418,7 +433,7 @@ export default function Page() {
               {/* If we're loading posts and have no posts yet, show a posts-area centered loader */}
               {isLoading && combinedData.length === 0 && (
                 <View style={{ width: '100%', justifyContent: 'center', alignItems: 'center', paddingVertical: 64 }}>
-                  <ActivityIndicator size='large' color='#202020' />
+                  <ActivityIndicator />
                 </View>
               )}
 
@@ -429,7 +444,7 @@ export default function Page() {
               {/* If we have posts and are loading more, show a small inline loader */}
               {isLoading && combinedData.length > 0 && (
                 <View style={{ width: '100%', paddingVertical: 12, justifyContent: 'center', alignItems: 'center' }}>
-                  <ActivityIndicator size='small' color='#202020' />
+                  <ActivityIndicator size='small'/>
                 </View>
               )}
             </View>
@@ -456,9 +471,10 @@ export default function Page() {
           </>
         )}
       </ScrollView>
-      <BottomSheet
-        menuRef={menuRef}
-        height={392}>
+      <BottomDrawer
+        sheetRef={menuRef}
+        draggableIconHeight={0}
+      >
         <View style={styles.menuContainer}>
           <MenuButton
             onPress={() => {
@@ -504,11 +520,12 @@ export default function Page() {
             </Text>
           </MenuButton>
         </View>
-      </BottomSheet>
-      <BottomSheet
-        menuRef={similarProfileInactiveMenuRef}
-        height={168}>
-        <View style={{ gap: 32 }}>
+      </BottomDrawer>
+      <BottomDrawer
+        sheetRef={similarProfileInactiveMenuRef}
+        draggableIconHeight={0}
+        >
+        <View style={{ gap: 32, paddingHorizontal: 16 }}>
           <View style={{ gap: 8 }}>
             <Text style={{ textAlign: 'center', fontWeight: 'bold', fontSize: 15 }}>Complete Your Profile</Text>
             <Text style={{ textAlign: 'center', color: '#a6a6a6', fontSize: 13 }}>
@@ -523,7 +540,7 @@ export default function Page() {
             }}
           />
         </View>
-      </BottomSheet>
+      </BottomDrawer>
     </View>
   );
 }
@@ -554,6 +571,7 @@ const styles = StyleSheet.create({
   },
   menuContainer: {
     gap: 16,
+    paddingHorizontal: 16,
   },
   menuButtonHeading: {
     fontSize: 15,

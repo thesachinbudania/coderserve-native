@@ -5,8 +5,8 @@ import BottomName from '@/components/profile/home/BottomName';
 
 export default function StreakCalculation() {
   return (
-    <PageLayout headerTitle='About Streak'>
-      <Image source={require('@/assets/images/home/streak.png')} style={{ height: 112, objectFit: 'contain', marginHorizontal: 'auto' }} />
+    <PageLayout headerTitle='About Streak' bottomPadding={false}>
+      <Image source={require('@/assets/images/home/streak.png')} style={{ height: 104, objectFit: 'contain', marginHorizontal: 'auto' }} />
       <Text style={{ marginHorizontal: 'auto', fontSize: 15, fontWeight: "bold", marginTop: 16 }}>Streak Tracker</Text>
       <Text style={{ textAlign: 'center', fontSize: 13, color: "#737373", marginTop: 8 }}>A smart way to visualize your daily progress and stay consistent with your learning journey.</Text>
       <Text style={{ marginTop: 48, fontSize: 15, fontWeight: "bold" }}>What Is A Streak?</Text>
@@ -14,7 +14,7 @@ export default function StreakCalculation() {
         A streak reflects your daily learning activity. Each day you complete certain tasks, your streak for that day increases up to 100%. The streak chart shows your activity for the last 182 days (about 6 months).
       </Text>
       <View style={{ marginTop: 16 }}>
-        <UnorderedList items={['1 box = 1 day', 'Color intensity = how active you were']} gap={-4} >
+        <UnorderedList items={['1 box = 1 day', 'Color intensity = how active you were']} gap={-2} >
         </UnorderedList>
       </View>
       <View style={{ marginTop: 48 }}>
@@ -23,25 +23,25 @@ export default function StreakCalculation() {
           You can earn up to 100% streak per day by doing the following:
         </Text>
         <View style={{ marginTop: 16, borderRadius: 12, backgroundColor: '#737373', padding: 16, gap: 16 }}>
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-            <Text style={styles.tableText}>Completed a full course/project module</Text>
-            <Text style={styles.tableText}>100% Streak</Text>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', gap: 16 }}>
+            <Text style={[styles.tableText, {flex: 3/4}]}>Completed a full course/project module</Text>
+            <Text style={[styles.tableText, {flex: 1/4}]}>100% Streak</Text>
           </View>
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-            <Text style={styles.tableText}>Completed 75% of a course/project module</Text>
-            <Text style={styles.tableText}>75% Streak</Text>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', gap: 16 }}>
+            <Text style={[styles.tableText, {flex: 3/4}]}>Completed 75% of a course/project module</Text>
+            <Text style={[styles.tableText, {flex: 1/4}]}>75% Streak</Text>
           </View>
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-            <Text style={styles.tableText}>Compelted 50% of a course/project module</Text>
-            <Text style={styles.tableText}>50% Streak</Text>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', gap: 16 }}>
+            <Text style={[styles.tableText, {flex: 3/4}]}>Compelted 50% of a course/project module</Text>
+            <Text style={[styles.tableText, {flex: 1/4}]}>50% Streak</Text>
           </View>
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-            <Text style={styles.tableText}>Completed 25% of a course/project module</Text>
-            <Text style={styles.tableText}>25% Streak</Text>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', gap: 16 }}>
+            <Text style={[styles.tableText, {flex: 3/4}]}>Completed 25% of a course/project module</Text>
+            <Text style={[styles.tableText, {flex: 1/4}]}>25% Streak</Text>
           </View>
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-            <Text style={styles.tableText}>Posted a useful post</Text>
-            <Text style={styles.tableText}>25% Streak</Text>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', gap: 16 }}>
+            <Text style={[styles.tableText, {flex: 3/4}]}>Posted a useful post</Text>
+            <Text style={[styles.tableText, {flex: 1/4}]}>25% Streak</Text>
           </View>
         </View>
         <Text style={{ marginTop: 16, fontSize: 11, color: "#a6a6a6" }}>Note: Streak percentage caps at 100% per day. Any extra effort is appreciated, but won't cout beyond that limit.</Text>

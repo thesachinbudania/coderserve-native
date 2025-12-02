@@ -107,7 +107,7 @@ export function PostContent({ title, hashtags, thumbnail, content = null }: { ti
       </View>
       {
         contentLoading && (
-          <ActivityIndicator size="large" color="#202020" style={{ marginTop: 48, marginBottom: 32}} />
+          <ActivityIndicator style={{ marginTop: 48, marginBottom: 32}} />
         )
       }
       <View style={{height: contentLoading ? 1 : contentHeight, overflow: 'hidden'}}>

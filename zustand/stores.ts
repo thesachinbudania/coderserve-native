@@ -32,6 +32,7 @@ export interface UserState {
   last_username_changed: string | null
   following: number | null
   followers: number | null
+  posts: number | null
   setUser: (user: Partial<UserState>) => void
 }
 
@@ -64,6 +65,7 @@ export const useUserStore = create<UserState>((set) => ({
   last_username_changed: null,
   following: null,
   followers: null,
+  posts: null,
   setUser: (user) => set(user),
 }))
 

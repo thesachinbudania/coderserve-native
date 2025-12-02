@@ -26,7 +26,7 @@ function LoadingScreen() {
         backgroundColor: "white",
       }}
     >
-      <ActivityIndicator size="large" color="#000" />
+      <ActivityIndicator size="large" />
     </View>
   );
 }

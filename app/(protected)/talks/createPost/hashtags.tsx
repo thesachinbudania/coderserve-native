@@ -1,6 +1,6 @@
 import { StyleSheet, Text, View } from 'react-native';
 import PageLayout from '@/components/general/PageLayout';
-import BottomSheet from '@/components/messsages/BottomSheet';
+import BottomDrawer from '@/components/BottomDrawer';
 import React from 'react';
 import TextAreaInput from '@/components/form/TextAreaInput';
 import BlueButton from '@/components/buttons/BlueButton';
@@ -86,11 +86,11 @@ export default function Hashtags() {
   }
   return (
     <>
-     <BottomSheet
-        menuRef={deleteConfirmSheet}
-        height={172}
+     <BottomDrawer
+        sheetRef={deleteConfirmSheet}
+        draggableIconHeight={0}
       >
-        <>
+        <View style={{paddingHorizontal: 16}}>
         <Text style={{ fontSize: 15, fontWeight: 'bold', textAlign: 'center', marginBottom: 12 }}>Delete this hashtag?</Text>
         <Text style={{fontSize: 13, color: "#a6a6a6", textAlign: 'center',marginBottom: 32}}>Are you sure you want to remove this hashtag from your post? This will be permanent, you won't be able to undo this.</Text>
         <View style={{flexDirection: 'row', gap: 16}}>
@@ -108,8 +108,8 @@ export default function Hashtags() {
             />
           </View>
         </View>
-        </>
-     </BottomSheet> 
+        </View>
+     </BottomDrawer> 
       <PageLayout
         headerTitle='Hashtags'
       >
@@ -152,10 +152,11 @@ export default function Hashtags() {
             onPress={setHashtag}
           />
       </BottomFixedSingleButton>
-      <BottomSheet
-        menuRef={menuRef}
-        height={284}
+      <BottomDrawer
+        sheetRef={menuRef}
+        draggableIconHeight={0}
       >
+        <View style={{paddingHorizontal: 16}}>
         <Text style={{ fontSize: 15, fontWeight: 'bold', textAlign: 'center', marginBottom: 16 }}>Hashtag</Text>
         <TextAreaInput
           placeholder='Write here'
@@ -178,7 +179,8 @@ export default function Hashtags() {
             menuRef.current?.close();
           }}
         />
-      </BottomSheet>
+        </View>
+      </BottomDrawer>
     </>
   );
 }

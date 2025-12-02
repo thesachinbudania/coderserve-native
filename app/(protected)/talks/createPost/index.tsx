@@ -58,7 +58,12 @@ export default function CreatePost() {
           name: 'thumbnail.jpg'
         });
       }
-      form.append('content', JSON.stringify(values.content));
+      if (editId) {
+        form.append('content', values.content)
+      }
+      else{
+        form.append('content', JSON.stringify(values.content));
+      }
       try {
         if (editId) {
           await protectedApi.put('/talks/posts/' + editId + '/update/', form, {
@@ -82,7 +87,7 @@ export default function CreatePost() {
         // also reset the local form values
         reset({ title: '', hashtags: [], content: '', thumbnail: undefined });
         if (editId){
-          router.push('/(protected)/talks/viewPost/' + editId);
+          router.back();
         }
         else{
         router.push('/(protected)/talks');
@@ -116,6 +121,7 @@ export default function CreatePost() {
               title='Thumbnail'
               subTitle='Add a visual touch.'
               onPress={() => router.push('/(protected)/talks/createPost/thumbnail')}
+              optional
             />
             <SectionOption
               title='Post Content'

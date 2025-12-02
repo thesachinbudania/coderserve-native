@@ -1,29 +1,33 @@
-import DataWrapper from '@/components/general/DataWrapper';
-import { ActivityIndicator, FlatList, StyleSheet, Text, View, Image } from 'react-native';
+import { Pressable, StyleSheet, Text, View, Image } from 'react-native';
 import ImageLoader from '@/components/ImageLoader';
 import React from 'react';
-import { useFetch } from '@/helpers/useFetch';
-import { apiUrl } from '@/constants/env';
-import BottomName from '@/components/profile/home/BottomName';
 import { useGlobalSearchParams } from 'expo-router';
-import SearchBar from '@/components/form/SearchBar';
+import { useRouter } from 'expo-router';
+import { useFetchData, DataList } from '@/helpers/general/handleFetchedData';
+import ListPageLayout from '@/components/general/ListPageLayout';
+
 
 
 const UserListing = ({ user }: { user: any }) => {
-  console.log(user.profile_image, user.first_name);
+  const router = useRouter();
   return (
-    <View style={userStyles.container}>
-      <View >
+    <Pressable 
+      style={userStyles.container}
+      onPress={() => {
+        router.push('/(freeRoutes)/profile/userProfile/' + user.username);
+      }}
+    >
+      <View>
       <ImageLoader
-        size={48}
+        size={54}
         uri={user.profile_image}
       />
-      </View>
-      <View>
+</View>
+      <View style={{gap: 8}}>
         <Text style={userStyles.name}>{user.first_name} {user.last_name}</Text>
         <Text style={userStyles.username}>@{user.username}</Text>
       </View>
-    </View>
+    </Pressable>
   )
 }
 
@@ -32,111 +36,63 @@ const userStyles = StyleSheet.create({
     flexDirection: 'row',
     gap: 16,
     alignItems: 'center',
+    paddingVertical: 8
   },
   name: {
     fontWeight: 'bold',
     fontSize: 15,
   },
   username: {
-    fontSize: 13,
+    fontSize: 12,
     color: '#737373',
-    marginTop: 4,
   },
 })
 
 
-export default function FollowingList() {
+export default function FollowersList() {
   const { username } = useGlobalSearchParams();
 
-  const [query, setQuery] = React.useState('');
-
-  const [combinedData, setCombinedData] = React.useState<any[]>([]);
-  const [nextPage, setNextPage] = React.useState<string | null>(`${apiUrl}/api/accounts/followers_list/${username}/`);
-  const [initialLoading, setInitialLoading] = React.useState(true);
-  const [isPaginating, setIsPaginating] = React.useState(false);
-  const [refreshing, setRefreshing] = React.useState(false);
-
-  const { data, isLoading, refetch } = useFetch(nextPage || '');
+  const {combinedData, initialLoading, refreshing, handleEndReached, handleRefresh, isLoading, setFilteredData, searchQuery, setSearchQuery, filteredData} = useFetchData({ url: `/api/accounts/followers_list/${username}/`, allowSearch: true });
 
   React.useEffect(() => {
-    if (data) {
-      if (refreshing) {
-        setCombinedData([]);
-        setRefreshing(false);
-      }
-      setCombinedData(prev => [...prev, ...data.results]);
-      setNextPage(data.next);
-      setIsPaginating(false);
-      if (initialLoading) {
-        setInitialLoading(false);
-      }
+    if (searchQuery === '') {
+      setFilteredData(combinedData);
     }
-  }, [data]);
-
-  const handleEndReached = () => {
-    if (!isPaginating && nextPage && !initialLoading && !query) {
-      setIsPaginating(true);
-      refetch();
+    else {
+      const filtered = combinedData.filter((item) => {
+        const fullName = `${item.first_name || ''} ${item.last_name || ''}`.toLowerCase();
+        const usernameStr = (item.username || '').toLowerCase();
+        return fullName.includes(searchQuery.toLowerCase()) || usernameStr.includes(searchQuery.toLowerCase());
+      });
+      setFilteredData(filtered);
     }
-  };
-
-  const filteredData = React.useMemo(() => {
-    const q = query.trim().toLowerCase();
-    if (!q) return combinedData;
-    return combinedData.filter((u: any) => {
-      const fullName = `${u.first_name || ''} ${u.last_name || ''}`.toLowerCase();
-      const usernameStr = (u.username || '').toLowerCase();
-      return fullName.includes(q) || usernameStr.includes(q);
-    });
-  }, [combinedData, query]);
+  }, [searchQuery, combinedData]);
 
   return (
-    <DataWrapper
-      header='Followers'
-      isLoading={initialLoading}
+    <ListPageLayout
+      headerTitle='Followers'
     >
-      
       {
         filteredData.length === 0 && !isLoading && !initialLoading ? (
           <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 16, marginTop: -57 }}>
             <Image source={require('@/assets/images/stars.png')} style={{ width: 128, height: 128, marginBottom: 32 }} />
-            <Text style={{ color: '#a6a6a6', textAlign: 'center', fontSize: 11 }}>{query ? 'No followers match your search.' : "It looks like you don't have any followers yet. Once you start gaining them, their profiles will appear here. Start sharing useful content to build your network."}</Text>
+            <Text style={{ color: '#a6a6a6', textAlign: 'center', fontSize: 11 }}>
+              {searchQuery ? 'No users match your search.' : "It looks like you're not following anyone yet. Once you follow someone, their profiles will appear here. Start exploring and connect with interesting profiles to build your network."}
+            </Text>
           </View>
         ) :
-
-          <FlatList
-            data={filteredData}
-            renderItem={({ item }) => <UserListing user={item} />}
-            ListHeaderComponent={
-        <SearchBar onChangeText={setQuery} />
-            }
-            keyExtractor={(item) => item.id.toString()}
-            contentContainerStyle={{ gap: 16, paddingHorizontal: 16, paddingTop: 24 }}
-            onEndReached={handleEndReached}
-            onEndReachedThreshold={0.5}
-            onRefresh={() => {
-              setRefreshing(true);
-              refetch(`${apiUrl}/api/accounts/followers_list/${username}/`);
-            }}
-            refreshing={refreshing}
-            ListFooterComponent={
-              <>
-                {isLoading || nextPage ? (
-                  <View style={{ width: '100%', height: 128, marginBottom: 77, justifyContent: 'center', alignItems: 'center' }}>
-                    <ActivityIndicator size='small' color='#202020' />
-                  </View>
-                ) : (
-                  <View style={{ }}>
-                    {
-                      combinedData.length > 8 && <BottomName />
-                    }
-                  </View>
-                )}
-              </>
-            }
-          />
+         <DataList
+          data={filteredData}
+          RenderItem={({ item }) => <UserListing user={item} />}
+          initialLoading={initialLoading}
+          refreshing={refreshing}
+          allowSearch={true}
+          onSearchChange={setSearchQuery}
+          onEndReached={handleEndReached}
+          onRefresh={handleRefresh}
+        /> 
       }
-
-    </DataWrapper>
+    </ListPageLayout>
   );
 }
+

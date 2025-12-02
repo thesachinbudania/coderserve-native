@@ -17,7 +17,17 @@ export function formatDateTime(isoString: string) {
 
   return `${formattedDate}, ${formattedTime}`;
 }
+export function formatDateShort(isoString: string) {
+  const date = new Date(isoString);
 
+  const formattedDate = date.toLocaleDateString('en-GB', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric'
+  });
+
+  return `${formattedDate}`;
+}
 
 export function formatDate(isoString: string) {
   const date = new Date(isoString);

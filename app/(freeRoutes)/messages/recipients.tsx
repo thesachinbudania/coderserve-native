@@ -1,19 +1,15 @@
 import { ActivityIndicator, Image, Text, View, FlatList, Pressable } from 'react-native';
-import PageLayout from '@/components/general/PageLayout';
+import ListPageLayout from '@/components/general/ListPageLayout';
 import protectedApi from '@/helpers/axios';
 import React from 'react';
-import useFetchData from '@/helpers/general/handleFetchedData';
+import {useFetchData, DataList} from '@/helpers/general/handleFetchedData';
 import ImageLoader from '@/components/ImageLoader';
 import { useRouter } from 'expo-router';
 import SearchBar from '@/components/form/SearchBar';
 
 export default function Recipients() {
   const router = useRouter();
-  React.useEffect(() => {
-    protectedApi.get('/home/mutualfollowers_list/').then((res) => {
-    })
-  }, [])
-  const { isLoading, initialLoading, refreshing, combinedData, handleEndReached, handleRefresh } = useFetchData({ url: '/api/home/mutualfollowers_list/' });
+  const { isLoading, initialLoading, refreshing, searchQuery, setSearchQuery, combinedData, handleEndReached, handleRefresh } = useFetchData({ url: '/api/home/mutualfollowers_list/', allowSearch: true });
   const [isInitiating, setIsInitiating] = React.useState(false);
   function handleInitiateChat(id: number) {
     if (isInitiating) return;
@@ -27,7 +23,6 @@ export default function Recipients() {
     });
   }
 
-  const [searchQuery, setSearchQuery] = React.useState('');
   const [filteredData, setFilteredData] = React.useState(combinedData);
   React.useEffect(() => {
     if (searchQuery === '') {
@@ -43,37 +38,42 @@ export default function Recipients() {
     }
   }, [searchQuery, combinedData]);
   return (
-    <PageLayout
+    <ListPageLayout
       headerTitle='Recipients'
     >
       {
-        !initialLoading && !isLoading && combinedData.length === 0 && (
-          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-            <Image source={require('@/assets/images/stars.png')} style={{ width: 128, height: 128 }} />
-            <Text style={{ marginTop: 32, textAlign: 'center', fontSize: 11, color: '#a6a6a6' }}>Follow someone or gain followers to unlock conversations. Your first chat could lead to something amazing!</Text>
-          </View>
-        )
-      }
-      {
-        initialLoading || isInitiating && (
+        initialLoading || isInitiating ? (
           <View style={{ width: '100%', flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'white' }}>
-            <ActivityIndicator size='large' color='#202020' />
+            <ActivityIndicator size='large'/>
           </View>
+        ) : (
+          combinedData.length > 0 || initialLoading || isLoading || refreshing ? 
+          <DataList
+            data={filteredData}
+            RenderItem={({ item }) => (
+              <UserProfileCard item={item} handleInitiateChat={handleInitiateChat} />
+            )}
+            initialLoading={initialLoading}
+            refreshing={refreshing} 
+            allowSearch={true}
+            onEndReached={handleEndReached}
+            onRefresh={handleRefresh}
+            onSearchChange={setSearchQuery}
+          />
+          : 
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+              <Image source={require('@/assets/images/stars.png')} style={{ width: 128, height: 128 }} />
+              <Text style={{ marginTop: 32, textAlign: 'center', fontSize: 11, color: '#a6a6a6' }}>Follow someone or gain followers to unlock conversations. Your first chat could lead to something amazing!</Text>
+            </View>
         )
       }
-      {
-        !isInitiating && !initialLoading && !isLoading && combinedData.length > 0 && (
-          <>
-            <View style={{ marginBottom: 52 }}>
-              <SearchBar
-                onChangeText={(text) => setSearchQuery(text)}
-              />
-            </View>
-            <FlatList
-              data={filteredData}
-              keyExtractor={(item) => item.id.toString()}
-              renderItem={({ item }) => (
-                <Pressable
+    </ListPageLayout>
+  )
+}
+
+function UserProfileCard({item, handleInitiateChat}: {item: any, handleInitiateChat: (id: number) => void}) {
+  return (
+<Pressable
                   style={{ flexDirection: 'row', gap: 8, alignItems: 'center' }}
                   onPress={() => handleInitiateChat(item.id)}
                 >
@@ -83,15 +83,5 @@ export default function Recipients() {
                     <Text style={{ fontSize: 13, color: '#737373' }}>@{item.username}</Text>
                   </View>
                 </Pressable>
-              )}
-              onEndReached={handleEndReached}
-              onRefresh={handleRefresh}
-              refreshing={refreshing}
-              contentContainerStyle={{ gap: 16 }}
-            />
-          </>
-        )
-      }
-    </PageLayout>
   )
 }

@@ -12,15 +12,13 @@ import protectedApi from '@/helpers/axios';
 import React from 'react';
 import { useRouter } from 'expo-router';
 import { useUserStore } from '@/zustand/stores';
-import BottomSheet from '@/components/messsages/BottomSheet';
-import { Portal } from 'react-native-paper';
+import BottomDrawer from '@/components/BottomDrawer';
 import { MenuButton } from '@/app/(protected)/jobs';
 import GreyBgButton from '@/components/buttons/GreyBgButton';
 import UnorderedList from '@/components/general/UnorderedList';
-import RBSheet from 'react-native-raw-bottom-sheet';
 import { LearningStreak } from '@/components/talks/home/ProfileContent';
 import { Header } from '@/app/(protected)/jobs/resume';
-import Menu from '@/components/jobs/Menu';
+import { Portal } from 'react-native-paper';
 
 const { height } = Dimensions.get('window');
 
@@ -131,7 +129,7 @@ export default function UserProfile() {
     <SafeAreaView style={{ flex: 1, backgroundColor: 'white', paddingTop: 57 }}>
       {isLoading && (
         <View style={{ height: '100%', backgroundColor: 'white', justifyContent: 'center', alignItems: 'center' }}>
-          <ActivityIndicator size='large' color='#202020' />
+          <ActivityIndicator size='large'/>
         </View>
       )}
       {
@@ -141,26 +139,9 @@ export default function UserProfile() {
             style={{ flex: 1, backgroundColor: 'white' }}
           >
             <Portal>
-              <RBSheet
-                ref={blockDrawerRef}
-                height={654}
-                draggable={true}
-                customStyles={{
-                  wrapper: {
-                    height: '75%',
-                  },
-                  draggableIcon: {
-                    backgroundColor: '#eee',
-                    height: 3,
-                  },
-                  container: {
-                    backgroundColor: 'white',
-                    borderTopLeftRadius: 24,
-                    borderTopRightRadius: 24,
-                    paddingBottom: 16,
-                    width: '100%',
-                  }
-                }}
+            <BottomDrawer
+                sheetRef={blockDrawerRef}
+                draggableIconHeight={0}
               >
                 <View style={{ paddingHorizontal: 16 }}>
                   <Text style={{ fontSize: 15, fontWeight: 'bold', marginTop: 8 }}>What Happens When You Block Someone?</Text>
@@ -195,10 +176,11 @@ export default function UserProfile() {
                     </View>
                   </View>
                 </View>
-              </RBSheet>
-<BottomSheet
-                menuRef={unfollowRef}
-                height={184}>
+              </BottomDrawer>
+              <BottomDrawer
+                sheetRef={unfollowRef}
+              >
+                <View style={{paddingHorizontal: 16}}>
                 <Text style={{ textAlign: 'center', fontSize: 15, fontWeight: 'bold', marginBottom: 16 }}>Unfollow this user?</Text>
                 <Text style={{ textAlign: 'center', fontSize: 13, color: "#737373", marginBottom: 24 }}>You'll stop seeing their posts in your feed and messaging will be disabled. You can follow them again anytime.</Text>
                 <View style={{ flexDirection: 'row', gap: 16 }}>
@@ -218,10 +200,12 @@ export default function UserProfile() {
                     />
                   </View>
                 </View>
-              </BottomSheet>
-              <BottomSheet
-                menuRef={unblockRef}
-                height={168}>
+</View>
+              </BottomDrawer>
+              <BottomDrawer
+                sheetRef={unblockRef}
+              >
+                <View style={{paddingHorizontal: 16}}>
                 <Text style={{ textAlign: 'center', fontSize: 15, fontWeight: 'bold', marginBottom: 16 }}>Do you want to unblock this user?</Text>
                 <Text style={{ textAlign: 'center', fontSize: 13, color: "#737373", marginBottom: 24 }}>Once unblocked, this user will be able to view your profile and interact with yours posts again.</Text>
                 <View style={{ flexDirection: 'row', gap: 16 }}>
@@ -241,10 +225,12 @@ export default function UserProfile() {
                     />
                   </View>
                 </View>
-              </BottomSheet>
-              <BottomSheet
-                menuRef={muteRef}
-                height={168}>
+                </View>
+              </BottomDrawer>
+              <BottomDrawer
+                sheetRef={muteRef}
+              >
+                <View style={{paddingHorizontal: 16}}>
                 <Text style={{ textAlign: 'center', fontSize: 15, fontWeight: 'bold', marginBottom: 16 }}>{muted ? 'Unmute' : 'Mute'} this user?</Text>
                 <Text style={{ textAlign: 'center', fontSize: 13, color: "#737373", marginBottom: 24 }}>{muted ? 'Their posts will start appearing in your feed again. You can mute them anytime from your settings.' : "You won't see any more posts from this user in your feed. You can unmute them anytime from your settings."}</Text>
                 <View style={{ flexDirection: 'row', gap: 16 }}>
@@ -265,10 +251,12 @@ export default function UserProfile() {
                     />
                   </View>
                 </View>
-              </BottomSheet>
-<BottomSheet
-                menuRef={removeFollowerRef}
-                height={180}>
+                </View>
+              </BottomDrawer>
+<BottomDrawer
+                sheetRef={removeFollowerRef}
+                >
+                <View style={{paddingHorizontal: 16}}>
                 <Text style={{ textAlign: 'center', fontSize: 15, fontWeight: 'bold', marginBottom: 16 }}>Remove this follower?</Text>
                 <Text style={{ textAlign: 'center', fontSize: 13, color: "#737373", marginBottom: 24 }}>If you remove this user, they'll no longer follow you or see your updates in their feed. This action won't notify them.</Text>
                 <View style={{ flexDirection: 'row', gap: 16 }}>
@@ -289,10 +277,12 @@ export default function UserProfile() {
                     />
                   </View>
                 </View>
-              </BottomSheet>
-              <BottomSheet
-                menuRef={followMenuRef}
-                height={168}>
+                </View>
+              </BottomDrawer>
+              <BottomDrawer
+                sheetRef={followMenuRef}
+                >
+                <View style={{paddingHorizontal: 16}}>
                 <Text style={{ textAlign: 'center', fontSize: 15, fontWeight: 'bold', marginBottom: 16 }}>Remove Follow Request?</Text>
                 <Text style={{ textAlign: 'center', fontSize: 13, color: "#737373", marginBottom: 24 }}>Are you sure you want to cancel this follow request? The user won't be notified.</Text>
                 <View style={{ flexDirection: 'row', gap: 16 }}>
@@ -313,11 +303,13 @@ export default function UserProfile() {
                     />
                   </View>
                 </View>
-              </BottomSheet>
-              <BottomSheet
-                menuRef={menuRef}
-                height={blocked ? 196.6: (requestSent || isFollowing) ? (isFollower ? 648: 557.8) : (isFollower ? 467.5: 377.2)}>
-                <View style={styles.menuContainer}>
+                </View>
+              </BottomDrawer>
+              <BottomDrawer
+                sheetRef={menuRef}
+                draggableIconHeight={0}
+                >
+                <View style={[styles.menuContainer, {paddingHorizontal: 16}]}>
                   {
                     !blocked && (
                       <MenuButton
@@ -456,8 +448,8 @@ export default function UserProfile() {
                     </Text>
                   </MenuButton>
                 </View>
-              </BottomSheet>
-            </Portal>
+              </BottomDrawer>
+              </Portal>
             <Header 
               menuRef={menuRef} 
             />
@@ -473,18 +465,22 @@ export default function UserProfile() {
                       onPress={userData.is_blocked ? () => { unblockRef?.current.open() } : manageFollow}
                       loading={isFollowLoading}
                     />
-                  ) : <GreyBgButton
-                    title={isFollowing ? "Message" : "Requested"}
-                    onPress={isFollowing ? () => {
+                  ) : isFollowing ? <BlueButton 
+                    title="Message"
+                    onPress={() => {
                       setIsFollowLoading(true);
-protectedApi.post('/home/conversations/', { 'participants': [userData.id] }).then((res) => {
-      setIsFollowLoading(false);
-      router.push('/(freeRoutes)/messages/chat/' + res.data.id);
-    }).catch((err) => {
-      console.error(err.response.data);
-      setIsFollowLoading(false);
-    });
-                     } : requestSent ? () => {followMenuRef.current?.open()} : manageFollow}
+                      protectedApi.post('/home/conversations/', { 'participants': [userData.id] }).then((res) => {
+                        setIsFollowLoading(false);
+                        router.push('/(freeRoutes)/messages/chat/' + res.data.id);
+                      }).catch((err) => {
+                        console.error(err.response.data);
+                        setIsFollowLoading(false);
+                      });
+                    }}
+                    loading={isFollowLoading}
+                  /> : <GreyBgButton
+                    title={"Requested"}
+                    onPress={requestSent ? () => {followMenuRef.current?.open()} : manageFollow}
                     loading={isFollowLoading}
                   />
                 }
@@ -528,7 +524,7 @@ protectedApi.post('/home/conversations/', { 'participants': [userData.id] }).the
                         { name: 'Posts', content: 
                           <>
                         <PostsTab editable={false} username={
-userData.username
+                          userData.username
                         }/> 
                         </>
                       },

@@ -63,7 +63,7 @@ const { handleSubmit, setValue, watch, formState: { isSubmitting, errors } } = u
     {
         isLoading ? 
         <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-        <ActivityIndicator size="large" color="#202020" />
+        <ActivityIndicator size="large"/>
         </View>
         : <>
 <View style={styles.container}>

@@ -19,7 +19,7 @@ export function Section({ children, title }: { children: React.ReactNode, title?
 }
 
 
-export function SectionOption({ title, subTitle, onPress = () => { } }: { title: string, subTitle: string, onPress?: () => void }) {
+export function SectionOption({ title, subTitle, onPress = () => { }, optional}: {optional?: boolean; title: string, subTitle: string, onPress?: () => void }) {
 	return (
 		<Pressable onPress={() => {
 			Haptics.selectionAsync();
@@ -29,12 +29,11 @@ export function SectionOption({ title, subTitle, onPress = () => { } }: { title:
 				({ pressed }) => (
 					<View style={[sectionStyles.option, pressed && { backgroundColor: '#202020' }]}>
 						<View style={{ maxWidth: '90%' }}>
-							<Text style={[sectionStyles.optionTitle, pressed && { color: 'white' }]}>{title}</Text>
+							<Text style={[sectionStyles.optionTitle, pressed && { color: 'white' }]}>{title}{optional && <Text style={{color: "#a6a6a6"}}> (Optional)</Text>}</Text>
 							<Text style={sectionStyles.optionSubTitle}>{subTitle}</Text>
 						</View>
 						<Image style={{ width: 18, height: 18 }} source={pressed ? require('@/assets/images/arrows/right-arrow-white.png') : require('@/assets/images/arrows/right-arrow.png')} />
 					</View>
-
 				)
 			}
 		</Pressable>

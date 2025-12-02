@@ -4,10 +4,13 @@ import React from 'react';
 import BottomName from './BottomName';
 import { useRouter } from 'expo-router';
 import SmallTextButton from '@/components/buttons/SmallTextButton';
-import BottomSheet from '@/components/messsages/BottomSheet';
+import BottomDrawer from '@/components/BottomDrawer';
 import DefaultButton from '@/components/buttons/BlueButton';
 import { isTalksProfileCompleted } from '@/zustand/jobsStore';
 import { SingleLineHashtags } from '@/app/(protected)/talks';
+import FloatingButton from '@/components/buttons/FlotingButton';
+import { Portal } from 'react-native-paper';
+import { useIsFocused } from '@react-navigation/native';
 
 const Post = ({ item }: { item: any }) => {
   return (
@@ -32,20 +35,22 @@ export default function({ editable = true, username, canView = true }: { canView
     });
   }, []);
   const router = useRouter();
+  const isFocused = useIsFocused();
   return (
     <>
       {data && data.results.length > 0 ? (
         <>
-        <View style={{ marginTop: canView ? -16 : 32,paddingTop: canView ? 0 : 8, marginHorizontal: -16, gap: 8, backgroundColor: "#f5f5f5", paddingBottom: 8 }}>
+        <View style={{marginTop: -16, paddingTop: canView ? 0 : 8, marginHorizontal: -16, gap: 8, backgroundColor: "#f5f5f5", paddingBottom: 8 }}>
           {data.results.map((item: any) => (
             <Pressable
               android_ripple={{ color: '#f5f5f5' }}
               onPress={() => {
                   router.push('/talks/viewPost/' + item.id)
               }}
-              id={item.id}
+              id={item.id.toString()}
+key={item.id.toString()}
             >
-              <Post key={item.id} item={item} />
+              <Post  item={item} />
             </Pressable>
           ))}
         </View>
@@ -74,10 +79,11 @@ export default function({ editable = true, username, canView = true }: { canView
             <Text style={styles.text}>User hasn't shared any talks yet.</Text>
           }
         </View>}
-<BottomSheet
-        menuRef={sheetRef}
-        height={168}>
-        <View style={{ gap: 32 }}>
+<BottomDrawer
+        sheetRef={sheetRef}
+        draggableIconHeight={0}
+        >
+        <View style={{ gap: 32, paddingHorizontal: 16 }}>
           <View style={{ gap: 8 }}>
             <Text style={{ textAlign: 'center', fontWeight: 'bold', fontSize: 15 }}>Complete Your Profile</Text>
             <Text style={{ textAlign: 'center', color: '#a6a6a6', fontSize: 13 }}>
@@ -92,7 +98,23 @@ Your profile is incomplete. Please complete your profile to start creating and s
             }}
           />
         </View>
-      </BottomSheet>
+      </BottomDrawer>
+      {
+        data && data.results.length > 0 && isFocused && editable && 
+        <Portal>
+        <FloatingButton
+          rounded='full'
+          onPress={() => {
+            if (isTalksProfileCompleted()) {
+              router.push('/talks/createPost')
+            }
+            else {
+              sheetRef?.current.open();
+            }
+          }}
+        />
+        </Portal>
+      }
     </>
   )
 }

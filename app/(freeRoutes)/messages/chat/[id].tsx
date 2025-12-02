@@ -153,11 +153,11 @@ const MessageBubble: React.FC<{ message: Message; currentUserId: string, openMes
               pressed && isCurrentUser && editable && { backgroundColor: "#202020" }
             ]}>
               {renderContent()}
-              <Text style={[styles.timestamp, isCurrentUser ? styles.currentUserTimestamp : styles.otherUserTimestamp, pressed && isCurrentUser && { color: "#737373" }]}>
+              <Text style={[styles.timestamp, isCurrentUser ? styles.currentUserTimestamp : styles.otherUserTimestamp, pressed && isCurrentUser && editable && { color: "#737373" }]}>
                 {message.edited && 'Edited'}   {message.timestamp}
               </Text>
             </View>
-            {isFirst && <View style={[isCurrentUser ? styles.rightArrow : styles.leftArrow, pressed && isCurrentUser && { borderTopColor: "#202020" }]} />}
+            {isFirst && <View style={[isCurrentUser ? styles.rightArrow : styles.leftArrow, pressed && isCurrentUser && editable &&{ borderTopColor: "#202020" }]} />}
           </>
         )
       }
@@ -240,18 +240,18 @@ function Input({ value, onChange, onSend, onPickImage, disabled, chatDisabled, o
                     backgroundColor: canSend ? '#202020' : '#f5f5f5', borderRadius: 45, margin: 8,
                   },
                   pressed && canSend && { backgroundColor: '#006dff' },
-                  pressed && !canSend && {backgroundColor: "#202020"}
+                  pressed && !canSend && {backgroundColor: "#d9d9d9"}
                 ]}
               >
                 {
                   ({ pressed }) => (
 <Image
-                  style={[{ transform: [{ rotate: canSend ? '-90deg' : '0deg' }], height: 20, width: 20}]}
+                  style={[{ transform: [{ rotate: canSend || disabled ? '-90deg' : '0deg' }], height: 24, width: 24}]}
                   source={
                     canSend
                       ? require('@/assets/images/arrows/right-arrow-white.png') :
-                      pressed ? require('@/assets/images/messages/clip-white.png')
-                      : require('@/assets/images/messages/clip.png')
+                      (pressed && canSend) ? require('@/assets/images/messages/clip-white.png')
+                      : disabled ? require('@/assets/images/arrows/right-muted.png') : require('@/assets/images/messages/clip.png')
                   }
                 />
                   )
@@ -311,6 +311,7 @@ const Chat: React.FC = () => {
   const deleteChatRef = useRef<any>(null);
   const router = useRouter();
   async function fetchData(mounted: boolean) {
+    if (id === undefined) return;   
     try {
       const res = await protectedApi.get(`/home/conversations/${id}/`);
       if (!mounted) return;
@@ -332,7 +333,7 @@ const Chat: React.FC = () => {
       }));
       setMessages(list);
     } catch (e: any) {
-      console.error(e?.response?.data || e?.message);
+      router.push('/(freeRoutes)/error');
     } finally {
       if (mounted) setInitialLoading(false);
     }
@@ -360,7 +361,7 @@ const Chat: React.FC = () => {
   }, [id, username]);
 
   useEffect(() => {
-    if (!token) return;
+    if (!token || id === undefined) return;
     const ws = new WebSocket(`${websocketUrl}ws/chat/${id}/?token=${encodeURIComponent(token)}`);
     wsRef.current = ws;
 
@@ -398,6 +399,10 @@ const Chat: React.FC = () => {
           // If the seen update is from the other user, update the timestamp
           setSeenTimestamp(new Date().toISOString());
         }
+        else if (data?.type === 'chat.message.delete') {
+          // --- handle message delete ---
+          setMessages(prev => prev.filter(m => m.id !== String(data.id)));
+        }
         else if (data?.type === 'error') {
           if (data.detail === 'This conversation is locked.') {
             setChatData((prev: any) => prev ? { ...prev, messaging_disabled: true } : prev);
@@ -408,7 +413,9 @@ const Chat: React.FC = () => {
         }
       } catch (err) { console.error('WS parse error', err); }
     };
-    ws.onerror = (err) => { console.error('WS error', err); };
+    ws.onerror = (err) => { 
+      router.replace('/(freeRoutes)/error');
+      console.error('WS error', err); };
     return () => { ws.close(); };
   }, [id, token, username]);
 
@@ -472,6 +479,7 @@ const Chat: React.FC = () => {
       // ensure the sent message will be visible (WS will append the real message)
       scrollToBottom(true);
     } catch (e) {
+      router.push('/(freeRoutes)/error'); 
       console.error('WS send failed', e);
     } finally {
       setSending(false);
@@ -542,6 +550,7 @@ const Chat: React.FC = () => {
       scrollToBottom(true);
 
     } catch (error) {
+      router.push('/(freeRoutes)/error'); 
       console.error('Image upload failed:', error);
       setMessages(prev => prev.map(msg =>
         msg.id === tempId ? { ...msg, error: 'Upload failed' } : msg
@@ -555,7 +564,6 @@ const Chat: React.FC = () => {
       console.warn("WebSocket not connected");
       return;
     }
-    console.log('sending delte for message', messageId);
     ws.send(JSON.stringify({
       action: "message.delete",
       id: messageId,
@@ -596,7 +604,7 @@ const Chat: React.FC = () => {
   };
 
   if (initialLoading) {
-    return <ActivityIndicator style={{ flex: 1 }} size="large" color="#202020" />;
+    return <ActivityIndicator style={{ flex: 1 }} size="large" />;
   }
   const me = username;
   const other = chatData?.participants?.find((p: any) => p.username !== me);
@@ -745,11 +753,11 @@ const Chat: React.FC = () => {
           )}
         </View>
       </BottomDrawer>
-      <BottomDrawer sheetRef={deleteMessageDrawerRef} height={160} draggableIconHeight={0}>
+      <BottomDrawer sheetRef={deleteMessageDrawerRef} draggableIconHeight={0}>
         <View style={{ paddingHorizontal: 16 }}>
           <Text style={{ fontSize: 15, fontWeight: 'bold', textAlign: 'center' }}>Delete Message</Text>
           <Text style={{ fontSize: 13, color: "#737373", textAlign: 'center', marginTop: 8 }}>This action cannot be undone. Once deleted, your message will be permanently removed.</Text>
-          <View style={{ flexDirection: 'row', gap: 16, marginTop: 16 }}>
+          <View style={{ flexDirection: 'row', gap: 16, marginTop: 32}}>
             <View style={{ flex: 1 / 2 }}>
               <GreyBgButton
                 title="Cancel"
@@ -848,9 +856,11 @@ if (other?.is_blocked) {
           </MenuButton>
         </View>
       </BottomSheet>
-      <BottomSheet
-        menuRef={deleteChatRef}
-        height={168}>
+      <BottomDrawer
+        draggableIconHeight={0}
+        sheetRef={deleteChatRef}
+      >
+        <View style={{ paddingHorizontal: 16 }}>
         <Text style={{ textAlign: 'center', fontSize: 15, fontWeight: 'bold', marginBottom: 16 }}>Delete Chat</Text>
         <Text style={{ textAlign: 'center', fontSize: 13, color: "#737373", marginBottom: 24 }}>This action cannot be undone. Once deleted, all your messages in this chat will be permanently removed.</Text>
         <View style={{ flexDirection: 'row', gap: 16 }}>
@@ -877,7 +887,8 @@ if (other?.is_blocked) {
             />
           </View>
         </View>
-      </BottomSheet>
+        </View>
+      </BottomDrawer>
       <BottomSheet
         menuRef={unblockDrawerRef}
         height={168}>

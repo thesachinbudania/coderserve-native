@@ -1,6 +1,6 @@
 import { useGlobalSearchParams } from 'expo-router';
 import React from 'react';
-import { ActivityIndicator, Dimensions, Image, TextInput, StyleSheet, ScrollView, Pressable, TouchableWithoutFeedback, Text, View, Keyboard } from 'react-native';
+import { ActivityIndicator, Dimensions, Image, TextInput, StyleSheet, ScrollView, Pressable, Platform, TouchableWithoutFeedback, Text, View, Keyboard } from 'react-native';
 import protectedApi from '@/helpers/axios';
 import { Post } from '..';
 import BottomName from '@/components/profile/home/BottomName';
@@ -10,7 +10,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import OptionChip from '@/components/general/OptionChip';
 
 
-function SearchBar({ text = '', onChangeText, isFocused, setIsFocused, placeholder = null, placholderText = [] }: { text?: string, onChangeText: React.Dispatch<React.SetStateAction<string>>, isFocused: boolean, placeholder?: string | null, placholderText?: string[], setIsFocused: React.Dispatch<React.SetStateAction<boolean>> }) {
+function SearchBar({ text = '', onChangeText, isFocused, setIsFocused, placeholder = null, placholderText = [], onSubmitEditing }: {onSubmitEditing?: () => void, text?: string, onChangeText: React.Dispatch<React.SetStateAction<string>>, isFocused: boolean, placeholder?: string | null, placholderText?: string[], setIsFocused: React.Dispatch<React.SetStateAction<boolean>> }) {
   const inputRef = React.useRef<TextInput>(null);
 
   const handleFocus = () => {
@@ -43,6 +43,7 @@ function SearchBar({ text = '', onChangeText, isFocused, setIsFocused, placehold
           value={text}
           onChangeText={onChangeText}
           placeholderTextColor={!isFocused && placeholder ? '#cbe1ff' : '#d9d9d9'}
+          onSubmitEditing={onSubmitEditing}
         />
       </View >
     </TouchableWithoutFeedback>
@@ -77,7 +78,7 @@ const styles = StyleSheet.create({
   },
   headContainer: {
     flexDirection: "row",
-    gap: 8,
+    gap: 16,
     alignItems: 'center',
   },
   name: {
@@ -169,19 +170,26 @@ export default function Search() {
   return (
     <SafeAreaView style={{flex: 1, backgroundColor: "white"}}>
     <Pressable style={{ flex: 1, backgroundColor: "#fff" }}
-      onPress={() => Keyboard.dismiss()}
+      onPress={Platform.OS === 'ios' ? () => Keyboard.dismiss() : undefined}
     >
       <SearchBar
         text={search}
         onChangeText={setSearch}
         isFocused={isFocused}
         setIsFocused={setIsFocused}
+        onSubmitEditing={() => {
+          Keyboard.dismiss();
+          fetchSearchResults(
+            search,
+            filter === 0 ? 'posts' : 'accounts'
+          );
+        }} 
       />
-      <View style={{ height: '100%', paddingTop: 24, paddingHorizontal: 16, width: '100%', backgroundColor: 'white', display: isFocused ? 'flex' : 'none' }} >
+      <ScrollView style={{ height: '100%', paddingTop: 24, paddingHorizontal: 16, width: '100%', backgroundColor: 'white', display: isFocused ? 'flex' : 'none' }} >
         {
           search.length > 0 && (
             <Pressable
-              style={{ flexDirection: 'row', gap: 8, marginBottom: 8 }}
+              style={{ flexDirection: 'row', gap: 8, marginBottom: 24 }}
               onPress={() => {
                 Keyboard.dismiss();
                 fetchSearchResults(search, filter === 0 ? 'posts' : 'accounts');
@@ -196,7 +204,7 @@ export default function Search() {
           searchTerms.map((data: any, index: number) => (
             <Pressable
               key={index}
-              style={[styles.headContainer, {marginTop: 16}]}
+              style={[styles.headContainer, {paddingVertical: 8}]}
               onPress={() => {
                 setSearch("");
                 Keyboard.dismiss();
@@ -205,18 +213,18 @@ export default function Search() {
             >
               <View>
               <ImageLoader
-                size={48}
+                size={54}
                 uri={data.profile_image}
               />
               </View>
-              <View style={{ gap: 6 }}>
+              <View style={{ gap: 8 }}>
                 <Text style={styles.name}>{data.first_name} {data.last_name}</Text>
                 <Text style={styles.time}>@{data.username}</Text>
               </View>
             </Pressable>
           ))
         }
-      </View>
+      </ScrollView>
       {
         !isFocused && (
           <View style={{ paddingBottom: 8, backgroundColor: "#f5f5f5" }}>
@@ -248,7 +256,7 @@ export default function Search() {
         !isFocused && (
           isLoading ?
             <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'white' }}>
-              <ActivityIndicator size="large" color="#202020" />
+              <ActivityIndicator size="large"/>
             </View> :
             <View>
               {
@@ -266,7 +274,7 @@ export default function Search() {
                       </View>
                     </ScrollView>
                   ) : (
-                    <ScrollView style={{ marginTop: 8, height: height - 172, backgroundColor: 'white'}}>
+                    <ScrollView style={{ height: height - 172, backgroundColor: 'white'}}>
                       {searchResults.results.map((user: any) => (
                         <Pressable
                           key={user.id}
@@ -279,11 +287,11 @@ export default function Search() {
                         >
                           <View>
                           <ImageLoader
-                            size={48}
+                            size={54}
                             uri={user.profile_image}
                           />
 </View>
-                          <View style={{ gap: 6 }}>
+                          <View style={{ gap: 8 }}>
                             <Text style={styles.name}>{user.first_name} {user.last_name}</Text>
                             <Text style={styles.time}>@{user.username}</Text>
                           </View>

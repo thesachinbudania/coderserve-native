@@ -136,12 +136,12 @@ export default function UserProfile() {
       {
         isLoading ? (
           <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-            <ActivityIndicator size="large" color="#202020" />
+            <ActivityIndicator size="large" />
           </View>
         ) : (
           <>
             <View style={{ alignItems: 'center' }}>
-              <ImageLoader size={80} uri={tabIndex === 0 ? apiUrl + userData?.profile_image : profile_image ? profile_image : apiUrl + 'media/images/default.png'} />
+              <ImageLoader size={90} uri={tabIndex === 0 ? apiUrl + userData?.profile_image : profile_image ? profile_image : apiUrl + 'media/images/default.png'} />
               <Text style={{ fontSize: 15, fontWeight: 'bold', marginTop: 12 }}>{tabIndex === 0 ? userData?.first_name : first_name} {tabIndex === 0 ? userData?.last_name : last_name}</Text>
             </View>
             <View style={{ marginTop: 48, marginHorizontal: -16 }}>

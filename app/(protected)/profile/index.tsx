@@ -54,7 +54,7 @@ export const Profile = ({ user, onPostPress }: { user: any, onPostPress?: () => 
             />}
           <View style={styles.countRow}>
             <ProfileButton
-              count={0}
+              count={user.posts || 0}
               title="Posts"
               onPress={onPostPress}
               disabled={user.background_pattern_code === 0}
@@ -98,6 +98,7 @@ export default function ProfileHome() {
   const scrollRef = React.useRef<ScrollView>(null);
   const [scrollEnabled, setScrollEnabled] = React.useState(true);
   useTabPressScrollToTop(scrollRef, 'profile')
+  const [index, setIndex] = React.useState(0);
 
   const [loading, setLoading] = React.useState(true);
 
@@ -141,10 +142,10 @@ export default function ProfileHome() {
       {
         loading ? (
           <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }} >
-            <ActivityIndicator size="large" color="#202020" />
+            <ActivityIndicator size="large" />
           </View>
         ) : <>
-              <Profile user={user} />
+              <Profile user={user} onPostPress={() => setIndex(1)}/>
       <View style={styles.body}>
         <View style={styles.buttonContainer}>
           <View style={{ width: (width - 32) * 0.5 - 8 }}>
@@ -164,6 +165,8 @@ export default function ProfileHome() {
           <Tabs
             setScrollEnabled={setScrollEnabled}
             profileEditable={true}
+            index={index}
+            setIndex={setIndex}
           />
         </View>
       </View>

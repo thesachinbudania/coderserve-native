@@ -1,9 +1,9 @@
 import { Dimensions, Text, Pressable, View, Image, StyleSheet } from 'react-native';
-import PageLayout from '@/components/general/PageLayout';
+import ListPageLayout from '@/components/general/ListPageLayout';
 import FloatingButton from '@/components/buttons/FlotingButton';
 import { useRouter } from 'expo-router';
 import React from 'react';
-import useFetchData from '@/helpers/general/handleFetchedData';
+import {useFetchData, DataList} from '@/helpers/general/handleFetchedData';
 import ImageLoader from '@/components/ImageLoader';
 import TruncatedText from '@/components/general/TruncatedText';
 import { formatTime } from '@/helpers/helpers';
@@ -33,13 +33,13 @@ export default function Messages() {
           </View>
           <TruncatedText
             style={{ fontSize: 13, color: "#737373" }}
+            negativeWidth={96}
           >{item.last_message?.content || ''}</TruncatedText>
         </View>
       </Pressable>
     )
   }
-  const [searchQuery, setSearchQuery] = React.useState('');
-  const { RenderData, combinedData, initialLoading, isLoading, setFilteredData } = useFetchData({ url: '/api/home/list_conversations/', RenderItem });
+  const { combinedData, initialLoading,refreshing, handleEndReached, handleRefresh, isLoading, setFilteredData, searchQuery, setSearchQuery, filteredData } = useFetchData({ url: '/api/home/list_conversations/', allowSearch: true });
 
   React.useEffect(() => {
     if (searchQuery === '') {
@@ -56,19 +56,21 @@ export default function Messages() {
 
   return (
     <>
-      <PageLayout
+      <ListPageLayout
         headerTitle='Messages'
       >
         {
-          combinedData.length > 0 || initialLoading || isLoading ?
-            <View style={{ gap: 52, flex: 1 }}>
-              {
-                combinedData.length > 0 && (
-              <SearchBar onChangeText={setSearchQuery} />
-                )
-              }
-              <RenderData />
-            </View>
+          combinedData.length > 0 || initialLoading || isLoading || refreshing ?
+                <DataList
+                  data={filteredData}
+                  RenderItem={RenderItem}
+                  initialLoading={initialLoading}
+                  refreshing={refreshing}
+                  allowSearch={true}
+                  onSearchChange={setSearchQuery}
+                  onEndReached={handleEndReached}
+                  onRefresh={handleRefresh}
+                />
             :
 
             <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center'}}>
@@ -77,7 +79,7 @@ export default function Messages() {
               <Text style={styles.emptyText}>Start a converstion and stay connected!</Text>
             </View>
         }
-      </PageLayout>
+      </ListPageLayout>
 
       <FloatingButton
         onPress={() => router.push('/(freeRoutes)/messages/recipients')}

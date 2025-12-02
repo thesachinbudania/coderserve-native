@@ -38,7 +38,7 @@ function SendOtp() {
     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 16 }}>
       {error != '' ?
         <ErrorMessage message={error} /> :
-        <ActivityIndicator size='large' color='black' />
+        <ActivityIndicator size='large'/>
       }
     </View>
   );

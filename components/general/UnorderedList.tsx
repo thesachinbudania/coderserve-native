@@ -1,6 +1,6 @@
 import { View, Text, StyleSheet } from 'react-native';
 
-const UnorderedList = ({ items, gap = 6 }: { items: string[], gap?: number }) => {
+const UnorderedList = ({ items, gap = 6, textStyle }: { items: string[], gap?: number, textStyle?: object }) => {
   return (
     <View>
       {items.map((item, index) =>
@@ -10,7 +10,7 @@ const UnorderedList = ({ items, gap = 6 }: { items: string[], gap?: number }) =>
             key={index}
           >
             <Text style={styles.bullet}>{'\u2022'}</Text>
-            <Text style={styles.detailText}>{item}</Text>
+            <Text style={[styles.detailText, textStyle]}>{item}</Text>
           </View>
         )
       )}

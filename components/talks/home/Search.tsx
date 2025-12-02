@@ -1,4 +1,4 @@
-import { View, Text, Pressable, Keyboard, Image, StyleSheet } from 'react-native'
+import { ScrollView, View, Text, Pressable, Keyboard, Image, StyleSheet } from 'react-native'
 import ImageLoader from '@/components/ImageLoader';
 import SearchBar from '@/components/profile/SearchBar';
 import { useRouter } from 'expo-router';
@@ -24,11 +24,11 @@ export default function Search({ search, setSearch, isSearchFocused, setIsSearch
         setIsFocused={setIsSearchFocused}
         onSubmitEditing={onSubmit}
       />
-      <View style={{ height: '100%', gap: 16, paddingTop: 24, paddingHorizontal: 16, width: '100%', backgroundColor: 'white', display: isSearchFocused ? 'flex' : 'none' }} >
+      <ScrollView keyboardShouldPersistTaps="always" style={{ height: '100%', gap: 0, paddingTop: 24, paddingHorizontal: 16, width: '100%', backgroundColor: 'white', display: isSearchFocused ? 'flex' : 'none' }} >
         {
           search.length > 0 && (
             <Pressable
-              style={{ flexDirection: 'row', gap: 8, marginBottom: 8 }}
+              style={{ flexDirection: 'row', gap: 8, marginBottom:24}}
               onPress={() => {
                 setSearch("");
                 Keyboard.dismiss();
@@ -51,18 +51,20 @@ export default function Search({ search, setSearch, isSearchFocused, setIsSearch
                 router.push('/(freeRoutes)/profile/userProfile/' + data.username);
               }}
             >
+              <View>
               <ImageLoader
-                size={48}
+                size={54}
                 uri={data.profile_image}
               />
-              <View style={{ gap: 6 }}>
+              </View>
+              <View style={{ gap: 8}}>
                 <Text style={styles.name}>{data.first_name} {data.last_name}</Text>
                 <Text style={styles.time}>@{data.username}</Text>
               </View>
             </Pressable>
           ))
         }
-      </View>
+      </ScrollView>
     </>
   )
 }
@@ -71,15 +73,16 @@ export default function Search({ search, setSearch, isSearchFocused, setIsSearch
 const styles = StyleSheet.create({
   headContainer: {
     flexDirection: "row",
-    gap: 4,
+    gap: 16,
     alignItems: 'center',
+    paddingVertical: 8,
   },
   name: {
     fontSize: 15,
     fontWeight: "bold",
   },
   time: {
-    fontSize: 11,
+    fontSize: 12,
     color: "#737373",
   },
 })

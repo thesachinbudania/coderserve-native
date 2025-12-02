@@ -1,4 +1,4 @@
-import { ActivityIndicator, Text, KeyboardAvoidingView, View, FlatList, ListRenderItemInfo } from "react-native";
+import {Image, ActivityIndicator, Text, KeyboardAvoidingView, View, FlatList, ListRenderItemInfo } from "react-native";
 import PageLayout from "@/components/general/PageLayout";
 import SearchBar from "@/components/form/SearchBar";
 import React from 'react';
@@ -9,8 +9,9 @@ import { Portal } from "@gorhom/portal";
 import BlueButton from "@/components/buttons/BlueButton";
 import { useRouter } from "expo-router";
 import DefaultButton from "@/components/buttons/NoBgButton";
-import BottomSheet from "@/components/messsages/BottomSheet";
+import BottomDrawer from "@/components/BottomDrawer";
 import { useGeneralStore } from "@/zustand/talks/generalStore";
+import GreyBgButton from "@/components/buttons/GreyBgButton";
 
 export default function Hashtags() {
     const [search, setSearch] = React.useState("");
@@ -22,12 +23,14 @@ export default function Hashtags() {
     const [loadingMore, setLoadingMore] = React.useState(false);
     const [selectedHashtags, setSelectedHashtags] = React.useState<string[]>([]);
     const [saving, setSaving] = React.useState(false);
+    const [resetting, setResetting] = React.useState(false);
     const [initialHashtags, setInitialHashtags] = React.useState<string[]>([]);
+    const [showNewCustomSection, setShowNewCustomSection] = React.useState(false);
     const router = useRouter();
     const {setHashtagsFollowed} = useGeneralStore();
 
     const sheetRef = React.useRef<any>(null);
-
+    const resetSheetRef = React.useRef<any>(null); 
 
     const arraysEqual = (a: string[], b: string[]) => {
         const aa = [...(a || [])].sort();
@@ -130,9 +133,13 @@ export default function Hashtags() {
             const resp = await protectedApi.put('/talks/preferences/hashtags/', payload);
             // update initial to match saved
             const savedNames = (resp.data?.hashtags || []).map((h: any) => h.name);
+            // Determine whether the user had no hashtags before and now has selected some
+            const wasEmptyInitially = initialHashtags.length === 0;
             setInitialHashtags(savedNames);
             setSelectedHashtags(savedNames);
             setHashtagsFollowed(savedNames);
+            // Show the 'new custom section' message only if they had no hashtags before and now saved some
+            setShowNewCustomSection(wasEmptyInitially && savedNames.length > 0);
             sheetRef.current?.open();
         } catch (err) {
             console.error('Error saving hashtag preferences', err);
@@ -141,18 +148,38 @@ export default function Hashtags() {
         }
     };
 
+const resetHashtags = async () => {
+                        if (resetting) return;
+                        setResetting(true);
+                        try {
+                            const resp = await protectedApi.put('/talks/preferences/hashtags/', { hashtags: [] });
+                            setInitialHashtags([]);
+                            setSelectedHashtags([]);
+                            setHashtagsFollowed([]);
+                            // Reset means there's no new custom section to show
+                            setShowNewCustomSection(false);
+                            resetSheetRef.current?.close();
+                            router.back();
+                        } catch (err) {
+                            console.error('Error resetting hashtags', err);
+                        } finally {
+                            setResetting(false);
+                        }
+                    }
     return (
         <PageLayout
         headerTitle="Hashtags"
-        >
-            <Text style={{textAlign: 'center', fontWeight: "bold", fontSize: 21}}>Personalize Your Feed</Text>
-            <KeyboardAvoidingView behavior="padding" style={{marginTop: 32}} >
+        ><Image source={require('@/assets/images/talks/hashtag.png')} style={{height: 104, width: 104, alignSelf: 'center', marginBottom: 24}}/>
+            <Text style={{textAlign: 'center', fontWeight: "bold", fontSize: 15}}>Your Vibe, Your Feed!</Text>
+            <Text style={{fontSize: 13, color: "#737373", textAlign: 'center', marginTop:4}}>Pick hashtags that bring the best of the community to you.</Text>
+            <KeyboardAvoidingView behavior="padding" style={{marginTop: 48}} >
             <SearchBar  onChangeText={setSearch}/>
             </KeyboardAvoidingView>
+            
             {
                 loading ? 
                 <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-<ActivityIndicator size="large" color="#202020" />
+<ActivityIndicator size="large"/>
                 </View> : (
             <View style={{marginTop: 32}}>
                 {searching ? (
@@ -160,11 +187,10 @@ export default function Hashtags() {
                         <ActivityIndicator />
                     </View>
                 ) : (
-                <FlatList
+<FlatList
                     data={searchResults !== null ? searchResults : orderedHashtags}
-                    keyExtractor={(item) => item.id?.toString() ?? item.name}
-                    numColumns={10}
-                    columnWrapperStyle={{ justifyContent: 'flex-start', flexWrap: 'wrap', gap: 16, marginBottom: 12 }}
+                    numColumns={13}
+                    columnWrapperStyle={{ justifyContent: 'center', flexWrap: 'wrap', gap: 16, marginBottom: 12 }}
                     renderItem={({ item }: ListRenderItemInfo<any>) => (
                         <OptionChip
                             title={item.name}
@@ -182,6 +208,7 @@ export default function Hashtags() {
                                 }
                             }}
                             selected={selectedHashtags.includes(item.name)}
+                            unselectable={true}
                         />
                     )}
                     onEndReachedThreshold={0.5}
@@ -203,7 +230,7 @@ export default function Hashtags() {
                         }
                     }}
                     ListFooterComponent={loadingMore ? <ActivityIndicator /> : null}
-                />
+                /> 
                 )}
             </View>
                 )
@@ -214,25 +241,11 @@ export default function Hashtags() {
         initialHashtags.length > 0 ? (
             <View style={{ flexDirection: 'row', gap: 12 }}>
                 <View style={{ flex: 1 }}>
-                    <DefaultButton title='Reset' dangerButton loading={saving} onPress={async () => {
-                        if (saving) return;
-                        setSaving(true);
-                        try {
-                            const resp = await protectedApi.put('/talks/preferences/hashtags/', { hashtags: [] });
-                            setInitialHashtags([]);
-                            setSelectedHashtags([]);
-                            setHashtagsFollowed([]);
-                            sheetRef.current?.open();
-                        } catch (err) {
-                            console.error('Error resetting hashtags', err);
-                        } finally {
-                            setSaving(false);
-                        }
-                    }} />
+                    <DefaultButton title='Reset' loading={resetting} onPress={() => resetSheetRef.current?.open()} />
                 </View>
                 <View style={{ flex: 1 }}>
                     <BlueButton
-                        title='Save'
+                        title='Update'
                         loading={saving}
                 disabled={(selectedHashtags.length === 0 && initialHashtags.length === 0) || arraysEqual(selectedHashtags, initialHashtags)}
                         onPress={onSave}
@@ -250,18 +263,42 @@ export default function Hashtags() {
     }
     </BottomFixedSingleButton>
             </Portal>
-            <BottomSheet height={176} menuRef={sheetRef} >
-                <Text style={{textAlign: 'center', fontSize:15, fontWeight: 'bold'}}>Hashtags {initialHashtags.length > 0 ? 'Updated!' : 'Saved!'}</Text>
+            <BottomDrawer
+                sheetRef={resetSheetRef}
+                draggableIconHeight={0}
+            >
+                <View style={{paddingHorizontal: 16}}>
+                <Text style={{textAlign: 'center', fontSize:15, fontWeight: 'bold'}}>Are you sure you want to reset?</Text>
                 <Text style={{fontSize: 13, color: "#a6a6a6", marginTop: 16, textAlign: 'center'}}>
-                    {
-                        initialHashtags.length > 0 ? `Your interests have been refreshed. You'll now see posts in "Custom" that reflect your updated hashtags.` : `You'll now see a new "Custom" section in Talks featuring posts that match your selected interests.`
-                    }
+                    All your selected hashtags will be cleared, and the "Custom" section will be removed.
+                </Text>
+                <View style={{marginTop: 32, gap: 16, flexDirection: "row"}}>
+                    <View style={{flex: 1/2}}>
+                    <GreyBgButton title="Cancel" onPress={() => resetSheetRef.current?.close()} />
+                    </View>
+                    <View style={{flex: 1/2}}>
+                    <BlueButton title="Reset" loading={resetting} onPress={resetHashtags} />
+                    </View>
+                </View>
+</View>
+            </BottomDrawer>
+            <BottomDrawer 
+                sheetRef={sheetRef}
+                draggableIconHeight={0}
+            >
+                <View style={{paddingHorizontal: 16}}>
+                <Text style={{textAlign: 'center', fontSize:15, fontWeight: 'bold'}}>Hashtags {!showNewCustomSection ? 'Updated!' : 'Saved!'}</Text>
+                <Text style={{fontSize: 13, color: "#a6a6a6", marginTop: 16, textAlign: 'center'}}>
+                 {(showNewCustomSection)
+                    ? `You'll now see a new "Custom" section in Talks featuring posts that match your selected interests.` 
+                    : `Your interests have been refreshed. You'll now see posts in "Custom" that reflect your updated hashtags.` 
+                }
                 </Text>
                 <View style={{marginTop: 32}}>
                     <BlueButton title="Okay" onPress={() => router.back()}/>
                 </View>
-
-            </BottomSheet>
+</View>
+            </BottomDrawer>
         </PageLayout>
     )
 }

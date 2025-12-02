@@ -145,13 +145,18 @@ export default function AnimatedTopTabs({ tabs, setScrollEnabled, index, setInde
                 onPress={() => handlePress(i)}
                 style={[styles.tab, { width: tabWidth }]}
               >
-                <Text
+                {
+                  ({pressed}) => (
+<Text
                   numberOfLines={1}
                   ellipsizeMode="tail"
-                  style={[styles.tabText, isActive && styles.activeText]}
+                  style={[styles.tabText, isActive && styles.activeText, pressed && !isActive && { color: '#006dff', fontWeight: 'bold' }]}
                 >
                   {tab.name}
                 </Text>
+                  )
+                }
+                
               </Pressable>
             )
           })}

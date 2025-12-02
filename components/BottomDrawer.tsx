@@ -10,10 +10,14 @@ export default function BottomDrawer({
   sheetRef,
   children,
   draggableIconHeight = 3,
+  height,
+  onClose = () => {},
 }: {
   draggableIconHeight?: number,
   sheetRef: React.RefObject<any>,
   children: React.ReactNode,
+  height?: number,
+  onClose?: () => void,
 }) {
   
   const [measuredHeight, setMeasuredHeight] = useState<number | null>(null);
@@ -36,8 +40,9 @@ export default function BottomDrawer({
       {/* Actual Bottom Sheet WITH perfect height */}
       <RBSheet
         ref={sheetRef}
-        height={(measuredHeight) ?? 200} // fallback until measured
+        height={height ?? ((measuredHeight) ?? 200)} // fallback until measured
         draggable={true}
+        onClose={onClose}
         customStyles={{
           wrapper: { height: "75%" },
           draggableIcon: {

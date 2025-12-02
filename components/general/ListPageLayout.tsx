@@ -1,10 +1,12 @@
+// only to be used with lists rendered by the DataList component of handleFetchedData.tsx
+
 import Header from './Header';
 import { Dimensions, Keyboard, Platform, ScrollView, StyleSheet, TouchableWithoutFeedback, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 const { height } = Dimensions.get('window');
 
-export default function Layout({ headerTitle, children, defaultBack = true, flex1 = true, showHeader = true, scrollEnabled = true, contentContainerStyle, customBack = () => { }, bottomPadding = true }: { headerTitle: string, defaultBack?: boolean, flex1?: boolean, showHeader?: boolean, scrollEnabled?: boolean, bottomPadding?: boolean, customBack?: () => void, children: React.ReactNode, contentContainerStyle?: any }) {
+export default function ListPageLayout({ headerTitle, children, defaultBack = true, flex1 = true, showHeader = true, scrollEnabled = true, contentContainerStyle, customBack = () => { }, bottomPadding = true }: { headerTitle: string, defaultBack?: boolean, flex1?: boolean, showHeader?: boolean, scrollEnabled?: boolean, bottomPadding?: boolean, customBack?: () => void, children: React.ReactNode, contentContainerStyle?: any }) {
   const navigation = useNavigation();
   const { top } = useSafeAreaInsets();
   return (
@@ -19,12 +21,9 @@ export default function Layout({ headerTitle, children, defaultBack = true, flex
         />
 
       )}
-      <ScrollView
-        contentContainerStyle={[styles.content, bottomPadding ? { paddingBottom: Platform.OS === 'ios' ? 96 : 128, } : { paddingBottom: 60 }, contentContainerStyle]}
-        scrollEnabled={scrollEnabled}
-        keyboardShouldPersistTaps='handled'
+      <View
+        style={[styles.content,  contentContainerStyle]}
       >
-    <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()} accessible={false}>
           {
             flex1 ? (
               <View style={{ flex: 1, backgroundColor: 'white' }}>
@@ -36,8 +35,7 @@ export default function Layout({ headerTitle, children, defaultBack = true, flex
               </>
             )
           }
-    </TouchableWithoutFeedback>
-      </ScrollView>
+      </View>
     </View>
     </View>
   )
@@ -47,8 +45,6 @@ export default function Layout({ headerTitle, children, defaultBack = true, flex
 const styles = StyleSheet.create({
   content: {
     marginTop: 57,
-    paddingHorizontal: 16,
-    paddingTop: 24,
     backgroundColor: 'white',
     minHeight: height - 57,
   }

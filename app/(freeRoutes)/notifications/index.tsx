@@ -4,7 +4,7 @@ import React from 'react';
 import ImageLoader from '@/components/ImageLoader';
 import BlueButton from '@/components/buttons/BlueButton';
 import OptionChip from '@/components/general/OptionChip';
-import useFetchData from '@/helpers/general/handleFetchedData';
+import {useFetchData} from '@/helpers/general/handleFetchedData';
 import timeAgo from '@/helpers/timeAgo';
 import protectedApi from '@/helpers/axios';
 
@@ -63,7 +63,7 @@ export default function Notifications() {
           {
             initialLoading && (
               <View style={{ width: '100%', flex: 1, height: 500, justifyContent: 'center', alignItems: 'center', backgroundColor: 'white' }}>
-                <ActivityIndicator size='large' color='#202020' />
+                <ActivityIndicator size='large'/>
               </View>
             )
           }

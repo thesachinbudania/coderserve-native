@@ -1,7 +1,38 @@
 import { Pressable, Image, StyleSheet } from 'react-native'
 import React from 'react';
 import Skeleton from 'react-native-reanimated-skeleton';
-import ImageViewing from 'react-native-image-viewing';
+import { Portal } from '@gorhom/portal';
+import { useNavigation } from 'expo-router';
+
+function ImageViewing({ images, imageIndex, visible, onRequestClose }: { images: { uri: string }[], imageIndex: number, visible: boolean, onRequestClose: () => void }) {
+  const navigation = useNavigation();
+React.useEffect(() => {
+    if (!visible) {
+      navigation.getParent()?.setOptions({ tabBarStyle: { display: "flex", height: 56, borderColor: "#f5f5f5" } });
+    } else {
+      navigation.getParent()?.setOptions({
+        tabBarStyle: {
+          display: "none",
+        },
+      });
+    }
+  }, [visible]);
+  if (!visible) return null;
+  return (
+    <Portal>
+      <Pressable
+        onPress={onRequestClose}
+        style={{ flex: 1, position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: '#00000090', justifyContent: 'center', alignItems: 'center' }}
+      >
+        <Image
+          source={{ uri: images[imageIndex].uri }}
+          style={[styles.profileImg, {borderRadius: 225, width: 225, height: 225, borderWidth:  images[imageIndex].uri.endsWith('profile_images/default_profile_image.png') ? 0 : 2}]}
+        />
+      </Pressable>
+    </Portal>
+  )
+}
+
 
 type Props = {
   border?: number;

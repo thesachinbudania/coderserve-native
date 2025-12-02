@@ -38,7 +38,7 @@ const ProfileOption = ({ data }: { data: any }) => {
     >
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
         <ImageLoader
-          size={48}
+          size={45}
           uri={data['profile_image']}
         />
         <View style={{ gap: 4 }}>
@@ -52,6 +52,8 @@ const ProfileOption = ({ data }: { data: any }) => {
             matchedDegrees[0],
             `Lives in ${data['city']}, ${data['state']}, ${data['country']}`,
           ]}
+          gap={0}
+          textStyle={{fontSize: 13, lineHeight: 0}}
         />
       </View>
     </Pressable>
@@ -100,7 +102,7 @@ export default function SimilarProfiles() {
         <FlatList
           data={combinedData}
           renderItem={({ item }) => <ProfileOption data={item} />}
-          keyExtractor={(item) => item.id.toString()}
+          keyExtractor={(item) => item['username']}
           contentContainerStyle={{ gap: 16, paddingHorizontal: 16, paddingTop: 24 }}
           onEndReached={handleEndReached}
           onEndReachedThreshold={0.5}
@@ -113,7 +115,7 @@ export default function SimilarProfiles() {
             <>
               {isLoading || nextPage ? (
                 <View style={{ width: '100%', height: 128, marginBottom: 77, justifyContent: 'center', alignItems: 'center' }}>
-                  <ActivityIndicator size='small' color='#202020' />
+                  <ActivityIndicator />
                 </View>
               ) : (
                 <View style={{ marginBottom: 77 }}>

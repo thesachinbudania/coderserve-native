@@ -7,7 +7,7 @@ export default function ProfileVisitors() {
     <PageLayout headerTitle='Profile Visitors'>
       <View style={{ height: '100%', width: '100%', justifyContent: 'center', alignItems: 'center' }}>
         <Text style={{ fontSize: 15, fontWeight: 'bold' }}>Gain insights with Pro</Text>
-        <Text style={{ fontSize: 13, color: "#737373", textAlign: 'center', marginTop: 8 }}>
+        <Text style={{ fontSize: 13, color: "#737373", textAlign: 'center', marginTop: 16 }}>
           Upgrade to Pro to access your profile visitor list and stay ahead with valuable networking opportunities.
         </Text>
         <View style={{ width: '100%', marginTop: 32 }}>
