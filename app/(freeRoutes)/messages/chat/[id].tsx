@@ -157,7 +157,7 @@ const MessageBubble: React.FC<{ message: Message; currentUserId: string, openMes
                 {message.edited && 'Edited'}   {message.timestamp}
               </Text>
             </View>
-            {isFirst && <View style={[isCurrentUser ? styles.rightArrow : styles.leftArrow, pressed && isCurrentUser && editable &&{ borderTopColor: "#202020" }]} />}
+            {isFirst && <View style={[isCurrentUser ? styles.rightArrow : styles.leftArrow, pressed && isCurrentUser && editable && { borderTopColor: "#202020" }]} />}
           </>
         )
       }
@@ -175,7 +175,7 @@ const DateSeparator: React.FC<{ date: string }> = ({ date }) => (
 function Input({ value, onChange, onSend, onPickImage, disabled, chatDisabled, otherUserName, chat_blocked, blocked }: { otherUserName?: string, chatDisabled: boolean; chat_blocked: boolean; value: string; onChange: (t: string) => void; onSend: () => void; onPickImage: () => void; disabled?: boolean; blocked?: boolean }) {
   const canSend = value.trim().length > 0 && !disabled;
   const router = useRouter();
-  const {bottom} = useSafeAreaInsets();
+  const { bottom } = useSafeAreaInsets();
   // check if keyboard is open
   const [keyboardOpen, setKeyboardOpen] = useState(false);
   useEffect(() => {
@@ -220,7 +220,7 @@ function Input({ value, onChange, onSend, onPickImage, disabled, chatDisabled, o
           </View>
         )
           : (
-            <Animated.View style={{flexDirection: 'row', marginBottom: animatedMargin, alignItems: 'center'}}>
+            <Animated.View style={{ flexDirection: 'row', marginBottom: animatedMargin, alignItems: 'center' }}>
               <TextInput
                 onChangeText={onChange}
                 value={value}
@@ -240,20 +240,20 @@ function Input({ value, onChange, onSend, onPickImage, disabled, chatDisabled, o
                     backgroundColor: canSend ? '#202020' : '#f5f5f5', borderRadius: 45, margin: 8,
                   },
                   pressed && canSend && { backgroundColor: '#006dff' },
-                  pressed && !canSend && {backgroundColor: "#d9d9d9"}
+                  pressed && !canSend && { backgroundColor: "#d9d9d9" }
                 ]}
               >
                 {
                   ({ pressed }) => (
-<Image
-                  style={[{ transform: [{ rotate: canSend || disabled ? '-90deg' : '0deg' }], height: 24, width: 24}]}
-                  source={
-                    canSend
-                      ? require('@/assets/images/arrows/right-arrow-white.png') :
-                      (pressed && canSend) ? require('@/assets/images/messages/clip-white.png')
-                      : disabled ? require('@/assets/images/arrows/right-muted.png') : require('@/assets/images/messages/clip.png')
-                  }
-                />
+                    <Image
+                      style={[{ transform: [{ rotate: canSend || disabled ? '-90deg' : '0deg' }], height: 24, width: 24 }]}
+                      source={
+                        canSend
+                          ? require('@/assets/images/arrows/right-arrow-white.png') :
+                          (pressed && canSend) ? require('@/assets/images/messages/clip-white.png')
+                            : disabled ? require('@/assets/images/arrows/right-muted.png') : require('@/assets/images/messages/clip.png')
+                      }
+                    />
                   )
                 }
               </Pressable>
@@ -299,7 +299,7 @@ const Chat: React.FC = () => {
   const [currentMessageMenuId, setCurrentMessageMenuId] = useState<string | null>(null);
   const [currentMessageMenuTime, setCurrentMessageMenuTime] = useState<number | null>(null);
   // Track which options and height are available for the current message
-  const [currentMenuOptions, setCurrentMenuOptions] = useState<{edit: boolean, delete: boolean}>({edit: false, delete: false});
+  const [currentMenuOptions, setCurrentMenuOptions] = useState<{ edit: boolean, delete: boolean }>({ edit: false, delete: false });
   const [currentMenuHeight, setCurrentMenuHeight] = useState(120);
 
   const [editMode, setEditMode] = useState(false);
@@ -311,7 +311,7 @@ const Chat: React.FC = () => {
   const deleteChatRef = useRef<any>(null);
   const router = useRouter();
   async function fetchData(mounted: boolean) {
-    if (id === undefined) return;   
+    if (id === undefined) return;
     try {
       const res = await protectedApi.get(`/home/conversations/${id}/`);
       if (!mounted) return;
@@ -413,9 +413,10 @@ const Chat: React.FC = () => {
         }
       } catch (err) { console.error('WS parse error', err); }
     };
-    ws.onerror = (err) => { 
+    ws.onerror = (err) => {
       router.replace('/(freeRoutes)/error');
-      console.error('WS error', err); };
+      console.error('WS error', err);
+    };
     return () => { ws.close(); };
   }, [id, token, username]);
 
@@ -479,7 +480,7 @@ const Chat: React.FC = () => {
       // ensure the sent message will be visible (WS will append the real message)
       scrollToBottom(true);
     } catch (e) {
-      router.push('/(freeRoutes)/error'); 
+      router.push('/(freeRoutes)/error');
       console.error('WS send failed', e);
     } finally {
       setSending(false);
@@ -516,8 +517,8 @@ const Chat: React.FC = () => {
       edited: false,
     };
     setMessages(prev => [...prev, optimisticMessage]);
-  // make sure optimistic message is visible
-  scrollToBottom(true);
+    // make sure optimistic message is visible
+    scrollToBottom(true);
 
     const formData = new FormData();
     formData.append('image', {
@@ -550,7 +551,7 @@ const Chat: React.FC = () => {
       scrollToBottom(true);
 
     } catch (error) {
-      router.push('/(freeRoutes)/error'); 
+      router.push('/(freeRoutes)/error');
       console.error('Image upload failed:', error);
       setMessages(prev => prev.map(msg =>
         msg.id === tempId ? { ...msg, error: 'Upload failed' } : msg
@@ -635,7 +636,7 @@ const Chat: React.FC = () => {
       // If more than 30 minutes have passed, do not open the menu
       return;
     }
-    const opts = {edit: canEdit, delete: canDelete};
+    const opts = { edit: canEdit, delete: canDelete };
     setCurrentMenuOptions(opts);
     setCurrentMenuHeight(opts.edit && opts.delete ? 216 : 120);
     setCurrentMessageMenuTime(messageTimeMs);
@@ -696,7 +697,7 @@ const Chat: React.FC = () => {
         style={{ flex: 1 }}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
-        <View style={{ flex: 1}}>
+        <View style={{ flex: 1 }}>
           <FlatList
             ref={flatListRef}
             data={chatListItems}
@@ -704,7 +705,7 @@ const Chat: React.FC = () => {
             keyExtractor={(item) => item.id}
             contentContainerStyle={styles.messagesContainer}
             onContentSizeChange={() => scrollToBottom(false)}
-              onLayout={() => scrollToBottom(false)}
+            onLayout={() => scrollToBottom(false)}
             ListFooterComponent={renderFooter}
           />
           <Input
@@ -746,7 +747,7 @@ const Chat: React.FC = () => {
               onPress={() => {
                 messageMenuRef.current?.close();
                 setTimeout(() => {
-                deleteMessageDrawerRef.current?.open();
+                  deleteMessageDrawerRef.current?.open();
                 }, 300)
               }}
             />
@@ -757,7 +758,7 @@ const Chat: React.FC = () => {
         <View style={{ paddingHorizontal: 16 }}>
           <Text style={{ fontSize: 15, fontWeight: 'bold', textAlign: 'center' }}>Delete Message</Text>
           <Text style={{ fontSize: 13, color: "#737373", textAlign: 'center', marginTop: 8 }}>This action cannot be undone. Once deleted, your message will be permanently removed.</Text>
-          <View style={{ flexDirection: 'row', gap: 16, marginTop: 32}}>
+          <View style={{ flexDirection: 'row', gap: 16, marginTop: 32 }}>
             <View style={{ flex: 1 / 2 }}>
               <GreyBgButton
                 title="Cancel"
@@ -816,11 +817,11 @@ const Chat: React.FC = () => {
             onPress={() => {
               menuRef?.current.close();
               setTimeout(() => {
-if (other?.is_blocked) {
-                unblockDrawerRef.current?.open();
-                return;
-              }
-              blockDrawerRef.current?.open();
+                if (other?.is_blocked) {
+                  unblockDrawerRef.current?.open();
+                  return;
+                }
+                blockDrawerRef.current?.open();
               }, 300)
             }}
           >
@@ -835,7 +836,7 @@ if (other?.is_blocked) {
             onPress={() => {
               menuRef?.current.close();
               setTimeout(() => {
-              deleteChatRef?.current.open();
+                deleteChatRef?.current.open();
               }, 300)
             }}
           >
@@ -861,32 +862,32 @@ if (other?.is_blocked) {
         sheetRef={deleteChatRef}
       >
         <View style={{ paddingHorizontal: 16 }}>
-        <Text style={{ textAlign: 'center', fontSize: 15, fontWeight: 'bold', marginBottom: 16 }}>Delete Chat</Text>
-        <Text style={{ textAlign: 'center', fontSize: 13, color: "#737373", marginBottom: 24 }}>This action cannot be undone. Once deleted, all your messages in this chat will be permanently removed.</Text>
-        <View style={{ flexDirection: 'row', gap: 16 }}>
-          <View style={{ flex: 1 / 2 }}>
-            <GreyBgButton
-              title='Cancel'
-              onPress={() => deleteChatRef?.current.close()}
-            />
-          </View>
-          <View style={{ flex: 1 / 2 }}>
-            <BlueButton
-              title={'Delete'}
-              dangerButton
-              onPress={
-                () => {
-                  protectedApi.delete(`/home/delete_conversation/${id}/`).then(() => {
-                    deleteChatRef?.current.close();
-                    router.back();
-                  }).catch(e => {
-                    console.error(e);
-                  })
+          <Text style={{ textAlign: 'center', fontSize: 15, fontWeight: 'bold', marginBottom: 16 }}>Delete Chat</Text>
+          <Text style={{ textAlign: 'center', fontSize: 13, color: "#737373", marginBottom: 24 }}>This action cannot be undone. Once deleted, all your messages in this chat will be permanently removed.</Text>
+          <View style={{ flexDirection: 'row', gap: 16 }}>
+            <View style={{ flex: 1 / 2 }}>
+              <GreyBgButton
+                title='Cancel'
+                onPress={() => deleteChatRef?.current.close()}
+              />
+            </View>
+            <View style={{ flex: 1 / 2 }}>
+              <BlueButton
+                title={'Delete'}
+                dangerButton
+                onPress={
+                  () => {
+                    protectedApi.delete(`/home/delete_conversation/${id}/`).then(() => {
+                      deleteChatRef?.current.close();
+                      router.back();
+                    }).catch(e => {
+                      console.error(e);
+                    })
+                  }
                 }
-              }
-            />
+              />
+            </View>
           </View>
-        </View>
         </View>
       </BottomDrawer>
       <BottomSheet

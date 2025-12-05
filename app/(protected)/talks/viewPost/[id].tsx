@@ -19,6 +19,9 @@ import { useUserStore } from '@/zustand/stores';
 import { useNewPostStore } from '@/zustand/talks/newPostStore';
 import { useFocusEffect } from 'expo-router';
 import GreyBgButton from '@/components/buttons/GreyBgButton';
+import PopUp from '@/components/messsages/PopUp';
+import TimerMenuOption from '@/components/buttons/TimerMenuOption';
+import { Portal } from 'react-native-paper';
 
 
 const { width } = Dimensions.get('window');
@@ -98,6 +101,10 @@ const Vote = ({ id, upvoted, downvoted, setUpvoted, setDownvoted, setUpvotes, se
         console.error('Error downvoting post:', err.response.data);
       });
   }
+
+  const totalVotes = upvotes - downvotes;
+  const voteText = `${totalVotes} ${Math.abs(totalVotes) === 1 ? 'Vote' : 'Votes'}`;
+
   return (
     <View style={voteStyles.container}>
       <View style={voteStyles.buttonContainer}>
@@ -105,7 +112,7 @@ const Vote = ({ id, upvoted, downvoted, setUpvoted, setDownvoted, setUpvotes, se
           !downvoted && (
             <View style={{ flex: upvoted ? 1 : 1 / 2 }}>
               <VoteButton
-                title={upvoted ? `${upvotes} Upvotes` : "Upvote"}
+                title={upvoted ? voteText : "Upvote"}
                 onPress={upvotePost}
                 selected={upvoted}
               />
@@ -119,7 +126,7 @@ const Vote = ({ id, upvoted, downvoted, setUpvoted, setDownvoted, setUpvotes, se
           !upvoted && (
             <View style={{ flex: downvoted ? 1 : 1 / 2 }}>
               <VoteButton
-                title={downvoted ? `${downvotes} Downvotes` : "Downvote"}
+                title={downvoted ? voteText : "Downvote"}
                 dangerButton={true}
                 onPress={downvotePost}
                 dangered={downvoted}
@@ -183,9 +190,20 @@ const commentTimeCalculator = (created_at: string) => {
 const Comment = ({ first_name, can_reply, username, id, replies, created_at, reply = false, comment, profile_image, setReplyingTo, setReplyingId }: { can_reply?: boolean, first_name: string, username: string, created_at: any, reply?: boolean, replies: any[], id: string, comment: string, profile_image: string, setReplyingId: (replyingId: string | null) => void, setReplyingTo: (replyingTo: string | null) => void }) => {
   const [showReplies, setShowReplies] = React.useState(false);
   replies.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+  const { username: currentUsername } = useUserStore();
+  const [visible, setVisible] = React.useState(false);
+  function openPopUp() {
+    setVisible(true);
+  }
   return (
     <View>
-      <View style={{ flexDirection: 'row', gap: 8, width: '100%', paddingHorizontal: 16 }}>
+      <Pressable
+        style={({ pressed }) => [{ flexDirection: 'row', gap: 8, width: '100%', paddingHorizontal: 16 }, pressed && currentUsername === username && { backgroundColor: '#f5f5f5' }]}
+        onPress={() => {
+          if (currentUsername === username) {
+            openPopUp();
+          }
+        }}>
         <View>
           <ImageLoader size={48} uri={profile_image} />
         </View>
@@ -218,7 +236,18 @@ const Comment = ({ first_name, can_reply, username, id, replies, created_at, rep
           }
 
         </View>
-      </View>
+      </Pressable>
+      <Portal>
+        <PopUp visible={visible} setVisible={setVisible}>
+          <View>
+            <Text>Are you sure you want to delete this comment?</Text>
+            <View style={{ flexDirection: 'row', gap: 8 }}>
+              <GreyBgButton title='Cancel' onPress={() => setVisible(false)} />
+              <BlueButton title='Delete' onPress={() => setVisible(false)} />
+            </View>
+          </View>
+        </PopUp>
+      </Portal>
       {replies.length > 0 && showReplies && (
         <View style={{ marginLeft: 56, marginTop: 32, gap: 16 }}>
           {
@@ -248,10 +277,11 @@ interface CommentsProps {
   id: string;
   commentsCount: number;
   last_comment: any;
+  onCommentAdded: () => void;
 }
 
 // --- Comments section: handles comment list, posting, and reply logic ---
-const Comments = ({ id, commentsCount, last_comment }: CommentsProps) => {
+const Comments = ({ id, commentsCount, last_comment, onCommentAdded }: CommentsProps) => {
   const menuRef = React.useRef<any>(null);
   const [comment, setComment] = React.useState('');
   const [comments, setComments] = React.useState<any[]>([]);
@@ -260,9 +290,9 @@ const Comments = ({ id, commentsCount, last_comment }: CommentsProps) => {
   const [replyingId, setReplyingId] = React.useState<string | null>(null);
   const [canComment, setCanComment] = React.useState<boolean>(false);
   const router = useRouter();
+  const [commentContainerHeight, setCommentContainerHeight] = React.useState(0);
 
   const fetchComments = async () => {
-    console.log('Fetching comments for post:', id);
     protectedApi.get('/talks/posts/' + id + '/comments/').then(res => {
       setComments(res.data.comments);
       setCanComment(res.data.can_comment);
@@ -272,7 +302,7 @@ const Comments = ({ id, commentsCount, last_comment }: CommentsProps) => {
   }
 
   React.useEffect(() => {
-   fetchComments(); 
+    fetchComments();
   }, [])
   const postComment = () => {
     if (comment.trim().length === 0) {
@@ -287,10 +317,11 @@ const Comments = ({ id, commentsCount, last_comment }: CommentsProps) => {
       setComment('');
       setReplyingId(null);
       setReplyingTo(null);
+      onCommentAdded();
     }).catch(err => console.log(err.response.data));
   }
 
-  const {bottom} = useSafeAreaInsets();
+  const { bottom } = useSafeAreaInsets();
   return (
     <View style={commentStyles.container}>
       <Text style={commentStyles.heading}>Comments <Text style={{ fontWeight: 'bold', color: '#737373' }}>{commentsCount}</Text></Text>
@@ -305,7 +336,7 @@ const Comments = ({ id, commentsCount, last_comment }: CommentsProps) => {
           </Pressable>
         ) : (
           <Pressable
-            style={({pressed}) => [commentStyles.inputContainer, pressed && {borderColor: "#006dff"}]}
+            style={({ pressed }) => [commentStyles.inputContainer, pressed && { borderColor: "#006dff" }]}
             onPress={() => menuRef.current?.open()}
           >
             <Text style={{ fontSize: 13, color: '#d9d9d9' }}>Add Comment</Text>
@@ -318,73 +349,73 @@ const Comments = ({ id, commentsCount, last_comment }: CommentsProps) => {
         height={750}
         onClose={() => fetchComments()}
       >
-            <KeyboardAvoidingView style={{flex: 1}} behavior={'padding'}>
-        <View style={{ flex: 1, position: 'relative' }}>
-          <ScrollView contentContainerStyle={{flex: 1, gap: 32, paddingBottom: 96}} style={{ flex: 1 }}>
-            <Text style={{ fontSize: 11, color: '#a6a6a6', textAlign: 'center' }}>Comments</Text>
-            {
-              comments.length > 0  ? comments.filter((comment) => comment.reply_to === null).map((comment) => (
-                <Comment
-                  key={comment.id}
-                  username={comment.author.username}
-                  first_name={comment.author.first_name}
-                  id={comment.id}
-                  comment={comment.content}
-                  profile_image={comment.author.profile_image}
-                  setReplyingTo={setReplyingTo}
-                  setReplyingId={setReplyingId}
-                  can_reply={canComment && comment.can_tag}
-                  replies={comments.filter((c) => c.reply_to === comment.id)}
-                  created_at={comment.created_at}
-                />
-              )) : (
-                <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', marginTop: 64 }}>
-                  <Image source={require("@/assets/images/stars.png")}  style={{height: 128, width: 128}} />
-                  <Text style={{ fontSize: 11, color: '#a6a6a6', marginTop: 32 }}>No comments yet. Be the first to share your thoughts!</Text>
-                </View>
-              )
-            }
-          </ScrollView>
-          <View style={{ position: 'absolute', bottom: 0, left: 0, width: '100%', backgroundColor: 'white', zIndex: 1 }}>
-            {
-              replyingTo && (
-                <View style={{ backgroundColor: '#737373', padding: 16, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <Text style={{ fontSize: 13, color: 'white' }}>Replying to @{replyingTo}</Text>
-                  <Pressable onPress={() => setReplyingTo(null)} style={({ pressed }) => [{ padding: 4, borderRadius: 50, backgroundColor: '#eeeeee' }, pressed && { backgroundColor: '#a6a6a6' }]}>
-                    <Image source={require('@/assets/images/close.png')} style={{ width: 6, height: 6}} />
+        <KeyboardAvoidingView style={{ flex: 1 }} behavior={'padding'}>
+          <View style={{ flex: 1, position: 'relative' }}>
+            <ScrollView contentContainerStyle={{ flexGrow: 1, gap: 32, paddingBottom: commentContainerHeight + 32 }} style={{ flex: 1 }}>
+              <Text style={{ fontSize: 11, color: '#a6a6a6', textAlign: 'center' }}>Comments</Text>
+              {
+                comments.length > 0 ? comments.filter((comment) => comment.reply_to === null).map((comment) => (
+                  <Comment
+                    key={comment.id}
+                    username={comment.author.username}
+                    first_name={comment.author.first_name}
+                    id={comment.id}
+                    comment={comment.content}
+                    profile_image={comment.author.profile_image}
+                    setReplyingTo={setReplyingTo}
+                    setReplyingId={setReplyingId}
+                    can_reply={canComment && comment.can_tag}
+                    replies={comments.filter((c) => c.reply_to === comment.id)}
+                    created_at={comment.created_at}
+                  />
+                )) : (
+                  <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', marginTop: 64 }}>
+                    <Image source={require("@/assets/images/stars.png")} style={{ height: 128, width: 128 }} />
+                    <Text style={{ fontSize: 11, color: '#a6a6a6', marginTop: 32 }}>No comments yet. Be the first to share your thoughts!</Text>
+                  </View>
+                )
+              }
+            </ScrollView>
+            <View style={{ position: 'absolute', bottom: 0, left: 0, width: '100%', backgroundColor: 'white', zIndex: 1 }}>
+              {
+                replyingTo && (
+                  <View style={{ backgroundColor: '#737373', padding: 16, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <Text style={{ fontSize: 13, color: 'white' }}>Replying to @{replyingTo}</Text>
+                    <Pressable onPress={() => setReplyingTo(null)} style={({ pressed }) => [{ padding: 4, borderRadius: 50, backgroundColor: '#eeeeee' }, pressed && { backgroundColor: '#a6a6a6' }]}>
+                      <Image source={require('@/assets/images/close.png')} style={{ width: 6, height: 6 }} />
+                    </Pressable>
+                  </View>
+                )
+              }
+              {
+                canComment &&
+                <View style={[commentStyles.commentInputContainer, { paddingBottom: bottom }]} onLayout={(e) => setCommentContainerHeight(e.nativeEvent.layout.height)}>
+                  {
+                    replyingTo &&
+                    <Text style={{ color: '#006dff', marginLeft: 16, marginRight: -16 }}>@{replyingTo} </Text>
+                  }
+                  <TextInput
+                    onChangeText={setComment}
+                    multiline
+                    numberOfLines={6}
+                    style={[commentStyles.commentInput]}
+                    placeholder='Write here'
+                    cursorColor='black'
+                    textAlignVertical='top'
+                    ref={commentInputRef}
+                  >
+
+                  </TextInput>
+                  <Pressable
+                    onPress={postComment}
+                    style={({ pressed }) => [{ height: 45, width: 45, justifyContent: 'center', alignItems: 'center', backgroundColor: '#202020', borderRadius: 45, margin: 8, marginRight: 16 }, pressed && comment.length != 0 && { backgroundColor: '#006dff' }, comment.length == 0 && { backgroundColor: "#f5f5f5" }]}>
+                    <Image style={[{ transform: [{ rotate: '-90deg' }], height: 24, width: 24 }, { tintColor: comment.length === 0 ? '#d9d9d9' : 'white' }]} source={require('@/assets/images/arrows/right-arrow-white.png')} />
                   </Pressable>
                 </View>
-              )
-            }
-            {
-              canComment && 
-<View style={[commentStyles.commentInputContainer, { paddingBottom: bottom }]}>
-              {
-                replyingTo &&
-                <Text style={{ color: '#006dff', marginLeft: 16, marginRight: -16 }}>@{replyingTo} </Text>
               }
-              <TextInput
-                onChangeText={setComment}
-                multiline
-                numberOfLines={6}
-                style={[commentStyles.commentInput]}
-                placeholder='Write here'
-                cursorColor='black'
-                textAlignVertical='top'
-                ref={commentInputRef}
-              >
-
-              </TextInput>
-              <Pressable
-                onPress={postComment}
-                style={({ pressed }) => [{ height: 45, width: 45, justifyContent: 'center', alignItems: 'center', backgroundColor: '#202020', borderRadius: 45, margin: 8, marginRight: 16 }, pressed && comment.length != 0 && { backgroundColor: '#006dff' }, comment.length == 0 && {backgroundColor: "#f5f5f5"}]}>
-                <Image style={[{ transform: [{ rotate: '-90deg' }], height: 24, width: 24 }, { tintColor: comment.length === 0 ? '#d9d9d9' : 'white'}]} source={require('@/assets/images/arrows/right-arrow-white.png')} />
-              </Pressable>
             </View>
-            }
           </View>
-        </View>
-</KeyboardAvoidingView>
+        </KeyboardAvoidingView>
       </BottomDrawer>
 
     </View>
@@ -440,14 +471,15 @@ export default function ViewPost() {
   const [upvotes, setUpvotes] = React.useState(0);
   const [downvotes, setDownvotes] = React.useState(0);
   const [postSaved, setPostSaved] = React.useState(false);
+  const [creationTime, setCreationTime] = React.useState<string | null>(null);
   const menuRef = React.useRef<any>(null);
   const deleteSheetRef = React.useRef<any>(null);
   const selfMenuRef = React.useRef<any>(null);
   const postSaveRef = React.useRef<any>(null);
-  const {username} = useUserStore();
-  const {setNewPost, editId} = useNewPostStore();
+  const { username } = useUserStore();
+  const { setNewPost, editId } = useNewPostStore();
 
-async function shareProfileAsync() {
+  async function shareProfileAsync() {
     try {
       await Share.share({
         message: 'https://coderserve.com/posts/' + id,
@@ -459,10 +491,10 @@ async function shareProfileAsync() {
 
   // set the newPost store to empty if there is editId on focusing this screen
   useFocusEffect(React.useCallback(() => {
-    if (editId){
-      setNewPost({title: '', hashtags: [], thumbnail: undefined, content: null})
+    if (editId) {
+      setNewPost({ title: '', hashtags: [], thumbnail: undefined, content: null })
     }
-  }, [])) 
+  }, []))
 
   // --- Save/unsave post logic ---
   const toggleSave = async () => {
@@ -474,7 +506,7 @@ async function shareProfileAsync() {
       // If saved (created)
       if (resp.status === 201 || (resp.data && resp.data.detail && resp.data.detail.toLowerCase().includes('saved'))) {
         // open the saved confirmation sheet
-        if (resp.status === 201){
+        if (resp.status === 201) {
           setPostSaved(true);
         }
         else if (resp.status === 200) {
@@ -501,16 +533,17 @@ async function shareProfileAsync() {
       setDownvoted(res.data.downvoted);
       setUpvotes(res.data.upvotes);
       setDownvotes(res.data.downvotes);
+      setCreationTime(res.data.created_at);
     }
-    catch{
+    catch {
       router.push('/(freeRoutes)/error')
     }
-    finally{
+    finally {
       setFetchingPost(false)
     }
   }
 
- // logic to delete a post
+  // logic to delete a post
   const [deletingPost, setDeletingPost] = React.useState(false);
   const deletePost = async () => {
     if (!post?.id) return;
@@ -534,14 +567,14 @@ async function shareProfileAsync() {
   );
   // --- Fetch post data on mount ---
   React.useEffect(() => {
-    fetchPost(); 
+    fetchPost();
   }, [])
 
   // --- Render ---
   return (
-    <ScrollView contentContainerStyle={[{ minHeight: '100%', backgroundColor: 'white', paddingHorizontal: 16 }, fetchingPost && {flex: 1}]}>
+    <ScrollView contentContainerStyle={[{ minHeight: '100%', backgroundColor: 'white', paddingHorizontal: 16 }, fetchingPost && { flex: 1 }]}>
       {
-        fetchingPost && <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
+        fetchingPost && <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
           <ActivityIndicator size={'large'} />
         </View>
       }
@@ -573,10 +606,11 @@ async function shareProfileAsync() {
             id={post.id}
             commentsCount={post.comments_count}
             last_comment={post.last_comment}
+            onCommentAdded={fetchPost}
           />
           {/* Bottom name bar */}
           <View style={{ backgroundColor: "#f5f5f5", width: width, marginHorizontal: -16, paddingTop: 8 }}>
-            <View style={{backgroundColor: 'white'}}>
+            <View style={{ backgroundColor: 'white' }}>
               <BottomName />
             </View>
           </View>
@@ -587,8 +621,8 @@ async function shareProfileAsync() {
         menuRef={postSaveRef}
         height={192}
       >
-        <Image source={require('@/assets/images/blueTick.png')} style={{width: 48, height: 48, marginHorizontal: 'auto', tintColor: '#202020'}}/>
-        <Text style={{textAlign: 'center', fontSize: 13, color: "#737373", marginTop: 16, marginBottom: 32}}>
+        <Image source={require('@/assets/images/blueTick.png')} style={{ width: 48, height: 48, marginHorizontal: 'auto', tintColor: '#202020' }} />
+        <Text style={{ textAlign: 'center', fontSize: 13, color: "#737373", marginTop: 16, marginBottom: 32 }}>
           {postSaved ? 'This post has been saved successfully.' : 'This post has been removed from your saved list.'}
         </Text>
         <BlueButton title="Okay" onPress={() => postSaveRef.current.close()} />
@@ -615,7 +649,7 @@ async function shareProfileAsync() {
             <Text style={styles.menuButtonHeading}>{postSaved ? 'Unsave Post' : 'Save Post'}</Text>
             <Text style={styles.menuButtonText}>
               {
-                postSaved? 'Remove this post from your saved list.' : 'Bookmark this post to view it later.'
+                postSaved ? 'Remove this post from your saved list.' : 'Bookmark this post to view it later.'
               }
             </Text>
           </MenuButton>
@@ -638,31 +672,35 @@ async function shareProfileAsync() {
         </View>
       </BottomSheet>
       {/* Menu for own post */}
-<BottomDrawer
-                sheetRef={deleteSheetRef}
-                draggableIconHeight={0}
-            >
-                <View style={{paddingHorizontal: 16}}>
-                <Text style={{textAlign: 'center', fontSize:15, fontWeight: 'bold'}}>Delete this post?</Text>
-                <Text style={{fontSize: 13, color: "#a6a6a6", marginTop: 16, textAlign: 'center'}}>
-                  This action cannot be undone. Once deleted, your post will be permanently removed.
-                </Text>
-                <View style={{marginTop: 32, gap: 16, flexDirection: "row"}}>
-                    <View style={{flex: 1/2}}>
-                    <GreyBgButton title="Cancel" onPress={() => deleteSheetRef.current?.close()} />
-                    </View>
-                    <View style={{flex: 1/2}}>
-                    <BlueButton title="Delete" dangerButton loading={deletingPost} onPress={deletePost} />
-                    </View>
-                </View>
-</View>
-            </BottomDrawer>
-      <BottomSheet
-        menuRef={selfMenuRef}
-        height={486}
+      <BottomDrawer
+        sheetRef={deleteSheetRef}
+        draggableIconHeight={0}
       >
-        <View style={styles.menuContainer}>
-          <MenuButton
+        <View style={{ paddingHorizontal: 16 }}>
+          <Text style={{ textAlign: 'center', fontSize: 15, fontWeight: 'bold' }}>Delete this post?</Text>
+          <Text style={{ fontSize: 13, color: "#a6a6a6", marginTop: 16, textAlign: 'center' }}>
+            This action cannot be undone. Once deleted, your post will be permanently removed.
+          </Text>
+          <View style={{ marginTop: 32, gap: 16, flexDirection: "row" }}>
+            <View style={{ flex: 1 / 2 }}>
+              <GreyBgButton title="Cancel" onPress={() => deleteSheetRef.current?.close()} />
+            </View>
+            <View style={{ flex: 1 / 2 }}>
+              <BlueButton title="Delete" dangerButton loading={deletingPost} onPress={deletePost} />
+            </View>
+          </View>
+        </View>
+      </BottomDrawer>
+      <BottomDrawer
+        sheetRef={selfMenuRef}
+        draggableIconHeight={0}
+      >
+        <View style={[styles.menuContainer, { paddingHorizontal: 16 }]}>
+          <TimerMenuOption
+            title="Edit Post"
+            subTitle="Make changes to your content."
+            pressTimer={60}
+            creationTime={creationTime}
             onPress={() => {
               selfMenuRef?.current.close();
               setNewPost({
@@ -674,12 +712,7 @@ async function shareProfileAsync() {
               });
               router.push("/(protected)/talks/createPost");
             }}
-          >
-            <Text style={styles.menuButtonHeading}>Edit Post</Text>
-            <Text style={styles.menuButtonText}>
-              Make changes to your content.
-            </Text>
-          </MenuButton>
+          />
           <MenuButton
             onPress={() => {
               selfMenuRef?.current.close();
@@ -688,7 +721,7 @@ async function shareProfileAsync() {
           >
             <Text style={styles.menuButtonHeading}>Comment Permissions</Text>
             <Text style={styles.menuButtonText}>
-             Set who can comment on your post. 
+              Set who can comment on your post.
             </Text>
           </MenuButton>
           <MenuButton
@@ -703,29 +736,26 @@ async function shareProfileAsync() {
             onPress={() => {
               selfMenuRef?.current.close();
               setTimeout(() => deleteSheetRef?.current?.open(), 300);
-            }}>
-            <Text
-              style={[styles.menuButtonHeading]}
-            >
-              Delete Post
-            </Text>
-            <Text style={[styles.menuButtonText]}>
+            }}
+          >
+            <Text style={styles.menuButtonHeading}>Delete Post</Text>
+            <Text style={styles.menuButtonText}>
               Permanently remove this post.
             </Text>
           </MenuButton>
           <MenuButton
-          dark>
+            dark>
             <Text
-              style={[styles.menuButtonHeading, {color: '#fff'}]}
+              style={[styles.menuButtonHeading, { color: '#fff' }]}
             >
               Boost Post
             </Text>
-            <Text style={[styles.menuButtonText, {color: "#a6a6a6"}]}>
+            <Text style={[styles.menuButtonText, { color: "#a6a6a6" }]}>
               Promote your post to reach a larger audience.
             </Text>
           </MenuButton>
         </View>
-      </BottomSheet>
+      </BottomDrawer>
 
     </ScrollView>
   );
