@@ -1,4 +1,4 @@
-import {Image, ActivityIndicator, Text, KeyboardAvoidingView, View, FlatList, ListRenderItemInfo } from "react-native";
+import { Image, ActivityIndicator, Text, KeyboardAvoidingView, View, FlatList, ListRenderItemInfo } from "react-native";
 import PageLayout from "@/components/general/PageLayout";
 import SearchBar from "@/components/form/SearchBar";
 import React from 'react';
@@ -27,10 +27,10 @@ export default function Hashtags() {
     const [initialHashtags, setInitialHashtags] = React.useState<string[]>([]);
     const [showNewCustomSection, setShowNewCustomSection] = React.useState(false);
     const router = useRouter();
-    const {setHashtagsFollowed} = useGeneralStore();
+    const { setHashtagsFollowed } = useGeneralStore();
 
     const sheetRef = React.useRef<any>(null);
-    const resetSheetRef = React.useRef<any>(null); 
+    const resetSheetRef = React.useRef<any>(null);
 
     const arraysEqual = (a: string[], b: string[]) => {
         const aa = [...(a || [])].sort();
@@ -148,156 +148,156 @@ export default function Hashtags() {
         }
     };
 
-const resetHashtags = async () => {
-                        if (resetting) return;
-                        setResetting(true);
-                        try {
-                            const resp = await protectedApi.put('/talks/preferences/hashtags/', { hashtags: [] });
-                            setInitialHashtags([]);
-                            setSelectedHashtags([]);
-                            setHashtagsFollowed([]);
-                            // Reset means there's no new custom section to show
-                            setShowNewCustomSection(false);
-                            resetSheetRef.current?.close();
-                            router.back();
-                        } catch (err) {
-                            console.error('Error resetting hashtags', err);
-                        } finally {
-                            setResetting(false);
-                        }
-                    }
+    const resetHashtags = async () => {
+        if (resetting) return;
+        setResetting(true);
+        try {
+            const resp = await protectedApi.put('/talks/preferences/hashtags/', { hashtags: [] });
+            setInitialHashtags([]);
+            setSelectedHashtags([]);
+            setHashtagsFollowed([]);
+            // Reset means there's no new custom section to show
+            setShowNewCustomSection(false);
+            resetSheetRef.current?.close();
+            router.back();
+        } catch (err) {
+            console.error('Error resetting hashtags', err);
+        } finally {
+            setResetting(false);
+        }
+    }
     return (
         <PageLayout
-        headerTitle="Hashtags"
-        ><Image source={require('@/assets/images/talks/hashtag.png')} style={{height: 104, width: 104, alignSelf: 'center', marginBottom: 24}}/>
-            <Text style={{textAlign: 'center', fontWeight: "bold", fontSize: 15}}>Your Vibe, Your Feed!</Text>
-            <Text style={{fontSize: 13, color: "#737373", textAlign: 'center', marginTop:4}}>Pick hashtags that bring the best of the community to you.</Text>
-            <KeyboardAvoidingView behavior="padding" style={{marginTop: 48}} >
-            <SearchBar  onChangeText={setSearch}/>
+            headerTitle="Hashtags"
+        ><Image source={require('@/assets/images/talks/hashtag.png')} style={{ height: 104, width: 104, alignSelf: 'center', marginBottom: 24 }} />
+            <Text style={{ textAlign: 'center', fontWeight: "bold", fontSize: 15 }}>Your Vibe, Your Feed!</Text>
+            <Text style={{ fontSize: 13, color: "#737373", textAlign: 'center', marginTop: 4 }}>Pick hashtags that bring the best of the community to you.</Text>
+            <KeyboardAvoidingView behavior="padding" style={{ marginTop: 48 }} >
+                <SearchBar onChangeText={setSearch} />
             </KeyboardAvoidingView>
-            
+
             {
-                loading ? 
-                <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-<ActivityIndicator size="large"/>
-                </View> : (
-            <View style={{marginTop: 32}}>
-                {searching ? (
-                    <View style={{ width: '100%', justifyContent: 'center', alignItems: 'center', paddingVertical: 24 }}>
-                        <ActivityIndicator />
-                    </View>
-                ) : (
-<FlatList
-                    data={searchResults !== null ? searchResults : orderedHashtags}
-                    numColumns={13}
-                    columnWrapperStyle={{ justifyContent: 'center', flexWrap: 'wrap', gap: 16, marginBottom: 12 }}
-                    renderItem={({ item }: ListRenderItemInfo<any>) => (
-                        <OptionChip
-                            title={item.name}
-                            key={item.id ?? item.name}
-                            onPress={() => {
-                                if (selectedHashtags.includes(item.name)) {
-                                    setSelectedHashtags(selectedHashtags.filter(h => h !== item.name));
-                                } else {
-                                    setSelectedHashtags([...selectedHashtags, item.name]);
-                                }
-                                // If this selection came from search results, clear the search so the full ordered list is shown
-                                if (searchResults !== null) {
-                                    setSearch('');
-                                    setSearchResults(null);
-                                }
-                            }}
-                            selected={selectedHashtags.includes(item.name)}
-                            unselectable={true}
-                        />
-                    )}
-                    onEndReachedThreshold={0.5}
-                    onEndReached={async () => {
-                        // When showing search results, don't paginate the popular list
-                        if (searchResults !== null) return;
-                        if (!nextUrl || loadingMore) return;
-                        setLoadingMore(true);
-                        try {
-                            // nextUrl may be absolute; protectedApi.get accepts full URLs
-                            const resp = await protectedApi.get(nextUrl);
-                            const more = resp.data.results || [];
-                            setPopularHashtags(prev => [...prev, ...more]);
-                            setNextUrl(resp.data.next || null);
-                        } catch (err) {
-                            console.error('Error loading more hashtags', err);
-                        } finally {
-                            setLoadingMore(false);
-                        }
-                    }}
-                    ListFooterComponent={loadingMore ? <ActivityIndicator /> : null}
-                /> 
-                )}
-            </View>
-                )
+                loading ?
+                    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                        <ActivityIndicator size="large" />
+                    </View> : (
+                        <View style={{ marginTop: 32 }}>
+                            {searching ? (
+                                <View style={{ width: '100%', justifyContent: 'center', alignItems: 'center', paddingVertical: 24 }}>
+                                    <ActivityIndicator />
+                                </View>
+                            ) : (
+                                <FlatList
+                                    data={searchResults !== null ? searchResults : orderedHashtags}
+                                    numColumns={13}
+                                    columnWrapperStyle={{ justifyContent: 'center', flexWrap: 'wrap', gap: 16, marginBottom: 12 }}
+                                    renderItem={({ item }: ListRenderItemInfo<any>) => (
+                                        <OptionChip
+                                            title={item.name}
+                                            key={item.id ?? item.name}
+                                            onPress={() => {
+                                                if (selectedHashtags.includes(item.name)) {
+                                                    setSelectedHashtags(selectedHashtags.filter(h => h !== item.name));
+                                                } else {
+                                                    setSelectedHashtags([...selectedHashtags, item.name]);
+                                                }
+                                                // If this selection came from search results, clear the search so the full ordered list is shown
+                                                if (searchResults !== null) {
+                                                    setSearch('');
+                                                    setSearchResults(null);
+                                                }
+                                            }}
+                                            selected={selectedHashtags.includes(item.name)}
+                                            unselectable={true}
+                                        />
+                                    )}
+                                    onEndReachedThreshold={0.5}
+                                    onEndReached={async () => {
+                                        // When showing search results, don't paginate the popular list
+                                        if (searchResults !== null) return;
+                                        if (!nextUrl || loadingMore) return;
+                                        setLoadingMore(true);
+                                        try {
+                                            // nextUrl may be absolute; protectedApi.get accepts full URLs
+                                            const resp = await protectedApi.get(nextUrl);
+                                            const more = resp.data.results || [];
+                                            setPopularHashtags(prev => [...prev, ...more]);
+                                            setNextUrl(resp.data.next || null);
+                                        } catch (err) {
+                                            console.error('Error loading more hashtags', err);
+                                        } finally {
+                                            setLoadingMore(false);
+                                        }
+                                    }}
+                                    ListFooterComponent={loadingMore ? <ActivityIndicator /> : null}
+                                />
+                            )}
+                        </View>
+                    )
             }
             <Portal>
-<BottomFixedSingleButton >
-    {
-        initialHashtags.length > 0 ? (
-            <View style={{ flexDirection: 'row', gap: 12 }}>
-                <View style={{ flex: 1 }}>
-                    <DefaultButton title='Reset' loading={resetting} onPress={() => resetSheetRef.current?.open()} />
-                </View>
-                <View style={{ flex: 1 }}>
-                    <BlueButton
-                        title='Update'
-                        loading={saving}
-                disabled={(selectedHashtags.length === 0 && initialHashtags.length === 0) || arraysEqual(selectedHashtags, initialHashtags)}
-                        onPress={onSave}
-                    />
-                </View>
-            </View>
-        ) : (
-            <BlueButton
-                title='Save'
-                loading={saving}
-                disabled={(selectedHashtags.length === 0 && initialHashtags.length === 0) || arraysEqual(selectedHashtags, initialHashtags)}
-                onPress={onSave}
-            />
-        )
-    }
-    </BottomFixedSingleButton>
+                <BottomFixedSingleButton >
+                    {
+                        initialHashtags.length > 0 ? (
+                            <View style={{ flexDirection: 'row', gap: 12 }}>
+                                <View style={{ flex: 1 }}>
+                                    <DefaultButton title='Reset' loading={resetting} onPress={() => resetSheetRef.current?.open()} />
+                                </View>
+                                <View style={{ flex: 1 }}>
+                                    <BlueButton
+                                        title='Update'
+                                        loading={saving}
+                                        disabled={(selectedHashtags.length === 0 && initialHashtags.length === 0) || arraysEqual(selectedHashtags, initialHashtags)}
+                                        onPress={onSave}
+                                    />
+                                </View>
+                            </View>
+                        ) : (
+                            <BlueButton
+                                title='Save'
+                                loading={saving}
+                                disabled={(selectedHashtags.length === 0 && initialHashtags.length === 0) || arraysEqual(selectedHashtags, initialHashtags)}
+                                onPress={onSave}
+                            />
+                        )
+                    }
+                </BottomFixedSingleButton>
             </Portal>
             <BottomDrawer
                 sheetRef={resetSheetRef}
                 draggableIconHeight={0}
             >
-                <View style={{paddingHorizontal: 16}}>
-                <Text style={{textAlign: 'center', fontSize:15, fontWeight: 'bold'}}>Are you sure you want to reset?</Text>
-                <Text style={{fontSize: 13, color: "#a6a6a6", marginTop: 16, textAlign: 'center'}}>
-                    All your selected hashtags will be cleared, and the "Custom" section will be removed.
-                </Text>
-                <View style={{marginTop: 32, gap: 16, flexDirection: "row"}}>
-                    <View style={{flex: 1/2}}>
-                    <GreyBgButton title="Cancel" onPress={() => resetSheetRef.current?.close()} />
-                    </View>
-                    <View style={{flex: 1/2}}>
-                    <BlueButton title="Reset" loading={resetting} onPress={resetHashtags} />
+                <View style={{ paddingHorizontal: 16 }}>
+                    <Text style={{ textAlign: 'center', fontSize: 15, fontWeight: 'bold' }}>Are you sure you want to reset?</Text>
+                    <Text style={{ fontSize: 13, color: "#a6a6a6", marginTop: 16, textAlign: 'center' }}>
+                        All your selected hashtags will be cleared, and the "Custom" section will be removed.
+                    </Text>
+                    <View style={{ marginTop: 32, gap: 16, flexDirection: "row" }}>
+                        <View style={{ flex: 1 / 2 }}>
+                            <GreyBgButton title="Cancel" onPress={() => resetSheetRef.current?.close()} />
+                        </View>
+                        <View style={{ flex: 1 / 2 }}>
+                            <BlueButton title="Reset" loading={resetting} onPress={resetHashtags} />
+                        </View>
                     </View>
                 </View>
-</View>
             </BottomDrawer>
-            <BottomDrawer 
+            <BottomDrawer
                 sheetRef={sheetRef}
                 draggableIconHeight={0}
             >
-                <View style={{paddingHorizontal: 16}}>
-                <Text style={{textAlign: 'center', fontSize:15, fontWeight: 'bold'}}>Hashtags {!showNewCustomSection ? 'Updated!' : 'Saved!'}</Text>
-                <Text style={{fontSize: 13, color: "#a6a6a6", marginTop: 16, textAlign: 'center'}}>
-                 {(showNewCustomSection)
-                    ? `You'll now see a new "Custom" section in Talks featuring posts that match your selected interests.` 
-                    : `Your interests have been refreshed. You'll now see posts in "Custom" that reflect your updated hashtags.` 
-                }
-                </Text>
-                <View style={{marginTop: 32}}>
-                    <BlueButton title="Okay" onPress={() => router.back()}/>
+                <View style={{ paddingHorizontal: 16 }}>
+                    <Text style={{ textAlign: 'center', fontSize: 15, fontWeight: 'bold' }}>Hashtags {!showNewCustomSection ? 'Updated!' : 'Saved!'}</Text>
+                    <Text style={{ fontSize: 13, color: "#a6a6a6", marginTop: 16, textAlign: 'center' }}>
+                        {(showNewCustomSection)
+                            ? `You'll now see a new "Custom" section in Talks featuring posts that match your selected interests.`
+                            : `Your interests have been refreshed. You'll now see posts in "Custom" that reflect your updated hashtags.`
+                        }
+                    </Text>
+                    <View style={{ marginTop: 32 }}>
+                        <BlueButton title="Okay" onPress={() => router.back()} />
+                    </View>
                 </View>
-</View>
             </BottomDrawer>
         </PageLayout>
     )

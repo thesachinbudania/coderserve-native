@@ -7,12 +7,12 @@ import { useUserStore, useTokensStore } from '@/zustand/stores'
 import { useStore } from '@/zustand/auth/stores'
 import { useJobsState } from "@/zustand/jobsStore";
 import protectedApi from '@/helpers/axios'
-import { Redirect, Tabs, useSegments } from 'expo-router'
+import { Redirect, Tabs, useSegments, usePathname } from 'expo-router'
 import hiddenSegments from '@/constants/hiddenFooterRoutes'
 import * as SecureStore from 'expo-secure-store'
 import DeviceInfo from 'react-native-device-info'
 import React from 'react'
-import { View, ActivityIndicator, StatusBar, Keyboard, TouchableWithoutFeedback, Pressable} from 'react-native';
+import { View, ActivityIndicator, StatusBar, Keyboard, TouchableWithoutFeedback, Pressable } from 'react-native';
 import { notify } from '@alexsandersarmento/react-native-event-emitter'
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -32,45 +32,64 @@ function LoadingScreen() {
 }
 const AppTabs = () => {
   const segment = useSegments()
-  const {bottom} = useSafeAreaInsets();
+  const pathname = usePathname()
+  const [showFooter, setShowFooter] = React.useState(true)
+
+  // List of exact paths where footer should be visible
+  const visiblePaths = [
+    '/',
+    '/profile',
+    '/talks',
+    '/jobs',
+    '/projects',
+    '/home' // In case 'home' index maps to this
+  ];
+
+  React.useEffect(() => {
+    // Check if the current pathname exactly matches one of the allowed roots
+    // We normalize by removing trailing slashes if any, though usually not needed in expo-router for exact match logic
+    const isVisible = visiblePaths.includes(pathname) || visiblePaths.includes(pathname.replace(/\/$/, ""));
+    setShowFooter(isVisible);
+  }, [pathname])
+
   return (
     <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()} accessible={false}>
       <>
-      <StatusBar backgroundColor={'#202020'} barStyle={'default'} />
-      <View style={{ flex: 1, backgroundColor: 'white', paddingBottom: 0}}>
-        <Tabs
-          screenListeners={() => ({
-            tabPress: () => {
-              notify(`tabPress:${segment[segment.length - 1]}`);
-            }
-          })}
-          screenOptions={{
-            animation: 'shift',
-            tabBarLabelStyle: { fontSize: 11, fontWeight: '100' },
-            tabBarActiveTintColor: "#000",
-            tabBarInactiveTintColor: '#d9d9d9',
-            tabBarStyle: {
-              display: hiddenSegments.includes(JSON.stringify(segment)) ? 'flex' : 'none',
-              height: 56,
-              borderColor: "#f5f5f5",
-            },
-            headerShown: false,
-            tabBarButton: (props) => (
-             // @ts-ignore 
-              <Pressable
-                {...props}
-                android_ripple={{ color: '#f5f5f5', borderless: true }}
-              />
-            )
-          }}
-        >
-          <Tabs.Screen name='index' options={{ tabBarIcon: HomeIcon, tabBarLabel: "Home" }} />
-          <Tabs.Screen name='talks' options={{ tabBarIcon: TalksIcon, tabBarLabel: "Talks" }} />
-          <Tabs.Screen name='jobs' options={{ tabBarIcon: JobsIcon, tabBarLabel: "Jobs" }} />
-          <Tabs.Screen name='profile' options={{ tabBarIcon: ProfileIcon, tabBarLabel: 'Profile' }} />
-          <Tabs.Screen name='home' options={{ href: null }} />
-        </Tabs>
-      </View>
+        <StatusBar backgroundColor={'#202020'} barStyle={'default'} />
+        <View style={{ flex: 1, backgroundColor: 'white', paddingBottom: 0 }}>
+          <Tabs
+            screenListeners={() => ({
+              tabPress: () => {
+                notify(`tabPress:${segment[segment.length - 1]}`);
+              }
+            })}
+            screenOptions={{
+              animation: 'shift',
+              tabBarLabelStyle: { fontSize: 11, fontWeight: '100' },
+              tabBarActiveTintColor: "#000",
+              tabBarInactiveTintColor: '#d9d9d9',
+              tabBarStyle: {
+                display: showFooter ? 'flex' : 'none',
+                height: 56,
+                borderColor: "#f5f5f5",
+              },
+              headerShown: false,
+              tabBarButton: (props) => (
+                // @ts-ignore 
+                <Pressable
+                  {...props}
+                  android_ripple={{ color: '#f5f5f5', borderless: true }}
+                />
+              )
+            }}
+          >
+            <Tabs.Screen name='index' options={{ tabBarIcon: HomeIcon, tabBarLabel: "Home" }} />
+            <Tabs.Screen name='talks' options={{ tabBarIcon: TalksIcon, tabBarLabel: "Talks" }} />
+            <Tabs.Screen name='jobs' options={{ tabBarIcon: JobsIcon, tabBarLabel: "Jobs" }} />
+            <Tabs.Screen name='profile' options={{ tabBarIcon: ProfileIcon, tabBarLabel: 'Profile' }} />
+            <Tabs.Screen name='home' options={{ href: null }} />
+          </Tabs>
+        </View>
       </>
     </TouchableWithoutFeedback>
   )

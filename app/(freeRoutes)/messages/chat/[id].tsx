@@ -1,269 +1,34 @@
 // app/Chat.tsx
 import React, { useState, useRef, useEffect, useMemo } from 'react';
 import {
-  ActivityIndicator, Keyboard, Image, Text, StyleSheet, View, FlatList,
-  TextInput, Pressable, KeyboardAvoidingView, Platform, Dimensions, InteractionManager, Animated
+  ActivityIndicator, Text, StyleSheet, View, FlatList,
+  KeyboardAvoidingView, Platform, InteractionManager
 } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useGlobalSearchParams } from 'expo-router';
+import { useGlobalSearchParams, useRouter } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
 import protectedApi from '@/helpers/axios';
-import { useUserStore } from '@/zustand/stores';
-import ImageLoader from '@/components/ImageLoader';
-import IconButton from '@/components/profile/IconButton';
+import { useUserStore, useTokensStore } from '@/zustand/stores';
 import dayjs from 'dayjs';
 import isToday from 'dayjs/plugin/isToday';
 import isYesterday from 'dayjs/plugin/isYesterday';
-import { useTokensStore } from '@/zustand/stores';
 import { apiUrl, websocketUrl } from '@/constants/env';
-import ImageViewing from 'react-native-image-viewing';
 import BottomDrawer from '@/components/BottomDrawer';
 import BlueButton from '@/components/buttons/BlueButton';
 import GreyBgButton from '@/components/buttons/GreyBgButton';
-import SmallTextButton from '@/components/buttons/SmallTextButton';
-import { useRouter } from 'expo-router';
 import BottomSheet from '@/components/messsages/BottomSheet';
 import { MenuButton } from '@/app/(protected)/jobs/index';
 import UnorderedList from '@/components/general/UnorderedList';
 
+// New Component Imports
+import ChatHeader from '@/components/messages/chat/ChatHeader';
+import MessageBubble from '@/components/messages/chat/MessageBubble';
+import ChatInput from '@/components/messages/chat/ChatInput';
+import DateSeparator from '@/components/messages/chat/DateSeparator';
+import MenuOption from '@/components/messages/chat/MenuOption';
+import { Message, ChatListItem } from '@/components/messages/chat/types';
+
 dayjs.extend(isToday);
 dayjs.extend(isYesterday);
-
-// --- TYPE DEFINITIONS ---
-type Message = {
-  id: string;
-  text: string | null;
-  imageUrl?: string | null;
-  createdAt: string;
-  timestamp: string;
-  senderId: string;
-  edited: boolean;
-  isFirstInGroup?: boolean;
-  // For local uploads
-  localUri?: string;
-  uploadProgress?: number;
-  fileName?: string;
-  fileSize?: number;
-  error?: string;
-};
-
-type DateSeparator = {
-  id: string;
-  date: string;
-  isSeparator: true;
-};
-
-type ChatListItem = Message | DateSeparator;
-
-// --- COMPONENTS ---
-
-function Header({ first_name, profile_image, menuRef }: { first_name: string; profile_image: string, menuRef: React.RefObject<any> }) {
-  const { top } = useSafeAreaInsets();
-  return (
-    <View style={[styles.headerContainer, { paddingTop: top + 8 }]}>
-      <View style={{ flexDirection: 'row', gap: 4 }}>
-        {profile_image ? <ImageLoader size={40} uri={profile_image} border={1} /> : null}
-        <View style={{ gap: 6, justifyContent: 'center' }}>
-          <Text numberOfLines={1} ellipsizeMode="tail" style={styles.headerName}>{first_name}</Text>
-        </View>
-      </View>
-      <View style={{ flexDirection: 'row', gap: 16 }}>
-        <IconButton
-          onPress={() => {
-            menuRef.current?.open();
-          }}
-        >
-          <Image source={require('@/assets/images/profile/home/menu.png')} style={styles.headerIcon} />
-        </IconButton>
-      </View>
-    </View>
-  );
-}
-
-function extractImageInfo(path: string): { filename: string; fileType: string; uuid: string } {
-  const filename = path.split("/").pop() || "";
-  const extension = filename.split(".").pop() || "";
-  const fileType = extension.toUpperCase();
-  const uuid = filename.replace(`.${extension}`, "");
-  return { filename, fileType, uuid };
-}
-
-const MessageBubble: React.FC<{ message: Message; currentUserId: string, openMessageMenu: (id: string) => void }> = ({ message, currentUserId, openMessageMenu }) => {
-  const isCurrentUser = message.senderId === currentUserId;
-  const isFirst = message.isFirstInGroup ?? true;
-  const [imageVisible, setImageVisible] = useState(false);
-  const now = dayjs().valueOf();
-  const elapsed = now - (dayjs(message.createdAt).valueOf());
-  const remaining = 30000 * 60 - elapsed;
-  const editable = remaining > 15000;
-
-
-  const renderContent = () => {
-    // UPLOADING STATE
-    if (message.uploadProgress !== undefined) {
-      const sizeInMB = message.fileSize ? (message.fileSize / (1024 * 1024)).toFixed(2) : 0;
-      const fileType = message.fileName?.split('.').pop()?.toUpperCase();
-      return (
-        <View style={{ backgroundColor: '#003a88', borderRadius: 8, padding: 8 }}>
-          <Text style={{ fontSize: 13, color: 'white' }}>{message.fileName}</Text>
-          <View style={{ flexDirection: 'row', gap: 16, marginTop: 8 }}>
-            <Text style={{ fontSize: 11, color: "#73afff" }}>{sizeInMB}</Text>
-            <Text style={{ fontSize: 11, color: "#73afff" }}>{fileType}</Text>
-            <Text style={{ fontSize: 11, color: "#73afff" }}>Uploading {Math.round(message.uploadProgress * 100)}%</Text>
-          </View>
-        </View>
-      );
-    }
-    // FINAL IMAGE STATE
-    if (message.imageUrl) {
-      const { filename, fileType } = extractImageInfo(message.imageUrl);
-      return <>
-        <Pressable onPress={() => setImageVisible(true)}>
-          <View style={{ backgroundColor: isCurrentUser ? '#003a88' : "#eeeeee", borderRadius: 8, padding: 8 }}>
-            <Text style={{ fontSize: 13, color: isCurrentUser ? 'white' : 'black' }}>{filename}</Text>
-            <View style={{ flexDirection: 'row', gap: 16, marginTop: 8 }}>
-              <Text style={{ fontSize: 11, color: isCurrentUser ? "#73afff" : '#a6a6a6' }}>{fileType}</Text>
-            </View>
-          </View>
-        </Pressable>
-        <ImageViewing
-          images={[{ uri: apiUrl.slice(0, apiUrl.length) + message.imageUrl }]}
-          visible={imageVisible}
-          onRequestClose={() => setImageVisible(false)}
-          backgroundColor="black"
-          imageIndex={0}
-          animationType="fade"
-        />
-      </>
-    }
-    // TEXT STATE
-    return <Text style={isCurrentUser ? styles.currentUserMessageText : styles.otherUserMessageText}>{message.text}</Text>;
-  };
-
-  return (
-    <Pressable onLongPress={() => openMessageMenu(message.id)} style={({ pressed }) => [styles.messageRow, isCurrentUser ? styles.currentUserRow : styles.otherUserRow]}>
-      {
-        ({ pressed }) => (
-          <>
-            <View style={[
-              styles.messageBubble,
-              isCurrentUser ? styles.currentUserBubble : styles.otherUserBubble,
-              isFirst && (isCurrentUser ? styles.firstInGroupCurrentUser : styles.firstInGroupOtherUser),
-              (message.imageUrl || message.uploadProgress != undefined) && { paddingHorizontal: 8, paddingTop: 8 },
-              pressed && isCurrentUser && editable && { backgroundColor: "#202020" }
-            ]}>
-              {renderContent()}
-              <Text style={[styles.timestamp, isCurrentUser ? styles.currentUserTimestamp : styles.otherUserTimestamp, pressed && isCurrentUser && editable && { color: "#737373" }]}>
-                {message.edited && 'Edited'}   {message.timestamp}
-              </Text>
-            </View>
-            {isFirst && <View style={[isCurrentUser ? styles.rightArrow : styles.leftArrow, pressed && isCurrentUser && editable && { borderTopColor: "#202020" }]} />}
-          </>
-        )
-      }
-
-    </Pressable>
-  );
-};
-
-const DateSeparator: React.FC<{ date: string }> = ({ date }) => (
-  <View style={styles.dateSeparatorContainer}>
-    <Text style={styles.dateSeparatorText}>{date}</Text>
-  </View>
-);
-
-function Input({ value, onChange, onSend, onPickImage, disabled, chatDisabled, otherUserName, chat_blocked, blocked }: { otherUserName?: string, chatDisabled: boolean; chat_blocked: boolean; value: string; onChange: (t: string) => void; onSend: () => void; onPickImage: () => void; disabled?: boolean; blocked?: boolean }) {
-  const canSend = value.trim().length > 0 && !disabled;
-  const router = useRouter();
-  const { bottom } = useSafeAreaInsets();
-  // check if keyboard is open
-  const [keyboardOpen, setKeyboardOpen] = useState(false);
-  useEffect(() => {
-    const showSubscription = Keyboard.addListener("keyboardDidShow", () => {
-      setKeyboardOpen(true);
-    });
-    const hideSubscription = Keyboard.addListener("keyboardDidHide", () => {
-      setKeyboardOpen(false);
-    });
-    return () => {
-      showSubscription.remove();
-      hideSubscription.remove();
-    };
-  }, []);
-
-  // animated margin for input row: animate between safe-area bottom and 0 when keyboard opens/closes
-  const animatedMargin = useRef(new Animated.Value(bottom)).current;
-
-  // update animated margin when keyboard opens/closes
-  useEffect(() => {
-    Animated.timing(animatedMargin, {
-      toValue: keyboardOpen ? 0 : bottom,
-      duration: 180,
-      useNativeDriver: false,
-    }).start();
-  }, [keyboardOpen, bottom]);
-
-  return (
-    <View style={commentStyles.commentInputContainer}>
-      {
-        chatDisabled ? (
-          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', paddingVertical: 12, flexDirection: 'row', marginBottom: bottom }}>
-            {
-              !chat_blocked ? (
-                <>
-                  <Text style={{ fontSize: 11, color: "#737373" }}>Messaging Disabled - </Text><SmallTextButton style={{ fontSize: 11 }} title="Know More" onPress={() => { router.push('/(freeRoutes)/messages/messagingDisabled/' + otherUserName) }} />
-                </>
-              ) : (
-                <Text style={{ fontSize: 11, color: "#737373" }}>{blocked ? 'You blocked this user.' : 'Chat Closed'}</Text>
-              )
-            }
-          </View>
-        )
-          : (
-            <Animated.View style={{ flexDirection: 'row', marginBottom: animatedMargin, alignItems: 'center' }}>
-              <TextInput
-                onChangeText={onChange}
-                value={value}
-                multiline
-                style={[commentStyles.commentInput]}
-                placeholder="Write here"
-                cursorColor="black"
-                textAlignVertical="top"
-                placeholderTextColor={'#cfdbe6'}
-              />
-              <Pressable
-                onPress={canSend ? onSend : onPickImage}
-                disabled={disabled}
-                style={({ pressed }) => [
-                  {
-                    height: 45, width: 45, justifyContent: 'center', alignItems: 'center',
-                    backgroundColor: canSend ? '#202020' : '#f5f5f5', borderRadius: 45, margin: 8,
-                  },
-                  pressed && canSend && { backgroundColor: '#006dff' },
-                  pressed && !canSend && { backgroundColor: "#d9d9d9" }
-                ]}
-              >
-                {
-                  ({ pressed }) => (
-                    <Image
-                      style={[{ transform: [{ rotate: canSend || disabled ? '-90deg' : '0deg' }], height: 24, width: 24 }]}
-                      source={
-                        canSend
-                          ? require('@/assets/images/arrows/right-arrow-white.png') :
-                          (pressed && canSend) ? require('@/assets/images/messages/clip-white.png')
-                            : disabled ? require('@/assets/images/arrows/right-muted.png') : require('@/assets/images/messages/clip.png')
-                      }
-                    />
-                  )
-                }
-              </Pressable>
-            </Animated.View>
-          )
-      }
-
-    </View>
-  );
-}
 
 // --- MAIN CHAT SCREEN ---
 const Chat: React.FC = () => {
@@ -310,6 +75,7 @@ const Chat: React.FC = () => {
   const unblockDrawerRef = useRef<any>(null);
   const deleteChatRef = useRef<any>(null);
   const router = useRouter();
+
   async function fetchData(mounted: boolean) {
     if (id === undefined) return;
     try {
@@ -573,7 +339,6 @@ const Chat: React.FC = () => {
 
   // --- MESSAGE GROUPING ---
   const chatListItems = useMemo((): ChatListItem[] => {
-    // ... (grouping logic remains the same)
     const items: ChatListItem[] = [];
     let lastDateLabel: string | null = null;
     let lastSenderId: string | null = null;
@@ -591,6 +356,7 @@ const Chat: React.FC = () => {
     });
     return items;
   }, [messages]);
+
   // --- RENDER LOGIC ---
   const renderFooter = () => {
     const lastMessage = messages[messages.length - 1];
@@ -646,49 +412,9 @@ const Chat: React.FC = () => {
     }, 0);
   };
 
-  function MenuOption({ title, subTitle, pressTimer = 15, onPress = () => { } }: { title: string, subTitle: string, pressTimer?: number, onPress?: () => void }) {
-    const pressTimerMinutes = pressTimer * 60 * 1000; // 15 minutes in milliseconds
-    const [timeLeft, setTimeLeft] = useState<number | null>(null);
-    useEffect(() => {
-      if (currentMessageMenuTime) {
-        const interval = setInterval(() => {
-          const now = dayjs().valueOf();
-          const elapsed = now - currentMessageMenuTime;
-          const remaining = pressTimerMinutes - elapsed;
-          setTimeLeft(remaining > 0 ? Math.ceil(remaining / 1000) : 0);
-          if (remaining <= 0) {
-            clearInterval(interval);
-          }
-        }, 1000);
-        return () => clearInterval(interval);
-      }
-      return;
-    }, [currentMessageMenuTime]);
-    return (
-      timeLeft && timeLeft > 0 && (
-        <Pressable
-          style={{ padding: 16, borderWidth: 1, borderColor: '#f5f5f5', borderRadius: 12 }}
-          onPress={onPress}
-        >
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-            <Text style={{ fontSize: 15, fontWeight: 'bold' }}>{title}</Text>
-            {timeLeft && timeLeft > 0 && (
-              <Text style={{ fontSize: 11, color: '#00bf63', paddingHorizontal: 12, paddingVertical: 4, backgroundColor: '#d3ffea', borderRadius: 12 }}>{
-                `${Math.floor(timeLeft / 60).toString().padStart(2, '0')}:${(timeLeft % 60).toString().padStart(2, '0')}`
-              }</Text>
-            )}
-          </View>
-          <Text style={{ fontSize: 12, color: "#a6a6a6", marginTop: 8 }}>{subTitle}</Text>
-        </Pressable>
-      )
-    )
-  }
-
-
-
   return (
     <View style={styles.container}>
-      <Header
+      <ChatHeader
         first_name={other?.first_name || other?.username || 'User'}
         profile_image={other?.profile_image}
         menuRef={menuRef}
@@ -708,7 +434,7 @@ const Chat: React.FC = () => {
             onLayout={() => scrollToBottom(false)}
             ListFooterComponent={renderFooter}
           />
-          <Input
+          <ChatInput
             value={inputText}
             onChange={setInputText}
             onSend={handleSendText}
@@ -733,6 +459,7 @@ const Chat: React.FC = () => {
             <MenuOption
               title="Edit Message"
               subTitle="Make changes to your message content."
+              messageTime={currentMessageMenuTime}
               onPress={() => {
                 setEditMode(true);
                 messageMenuRef.current?.close();
@@ -744,6 +471,7 @@ const Chat: React.FC = () => {
               title="Delete Message"
               subTitle="Permanently remove this message."
               pressTimer={30}
+              messageTime={currentMessageMenuTime}
               onPress={() => {
                 messageMenuRef.current?.close();
                 setTimeout(() => {
@@ -960,32 +688,7 @@ export default Chat;
 // --- STYLES ---
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: 'white' },
-  headerContainer: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", paddingHorizontal: 16, paddingBottom: 12, borderBottomWidth: 1, borderColor: "#f5f5f5" },
-  headerName: { fontSize: 15, fontWeight: "600" },
-  headerIcon: { width: 24, height: 24 },
   messagesContainer: { paddingHorizontal: 16, paddingVertical: 10, flexGrow: 1 },
-  messageRow: { marginVertical: 4 },
-  currentUserRow: { alignSelf: 'flex-end' },
-  otherUserRow: { alignSelf: 'flex-start' },
-  messageBubble: { paddingVertical: 16, paddingHorizontal: 16, borderRadius: 10, maxWidth: '80%' },
-  currentUserBubble: { backgroundColor: '#004AAD' },
-  otherUserBubble: { backgroundColor: '#F5F5F5' },
-  firstInGroupCurrentUser: { borderTopRightRadius: 0 },
-  firstInGroupOtherUser: { borderTopLeftRadius: 0 },
-  rightArrow: { position: 'absolute', width: 0, height: 0, backgroundColor: "transparent", borderStyle: "solid", borderRightWidth: 16, borderTopWidth: 16, borderRightColor: "transparent", borderTopColor: "#004AAD", right: -8 },
-  leftArrow: { position: 'absolute', width: 0, height: 0, backgroundColor: "transparent", borderStyle: "solid", borderLeftWidth: 16, borderTopWidth: 16, borderLeftColor: "transparent", borderTopColor: "#F5F5F5", left: -8 },
-  currentUserMessageText: { fontSize: 13, color: 'white' },
-  otherUserMessageText: { fontSize: 13, color: 'black' },
-  timestamp: { fontSize: 11, alignSelf: 'flex-end', marginTop: 4 },
-  currentUserTimestamp: { color: '#73afff' },
-  otherUserTimestamp: { color: '#a6a6a6' },
-  dateSeparatorContainer: { alignItems: 'center', marginVertical: 12 },
-  dateSeparatorText: { fontSize: 11, color: '#a6a6a6' },
-  chatImage: { width: Dimensions.get('window').width * 0.6, height: 200, borderRadius: 8 },
-  uploadFileName: { fontSize: 14, color: 'white', fontWeight: 'bold' },
-  uploadFileInfo: { fontSize: 12, color: '#73afff', marginTop: 4 },
-  progressBarContainer: { height: 4, backgroundColor: 'rgba(255,255,255,0.3)', borderRadius: 2, marginTop: 8, overflow: 'hidden' },
-  progressBar: { height: '100%', backgroundColor: '#73afff' },
   // Styles for the "Seen" indicator
   seenContainer: {
     alignSelf: 'flex-end',
@@ -1007,29 +710,5 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: "#737373",
     marginTop: 8,
-  },
-});
-
-const commentStyles = StyleSheet.create({
-  commentInput: {
-    fontSize: 13,
-    flex: 1,
-    color: 'black',
-    maxHeight: 100,
-    minHeight: 40,
-    paddingTop: 16,
-    paddingBottom: 16,
-    paddingLeft: 16,
-    textAlignVertical: 'center',
-    // No paddingRight so the send button is flush
-  },
-  commentInputContainer: {
-    width: '100%',
-    borderTopWidth: 1,
-    borderTopColor: '#eeeeee',
-    paddingHorizontal: 0, // remove horizontal padding so input's left padding is used
-    paddingVertical: 0, // remove vertical padding so input's top/bottom padding is used
-    flexDirection: 'row',
-    alignItems: 'center', // center input and button vertically
   },
 });

@@ -14,10 +14,10 @@ const UserListing = ({ user }: { user: any }) => {
   return (
     <View style={userStyles.container}>
       <View >
-      <ImageLoader
-        size={48}
-        uri={user.profile_image}
-      />
+        <ImageLoader
+          size={48}
+          uri={user.profile_image}
+        />
       </View>
       <View>
         <Text style={userStyles.name}>{user.first_name} {user.last_name}</Text>
@@ -94,7 +94,7 @@ export default function FollowingList() {
       header='Muted Profiles'
       isLoading={initialLoading}
     >
-      
+
       {
         filteredData.length === 0 && !isLoading && !initialLoading ? (
           <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 16, marginTop: -57 }}>
@@ -107,7 +107,7 @@ export default function FollowingList() {
             data={filteredData}
             renderItem={({ item }) => <UserListing user={item} />}
             ListHeaderComponent={
-        <SearchBar onChangeText={setQuery} />
+              <SearchBar onChangeText={setQuery} />
             }
             keyExtractor={(item) => item.id.toString()}
             contentContainerStyle={{ gap: 16, paddingHorizontal: 16, paddingTop: 24 }}
@@ -125,7 +125,7 @@ export default function FollowingList() {
                     <ActivityIndicator size='small' />
                   </View>
                 ) : (
-                  <View style={{ }}>
+                  <View style={{}}>
                     {
                       combinedData.length > 8 && <BottomName />
                     }

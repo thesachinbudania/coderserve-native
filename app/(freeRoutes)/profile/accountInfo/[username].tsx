@@ -78,8 +78,8 @@ function SelfAccountInfo({ fullName, joined, isFollowing, votedPostsCount, comme
   const router = useRouter();
   return (
     <View style={{ gap: 16 }}>
-      <Content content={`You joined in ${joined}.`} pressable={false}/>
-      <Content content={isFollowing ? `You are following ${fullName}` : `You aren't following ${fullName}`} pressable={false}/>
+      <Content content={`You joined in ${joined}.`} pressable={false} />
+      <Content content={isFollowing ? `You are following ${fullName}` : `You aren't following ${fullName}`} pressable={false} />
       <Content
         content={votedPostsCount ? `You have voted on ${toWords(votedPostsCount)} of ${fullName}'s ${votedPostsCount > 1 ? 'posts' : 'post'}.` : `You haven't voted on any of ${fullName}'s posts.`}
         onPress={() => router.push('/(freeRoutes)/profile/detailedAccountInfo/3')}
@@ -108,7 +108,7 @@ export default function UserProfile() {
   const { setAccountInfo } = useAccountInfoStore();
   const [isLoading, setIsLoading] = React.useState(true);
   const [tabIndex, setTabIndex] = React.useState(0);
-  const {first_name, last_name, profile_image} = useUserStore();
+  const { first_name, last_name, profile_image } = useUserStore();
 
   React.useEffect(() => {
     protectedApi.get(`/accounts/account_info/${username}/`).then((res) => {
@@ -146,7 +146,7 @@ export default function UserProfile() {
             </View>
             <View style={{ marginTop: 48, marginHorizontal: -16 }}>
               <AnimatedTopTabs
-              setIndex={setTabIndex}
+                setIndex={setTabIndex}
                 tabs={[
                   {
                     name: 'Account User', content: <AccountInfo

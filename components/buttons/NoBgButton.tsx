@@ -2,8 +2,8 @@ import { Pressable, Text, StyleSheet, ActivityIndicator } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import * as Haptics from 'expo-haptics';
 
-export default function NoBgButton({ outlined=false, title, disabled = false, dangerButton = false, loading = false, onPress = () => { } }: {outlined?: boolean, title: string, disabled?: boolean, loading?: boolean, onPress?: () => void, dangerButton?: boolean }) {
-  
+export default function NoBgButton({ outlined = false, title, disabled = false, dangerButton = false, loading = false, onPress = () => { } }: { outlined?: boolean, title: string, disabled?: boolean, loading?: boolean, onPress?: () => void, dangerButton?: boolean }) {
+
   return (
     <Pressable
       key={loading.toString()}
@@ -14,7 +14,7 @@ export default function NoBgButton({ outlined=false, title, disabled = false, da
         }
 
       }}
-      style={({pressed}) => [{borderRadius: 12, borderWidth: outlined ? 1 : 0, borderColor: disabled ? '#f5f5f5' : (dangerButton ? '#ff5757' : '#f5f5f5')}, pressed && {borderColor: disabled ? '#d9d9d9' : (dangerButton ? '#ff5757' : '#006dff')}]}
+      style={({ pressed }) => [{ borderRadius: 12, borderWidth: outlined ? 1 : 0, borderColor: disabled ? '#f5f5f5' : (dangerButton ? '#ff5757' : '#f5f5f5') }, pressed && { borderColor: disabled ? '#d9d9d9' : (dangerButton ? '#ff5757' : '#006dff') }]}
     >
       {
         ({ pressed }) => (

@@ -100,34 +100,34 @@ export function PostContent({ title, hashtags, thumbnail, content = null }: { ti
         {
           title && hashtags.length > 0 && thumbnail && (
             <View style={{ marginTop: 16 }}>
-              <Image source={{uri: thumbnail}} style={{width: '100%', height :144, borderRadius: 12}}/>
+              <Image source={{ uri: thumbnail }} style={{ width: '100%', height: 144, borderRadius: 12 }} />
             </View>
           )
         }
       </View>
       {
         contentLoading && (
-          <ActivityIndicator style={{ marginTop: 48, marginBottom: 32}} />
+          <ActivityIndicator style={{ marginTop: 48, marginBottom: 32 }} />
         )
       }
-      <View style={{height: contentLoading ? 1 : contentHeight, overflow: 'hidden'}}>
-      {
-        title && hashtags.length > 0 && content && (
-          <EditorPreview editorState={content} dom={{
-            scrollEnabled: false,
-            style: { height: contentHeight, overflow: 'visible' },
-            onMessage: (event) => {
-              try {
-                const msg = JSON.parse(event.nativeEvent.data);
-                if (msg.type === 'HEIGHT') {
-                  setContentHeight(msg.height);
-                  setContentLoading(false);
-                }
-              } catch { }
-            },
-          }} />
-        )
-      }
+      <View style={{ height: contentLoading ? 1 : contentHeight, overflow: 'hidden' }}>
+        {
+          title && hashtags.length > 0 && content && (
+            <EditorPreview editorState={content} dom={{
+              scrollEnabled: false,
+              style: { height: contentHeight, overflow: 'visible' },
+              onMessage: (event) => {
+                try {
+                  const msg = JSON.parse(event.nativeEvent.data);
+                  if (msg.type === 'HEIGHT') {
+                    setContentHeight(msg.height);
+                    setContentLoading(false);
+                  }
+                } catch { }
+              },
+            }} />
+          )
+        }
       </View>
     </View>
   );
@@ -137,13 +137,13 @@ export function PostContent({ title, hashtags, thumbnail, content = null }: { ti
 export default function PreviewPost() {
   const { title, hashtags, thumbnail, content } = useNewPostStore();
   return (
-      <ScrollView
-        style={{ flex: 1 }}
-        contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 48, backgroundColor: 'white' }}
-      >
-        <Header />
-        <PostContent title={title} hashtags={hashtags} thumbnail={thumbnail ? thumbnail.uri : undefined} content={content} />
-      </ScrollView>
+    <ScrollView
+      style={{ flex: 1 }}
+      contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 48, backgroundColor: 'white' }}
+    >
+      <Header />
+      <PostContent title={title} hashtags={hashtags} thumbnail={thumbnail ? thumbnail.uri : undefined} content={content} />
+    </ScrollView>
   );
 }
 

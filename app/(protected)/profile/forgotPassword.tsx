@@ -1,4 +1,5 @@
-import { ActivityIndicator, View } from 'react-native';
+import { View } from 'react-native';
+import Loader from '@/components/general/Loader';
 import React from 'react';
 import { useUserStore } from '@/zustand/stores';
 import ErrorMessage from '@/components/messsages/Error';
@@ -15,50 +16,43 @@ function SendOtp() {
   const [error, setError] = React.useState('');
   const email = useUserStore(state => state.email);
   const wizard = useWizard();
+  const { setStore } = useStore(state => state);
+
   React.useEffect(() => {
+    async function sendOtp() {
+      try {
+        await protectedApi.put('/accounts/resend_otp/', { email, otp_for: 'forgot_password' });
+      } catch (error: any) {
+        if (error.response && error.response.data) {
+          if (error.response.data.message) {
+            setError(error.response.data.message);
+          } else if (error.response.data.non_field_errors) {
+            setError(error.response.data.non_field_errors[0]);
+          } else {
+            setError('Something went wrong. Please try again later');
+          }
+        } else {
+          setError('Something went wrong. Please try again later');
+        }
+      }
+    }
     sendOtp();
-  }, []);
-  async function sendOtp() {
-    protectedApi.put('/accounts/resend_otp/', { email, otp_for: 'forgot_password' }).then(() => wizard.nextStep()).catch((error) => {
-      if (error.response.data) {
-        if (error.response.data.message) {
-          setError(error.response.data.message);
-        }
-        else {
-          setError(error.response.data.non_field_errors[0]);
-        }
-      }
-      else {
-        setError('Something went wrong. Please try again later');
-      }
-    })
-  }
+  }, [email]);
 
-  return (
-    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 16 }}>
-      {error != '' ?
-        <ErrorMessage message={error} /> :
-        <ActivityIndicator size='large'/>
-      }
-    </View>
-  );
-}
-
-function VerifyOtp() {
-  const wizard = useWizard();
-  const { setStore } = useStore(state => state)
   function nextStep({ refresh, access }: { refresh: string, access: string }) {
     setStore({ refresh, access })
     wizard.nextStep();
   }
+
   return (
     <Layout
       title='Verify Your Email'
       secondaryText="We've sent a verification code to your email"
     >
+      {error ? <ErrorMessage message={error} status='error' /> : null}
       <OtpValidator
         otpFor='forgot_password'
-        email={useUserStore(state => state.email) || ''}
+        email={email || ''}
         nextStep={nextStep}
       />
     </Layout>
@@ -70,11 +64,12 @@ export default function ForgotPassword() {
   const router = useRouter();
   const email = useUserStore(state => state.email)
   const { setPopUp } = popUpStore(state => state)
+
   React.useEffect(() => {
     if (screen === 'success') {
       setPopUp({
         visible: true,
-        title: "Your're All Set!",
+        title: "You're All Set!",
         body: "Your password has been updated successfully. Remember to keep it safe and secure. If you encounter any issues, feel free to contact our support team."
       })
       router.dismiss(2);
@@ -84,7 +79,6 @@ export default function ForgotPassword() {
   return (
     <Wizard>
       <SendOtp />
-      <VerifyOtp />
       <PasswordScreen email={email || ''} setScreen={setScreen} />
     </Wizard>
   );

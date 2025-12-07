@@ -53,7 +53,7 @@ const ProfileOption = ({ data }: { data: any }) => {
             `Lives in ${data['city']}, ${data['state']}, ${data['country']}`,
           ]}
           gap={0}
-          textStyle={{fontSize: 13, lineHeight: 0}}
+          textStyle={{ fontSize: 13, lineHeight: 0 }}
         />
       </View>
     </Pressable>

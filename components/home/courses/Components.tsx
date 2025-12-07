@@ -266,18 +266,18 @@ const Quiz = ({ topMargin = 8, bottomMargin = 0, renderNext, id }: McqProps) => 
     </View> :
       <View style={{ marginTop: topMargin, marginBottom: bottomMargin, gap: 32 }}>
         <BottomSheet
-        menuRef={sheetRef}
-        height={272}
+          menuRef={sheetRef}
+          height={272}
         >
           <>
-          <Text style={{ fontSize: 15, fontWeight: 'bold', textAlign: 'center' }}>Assessment Complete</Text>
-          <Text style={{ paddingVertical: 32, textAlign: 'center', fontSize: 33, color: (!submitted && incorrectAnswers.length > 0) ? '#ff5757' : '#00bf63', fontWeight: 'bold' }}>{!submitted && incorrectAnswers.length > 0 ? `- ${points}` : `+ ${pointsLeft}`} points</Text>
-          <Text style={{ fontSize: 13, color: '#737373', marginBottom: 24, textAlign: 'center' }}>{!submitted && incorrectAnswers.length > 0 ? popUpMessage['incorrect'] : popUpMessage['correct']}</Text>
-          <DefaultButton
-            title='Okay'
-            onPress={() => sheetRef.current?.close()}
-          />
-</>
+            <Text style={{ fontSize: 15, fontWeight: 'bold', textAlign: 'center' }}>Assessment Complete</Text>
+            <Text style={{ paddingVertical: 32, textAlign: 'center', fontSize: 33, color: (!submitted && incorrectAnswers.length > 0) ? '#ff5757' : '#00bf63', fontWeight: 'bold' }}>{!submitted && incorrectAnswers.length > 0 ? `- ${points}` : `+ ${pointsLeft}`} points</Text>
+            <Text style={{ fontSize: 13, color: '#737373', marginBottom: 24, textAlign: 'center' }}>{!submitted && incorrectAnswers.length > 0 ? popUpMessage['incorrect'] : popUpMessage['correct']}</Text>
+            <DefaultButton
+              title='Okay'
+              onPress={() => sheetRef.current?.close()}
+            />
+          </>
         </BottomSheet>
         {questions.map((question: any, index: number) => (
           <View
@@ -320,17 +320,17 @@ const GradientBoxWithButton = ({ disabled = false, text, onPress, buttonTitle, l
       end={{ x: 1, y: 0 }}
     >
       <View style={{ padding: 16 }} >
-      <Text style={{ color: 'white', fontSize: 13 }}>
-        {text}
-      </Text>
-      <View style={{ flexDirection: 'row', justifyContent: 'flex-end', marginTop: 16 }}>
-        <YellowButton
-          title={buttonTitle}
-          onPress={onPress}
-          disabled={disabled}
-          loading={loading}
-        />
-      </View>
+        <Text style={{ color: 'white', fontSize: 13 }}>
+          {text}
+        </Text>
+        <View style={{ flexDirection: 'row', justifyContent: 'flex-end', marginTop: 16 }}>
+          <YellowButton
+            title={buttonTitle}
+            onPress={onPress}
+            disabled={disabled}
+            loading={loading}
+          />
+        </View>
       </View>
     </LinearGradient>
   )
@@ -342,13 +342,13 @@ const YellowButton = ({ title, onPress, disabled, loading = false }: { title: st
       style={({ pressed }) => [{ borderRadius: 32, paddingHorizontal: 32, paddingVertical: 16, backgroundColor: pressed ? '#00362f' : 'white' }, disabled && { backgroundColor: "#aec5c1" }]}
       onPress={disabled ? () => { } : onPress}
     >
-    {
-      ({pressed}) => (
-loading ? <ActivityIndicator size="small" /> :
-        <Text style={[pressed && {color: "white"}, disabled && { color: '#3b5350' }]}>{title}</Text>
-      )
-   }
-      
+      {
+        ({ pressed }) => (
+          loading ? <ActivityIndicator size="small" /> :
+            <Text style={[pressed && { color: "white" }, disabled && { color: '#3b5350' }]}>{title}</Text>
+        )
+      }
+
     </Pressable>
   )
 }

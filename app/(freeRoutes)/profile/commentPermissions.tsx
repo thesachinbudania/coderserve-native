@@ -1,5 +1,5 @@
 import PageLayout from "@/components/general/PageLayout";
-import {Text, View, ActivityIndicator} from 'react-native';
+import { Text, View, ActivityIndicator } from 'react-native';
 import SelectButton from "@/components/buttons/SelectButton";
 import React from 'react';
 import * as zod from 'zod';
@@ -12,11 +12,11 @@ import GreyBgButton from "@/components/buttons/GreyBgButton";
 import protectedApi from "@/helpers/axios";
 
 const options = [
-{'Everyone' : 'Anyone can comment on my posts.'},
-{'Followers Only': 'Only users who follow me can comment on my posts.'},
-{'Mutual Followers Only': 'Only users who follow me and I follow back can comment on my posts.'},
-{'Following Only': 'Only users I follow can comment on my posts.'},
-{'Followers and Following Only': "Only users who follow me or whom I follow can comment on my posts."}
+  { 'Everyone': 'Anyone can comment on my posts.' },
+  { 'Followers Only': 'Only users who follow me can comment on my posts.' },
+  { 'Mutual Followers Only': 'Only users who follow me and I follow back can comment on my posts.' },
+  { 'Following Only': 'Only users I follow can comment on my posts.' },
+  { 'Followers and Following Only': "Only users who follow me or whom I follow can comment on my posts." }
 ]
 
 const formSchema = zod.object({
@@ -25,12 +25,12 @@ const formSchema = zod.object({
 
 type FormData = zod.infer<typeof formSchema>;
 
-export default function CommentPersmissions(){
+export default function CommentPersmissions() {
 
   const { handleSubmit, control, setValue, watch, formState: { isSubmitting } } = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      permission_status: 0 
+      permission_status: 0
     }
   });
 
@@ -39,7 +39,7 @@ export default function CommentPersmissions(){
   const [currentPermission, setCurrentPermission] = React.useState<number | null>(null);
 
   const drawerRef = React.useRef<any>(null);
-  
+
   React.useEffect(() => {
     async function fetchCurrentPermission() {
       try {
@@ -64,20 +64,20 @@ export default function CommentPersmissions(){
     } catch (error) {
       console.error('Error updating permission status:', error);
     }
-  }; 
-  return(
-        <PageLayout
-        headerTitle="Comment Permissions"
-        flex1={initialLoading}
-        >
-          {
-            initialLoading ? (
-              <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-              <ActivityIndicator size="large" />
-              </View>
-            ) : 
-            <>
-            <Text style={{color: "#a6a6a6", fontSize: 11}}>Control who can comment on your posts by selecting one of the options below.</Text>
+  };
+  return (
+    <PageLayout
+      headerTitle="Comment Permissions"
+      flex1={initialLoading}
+    >
+      {
+        initialLoading ? (
+          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+            <ActivityIndicator size="large" />
+          </View>
+        ) :
+          <>
+            <Text style={{ color: "#a6a6a6", fontSize: 11 }}>Control who can comment on your posts by selecting one of the options below.</Text>
             <Controller
               control={control}
               name="permission_status"
@@ -100,23 +100,23 @@ export default function CommentPersmissions(){
               )}
             />
             <BlueButton
-                title='Update Permission'
-                style={{marginTop: 48}}
-                onPress={() => drawerRef.current?.open()}
-                disabled={currentPermission === permissionStatus}
+              title='Update Permission'
+              style={{ marginTop: 48 }}
+              onPress={() => drawerRef.current?.open()}
+              disabled={currentPermission === permissionStatus}
             />
             <BottomDrawer sheetRef={drawerRef} draggableIconHeight={0}>
-              <View style={{paddingHorizontal: 16}}>
-                <Text style={{fontSize: 15, fontWeight: 'bold', textAlign: 'center'}}>Apply Comment Settings?</Text>
-                <Text style={{fontSize: 13, color: "#a6a6a6", textAlign: 'center', marginTop: 12}}>Your new comment preference will apply to all existing and future posts. Are you sure you want to proceed?</Text>
-                <View style={{flexDirection: 'row', gap: 16, width: '100%', marginTop: 24}}>
-                  <View style={{flex: 1/2}}>
+              <View style={{ paddingHorizontal: 16 }}>
+                <Text style={{ fontSize: 15, fontWeight: 'bold', textAlign: 'center' }}>Apply Comment Settings?</Text>
+                <Text style={{ fontSize: 13, color: "#a6a6a6", textAlign: 'center', marginTop: 12 }}>Your new comment preference will apply to all existing and future posts. Are you sure you want to proceed?</Text>
+                <View style={{ flexDirection: 'row', gap: 16, width: '100%', marginTop: 24 }}>
+                  <View style={{ flex: 1 / 2 }}>
                     <GreyBgButton
                       title='Cancel'
                       onPress={() => drawerRef.current?.close()}
                     />
                   </View>
-                  <View style={{flex: 1/2}}>
+                  <View style={{ flex: 1 / 2 }}>
                     <BlueButton
                       title='Apply'
                       onPress={handleSubmit(onSubmit)}
@@ -126,8 +126,8 @@ export default function CommentPersmissions(){
                 </View>
               </View>
             </BottomDrawer>
-            </>
-}
-        </PageLayout>
-    )
+          </>
+      }
+    </PageLayout >
+  )
 }

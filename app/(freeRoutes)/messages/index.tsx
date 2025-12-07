@@ -3,7 +3,7 @@ import ListPageLayout from '@/components/general/ListPageLayout';
 import FloatingButton from '@/components/buttons/FlotingButton';
 import { useRouter } from 'expo-router';
 import React from 'react';
-import {useFetchData, DataList} from '@/helpers/general/handleFetchedData';
+import { useFetchData, DataList } from '@/helpers/general/handleFetchedData';
 import ImageLoader from '@/components/ImageLoader';
 import TruncatedText from '@/components/general/TruncatedText';
 import { formatTime } from '@/helpers/helpers';
@@ -39,7 +39,7 @@ export default function Messages() {
       </Pressable>
     )
   }
-  const { combinedData, initialLoading,refreshing, handleEndReached, handleRefresh, isLoading, setFilteredData, searchQuery, setSearchQuery, filteredData } = useFetchData({ url: '/api/home/list_conversations/', allowSearch: true });
+  const { combinedData, initialLoading, refreshing, handleEndReached, handleRefresh, isLoading, setFilteredData, searchQuery, setSearchQuery, filteredData } = useFetchData({ url: '/api/home/list_conversations/', allowSearch: true });
 
   React.useEffect(() => {
     if (searchQuery === '') {
@@ -61,19 +61,19 @@ export default function Messages() {
       >
         {
           combinedData.length > 0 || initialLoading || isLoading || refreshing ?
-                <DataList
-                  data={filteredData}
-                  RenderItem={RenderItem}
-                  initialLoading={initialLoading}
-                  refreshing={refreshing}
-                  allowSearch={true}
-                  onSearchChange={setSearchQuery}
-                  onEndReached={handleEndReached}
-                  onRefresh={handleRefresh}
-                />
+            <DataList
+              data={filteredData}
+              RenderItem={RenderItem}
+              initialLoading={initialLoading}
+              refreshing={refreshing}
+              allowSearch={true}
+              onSearchChange={setSearchQuery}
+              onEndReached={handleEndReached}
+              onRefresh={handleRefresh}
+            />
             :
 
-            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 16 }}>
               <Image source={require('@/assets/images/messages.png')} style={{ height: 128, width: 138, objectFit: 'contain' }}></Image>
               <Text style={[styles.emptyText, { marginTop: 32 }]}>Private chats with people you follow - and those who follow you - will show up here.</Text>
               <Text style={styles.emptyText}>Start a converstion and stay connected!</Text>

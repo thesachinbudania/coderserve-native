@@ -154,12 +154,12 @@ export default function ControlCentre() {
                       title='Muted Profile'
                       subTitle='Hide posts from selected profiles.'
                       onPress={() => router.push('/(protected)/profile/mutedProfile')}
-                      /> 
-                      <SectionOption
+                    />
+                    <SectionOption
                       title='Blocked Users'
                       subTitle='Prevent specific users from interacting with you.'
                       onPress={() => router.push('/(protected)/profile/blockedUsers')}
-                      />
+                    />
                   </Section>
                   <Section title='Content & Activity'>
                     <SectionOption
@@ -187,6 +187,7 @@ export default function ControlCentre() {
                     <SectionOption
                       title='Help Center'
                       subTitle='Get help and troubleshooting guides.'
+                      onPress={() => router.push('/(protected)/profile/helpCentre')}
                     />
                     <SectionOption
                       title='About'
@@ -206,30 +207,30 @@ export default function ControlCentre() {
         </Animated.ScrollView>
       </View>
       <BottomDrawer sheetRef={logoutDrawerRef} height={192} draggableIconHeight={0}>
-              <View style={{paddingHorizontal: 16}}>
-                <Text style={{fontSize: 15, fontWeight: 'bold', textAlign: 'center'}}>
-                   Logging out already? 
-                </Text>
-                <Text style={{fontSize: 13, color: "#a6a6a6", textAlign: 'center', marginTop: 12}}>
-                  We'll miss you! Don't worry, your account will be right here waiting when you come back.
-                </Text>
-                <View style={{flexDirection: 'row', gap: 16, width: '100%', marginTop: 24}}>
-                  <View style={{flex: 1/2}}>
-                    <GreyBgButton
-                      title='Cancel'
-                      onPress={() => logoutDrawerRef.current?.close()}
-                    />
-                  </View>
-                  <View style={{flex: 1/2}}>
-                    <BlueButton
-                        title='Confirm'
-                        onPress={logout}    
-                        loading={isLoading}
-                    />
-                  </View>
-                </View>
-              </View>
-            </BottomDrawer>
+        <View style={{ paddingHorizontal: 16 }}>
+          <Text style={{ fontSize: 15, fontWeight: 'bold', textAlign: 'center' }}>
+            Logging out already?
+          </Text>
+          <Text style={{ fontSize: 13, color: "#a6a6a6", textAlign: 'center', marginTop: 12 }}>
+            We'll miss you! Don't worry, your account will be right here waiting when you come back.
+          </Text>
+          <View style={{ flexDirection: 'row', gap: 16, width: '100%', marginTop: 24 }}>
+            <View style={{ flex: 1 / 2 }}>
+              <GreyBgButton
+                title='Cancel'
+                onPress={() => logoutDrawerRef.current?.close()}
+              />
+            </View>
+            <View style={{ flex: 1 / 2 }}>
+              <BlueButton
+                title='Confirm'
+                onPress={logout}
+                loading={isLoading}
+              />
+            </View>
+          </View>
+        </View>
+      </BottomDrawer>
     </SafeAreaView>
   )
 }

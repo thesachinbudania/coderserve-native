@@ -1,5 +1,5 @@
 import * as React from 'react';
-import {ActivityIndicator, Dimensions, Image, Pressable, ScrollView, View, Text, Share, StyleSheet } from 'react-native';
+import { ActivityIndicator, Dimensions, Image, Pressable, ScrollView, View, Text, Share, StyleSheet } from 'react-native';
 import BlueButton from '@/components/buttons/BlueButton';
 import IconButton from '@/components/profile/IconButton';
 import Tabs from '@/components/profile/home/Tabs';
@@ -18,7 +18,7 @@ export function ProfileButton({ count, onPress = () => { }, title, disabled = fa
   return (
     <Pressable
       style={({ pressed }) => [styles.countBox, pressed && !disabled && { backgroundColor: '#f4f4f4' }]}
-      onPress={disabled ? () => {} : onPress}
+      onPress={disabled ? () => { } : onPress}
     >
       <Text style={styles.countText}>{count}</Text>
       <Text style={styles.countHeading}>{title}</Text>
@@ -69,17 +69,17 @@ export const Profile = ({ user, onPostPress }: { user: any, onPostPress?: () => 
               count={user.following || 0}
               title="Following"
               onPress={() => router.push(`/(freeRoutes)/profile/followingList/${user.username}`)}
-              disabled={user.background_pattern_code === 0} 
+              disabled={user.background_pattern_code === 0}
             />
           </View>
         </View>
         <Text style={styles.name}>{user.first_name} {user.last_name}</Text>
         {user.background_pattern_code == 0 ? null : <>
-          <Text style={{fontSize: 13, color: "#004aad", fontWeight: 'bold', marginTop: 8}}>Ranked #59</Text>
+          <Text style={{ fontSize: 13, color: "#004aad", fontWeight: 'bold', marginTop: 8 }}>Ranked #59</Text>
           <Text style={styles.username}>@{user.username}</Text>
           {
-            user.can_view_profile &&  
-              <Text style={styles.userLocation}>{user.city}, {user.state}, {user.country}</Text>
+            user.can_view_profile &&
+            <Text style={styles.userLocation}>{user.city}, {user.state}, {user.country}</Text>
           }
         </>}
       </View>
@@ -104,8 +104,8 @@ export default function ProfileHome() {
 
   useFocusEffect(
     React.useCallback(() => {
-    syncUser().then().catch(() => console.log('error syncing user')).finally(() => setLoading(false));
-  }, []))
+      syncUser().then().catch(() => console.log('error syncing user')).finally(() => setLoading(false));
+    }, []))
 
   async function shareProfileAsync() {
     try {
@@ -119,7 +119,7 @@ export default function ProfileHome() {
 
   return (
     <ScrollView
-      contentContainerStyle={[{ backgroundColor: 'white', paddingTop: top}, loading && { flex: 1 }]}
+      contentContainerStyle={[{ backgroundColor: 'white', paddingTop: top }, loading && { flex: 1 }]}
       nestedScrollEnabled
       onScroll={(e) => {
         if (e.nativeEvent.contentOffset.y > 0) {
@@ -145,34 +145,34 @@ export default function ProfileHome() {
             <ActivityIndicator size="large" />
           </View>
         ) : <>
-              <Profile user={user} onPostPress={() => setIndex(1)}/>
-      <View style={styles.body}>
-        <View style={styles.buttonContainer}>
-          <View style={{ width: (width - 32) * 0.5 - 8 }}>
-            <BlueButton
-              title="Edit Profile"
-              onPress={() => router.push('/profile/edit')}
-            />
+          <Profile user={user} onPostPress={() => setIndex(1)} />
+          <View style={styles.body}>
+            <View style={styles.buttonContainer}>
+              <View style={{ width: (width - 32) * 0.5 - 8 }}>
+                <BlueButton
+                  title="Edit Profile"
+                  onPress={() => router.push('/profile/edit')}
+                />
+              </View>
+              <View style={{ width: (width - 32) * 0.5 - 8 }}>
+                <BlueButton
+                  title="Share Profile"
+                  onPress={shareProfileAsync}
+                />
+              </View>
+            </View>
+            <View style={{ marginHorizontal: -16 }}>
+              <Tabs
+                setScrollEnabled={setScrollEnabled}
+                profileEditable={true}
+                index={index}
+                setIndex={setIndex}
+              />
+            </View>
           </View>
-          <View style={{ width: (width - 32) * 0.5 - 8 }}>
-            <BlueButton
-              title="Share Profile"
-              onPress={shareProfileAsync}
-            />
+          <View >
           </View>
-        </View>
-        <View style={{ marginHorizontal: -16 }}>
-          <Tabs
-            setScrollEnabled={setScrollEnabled}
-            profileEditable={true}
-            index={index}
-            setIndex={setIndex}
-          />
-        </View>
-      </View>
-      <View >
-      </View>
-</>
+        </>
       }
 
     </ScrollView>

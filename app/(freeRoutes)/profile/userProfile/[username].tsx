@@ -48,7 +48,7 @@ export default function UserProfile() {
       console.error('Error sharing profile:', error);
     }
   }
-  
+
   // function to fetch user data and resume data
   function fetchData() {
     setIsLoading(true);
@@ -129,7 +129,7 @@ export default function UserProfile() {
     <SafeAreaView style={{ flex: 1, backgroundColor: 'white', paddingTop: 57 }}>
       {isLoading && (
         <View style={{ height: '100%', backgroundColor: 'white', justifyContent: 'center', alignItems: 'center' }}>
-          <ActivityIndicator size='large'/>
+          <ActivityIndicator size='large' />
         </View>
       )}
       {
@@ -139,7 +139,7 @@ export default function UserProfile() {
             style={{ flex: 1, backgroundColor: 'white' }}
           >
             <Portal>
-            <BottomDrawer
+              <BottomDrawer
                 sheetRef={blockDrawerRef}
                 draggableIconHeight={0}
               >
@@ -180,136 +180,136 @@ export default function UserProfile() {
               <BottomDrawer
                 sheetRef={unfollowRef}
               >
-                <View style={{paddingHorizontal: 16}}>
-                <Text style={{ textAlign: 'center', fontSize: 15, fontWeight: 'bold', marginBottom: 16 }}>Unfollow this user?</Text>
-                <Text style={{ textAlign: 'center', fontSize: 13, color: "#737373", marginBottom: 24 }}>You'll stop seeing their posts in your feed and messaging will be disabled. You can follow them again anytime.</Text>
-                <View style={{ flexDirection: 'row', gap: 16 }}>
-                  <View style={{ flex: 1 / 2 }}>
-                    <GreyBgButton
-                      title='Cancel'
-                      onPress={() => unfollowRef?.current.close()}
-                    />
-                  </View>
-                  <View style={{ flex: 1 / 2 }}>
-                    <BlueButton
-                      title={'Unfollow'}
-                      onPress={() => {
-                        unfollowRef?.current.close();
-                        manageFollow();
-                      }}
-                    />
+                <View style={{ paddingHorizontal: 16 }}>
+                  <Text style={{ textAlign: 'center', fontSize: 15, fontWeight: 'bold', marginBottom: 16 }}>Unfollow this user?</Text>
+                  <Text style={{ textAlign: 'center', fontSize: 13, color: "#737373", marginBottom: 24 }}>You'll stop seeing their posts in your feed and messaging will be disabled. You can follow them again anytime.</Text>
+                  <View style={{ flexDirection: 'row', gap: 16 }}>
+                    <View style={{ flex: 1 / 2 }}>
+                      <GreyBgButton
+                        title='Cancel'
+                        onPress={() => unfollowRef?.current.close()}
+                      />
+                    </View>
+                    <View style={{ flex: 1 / 2 }}>
+                      <BlueButton
+                        title={'Unfollow'}
+                        onPress={() => {
+                          unfollowRef?.current.close();
+                          manageFollow();
+                        }}
+                      />
+                    </View>
                   </View>
                 </View>
-</View>
               </BottomDrawer>
               <BottomDrawer
                 sheetRef={unblockRef}
               >
-                <View style={{paddingHorizontal: 16}}>
-                <Text style={{ textAlign: 'center', fontSize: 15, fontWeight: 'bold', marginBottom: 16 }}>Do you want to unblock this user?</Text>
-                <Text style={{ textAlign: 'center', fontSize: 13, color: "#737373", marginBottom: 24 }}>Once unblocked, this user will be able to view your profile and interact with yours posts again.</Text>
-                <View style={{ flexDirection: 'row', gap: 16 }}>
-                  <View style={{ flex: 1 / 2 }}>
-                    <GreyBgButton
-                      title='Cancel'
-                      onPress={() => unblockRef?.current.close()}
-                    />
+                <View style={{ paddingHorizontal: 16 }}>
+                  <Text style={{ textAlign: 'center', fontSize: 15, fontWeight: 'bold', marginBottom: 16 }}>Do you want to unblock this user?</Text>
+                  <Text style={{ textAlign: 'center', fontSize: 13, color: "#737373", marginBottom: 24 }}>Once unblocked, this user will be able to view your profile and interact with yours posts again.</Text>
+                  <View style={{ flexDirection: 'row', gap: 16 }}>
+                    <View style={{ flex: 1 / 2 }}>
+                      <GreyBgButton
+                        title='Cancel'
+                        onPress={() => unblockRef?.current.close()}
+                      />
+                    </View>
+                    <View style={{ flex: 1 / 2 }}>
+                      <BlueButton
+                        title={'Unblock'}
+                        onPress={() => {
+                          unblockRef?.current.close();
+                          manageBlock();
+                        }}
+                      />
+                    </View>
                   </View>
-                  <View style={{ flex: 1 / 2 }}>
-                    <BlueButton
-                      title={'Unblock'}
-                      onPress={() => {
-                        unblockRef?.current.close();
-                        manageBlock();
-                      }}
-                    />
-                  </View>
-                </View>
                 </View>
               </BottomDrawer>
               <BottomDrawer
                 sheetRef={muteRef}
               >
-                <View style={{paddingHorizontal: 16}}>
-                <Text style={{ textAlign: 'center', fontSize: 15, fontWeight: 'bold', marginBottom: 16 }}>{muted ? 'Unmute' : 'Mute'} this user?</Text>
-                <Text style={{ textAlign: 'center', fontSize: 13, color: "#737373", marginBottom: 24 }}>{muted ? 'Their posts will start appearing in your feed again. You can mute them anytime from your settings.' : "You won't see any more posts from this user in your feed. You can unmute them anytime from your settings."}</Text>
-                <View style={{ flexDirection: 'row', gap: 16 }}>
-                  <View style={{ flex: 1 / 2 }}>
-                    <GreyBgButton
-                      title='Cancel'
-                      onPress={() => muteRef?.current.close()}
-                    />
+                <View style={{ paddingHorizontal: 16 }}>
+                  <Text style={{ textAlign: 'center', fontSize: 15, fontWeight: 'bold', marginBottom: 16 }}>{muted ? 'Unmute' : 'Mute'} this user?</Text>
+                  <Text style={{ textAlign: 'center', fontSize: 13, color: "#737373", marginBottom: 24 }}>{muted ? 'Their posts will start appearing in your feed again. You can mute them anytime from your settings.' : "You won't see any more posts from this user in your feed. You can unmute them anytime from your settings."}</Text>
+                  <View style={{ flexDirection: 'row', gap: 16 }}>
+                    <View style={{ flex: 1 / 2 }}>
+                      <GreyBgButton
+                        title='Cancel'
+                        onPress={() => muteRef?.current.close()}
+                      />
+                    </View>
+                    <View style={{ flex: 1 / 2 }}>
+                      <BlueButton
+                        title={muted ? 'Unmute' : 'Mute'}
+                        onPress={() => {
+                          muteRef?.current.close();
+                          manageMute();
+                        }}
+                        loading={isFollowLoading}
+                      />
+                    </View>
                   </View>
-                  <View style={{ flex: 1 / 2 }}>
-                    <BlueButton
-                      title={muted ? 'Unmute' : 'Mute'}
-                      onPress={() => {
-                        muteRef?.current.close();
-                        manageMute();
-                      }}
-                      loading={isFollowLoading}
-                    />
-                  </View>
-                </View>
                 </View>
               </BottomDrawer>
-<BottomDrawer
+              <BottomDrawer
                 sheetRef={removeFollowerRef}
-                >
-                <View style={{paddingHorizontal: 16}}>
-                <Text style={{ textAlign: 'center', fontSize: 15, fontWeight: 'bold', marginBottom: 16 }}>Remove this follower?</Text>
-                <Text style={{ textAlign: 'center', fontSize: 13, color: "#737373", marginBottom: 24 }}>If you remove this user, they'll no longer follow you or see your updates in their feed. This action won't notify them.</Text>
-                <View style={{ flexDirection: 'row', gap: 16 }}>
-                  <View style={{ flex: 1 / 2 }}>
-                    <GreyBgButton
-                      title='Cancel'
-                      onPress={() => removeFollowerRef?.current.close()}
-                    />
+              >
+                <View style={{ paddingHorizontal: 16 }}>
+                  <Text style={{ textAlign: 'center', fontSize: 15, fontWeight: 'bold', marginBottom: 16 }}>Remove this follower?</Text>
+                  <Text style={{ textAlign: 'center', fontSize: 13, color: "#737373", marginBottom: 24 }}>If you remove this user, they'll no longer follow you or see your updates in their feed. This action won't notify them.</Text>
+                  <View style={{ flexDirection: 'row', gap: 16 }}>
+                    <View style={{ flex: 1 / 2 }}>
+                      <GreyBgButton
+                        title='Cancel'
+                        onPress={() => removeFollowerRef?.current.close()}
+                      />
+                    </View>
+                    <View style={{ flex: 1 / 2 }}>
+                      <BlueButton
+                        title='Remove'
+                        onPress={() => {
+                          removeFollowerRef?.current.close();
+                          removeFollower();
+                        }}
+                        loading={isFollowLoading}
+                      />
+                    </View>
                   </View>
-                  <View style={{ flex: 1 / 2 }}>
-                    <BlueButton
-                      title='Remove'
-                      onPress={() => {
-                        removeFollowerRef?.current.close();
-                        removeFollower();
-                      }}
-                      loading={isFollowLoading}
-                    />
-                  </View>
-                </View>
                 </View>
               </BottomDrawer>
               <BottomDrawer
                 sheetRef={followMenuRef}
-                >
-                <View style={{paddingHorizontal: 16}}>
-                <Text style={{ textAlign: 'center', fontSize: 15, fontWeight: 'bold', marginBottom: 16 }}>Remove Follow Request?</Text>
-                <Text style={{ textAlign: 'center', fontSize: 13, color: "#737373", marginBottom: 24 }}>Are you sure you want to cancel this follow request? The user won't be notified.</Text>
-                <View style={{ flexDirection: 'row', gap: 16 }}>
-                  <View style={{ flex: 1 / 2 }}>
-                    <GreyBgButton
-                      title='Cancel'
-                      onPress={() => followMenuRef?.current.close()}
-                    />
+              >
+                <View style={{ paddingHorizontal: 16 }}>
+                  <Text style={{ textAlign: 'center', fontSize: 15, fontWeight: 'bold', marginBottom: 16 }}>Remove Follow Request?</Text>
+                  <Text style={{ textAlign: 'center', fontSize: 13, color: "#737373", marginBottom: 24 }}>Are you sure you want to cancel this follow request? The user won't be notified.</Text>
+                  <View style={{ flexDirection: 'row', gap: 16 }}>
+                    <View style={{ flex: 1 / 2 }}>
+                      <GreyBgButton
+                        title='Cancel'
+                        onPress={() => followMenuRef?.current.close()}
+                      />
+                    </View>
+                    <View style={{ flex: 1 / 2 }}>
+                      <BlueButton
+                        title='Remove'
+                        onPress={() => {
+                          followMenuRef?.current.close();
+                          manageFollow();
+                        }}
+                        loading={isFollowLoading}
+                      />
+                    </View>
                   </View>
-                  <View style={{ flex: 1 / 2 }}>
-                    <BlueButton
-                      title='Remove'
-                      onPress={() => {
-                        followMenuRef?.current.close();
-                        manageFollow();
-                      }}
-                      loading={isFollowLoading}
-                    />
-                  </View>
-                </View>
                 </View>
               </BottomDrawer>
               <BottomDrawer
                 sheetRef={menuRef}
                 draggableIconHeight={0}
-                >
-                <View style={[styles.menuContainer, {paddingHorizontal: 16}]}>
+              >
+                <View style={[styles.menuContainer, { paddingHorizontal: 16 }]}>
                   {
                     !blocked && (
                       <MenuButton
@@ -397,7 +397,7 @@ export default function UserProfile() {
                         onPress={() => {
                           menuRef?.current.close();
                           setTimeout(() => {
-                          muteRef?.current.open();
+                            muteRef?.current.open();
                           }, 300)
                         }}
                       >
@@ -417,13 +417,13 @@ export default function UserProfile() {
                       if (!blocked) {
                         menuRef?.current.close();
                         setTimeout(() => {
-                        blockDrawerRef?.current.open();
+                          blockDrawerRef?.current.open();
                         }, 300)
                       }
                       else {
                         menuRef?.current.close();
                         setTimeout(() => {
-                        unblockRef?.current?.open();
+                          unblockRef?.current?.open();
                         }, 300)
                       }
                     }}
@@ -449,12 +449,12 @@ export default function UserProfile() {
                   </MenuButton>
                 </View>
               </BottomDrawer>
-              </Portal>
-            <Header 
-              menuRef={menuRef} 
+            </Portal>
+            <Header
+              menuRef={menuRef}
             />
             <View style={{ marginHorizontal: -16 }}>
-              <Profile user={userData} onPostPress={() => setIndex(1)}/>
+              <Profile user={userData} onPostPress={() => setIndex(1)} />
             </View>
             <View style={styles.buttonContainer}>
               <View style={{ flex: 1 }}>
@@ -465,7 +465,7 @@ export default function UserProfile() {
                       onPress={userData.is_blocked ? () => { unblockRef?.current.open() } : manageFollow}
                       loading={isFollowLoading}
                     />
-                  ) : isFollowing ? <BlueButton 
+                  ) : isFollowing ? <BlueButton
                     title="Message"
                     onPress={() => {
                       setIsFollowLoading(true);
@@ -480,7 +480,7 @@ export default function UserProfile() {
                     loading={isFollowLoading}
                   /> : <GreyBgButton
                     title={"Requested"}
-                    onPress={requestSent ? () => {followMenuRef.current?.open()} : manageFollow}
+                    onPress={requestSent ? () => { followMenuRef.current?.open() } : manageFollow}
                     loading={isFollowLoading}
                   />
                 }
@@ -507,34 +507,35 @@ export default function UserProfile() {
                 </View>
               ) : userData.background_pattern_code == 0 ? null : (
                 canView ?
-                <>
-                  <View style={{ marginHorizontal: -16, marginTop: 32 }}>
-                    <AnimatedTopTabs
-                      tabs={[
-                        {
-                          name: 'Profile', content: <View style={{ marginTop: -48 }}><ResumeDetails
-                            jobsState={userResume}
-                            userState={userData}
-                            showLess
-                          />
-                            <LearningStreak />
-                            <BottomName />
-                          </View>
-                        },
-                        { name: 'Posts', content: 
-                          <>
-                        <PostsTab editable={false} username={
-                          userData.username
-                        }/> 
-                        </>
-                      },
-                      ]}
-                      index={index}
-                      setIndex={setIndex}
-                    />
-                  </View>
-                </> :
-                    <PostsTab canView={canView} editable={false} username={userData.username } />
+                  <>
+                    <View style={{ marginHorizontal: -16, marginTop: 32 }}>
+                      <AnimatedTopTabs
+                        tabs={[
+                          {
+                            name: 'Profile', content: <View style={{ marginTop: -48 }}><ResumeDetails
+                              jobsState={userResume}
+                              userState={userData}
+                              showLess
+                            />
+                              <LearningStreak />
+                              <BottomName />
+                            </View>
+                          },
+                          {
+                            name: 'Posts', content:
+                              <>
+                                <PostsTab editable={false} username={
+                                  userData.username
+                                } />
+                              </>
+                          },
+                        ]}
+                        index={index}
+                        setIndex={setIndex}
+                      />
+                    </View>
+                  </> :
+                  <PostsTab canView={canView} editable={false} username={userData.username} />
               )
             }
 

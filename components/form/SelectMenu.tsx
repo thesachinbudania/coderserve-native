@@ -69,7 +69,7 @@ export default function SelectMenu({ allowSearch = true, error = false, placehol
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
       } : () => {
         Haptics.selectionAsync();
-          sheetRef.current?.open();
+        sheetRef.current?.open();
       }
       }>
         {({ pressed }) => (

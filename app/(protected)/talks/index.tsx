@@ -22,7 +22,7 @@ import { isTalksProfileCompleted } from "@/zustand/jobsStore";
 import DefaultButton from "@/components/buttons/BlueButton";
 import { useTabPressScrollToTop } from "@/helpers/hooks/useTabBarScrollToTop";
 import useSearchBar from "@/helpers/general/searchBar";
-import {useFetchData} from "@/helpers/general/handleFetchedData";
+import { useFetchData } from "@/helpers/general/handleFetchedData";
 import { formatDistanceToNow } from "date-fns";
 import OptionChip from "@/components/general/OptionChip";
 import protectedApi from "@/helpers/axios";
@@ -78,11 +78,11 @@ export function Post({ data }: { data: any }) {
           }}
         >
           <View>
-          <ImageLoader
-            size={45}
-            uri={data.author.profile_image}
-          />
-</View>
+            <ImageLoader
+              size={45}
+              uri={data.author.profile_image}
+            />
+          </View>
         </Pressable>
         <View style={{ gap: 6 }}>
           <Text style={postStyles.name}>{data.author.first_name}</Text>
@@ -105,10 +105,10 @@ export function Post({ data }: { data: any }) {
       </View>
       {
         data.thumbnail && <View style={{ marginTop: 16 }} pointerEvents="none">
-<Image style={{width: '100%', height: 144, borderRadius: 12}} source={{uri: data.thumbnail}} />
-      </View>
+          <Image style={{ width: '100%', height: 144, borderRadius: 12 }} source={{ uri: data.thumbnail }} />
+        </View>
       }
-      
+
     </Pressable>
   );
 }
@@ -190,28 +190,28 @@ export function SingleLineHashtags({ hashtags }: { hashtags: string[] }) {
       ))}
 
       {visibleCount < hashtags.length && (
-       <HashChip title={`+${hashtags.length - visibleCount}`} /> 
+        <HashChip title={`+${hashtags.length - visibleCount}`} />
       )}
     </View>
   );
-}  
+}
 export default function Page() {
   const menuRef = React.useRef<any>(null);
   const similarProfileInactiveMenuRef = React.useRef<any>(null);
   const router = useRouter();
   const [isSearchFocused, setIsSearchFocused] = React.useState(false);
   const [search, setSearch] = React.useState("");
-  const {top} = useSafeAreaInsets();
+  const { top } = useSafeAreaInsets();
 
   React.useEffect(() => {
     if (!isSearchFocused) {
       setSearch("");
     }
-  },[isSearchFocused]) 
+  }, [isSearchFocused])
   const [incompleteProfileText, setIncompleteProfileText] = React.useState("");
   const [postsUrl, setPostsUrl] = React.useState('/api/talks/posts/');
   const [selectedTab, setSelectedTab] = React.useState<'trending' | 'following' | 'custom'>('trending');
-  const {hashtagsFollowed, setHashtagsFollowed} = useGeneralStore();
+  const { hashtagsFollowed, setHashtagsFollowed } = useGeneralStore();
   const [loadingPrefs, setLoadingPrefs] = React.useState(false);
   const navigation = useNavigation();
   const focused = useIsFocused();
@@ -226,7 +226,7 @@ export default function Page() {
       if (selectedTab === 'custom') {
         setSelectedTab('trending');
         setPostsUrl('/api/talks/posts/');
-      } 
+      }
     }
   }, [hashtagsFollowed]);
 
@@ -313,7 +313,7 @@ export default function Page() {
   );
 
   return (
-    <View style={{ flex: 1, backgroundColor: 'white', paddingTop: top  }}>
+    <View style={{ flex: 1, backgroundColor: 'white', paddingTop: top }}>
       <ScrollView
         contentContainerStyle={{
           backgroundColor: !isSearchFocused ? "white" : "#f7f7f7",
@@ -375,61 +375,61 @@ export default function Page() {
         >
           {/* Hide chips/filters while page is loading */}
           {!pageLoading && (
-            <View style={{paddingBottom: 8, backgroundColor: "#f5f5f5", marginHorizontal: -16, marginBottom: -16}}>
-            <View style={{ flexDirection: "row", gap: 16, backgroundColor: "white", paddingHorizontal: 16, paddingBottom: 16}}>
-            <Pressable
-              style={({ pressed }) => [styles.addHashContainer, pressed && { backgroundColor: '#d9d9d9' }]}
-              onPress={() => {
-              handleAddPostPress();
-              }}
-            >
-              <Image source={require('@/assets/images/jobs/plus.png')} style={styles.addHashImage} />
-            </Pressable>
-            {
-              // don't show the small prefs loader separately; pageLoading covers it
-              hashtagsFollowed.length > 0 && (
+            <View style={{ paddingBottom: 8, backgroundColor: "#f5f5f5", marginHorizontal: -16, marginBottom: -16 }}>
+              <View style={{ flexDirection: "row", gap: 16, backgroundColor: "white", paddingHorizontal: 16, paddingBottom: 16 }}>
+                <Pressable
+                  style={({ pressed }) => [styles.addHashContainer, pressed && { backgroundColor: '#d9d9d9' }]}
+                  onPress={() => {
+                    handleAddPostPress();
+                  }}
+                >
+                  <Image source={require('@/assets/images/jobs/plus.png')} style={styles.addHashImage} />
+                </Pressable>
+                {
+                  // don't show the small prefs loader separately; pageLoading covers it
+                  hashtagsFollowed.length > 0 && (
+                    <OptionChip
+                      title="Custom"
+                      selected={selectedTab === 'custom'}
+                      onPress={async () => {
+                        setSelectedTab('custom');
+                        // Use the dedicated preferences posts endpoint which returns posts matching user's hashtag preferences
+                        setPostsUrl('/api/talks/preferences/posts/');
+                      }}
+                    />
+                  )
+                }
                 <OptionChip
-                  title="Custom"
-                  selected={selectedTab === 'custom'}
-                  onPress={async () => {
-                    setSelectedTab('custom');
-                    // Use the dedicated preferences posts endpoint which returns posts matching user's hashtag preferences
-                    setPostsUrl('/api/talks/preferences/posts/');
+                  title="Trending"
+                  selected={selectedTab === 'trending'}
+                  onPress={() => {
+                    setSelectedTab('trending');
+                    setPostsUrl('/api/talks/posts/');
                   }}
                 />
-              )
-            }
-            <OptionChip
-              title="Trending"
-              selected={selectedTab === 'trending'}
-              onPress={() => {
-                setSelectedTab('trending');
-                setPostsUrl('/api/talks/posts/');
-              }}
-            />
-            <OptionChip
-              title="Following"
-              selected={selectedTab === 'following'}
-              onPress={() => {
-                // Activate following feed and load following posts
-                setSelectedTab('following');
-                setPostsUrl('api/talks/following_posts/');
-              }}
-            />
+                <OptionChip
+                  title="Following"
+                  selected={selectedTab === 'following'}
+                  onPress={() => {
+                    // Activate following feed and load following posts
+                    setSelectedTab('following');
+                    setPostsUrl('api/talks/following_posts/');
+                  }}
+                />
+              </View>
             </View>
-</View>
           )}
         </Animated.View>
         {pageLoading ? (
           // Show a single centered loader while page data (posts + prefs) is loading. Header remains visible above.
           <View style={{ width: '100%', flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'white' }}>
-            <ActivityIndicator size={'large'}/>
+            <ActivityIndicator size={'large'} />
           </View>
         ) : (
           // Normal content (search, chips, posts, bottom name)
           <>
             {/* Grey posts container: shown below chips. Loader and posts render inside this area */}
-            <View style={{ width: '100%'}}>
+            <View style={{ width: '100%' }}>
               {/* If we're loading posts and have no posts yet, show a posts-area centered loader */}
               {isLoading && combinedData.length === 0 && (
                 <View style={{ width: '100%', justifyContent: 'center', alignItems: 'center', paddingVertical: 64 }}>
@@ -444,7 +444,7 @@ export default function Page() {
               {/* If we have posts and are loading more, show a small inline loader */}
               {isLoading && combinedData.length > 0 && (
                 <View style={{ width: '100%', paddingVertical: 12, justifyContent: 'center', alignItems: 'center' }}>
-                  <ActivityIndicator size='small'/>
+                  <ActivityIndicator size='small' />
                 </View>
               )}
             </View>
@@ -524,7 +524,7 @@ export default function Page() {
       <BottomDrawer
         sheetRef={similarProfileInactiveMenuRef}
         draggableIconHeight={0}
-        >
+      >
         <View style={{ gap: 32, paddingHorizontal: 16 }}>
           <View style={{ gap: 8 }}>
             <Text style={{ textAlign: 'center', fontWeight: 'bold', fontSize: 15 }}>Complete Your Profile</Text>
