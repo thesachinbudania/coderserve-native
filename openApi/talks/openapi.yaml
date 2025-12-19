@@ -1,0 +1,436 @@
+openapi: 3.0.3
+info:
+  title: Talks API (nowurturn)
+  version: "1.0"
+  description: |
+    OpenAPI specification for the `talks` endpoints in the rest-api-backend-nowurturn project.
+    Use this as a reference for how to call endpoints for posts, comments, votes, hashtags, activities and user hashtag preferences.
+servers:
+  - url: https://api.example.com
+    description: Production server (replace with your host)
+  - url: http://localhost:8000
+    description: Local development
+components:
+  securitySchemes:
+    SessionAuth:
+      type: apiKey
+      in: cookie
+      name: sessionid
+    TokenAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    UserSimple:
+      type: object
+      properties:
+        id:
+          type: integer
+        username:
+          type: string
+        first_name:
+          type: string
+        last_name:
+          type: string
+    PostShort:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        hashtags:
+          type: array
+          items:
+            type: string
+    Post:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        hashtags:
+          type: array
+          items:
+            type: string
+        thumbnail:
+          type: string
+          format: uri
+        content:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        author:
+          $ref: '#/components/schemas/UserSimple'
+        upvotes:
+          type: integer
+        downvotes:
+          type: integer
+        upvoted:
+          type: boolean
+        downvoted:
+          type: boolean
+        comments_count:
+          type: integer
+        last_comment:
+          $ref: '#/components/schemas/Comment'
+    Comment:
+      type: object
+      properties:
+        id:
+          type: integer
+        post:
+          type: integer
+        author:
+          $ref: '#/components/schemas/UserSimple'
+        content:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        reply_to:
+          type: integer
+    Activity:
+      type: object
+      properties:
+        id:
+          type: integer
+        user:
+          $ref: '#/components/schemas/UserSimple'
+        action:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+        related_post:
+          $ref: '#/components/schemas/PostShort'
+        related_comment:
+          $ref: '#/components/schemas/Comment'
+    Hashtag:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        count:
+          type: integer
+    UserHashtagPreference:
+      type: object
+      properties:
+        id:
+          type: integer
+        hashtags:
+          type: array
+          items:
+            $ref: '#/components/schemas/Hashtag'
+paths:
+  /talks/posts/:
+    get:
+      summary: List posts
+      security:
+        - TokenAuth: []
+      responses:
+        '200':
+          description: A paginated list of posts
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  results:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Post'
+    post:
+      summary: Create a post
+      security:
+        - TokenAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                hashtags:
+                  type: array
+                  items:
+                    type: string
+                thumbnail:
+                  type: string
+                  format: uri
+                content:
+                  type: string
+      responses:
+        '201':
+          description: Created post
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Post'
+  /talks/posts/{post_id}/:
+    get:
+      summary: Retrieve a post
+      parameters:
+        - name: post_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Post detail
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Post'
+  /talks/posts/{post_id}/upvote/:
+    post:
+      summary: Upvote or toggle upvote on a post
+      security:
+        - TokenAuth: []
+      parameters:
+        - name: post_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Updated vote counts
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Post'
+  /talks/posts/{post_id}/downvote/:
+    post:
+      summary: Downvote or toggle downvote on a post
+      security:
+        - TokenAuth: []
+      parameters:
+        - name: post_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Updated vote counts
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Post'
+  /talks/posts/{post_id}/comments/:
+    get:
+      summary: List comments for a post
+      parameters:
+        - name: post_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: List of comments
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Comment'
+    post:
+      summary: Create a comment for a post
+      security:
+        - TokenAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                content:
+                  type: string
+      responses:
+        '201':
+          description: Created comment
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Comment'
+  /talks/posts/{post_id}/comments/{comment_id}/reply/:
+    post:
+      summary: Reply to a comment
+      security:
+        - TokenAuth: []
+      parameters:
+        - name: post_id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: comment_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                content:
+                  type: string
+      responses:
+        '201':
+          description: Created reply; returns list of comments
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Comment'
+  /talks/self_posts/:
+    get:
+      summary: List posts authored by the authenticated user
+      security:
+        - TokenAuth: []
+      responses:
+        '200':
+          description: List of posts by the user
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PostShort'
+  /talks/activities/:
+    get:
+      summary: List activities for the authenticated user
+      security:
+        - TokenAuth: []
+      responses:
+        '200':
+          description: List of activities
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Activity'
+  /talks/search_suggestions/:
+    get:
+      summary: Get search suggestions for accounts and posts
+      security:
+        - TokenAuth: []
+      parameters:
+        - name: q
+          in: query
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: List of suggested users (max 5)
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserSimple'
+  /talks/search/:
+    get:
+      summary: Search across accounts or posts
+      parameters:
+        - name: q
+          in: query
+          schema:
+            type: string
+          required: true
+        - name: filter
+          in: query
+          schema:
+            type: string
+          description: 'accounts or posts'
+      responses:
+        '200':
+          description: Search results depend on filter
+  /talks/hashtags/popular/:
+    get:
+      summary: List popular hashtags ordered by count desc
+      responses:
+        '200':
+          description: List of hashtags
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Hashtag'
+  /talks/preferences/hashtags/:
+    get:
+      summary: Get authenticated user's hashtag preferences
+      security:
+        - TokenAuth: []
+      responses:
+        '200':
+          description: User hashtag preference
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserHashtagPreference'
+    put:
+      summary: Replace authenticated user's hashtag preferences
+      security:
+        - TokenAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                hashtags:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        '200':
+          description: Updated user hashtag preference
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserHashtagPreference'
+  /talks/preferences/posts/:
+    get:
+      summary: List posts matching the authenticated user's hashtag preferences
+      description: |
+        Returns posts that match any of the authenticated user's preferred hashtags. Results are ordered
+        by most upvoted first, then newest. Pagination is applied by the API (standard DRF pagination).
+      security:
+        - TokenAuth: []
+      responses:
+        '200':
+          description: A paginated list of posts matching preferences
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  results:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Post'
+    

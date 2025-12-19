@@ -1,0 +1,82 @@
+{
+  "expo": {
+    "name": "CoderServe",
+    "slug": "CoderServe",
+    "version": "1.0.0",
+    "scheme": "coderserve",
+    "orientation": "portrait",
+    "icon": "./assets/adaptive-icon.png",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.sachinbudania.CoderServe",
+      "config": {
+        "googleMapsApiKey": "AIzaSyArSeVMODwcvE9Vb7_0E7vGj4kWpCq06Ks"
+      },
+      "infoPlist": {
+        "NSUserNotificationUsageDescription": "We send notifications to keep you updated about important activity and reminders.",
+        "NSLocationWhenInUseUsageDescription": "Your location helps us show nearby jobs, events, and relevant content.",
+        "NSContactsUsageDescription": "Contacts access lets you find people you know and invite them easily.",
+        "NSPhotoLibraryUsageDescription": "Allows you to select photos to upload and share in the app."
+      }
+    },
+    "android": {
+      "permissions": [
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.POST_NOTIFICATIONS",
+        "android.permission.READ_CONTACTS",
+        "android.permission.READ_MEDIA_IMAGES",
+        "android.permission.READ_MEDIA_VIDEO",
+        "android.permission.READ_MEDIA_AUDIO"
+      ],
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "autoVerify": true,
+          "data": [
+            {
+              "scheme": "https",
+              "host": "coderserve.com",
+              "pathPrefix": "/"
+            }
+          ],
+          "category": [
+            "BROWSABLE",
+            "DEFAULT"
+          ]
+        }
+      ],
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      },
+      "config": {
+        "googleMaps": {
+          "apiKey": "AIzaSyArSeVMODwcvE9Vb7_0E7vGj4kWpCq06Ks"
+        }
+      },
+      "package": "com.sachinbudania.CoderServe"
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "07583b4e-fae9-43ff-90c9-396c90ebb8c8"
+      }
+    },
+    "plugins": [
+      "expo-secure-store",
+      "expo-asset",
+      "expo-router",
+      "expo-font"
+    ]
+  }
+}
