@@ -48,7 +48,7 @@ const buttonStyles = StyleSheet.create({
     height: 45,
   },
   text: {
-    fontSize: 15,
+    fontSize: 14,
     color: 'black',
   },
   textContainer: {
@@ -157,9 +157,9 @@ const styles = StyleSheet.create({
     height: 45,
   },
   boxText: {
-    fontSize: 15,
+    fontSize: 14,
     color: '#cfdbe6',
-    paddingLeft: 12,
+    paddingLeft: 13,
   },
   downArrow: {
     height: 16,

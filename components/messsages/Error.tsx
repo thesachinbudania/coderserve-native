@@ -8,7 +8,7 @@ export default function Message({ message, status = 'error' }: { message: string
 const styles = StyleSheet.create({
 	message: {
 		color: '#ff5757',
-		fontSize: 13,
+		fontSize: 12,
 		textAlign: 'justify'
 	}
 })

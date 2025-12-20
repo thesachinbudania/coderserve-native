@@ -115,7 +115,7 @@ export default function OtpValidator({ email, otpFor, nextStep }: { email: strin
         />
         {
           resendTimer > 0 && (
-            <Text style={{ fontSize: 15 }}>Resend code will be available in {resendTimer} seconds</Text>
+            <Text style={{ fontSize: 12 }}>Resend code will be available in {resendTimer} seconds</Text>
           )
         }
       </View>

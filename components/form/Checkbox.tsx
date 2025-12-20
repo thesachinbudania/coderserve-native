@@ -13,7 +13,7 @@ export default function Checkbox({ children, state, size = 'sm', setState }: { c
       onPress={handleCheckboxChange}
     >
       <View style={styles.container}>
-        <View style={[styles.checkbox, size === 'md' && { height: 20, width: 20 }]}>
+        <View style={[styles.checkbox, size === 'md' && { height: 20, width: 20, borderRadius: 6 }]}>
           {state && (
             <Image source={require('./assets/check.png')} style={size === 'sm' ? { height: 12, width: 12 } : size === 'md' && { height: 13, width: 13 }} />
           )}
@@ -34,7 +34,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     height: 18,
     width: 18,
-    borderRadius: 6,
+    borderRadius: 5,
     borderWidth: 1,
     borderColor: 'black',
   }

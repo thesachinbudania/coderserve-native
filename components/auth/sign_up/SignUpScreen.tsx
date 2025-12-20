@@ -25,7 +25,8 @@ const formSchema = zod.object({
     .min(8, { message: 'Password must be at least 8 characters long' })
     .regex(/[A-Z]/, { message: 'Password must contain both uppercase and lowercase characters' })
     .regex(/[0-9]/, { message: 'Password must contain at least one number' })
-    .regex(/[^A-Za-z0-9]/, { message: 'Password must contain at least one special character' }),
+    .regex(/[^A-Za-z0-9]/, { message: 'Password must contain at least one special character' })
+    .regex(/^(?!.*\b(first_name|last_name)\b).+$/i, { message: "Don't use your name in the password" }),
   terms_accepted: zod.boolean()
 });
 
@@ -52,6 +53,7 @@ export default function SignUpScreen() {
   const casingError = !/[A-Z]/.test(password) || !/[a-z]/.test(password);
   const noNumber = !/[0-9]/.test(password);
   const hasSC = !/[^A-Za-z0-9]/.test(password);
+  const containsName = password.toLowerCase().includes(first_name.toLowerCase());
 
   const signUp: SubmitHandler<FormData> = async (data) => {
     await api.post('/sign_up/', data).then(res => {
@@ -64,7 +66,7 @@ export default function SignUpScreen() {
 
   // function to check if all the fields are filled and the checkbox is checked
   function isFormValid() {
-    return first_name && last_name && email && password && terms_accepted && !insufficientLength && !casingError && !noNumber && !hasSC;
+    return first_name && last_name && email && password && terms_accepted && !insufficientLength && !casingError && !noNumber && !hasSC && !containsName;
   }
 
   return (
@@ -143,6 +145,7 @@ export default function SignUpScreen() {
             <ErrorMessage message='Contains both uppercase and lowercase letters' status={casingError ? 'error' : 'success'} />
             <ErrorMessage message='Includes number' status={noNumber ? 'error' : 'success'} />
             <ErrorMessage message='Contains at least one special character (e.g., !, @, #)' status={hasSC ? 'error' : 'success'} />
+            <ErrorMessage message="Don't use your name in the password" status={containsName ? 'error' : 'success'} />
           </View>
 
           )

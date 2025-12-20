@@ -45,7 +45,7 @@ const styles = StyleSheet.create({
     height: 45,
   },
   text: {
-    fontSize: 15,
+    fontSize: 14,
     fontWeight: 'bold',
     color: 'white',
   }
