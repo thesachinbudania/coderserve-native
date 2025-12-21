@@ -129,7 +129,7 @@ export default function UserProfile() {
     <SafeAreaView style={{ flex: 1, backgroundColor: 'white', paddingTop: 57 }}>
       {isLoading && (
         <View style={{ height: '100%', backgroundColor: 'white', justifyContent: 'center', alignItems: 'center' }}>
-          <ActivityIndicator size='large' />
+          <ActivityIndicator size='large' color={'#202020'} />
         </View>
       )}
       {

@@ -179,12 +179,12 @@ export default function Hashtags() {
             {
                 loading ?
                     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-                        <ActivityIndicator size="large" />
+                        <ActivityIndicator size="large" color={'#202020'} />
                     </View> : (
                         <View style={{ marginTop: 32 }}>
                             {searching ? (
                                 <View style={{ width: '100%', justifyContent: 'center', alignItems: 'center', paddingVertical: 24 }}>
-                                    <ActivityIndicator />
+                                    <ActivityIndicator color={'#202020'} />
                                 </View>
                             ) : (
                                 <FlatList
@@ -229,7 +229,7 @@ export default function Hashtags() {
                                             setLoadingMore(false);
                                         }
                                     }}
-                                    ListFooterComponent={loadingMore ? <ActivityIndicator /> : null}
+                                    ListFooterComponent={loadingMore ? <ActivityIndicator color={'#202020'} /> : null}
                                 />
                             )}
                         </View>

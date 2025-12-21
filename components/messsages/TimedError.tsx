@@ -48,7 +48,7 @@ const styles = StyleSheet.create({
 	},
 	message: {
 		color: '#f87171',
-		fontSize: 15,
+		fontSize: 14,
 	},
 	bar: {
 		position: 'absolute',

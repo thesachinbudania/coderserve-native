@@ -190,7 +190,7 @@ export default function Streak() {
     >
       {
         loaded < 2 ? <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', height: '100%' }}>
-          <ActivityIndicator size='large' />
+          <ActivityIndicator size='large' color={'#202020'} />
         </View>
           : <>
             <Image source={require("@/assets/images/home/streak.png")} style={{ width: 96, height: 96, alignSelf: 'center', objectFit: 'contain' }} />

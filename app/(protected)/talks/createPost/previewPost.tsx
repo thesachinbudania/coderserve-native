@@ -1,4 +1,4 @@
-import { ActivityIndicator, Dimensions, Image, Text, View, ScrollView, StyleSheet, SafeAreaView } from 'react-native';
+import { ActivityIndicator, Dimensions, Image, Pressable, Text, View, ScrollView, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 import React from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -6,10 +6,25 @@ import ImageLoader from '@/components/ImageLoader';
 import IconButton from '@/components/buttons/IconButton';
 import { useUserStore } from '@/zustand/stores';
 import { useNewPostStore } from '@/zustand/talks/newPostStore';
-import FullWidthImage from '@/components/FullWidthImage';
 import EditorPreview from '@/components/talks/createPost/EditorPreview';
 
 const { width } = Dimensions.get('window');
+
+const BackButton = () => {
+  const router = useRouter();
+  return (
+    <View style={{ marginHorizontal: -16, paddingVertical: 8, marginTop: 32, backgroundColor: "#f5f5f5" }}>
+      <View style={{ padding: 16, backgroundColor: "white" }}>
+        <Pressable
+          style={({ pressed }) => [{ height: 42, alignItems: 'center', justifyContent: 'center', borderRadius: 24, backgroundColor: '#f5f5f5' }, pressed && { backgroundColor: "#d9d9d9" }]}
+          onPress={() => router.back()}
+        >
+          <Text style={{ fontSize: 13 }}>Back</Text>
+        </Pressable>
+      </View>
+    </View>
+  )
+}
 
 const HashChip = ({ hashtag }: { hashtag: string }) => {
   return (
@@ -107,7 +122,7 @@ export function PostContent({ title, hashtags, thumbnail, content = null }: { ti
       </View>
       {
         contentLoading && (
-          <ActivityIndicator style={{ marginTop: 48, marginBottom: 32 }} />
+          <ActivityIndicator style={{ marginTop: 48, marginBottom: 32 }} color={'#202020'} />
         )
       }
       <View style={{ height: contentLoading ? 1 : contentHeight, overflow: 'hidden' }}>
@@ -138,11 +153,11 @@ export default function PreviewPost() {
   const { title, hashtags, thumbnail, content } = useNewPostStore();
   return (
     <ScrollView
-      style={{ flex: 1 }}
-      contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 48, backgroundColor: 'white' }}
+      contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 48, backgroundColor: 'white', flex: 1 }}
     >
       <Header />
       <PostContent title={title} hashtags={hashtags} thumbnail={thumbnail ? thumbnail.uri : undefined} content={content} />
+      {content && <BackButton />}
     </ScrollView>
   );
 }

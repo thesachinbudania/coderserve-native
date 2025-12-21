@@ -5,6 +5,7 @@ export default function FullScreenActivity() {
     <View style={{ flex: 1, width: '100%', justifyContent: 'center', alignItems: 'center' }}>
       <ActivityIndicator
         size={'large'}
+        color={'#202020'}
       />
     </View>
   )

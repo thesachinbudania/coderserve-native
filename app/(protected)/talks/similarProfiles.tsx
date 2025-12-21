@@ -115,7 +115,7 @@ export default function SimilarProfiles() {
             <>
               {isLoading || nextPage ? (
                 <View style={{ width: '100%', height: 128, marginBottom: 77, justifyContent: 'center', alignItems: 'center' }}>
-                  <ActivityIndicator />
+                  <ActivityIndicator color={'#202020'} />
                 </View>
               ) : (
                 <View style={{ marginBottom: 77 }}>

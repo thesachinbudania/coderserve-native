@@ -66,7 +66,7 @@ export function Post({ data }: { data: any }) {
       android_ripple={{ color: '#f5f5f5' }}
       style={postStyles.container}
       onPress={() => {
-        router.push(`/talks/viewPost/${data.id}`);
+        router.push('/(freeRoutes)/talks/viewPost/' + data.id);
       }}
     // enable interaction of child pressable
     >
@@ -423,7 +423,7 @@ export default function Page() {
         {pageLoading ? (
           // Show a single centered loader while page data (posts + prefs) is loading. Header remains visible above.
           <View style={{ width: '100%', flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'white' }}>
-            <ActivityIndicator size={'large'} />
+            <ActivityIndicator size={'large'} color={'#202020'} />
           </View>
         ) : (
           // Normal content (search, chips, posts, bottom name)
@@ -433,7 +433,7 @@ export default function Page() {
               {/* If we're loading posts and have no posts yet, show a posts-area centered loader */}
               {isLoading && combinedData.length === 0 && (
                 <View style={{ width: '100%', justifyContent: 'center', alignItems: 'center', paddingVertical: 64 }}>
-                  <ActivityIndicator />
+                  <ActivityIndicator color={'#202020'} />
                 </View>
               )}
 
@@ -444,7 +444,7 @@ export default function Page() {
               {/* If we have posts and are loading more, show a small inline loader */}
               {isLoading && combinedData.length > 0 && (
                 <View style={{ width: '100%', paddingVertical: 12, justifyContent: 'center', alignItems: 'center' }}>
-                  <ActivityIndicator size='small' />
+                  <ActivityIndicator size='small' color={'#202020'} />
                 </View>
               )}
             </View>

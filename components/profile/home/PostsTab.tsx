@@ -23,7 +23,7 @@ const Post = ({ item }: { item: any }) => {
   )
 }
 
-export default function({ editable = true, username, canView = true }: { canView?: boolean; editable?: boolean, username?: string }) {
+export default function ({ editable = true, username, canView = true }: { canView?: boolean; editable?: boolean, username?: string }) {
   const [data, setData] = React.useState<any>(null);
   const sheetRef = React.useRef<any>(null);
   React.useEffect(() => {
@@ -40,54 +40,54 @@ export default function({ editable = true, username, canView = true }: { canView
     <>
       {data && data.results.length > 0 ? (
         <>
-        <View style={{marginTop: -16, paddingTop: canView ? 0 : 8, marginHorizontal: -16, gap: 8, backgroundColor: "#f5f5f5", paddingBottom: 8 }}>
-          {data.results.map((item: any) => (
-            <Pressable
-              android_ripple={{ color: '#f5f5f5' }}
-              onPress={() => {
-                  router.push('/talks/viewPost/' + item.id)
-              }}
-              id={item.id.toString()}
-key={item.id.toString()}
-            >
-              <Post  item={item} />
-            </Pressable>
-          ))}
-        </View>
-      <BottomName />
-      </>
+          <View style={{ marginTop: -16, paddingTop: canView ? 0 : 8, marginHorizontal: -16, gap: 8, backgroundColor: "#f5f5f5", paddingBottom: 8 }}>
+            {data.results.map((item: any) => (
+              <Pressable
+                android_ripple={{ color: '#f5f5f5' }}
+                onPress={() => {
+                  router.push('/(freeRoutes)/talks/viewPost/' + item.id)
+                }}
+                id={item.id.toString()}
+                key={item.id.toString()}
+              >
+                <Post item={item} />
+              </Pressable>
+            ))}
+          </View>
+          <BottomName />
+        </>
       ) :
         <View style={styles.container}>
           {editable ? (
             <>
               <Text style={styles.text}>You haven't shared any talks yet.</Text>
               <Text style={styles.text}>Let your voice be heard and inspire others.</Text>
-              <SmallTextButton 
-                  title="Create your first post"
-                  style={styles.link}
-                  onPress={() => {
-                    if (isTalksProfileCompleted()) {
+              <SmallTextButton
+                title="Create your first post"
+                style={styles.link}
+                onPress={() => {
+                  if (isTalksProfileCompleted()) {
                     router.push('/talks/createPost')
-                    }
-                    else {
-                      sheetRef?.current.open();
-                    }
-                  }}
-               />
+                  }
+                  else {
+                    sheetRef?.current.open();
+                  }
+                }}
+              />
             </>
           ) :
             <Text style={styles.text}>User hasn't shared any talks yet.</Text>
           }
         </View>}
-<BottomDrawer
+      <BottomDrawer
         sheetRef={sheetRef}
         draggableIconHeight={0}
-        >
+      >
         <View style={{ gap: 32, paddingHorizontal: 16 }}>
           <View style={{ gap: 8 }}>
             <Text style={{ textAlign: 'center', fontWeight: 'bold', fontSize: 15 }}>Complete Your Profile</Text>
             <Text style={{ textAlign: 'center', color: '#a6a6a6', fontSize: 13 }}>
-Your profile is incomplete. Please complete your profile to start creating and sharing posts with the community. 
+              Your profile is incomplete. Please complete your profile to start creating and sharing posts with the community.
             </Text>
           </View>
           <DefaultButton
@@ -100,19 +100,19 @@ Your profile is incomplete. Please complete your profile to start creating and s
         </View>
       </BottomDrawer>
       {
-        data && data.results.length > 0 && isFocused && editable && 
+        data && data.results.length > 0 && isFocused && editable &&
         <Portal>
-        <FloatingButton
-          rounded='full'
-          onPress={() => {
-            if (isTalksProfileCompleted()) {
-              router.push('/talks/createPost')
-            }
-            else {
-              sheetRef?.current.open();
-            }
-          }}
-        />
+          <FloatingButton
+            rounded='full'
+            onPress={() => {
+              if (isTalksProfileCompleted()) {
+                router.push('/talks/createPost')
+              }
+              else {
+                sheetRef?.current.open();
+              }
+            }}
+          />
         </Portal>
       }
     </>

@@ -43,7 +43,7 @@ export default function Recipients() {
       {
         initialLoading || isInitiating ? (
           <View style={{ width: '100%', flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'white' }}>
-            <ActivityIndicator size='large' />
+            <ActivityIndicator size='large' color={'#202020'} />
           </View>
         ) : (
           combinedData.length > 0 || initialLoading || isLoading || refreshing ?

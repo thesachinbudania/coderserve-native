@@ -1,14 +1,14 @@
 import React from 'react';
 import { Dimensions, Image, View, StyleSheet, Text, ScrollView, ActivityIndicator, Share } from 'react-native';
 import { useRouter } from 'expo-router';
-import { PostContent } from '../createPost/previewPost';
+import { PostContent } from '@/app/(protected)/talks/createPost/previewPost';
 import protectedApi from '@/helpers/axios';
 import { useGlobalSearchParams } from 'expo-router';
 import VoteButton from '@/components/buttons/VoteButton';
 import BottomDrawer from '@/components/BottomDrawer';
 import BottomName from '@/components/profile/home/BottomName';
 import BottomSheet from '@/components/messsages/BottomSheet';
-import { MenuButton } from '../../jobs';
+import { MenuButton } from '../../../(protected)/jobs';
 import BlueButton from '@/components/buttons/BlueButton';
 import { useUserStore } from '@/zustand/stores';
 import { useNewPostStore } from '@/zustand/talks/newPostStore';
@@ -140,7 +140,7 @@ export default function ViewPost() {
     <ScrollView contentContainerStyle={[{ minHeight: '100%', backgroundColor: 'white', paddingHorizontal: 16 }, fetchingPost && { flex: 1 }]}>
       {
         fetchingPost && <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-          <ActivityIndicator size={'large'} />
+          <ActivityIndicator size={'large'} color={'#202020'} />
         </View>
       }
       {post && (

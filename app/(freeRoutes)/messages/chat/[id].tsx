@@ -371,7 +371,7 @@ const Chat: React.FC = () => {
   };
 
   if (initialLoading) {
-    return <ActivityIndicator style={{ flex: 1 }} size="large" />;
+    return <ActivityIndicator style={{ flex: 1 }} size="large" color={'#202020'} />;
   }
   const me = username;
   const other = chatData?.participants?.find((p: any) => p.username !== me);

@@ -28,7 +28,7 @@ import { useIsFocused } from "@react-navigation/native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useJobsState } from "@/zustand/jobsStore";
 import { useTabPressScrollToTop } from "@/helpers/hooks/useTabBarScrollToTop";
-import { syncUser } from "@/zustand/stores";
+import syncUser from "@/helpers/general/syncUser";
 import { useFocusEffect } from "expo-router";
 
 const width = Dimensions.get("window").width;

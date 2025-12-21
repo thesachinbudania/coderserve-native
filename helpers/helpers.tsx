@@ -29,6 +29,17 @@ export function formatDateShort(isoString: string) {
   return `${formattedDate}`;
 }
 
+export function formatMonthYear(isoString: string) {
+  const date = new Date(isoString);
+
+  const formattedDate = date.toLocaleDateString('en-GB', {
+    month: 'short',
+    year: 'numeric'
+  });
+
+  return `${formattedDate}`;
+}
+
 export function formatDate(isoString: string) {
   const date = new Date(isoString);
 

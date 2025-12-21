@@ -4,44 +4,9 @@ import React from "react";
 import { EditResume } from "@/app/(protected)/jobs/resume/update/index";
 import SmallTextButton from "@/components/buttons/SmallTextButton";
 import { useRouter } from 'expo-router';
+import { ProfileSection } from "./ProfileSection";
 
-export function ProfileSection({
-  title,
-  content,
-  onPress = () => { },
-  editable = true
-}: {
-  title: string;
-  content: string;
-  onPress?: () => void;
-  editable?: boolean;
-}) {
-  const [pressed, setPressed] = React.useState(false);
-  return (
-    <View>
-      <Text style={styles.detailsHeading}>{title}</Text>
-      <Text style={styles.detailsContent}>
-        {content}{" "}
-        {
-          editable && (
-            <Text
-              style={{
-                textDecorationLine: "underline",
-                color: pressed ? "#006dff" : "black",
-              }}
-              onPress={onPress}
-              suppressHighlighting={true}
-              onPressIn={() => setPressed(true)}
-              onPressOut={() => setPressed(false)}
-            >
-              add now
-            </Text>
-          )
-        }
-      </Text>
-    </View>
-  );
-}
+
 
 const StreakSquare = ({ intensity = 0 }: { intensity?: number }) => {
   return (

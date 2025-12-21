@@ -46,7 +46,7 @@ export function DataList({
           alignItems: 'center',
         }}
       >
-        <ActivityIndicator size="large" />
+        <ActivityIndicator size="large" color={'#202020'} />
       </View>
     );
   }
@@ -74,7 +74,7 @@ export function DataList({
         minHeight: 400
       }}
       ListFooterComponent={isPaginating && !refreshing ? (
-        <ActivityIndicator style={{ marginVertical: 32 }} />
+        <ActivityIndicator style={{ marginVertical: 32 }} color={'#202020'} />
       ) : null}
     />
   );
@@ -83,7 +83,6 @@ export function DataList({
 export function useFetchData({
   url,
   gap = 16,
-  paddingTop = 0,
   refreshOnFocus = true,
   allowSearch = false
 }: {

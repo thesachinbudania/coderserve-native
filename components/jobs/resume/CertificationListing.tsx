@@ -1,5 +1,4 @@
-import { Dimensions, Image, Pressable, Text, View } from 'react-native'
-import { styles } from '@/app/(protected)/jobs/resume/update/index';
+import { Dimensions, Image, Pressable, Text, View, StyleSheet } from 'react-native'
 
 const { width } = Dimensions.get('window')
 type CertificationProps = {
@@ -29,3 +28,25 @@ export default function OtherCertificationsListing({ certification, onPress = ()
     </Pressable>
   )
 }
+
+const styles = StyleSheet.create({
+  certificationContainer: {
+    flexDirection: "row",
+    padding: 16,
+    borderWidth: 1,
+    borderColor: "#f5f5f5",
+    borderRadius: 12,
+    gap: 16,
+    alignItems: "center",
+  },
+  logoContainer: {
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: "#f5f5f5",
+  },
+  logo: {
+    margin: 8,
+    height: 32,
+    width: 32,
+  },
+});

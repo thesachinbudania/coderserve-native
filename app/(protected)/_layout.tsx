@@ -24,7 +24,7 @@ function LoadingScreen() {
         backgroundColor: "white",
       }}
     >
-      <ActivityIndicator size="large" />
+      <ActivityIndicator size="large" color={'#202020'} />
     </View>
   );
 }
@@ -113,22 +113,21 @@ export default function AuthProvider() {
   const wsRef = React.useRef<WebSocket | null>(null)
   React.useEffect(() => {
     if (!refresh || !access) return;
-    const ws = new WebSocket(`${websocketUrl}ws/notifications/?token=${encodeURIComponent(access)}`)
-    wsRef.current = ws
-    ws.onopen = () => {
-      console.log('WebSocket connection opened')
-    }
-    ws.onmessage = (event) => {
-      const data = JSON.parse(event.data)
-      if (data.type === 'notify.user') {
-        setNotificationsUnread(data.unread_count)
+    try {
+      const ws = new WebSocket(`${websocketUrl}ws/notifications/?token=${encodeURIComponent(access)}`)
+      wsRef.current = ws
+      ws.onmessage = (event) => {
+        const data = JSON.parse(event.data)
+        if (data.type === 'notify.user') {
+          setNotificationsUnread(data.unread_count)
+        }
+      }
+      ws.onerror = (error) => {
+        console.error('WebSocket error:', error)
       }
     }
-    ws.onclose = () => {
-      console.log('WebSocket connection closed')
-    }
-    ws.onerror = (error) => {
-      console.error('WebSocket error:', error)
+    catch {
+      console.log('WebSocket connection failed')
     }
   }, [refresh, access])
 

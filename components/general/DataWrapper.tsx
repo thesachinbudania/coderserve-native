@@ -8,7 +8,7 @@ export default function DataWrapper({ children, header, isLoading = false, conta
   return (
     isLoading ? (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <ActivityIndicator size="large" />
+        <ActivityIndicator size="large" color={'#202020'} />
       </View>
     ) : (
       <SafeAreaView style={{ flex: 1, backgroundColor: 'white' }}>

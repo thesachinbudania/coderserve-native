@@ -262,7 +262,7 @@ const Quiz = ({ topMargin = 8, bottomMargin = 0, renderNext, id }: McqProps) => 
 
   return (
     loading ? <View style={{ height: 400, justifyContent: 'center', alignItems: 'center' }}>
-      <ActivityIndicator size="large" />
+      <ActivityIndicator size="large" color={'#202020'} />
     </View> :
       <View style={{ marginTop: topMargin, marginBottom: bottomMargin, gap: 32 }}>
         <BottomSheet
@@ -344,7 +344,7 @@ const YellowButton = ({ title, onPress, disabled, loading = false }: { title: st
     >
       {
         ({ pressed }) => (
-          loading ? <ActivityIndicator size="small" /> :
+          loading ? <ActivityIndicator size="small" color={'#202020'} /> :
             <Text style={[pressed && { color: "white" }, disabled && { color: '#3b5350' }]}>{title}</Text>
         )
       }
@@ -461,7 +461,7 @@ const MiniTask = ({ renderNext, id, outputLines = 2 }: { renderNext: () => void,
   }
   return (
     loading ? <View style={{ height: 400, justifyContent: 'center', alignItems: 'center' }}>
-      <ActivityIndicator size="large" />
+      <ActivityIndicator size="large" color={'#202020'} />
     </View> :
       !yesClicked && !completed ?
         <View style={{ marginTop: 48 }}>

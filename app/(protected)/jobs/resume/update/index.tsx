@@ -1,7 +1,7 @@
 import TopSection from "@/components/jobs/resume/TopSection";
 import Layout from "@/components/general/PageLayout";
 import { Pressable, Text, View, StyleSheet } from "react-native";
-import { ProfileSection } from "@/components/profile/home/ProfileContent";
+import { ProfileSection } from "@/components/profile/home/ProfileSection";
 import { Dimensions, Linking, Image } from "react-native";
 import IconButton from "@/components/profile/IconButton";
 import BottomName from "@/components/profile/home/BottomName";
@@ -354,22 +354,22 @@ export function EditResume({ showLess = false, editable = true }: { showLess?: b
             ))}
           </View>{
             editable && (
-<View style={styles.buttonContainer}>
-            <NoBgButton
-              title="Add More"
-              onPress={() => {
-                setResumeEdit({
-                  edit: false,
-                  id: null,
-                });
-                router.push('/(freeRoutes)/jobs/resume/otherCertifications');
-              }
-              }
-            />
-          </View>
+              <View style={styles.buttonContainer}>
+                <NoBgButton
+                  title="Add More"
+                  onPress={() => {
+                    setResumeEdit({
+                      edit: false,
+                      id: null,
+                    });
+                    router.push('/(freeRoutes)/jobs/resume/otherCertifications');
+                  }
+                  }
+                />
+              </View>
             )
           }
-          
+
         </View>
       ) : (
         <ProfileSection
@@ -604,7 +604,7 @@ export function EditResume({ showLess = false, editable = true }: { showLess?: b
   );
 }
 
-export default function() {
+export default function () {
   return (
     <View style={{ flex: 1, backgroundColor: "white", paddingBottom: -64 }}>
       <Layout

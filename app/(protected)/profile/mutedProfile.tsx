@@ -122,7 +122,7 @@ export default function FollowingList() {
               <>
                 {isLoading || nextPage ? (
                   <View style={{ width: '100%', height: 128, marginBottom: 77, justifyContent: 'center', alignItems: 'center' }}>
-                    <ActivityIndicator size='small' />
+                    <ActivityIndicator size='small' color={'#202020'} />
                   </View>
                 ) : (
                   <View style={{}}>

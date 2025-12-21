@@ -1,6 +1,6 @@
 import { Animated, BackHandler, Dimensions, Keyboard, Platform, Text, useAnimatedValue, View } from 'react-native'
 import FormInput from '@/components/form/FormInput';
-import { TopNav, measureY, setSuggestions, styles } from '@/app/(freeRoutes)/jobs/resume/education';
+import { TopNav, measureY, setSuggestions, styles } from '@/components/jobs/resume/educationUtils';
 import SearchBar from '@/components/profile/SearchBar';
 import React, { SetStateAction } from 'react';
 import DateSelect from '@/components/jobs/resume/DateSelect';

@@ -63,7 +63,7 @@ export default function AccountVisibility() {
       {
         isLoading ?
           <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-            <ActivityIndicator size="large" />
+            <ActivityIndicator size="large" color={'#202020'} />
           </View>
           : <>
             <View style={styles.container}>

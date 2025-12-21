@@ -7,7 +7,6 @@ import { useFetchData, DataList } from '@/helpers/general/handleFetchedData';
 import ImageLoader from '@/components/ImageLoader';
 import TruncatedText from '@/components/general/TruncatedText';
 import { formatTime } from '@/helpers/helpers';
-import SearchBar from '@/components/form/SearchBar';
 
 
 
@@ -16,7 +15,7 @@ export default function Messages() {
   const router = useRouter()
   const width = Dimensions.get('window').width;
   function RenderItem({ item }: { item: any }) {
-    const profileImage = item.other_participant.profile_image;
+    const profileImage = item.other_participant?.profile_image || '';
     const messageTime = formatTime(item.last_message_time)
     return (
       <Pressable
@@ -28,7 +27,7 @@ export default function Messages() {
         <ImageLoader size={48} uri={profileImage} />
         <View style={{ gap: 8, marginLeft: 16 }}>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline', width: width - 96 }}>
-            <Text style={{ fontSize: 15, fontWeight: 'bold' }}>{item.other_participant.first_name} {item.unseen_count > 0 && <Text style={{ color: "#737373" }}>({item.unseen_count})</Text>}</Text>
+            <Text style={{ fontSize: 15, fontWeight: 'bold' }}>{item.other_participant?.first_name || ''} {item.unseen_count > 0 && <Text style={{ color: "#737373" }}>({item.unseen_count})</Text>}</Text>
             <Text style={{ fontSize: 11, color: "#b4b4b4" }}>{messageTime}</Text>
           </View>
           <TruncatedText

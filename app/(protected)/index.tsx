@@ -94,7 +94,7 @@ const StreakContainer = () => {
       });
   }, []))
   return (
-    loading ? <View style={{ justifyContent: 'center', alignItems: 'center', height: 128 }}><ActivityIndicator /></View> :
+    loading ? <View style={{ justifyContent: 'center', alignItems: 'center', height: 128 }}><ActivityIndicator color={'#202020'} /></View> :
       <Pressable
         style={({ pressed }) => [streakContainerStyles.container, pressed && { borderColor: "#006dff" }]}
         onPress={() => router.push('/(protected)/home/streak')}

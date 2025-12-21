@@ -10,7 +10,7 @@ import BackgroundImageLoader from '@/components/BackgroundImageLoader';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTabPressScrollToTop } from '@/helpers/hooks/useTabBarScrollToTop';
-import { syncUser } from '@/zustand/stores';
+import syncUser from '@/helpers/general/syncUser';
 import { useFocusEffect } from 'expo-router';
 
 
@@ -142,7 +142,7 @@ export default function ProfileHome() {
       {
         loading ? (
           <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }} >
-            <ActivityIndicator size="large" />
+            <ActivityIndicator size="large" color={'#202020'} />
           </View>
         ) : <>
           <Profile user={user} onPostPress={() => setIndex(1)} />

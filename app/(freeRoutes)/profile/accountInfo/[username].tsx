@@ -10,6 +10,7 @@ import { useRouter } from 'expo-router';
 import { useAccountInfoStore } from '@/zustand/talks/accountInfoStore';
 import { toWords } from 'number-to-words';
 import { useUserStore } from '@/zustand/stores';
+import { formatMonthYear } from '@/helpers/helpers';
 
 function Content({ content, pressable = true, onPress = () => { } }: { content?: string, pressable?: boolean, onPress?: () => void }) {
   return (
@@ -41,7 +42,7 @@ function numberRepresentation(num: number) {
   }
 }
 
-function AccountInfo({ fullName, joined, isFollowing, votedPostsCount, comments_count, comments_mentions, username_changes_count }: { fullName?: string, joined?: string, isFollowing?: boolean, votedPostsCount?: number, comments_count?: number, comments_mentions?: number, username_changes_count?: number }) {
+function AccountInfo({ fullName, joined, isFollowing, followingSince, votedPostsCount, comments_count, comments_mentions, username_changes_count }: { fullName?: string, joined?: string, isFollowing?: boolean, followingSince?: string | null, votedPostsCount?: number, comments_count?: number, comments_mentions?: number, username_changes_count?: number }) {
   const router = useRouter();
   return (
     <View style={{ gap: 16 }}>
@@ -50,7 +51,7 @@ function AccountInfo({ fullName, joined, isFollowing, votedPostsCount, comments_
         pressable={false}
       />
       <Content
-        content={isFollowing ? `${fullName} is following you.` : `${fullName} isn't following you.`}
+        content={isFollowing ? `${fullName} started following you in ${formatMonthYear(followingSince || '')}` : `${fullName} isn't following you.`}
         pressable={false}
       />
       <Content
@@ -74,12 +75,12 @@ function AccountInfo({ fullName, joined, isFollowing, votedPostsCount, comments_
 }
 
 
-function SelfAccountInfo({ fullName, joined, isFollowing, votedPostsCount, comments_count, comments_mentions, username_changes_count }: { fullName?: string, joined?: string, isFollowing?: boolean, votedPostsCount?: number, comments_count?: number, comments_mentions?: number, username_changes_count?: number }) {
+function SelfAccountInfo({ fullName, joined, isFollowing, followingSince, votedPostsCount, comments_count, comments_mentions, username_changes_count }: { fullName?: string, joined?: string, isFollowing?: boolean, followingSince?: string | null, votedPostsCount?: number, comments_count?: number, comments_mentions?: number, username_changes_count?: number }) {
   const router = useRouter();
   return (
     <View style={{ gap: 16 }}>
       <Content content={`You joined in ${joined}.`} pressable={false} />
-      <Content content={isFollowing ? `You are following ${fullName}` : `You aren't following ${fullName}`} pressable={false} />
+      <Content content={isFollowing ? `You started following ${fullName} in ${formatMonthYear(followingSince || '')}` : `You aren't following ${fullName}`} pressable={false} />
       <Content
         content={votedPostsCount ? `You have voted on ${toWords(votedPostsCount)} of ${fullName}'s ${votedPostsCount > 1 ? 'posts' : 'post'}.` : `You haven't voted on any of ${fullName}'s posts.`}
         onPress={() => router.push('/(freeRoutes)/profile/detailedAccountInfo/3')}
@@ -136,7 +137,7 @@ export default function UserProfile() {
       {
         isLoading ? (
           <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-            <ActivityIndicator size="large" />
+            <ActivityIndicator size="large" color={'#202020'} />
           </View>
         ) : (
           <>
@@ -153,6 +154,7 @@ export default function UserProfile() {
                       fullName={`${userData?.first_name} ${userData?.last_name}`}
                       joined={userData?.account_age}
                       isFollowing={userData?.is_following}
+                      followingSince={userData?.following_since}
                       votedPostsCount={userData?.voted_posts_count}
                       comments_count={userData?.comments_count}
                       comments_mentions={userData?.comment_mentioned_posts.length}
@@ -164,6 +166,7 @@ export default function UserProfile() {
                       fullName={`${userData?.first_name} ${userData?.last_name}`}
                       joined={userData?.current_user_account_age}
                       isFollowing={userData?.you_following}
+                      followingSince={userData?.you_following_since}
                       votedPostsCount={userData?.your_voted_posts_count}
                       comments_count={userData?.your_comments_count}
                       comments_mentions={userData?.your_comment_mentioned_posts.length}
