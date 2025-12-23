@@ -381,7 +381,9 @@ export default function UserProfile() {
                       <MenuButton
                         onPress={() => {
                           menuRef?.current.close();
-                          shareProfileAsync();
+                          setTimeout(() => {
+                            shareProfileAsync();
+                          }, 300)
                         }}
                       >
                         <Text style={styles.menuButtonHeading}>Share Profile</Text>

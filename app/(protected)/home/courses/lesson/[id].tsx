@@ -6,6 +6,7 @@ import React from 'react';
 import { useGlobalSearchParams } from 'expo-router';
 import protectedApi from '@/helpers/axios';
 import Loading from '@/components/general/Loading';
+import errorHandler from '@/helpers/general/errorHandler';
 
 const breakpoints = ['quiz', 'miniTask', 'moveToNext']
 
@@ -42,6 +43,7 @@ export default function Introduction() {
         console.log(response.data.user_lesson_points)
         setData(response.data);
       } catch (error: any) {
+        errorHandler(error);
         console.error('Error fetching course data:', error.response.data);
       } finally {
         setLoading(false);

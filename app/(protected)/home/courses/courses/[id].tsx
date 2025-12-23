@@ -6,6 +6,7 @@ import { useGlobalSearchParams } from 'expo-router';
 import React from 'react';
 import protectedApi from '@/helpers/axios';
 import Loading from '@/components/general/Loading';
+import errorHandler from '@/helpers/general/errorHandler';
 import { useFocusEffect } from 'expo-router';
 
 const categoryMapping = {
@@ -29,6 +30,7 @@ export default function FullStackAi() {
           const response = await protectedApi.get(`/home/specializations/${id}/`);
           setData(response.data);
         } catch (error: any) {
+          errorHandler(error);
           console.error('Error fetching course data:', error.response.data);
         } finally {
           setLoading(false);

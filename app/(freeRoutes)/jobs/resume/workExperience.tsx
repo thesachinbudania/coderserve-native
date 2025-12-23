@@ -28,6 +28,7 @@ import * as zod from 'zod';
 import { useForm, SubmitHandler, Controller } from "react-hook-form";
 import handleApiError from "@/helpers/apiErrorHandler";
 import { useRouter } from "expo-router";
+import errorHandler from "@/helpers/general/errorHandler";
 
 const formSchema = zod.object({
   id: zod.number().optional(),
@@ -215,6 +216,9 @@ export default function WorkExperience() {
       if (response.data && searchText.length > 0) {
         setCompaniesSuggestions(response.data)
       }
+    }).catch(error => {
+      errorHandler(error, false);
+      console.log(error);
     })
   }
 

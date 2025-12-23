@@ -1,3 +1,4 @@
+import errorHandler from "./general/errorHandler";
 
 const handleApiError = (error: any, setError: any) => {
   const response = error?.response || {};
@@ -57,6 +58,7 @@ const handleApiError = (error: any, setError: any) => {
     type: "server",
     message: "Something went wrong. Please try again later.",
   });
+  errorHandler(error);
 };
 
 export default handleApiError;

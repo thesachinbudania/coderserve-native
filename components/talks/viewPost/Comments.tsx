@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, Image, Pressable, TextInput, ScrollView, KeyboardAvoidingView, Dimensions, StyleSheet } from 'react-native';
+import { View, Text, Image, Pressable, TextInput, ScrollView, KeyboardAvoidingView, Dimensions, StyleSheet, Keyboard, Animated } from 'react-native';
 import { useUserStore } from '@/zustand/stores';
 import protectedApi from '@/helpers/axios';
 import { useRouter } from 'expo-router';
@@ -9,7 +9,7 @@ import BlueButton from '@/components/buttons/BlueButton';
 import GreyBgButton from '@/components/buttons/GreyBgButton';
 import BottomDrawer from '@/components/BottomDrawer';
 import SmallTextButton from '@/components/buttons/SmallTextButton';
-import { Portal } from 'react-native-paper';
+import errorHandler from '@/helpers/general/errorHandler';
 
 const width = Dimensions.get('window').width;
 
@@ -186,7 +186,10 @@ export const Comments = ({ id, commentsCount, last_comment, onCommentAdded }: Co
             setComments(res.data.comments);
             setCanComment(res.data.can_comment);
         }).catch(
-            () => router.push('/(freeRoutes)/error')
+            (err: any) => {
+                errorHandler(err);
+                // router.push('/(freeRoutes)/error') // errorHandler handles redirection
+            }
         );
     }
 
@@ -207,7 +210,10 @@ export const Comments = ({ id, commentsCount, last_comment, onCommentAdded }: Co
             setReplyingId(null);
             setReplyingTo(null);
             onCommentAdded();
-        }).catch(err => console.log(err.response.data));
+        }).catch((err: any) => {
+            errorHandler(err);
+            console.log(err.response.data)
+        });
     }
 
     const handleCommentLongPress = (commentData: any, position: any, reply: boolean) => {
@@ -250,7 +256,8 @@ export const Comments = ({ id, commentsCount, last_comment, onCommentAdded }: Co
             setSelectedComment(null);
             // Refetch comments to ensure consistency
             onCommentAdded();
-        } catch (err) {
+        } catch (err: any) {
+            errorHandler(err);
             console.log('Error deleting comment:', err);
         } finally {
             setIsDeletingComment(false);
@@ -258,6 +265,38 @@ export const Comments = ({ id, commentsCount, last_comment, onCommentAdded }: Co
     };
 
     const { bottom } = useSafeAreaInsets();
+    // Track keyboard visibility state
+    const [keyboardOpen, setKeyboardOpen] = React.useState(false);
+
+    // Subscribe to keyboard show/hide events
+    React.useEffect(() => {
+        const showSubscription = Keyboard.addListener("keyboardDidShow", () => {
+            setKeyboardOpen(true);
+        });
+        const hideSubscription = Keyboard.addListener("keyboardDidHide", () => {
+            setKeyboardOpen(false);
+        });
+        // Cleanup listeners on unmount
+        return () => {
+            showSubscription.remove();
+            hideSubscription.remove();
+        };
+    }, []);
+
+    // Animated value for smooth bottom margin transition
+    // Animates between safe area bottom and 0 when keyboard opens/closes
+    const animatedMargin = React.useRef(new Animated.Value(bottom)).current;
+
+    // Animate margin when keyboard state changes
+    React.useEffect(() => {
+        Animated.timing(animatedMargin, {
+            toValue: keyboardOpen ? 0 : bottom, // Remove margin when keyboard is open
+            duration: 180,
+            useNativeDriver: false, // Layout animations require native driver to be false
+        }).start();
+    }, [keyboardOpen, bottom]);
+
+
     return (
         <View style={commentStyles.container}>
             <Text style={commentStyles.heading}>Comments <Text style={{ fontWeight: 'bold', color: '#737373' }}>{commentsCount}</Text></Text>
@@ -384,7 +423,7 @@ export const Comments = ({ id, commentsCount, last_comment, onCommentAdded }: Co
                             }
                             {
                                 canComment &&
-                                <View style={[commentStyles.commentInputContainer, { paddingBottom: bottom }]} onLayout={(e) => setCommentContainerHeight(e.nativeEvent.layout.height)}>
+                                <Animated.View style={[commentStyles.commentInputContainer, { marginBottom: animatedMargin }]} onLayout={(e) => setCommentContainerHeight(e.nativeEvent.layout.height)}>
                                     {
                                         replyingTo &&
                                         <Text style={{ color: '#006dff', marginLeft: 16, marginRight: -16 }}>@{replyingTo} </Text>
@@ -406,7 +445,7 @@ export const Comments = ({ id, commentsCount, last_comment, onCommentAdded }: Co
                                         style={({ pressed }) => [{ height: 45, width: 45, justifyContent: 'center', alignItems: 'center', backgroundColor: '#202020', borderRadius: 45, margin: 8, marginRight: 16 }, pressed && comment.length != 0 && { backgroundColor: '#006dff' }, comment.length == 0 && { backgroundColor: "#f5f5f5" }]}>
                                         <Image style={[{ transform: [{ rotate: '-90deg' }], height: 24, width: 24 }, { tintColor: comment.length === 0 ? '#d9d9d9' : 'white' }]} source={require('@/assets/images/arrows/right-arrow-white.png')} />
                                     </Pressable>
-                                </View>
+                                </Animated.View>
                             }
                         </View>
                     </View>

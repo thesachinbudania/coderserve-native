@@ -12,8 +12,10 @@ export default function BottomDrawer({
   draggableIconHeight = 3,
   height,
   onClose = () => { },
+  closeOnPressMask = true,
 }: {
   draggableIconHeight?: number,
+  closeOnPressMask?: boolean,
   sheetRef: React.RefObject<any>,
   children: React.ReactNode,
   height?: number,
@@ -41,6 +43,7 @@ export default function BottomDrawer({
       <RBSheet
         ref={sheetRef}
         height={height ? height : measuredHeight ?? 200} // fallback until measured
+        closeOnPressMask={closeOnPressMask}
         draggable={true}
         onClose={onClose}
         customStyles={{

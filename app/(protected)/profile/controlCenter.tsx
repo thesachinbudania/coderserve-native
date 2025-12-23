@@ -10,6 +10,7 @@ import { useTokensStore } from '@/zustand/stores';
 import BottomDrawer from '@/components/BottomDrawer';
 import GreyBgButton from '@/components/buttons/GreyBgButton';
 import BlueButton from '@/components/buttons/BlueButton';
+import errorHandler from '@/helpers/general/errorHandler';
 
 export default function ControlCentre() {
   const [search, setSearch] = React.useState('');
@@ -44,6 +45,10 @@ export default function ControlCentre() {
     setIsLoading(true);
     await protectedApi.post('/accounts/logout/', { refresh }).then(() => {
       setTokens({ refresh: '', access: '' });
+      setIsLoading(false);
+    }).catch((err) => {
+      errorHandler(err);
+      console.log('Error logging out', err);
       setIsLoading(false);
     })
   }
@@ -206,7 +211,7 @@ export default function ControlCentre() {
           </TouchableWithoutFeedback>
         </Animated.ScrollView>
       </View>
-      <BottomDrawer sheetRef={logoutDrawerRef} height={192} draggableIconHeight={0}>
+      <BottomDrawer sheetRef={logoutDrawerRef} draggableIconHeight={0}>
         <View style={{ paddingHorizontal: 16 }}>
           <Text style={{ fontSize: 15, fontWeight: 'bold', textAlign: 'center' }}>
             Logging out already?

@@ -12,6 +12,7 @@ import ChatInput from '@/components/messages/chat/ChatInput';
 import GreyBgButton from '@/components/buttons/GreyBgButton';
 import { Message, ChatListItem } from '@/components/messages/chat/types';
 import { useRouter } from 'expo-router';
+import errorHandler from '@/helpers/general/errorHandler';
 
 export default function InitiateSupport() {
     // State for chat messages and flow control
@@ -103,6 +104,8 @@ export default function InitiateSupport() {
             setMessages(prev => [...prev, systemResponse]);
             setTicketCreated(true)
         }).catch((err) => {
+            errorHandler(err, false);
+            alert('Error creating a ticket.')
             console.log('error creating a ticket', err.response.data)
         })
     };

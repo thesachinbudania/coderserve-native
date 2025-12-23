@@ -89,7 +89,7 @@ export default function Education({ page, setPage, setShowHeader, setScrollEnabl
         setJobsState({ degrees: response.data['degrees'] });
       }
       router.back();
-    }).catch(error => console.log(error));
+    }).catch(error => handleApiError(error, setError));
   }
 
   const handleUpdate: SubmitHandler<FormData> = async (data) => {

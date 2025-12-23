@@ -12,6 +12,7 @@ import dayjs from 'dayjs';
 import NoData from '@/components/general/NoData';
 import { apiUrl } from '@/constants/env';
 import { useNotificationsUnreadStore } from '@/zustand/stores';
+import errorHandler from '@/helpers/general/errorHandler';
 
 
 function FollowRequest({ request, handleRefresh, created_at }: { request: any, handleRefresh: () => void, created_at: string }) {
@@ -21,8 +22,8 @@ function FollowRequest({ request, handleRefresh, created_at }: { request: any, h
     try {
       await protectedApi.post(`/accounts/accept_follow_request/${request.request_id}/`);
       handleRefresh();
-      // Optionally, you can refresh the data or show a success message
-    } catch (error) {
+    } catch (error: any) {
+      errorHandler(error);
       console.error('Error accepting follow request:', error);
     } finally {
       setIsLoading(false);

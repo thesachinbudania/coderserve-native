@@ -5,6 +5,7 @@ import { Section, SectionContainer, SectionOption } from '@/components/general/O
 import { useRouter, useFocusEffect } from 'expo-router';
 import protectedApi from '@/helpers/axios';
 import SmallTextButton from '@/components/buttons/SmallTextButton';
+import errorHandler from '@/helpers/general/errorHandler';
 
 interface Ticket {
     id: string;
@@ -24,7 +25,8 @@ export default function HelpCentre() {
             setLoading(true);
             const response = await protectedApi.get('/talks/support/tickets/');
             setTickets(response.data.results);
-        } catch (error) {
+        } catch (error: any) {
+            errorHandler(error);
             console.log('Error fetching tickets:', error);
         } finally {
             setLoading(false);

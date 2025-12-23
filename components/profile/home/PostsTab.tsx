@@ -1,6 +1,7 @@
 import { StyleSheet, Pressable, Text, View } from 'react-native';
 import protectedApi from '@/helpers/axios';
 import React from 'react';
+import errorHandler from '@/helpers/general/errorHandler';
 import BottomName from './BottomName';
 import { useRouter } from 'expo-router';
 import SmallTextButton from '@/components/buttons/SmallTextButton';
@@ -31,6 +32,7 @@ export default function ({ editable = true, username, canView = true }: { canVie
     protectedApi.get(route).then((response) => {
       setData(response.data);
     }).catch((error) => {
+      errorHandler(error);
       console.error('Error fetching user posts:', error);
     });
   }, []);

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import protectedApi from './axios';
+import errorHandler from "@/helpers/general/errorHandler";
 
 interface UseFetchResult<T> {
   data: any;
@@ -23,6 +24,7 @@ export const useFetch = <T = unknown>(
       const response = await protectedApi.get(uri || url, { baseURL: '' });
       setData(response.data);
     } catch (err: any) {
+      errorHandler(err);
       console.log('Error fetching data:', err);
       setError('Something went wrong! Please try again later.');
     } finally {

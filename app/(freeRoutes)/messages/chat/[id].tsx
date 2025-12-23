@@ -26,6 +26,7 @@ import ChatInput from '@/components/messages/chat/ChatInput';
 import DateSeparator from '@/components/messages/chat/DateSeparator';
 import MenuOption from '@/components/messages/chat/MenuOption';
 import { Message, ChatListItem } from '@/components/messages/chat/types';
+import errorHandler from '@/helpers/general/errorHandler';
 
 dayjs.extend(isToday);
 dayjs.extend(isYesterday);
@@ -99,6 +100,7 @@ const Chat: React.FC = () => {
       }));
       setMessages(list);
     } catch (e: any) {
+      errorHandler(e);
       router.push('/(freeRoutes)/error');
     } finally {
       if (mounted) setInitialLoading(false);
@@ -179,9 +181,8 @@ const Chat: React.FC = () => {
         }
       } catch (err) { console.error('WS parse error', err); }
     };
-    ws.onerror = (err) => {
-      router.replace('/(freeRoutes)/error');
-      console.error('WS error', err);
+    ws.onerror = (err: any) => {
+      errorHandler(err);
     };
     return () => { ws.close(); };
   }, [id, token, username]);
@@ -245,9 +246,9 @@ const Chat: React.FC = () => {
       setInputText('');
       // ensure the sent message will be visible (WS will append the real message)
       scrollToBottom(true);
-    } catch (e) {
-      router.push('/(freeRoutes)/error');
-      console.error('WS send failed', e);
+    } catch (e: any) {
+      errorHandler(e, false);
+      alert('Failed to send message.');
     } finally {
       setSending(false);
     }
@@ -316,8 +317,9 @@ const Chat: React.FC = () => {
       // after removing temp id we still want the real message (arriving via WS) to show; ensure scroll
       scrollToBottom(true);
 
-    } catch (error) {
-      router.push('/(freeRoutes)/error');
+    } catch (error: any) {
+      errorHandler(error, false);
+      alert('Failed to upload image.');
       console.error('Image upload failed:', error);
       setMessages(prev => prev.map(msg =>
         msg.id === tempId ? { ...msg, error: 'Upload failed' } : msg
@@ -379,7 +381,8 @@ const Chat: React.FC = () => {
   function manageBlock() {
     protectedApi.put(`/accounts/block_user/${other.username}/`).then(() => {
       fetchData(true);
-    }).catch(e => {
+    }).catch((e: any) => {
+      errorHandler(e);
       console.error(e);
     });
   }
@@ -608,7 +611,8 @@ const Chat: React.FC = () => {
                     protectedApi.delete(`/home/delete_conversation/${id}/`).then(() => {
                       deleteChatRef?.current.close();
                       router.back();
-                    }).catch(e => {
+                    }).catch((e: any) => {
+                      errorHandler(e);
                       console.error(e);
                     })
                   }

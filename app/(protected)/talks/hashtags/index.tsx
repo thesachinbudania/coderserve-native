@@ -12,6 +12,7 @@ import DefaultButton from "@/components/buttons/NoBgButton";
 import BottomDrawer from "@/components/BottomDrawer";
 import { useGeneralStore } from "@/zustand/talks/generalStore";
 import GreyBgButton from "@/components/buttons/GreyBgButton";
+import errorHandler from "@/helpers/general/errorHandler";
 
 export default function Hashtags() {
     const [search, setSearch] = React.useState("");
@@ -45,7 +46,8 @@ export default function Hashtags() {
                 const response = await protectedApi.get("/talks/hashtags/popular/");
                 setPopularHashtags(response.data.results || []);
                 setNextUrl(response.data.next || null);
-            } catch (error) {
+            } catch (error: any) {
+                errorHandler(error);
                 console.error("Error fetching popular hashtags:", error);
             }
             finally {
@@ -62,8 +64,9 @@ export default function Hashtags() {
                 const names = (resp.data?.hashtags || []).map((h: any) => h.name);
                 setSelectedHashtags(names);
                 setInitialHashtags(names);
-            } catch (err) {
+            } catch (err: any) {
                 // silently ignore - user may not have prefs yet
+                errorHandler(err, false);
                 console.error('Error fetching hashtag preferences', err);
             }
         };
@@ -85,7 +88,8 @@ export default function Hashtags() {
                 const resp = await protectedApi.get(`/talks/hashtags/search/?q=${encodeURIComponent(search)}`);
                 const results = resp.data.results || [];
                 setSearchResults(results);
-            } catch (err) {
+            } catch (err: any) {
+                errorHandler(err);
                 console.error('Error searching hashtags', err);
                 setSearchResults([]);
             } finally {
@@ -141,7 +145,9 @@ export default function Hashtags() {
             // Show the 'new custom section' message only if they had no hashtags before and now saved some
             setShowNewCustomSection(wasEmptyInitially && savedNames.length > 0);
             sheetRef.current?.open();
-        } catch (err) {
+            sheetRef.current?.open();
+        } catch (err: any) {
+            errorHandler(err);
             console.error('Error saving hashtag preferences', err);
         } finally {
             setSaving(false);
@@ -160,7 +166,10 @@ export default function Hashtags() {
             setShowNewCustomSection(false);
             resetSheetRef.current?.close();
             router.back();
-        } catch (err) {
+            resetSheetRef.current?.close();
+            router.back();
+        } catch (err: any) {
+            errorHandler(err);
             console.error('Error resetting hashtags', err);
         } finally {
             setResetting(false);
@@ -223,7 +232,9 @@ export default function Hashtags() {
                                             const more = resp.data.results || [];
                                             setPopularHashtags(prev => [...prev, ...more]);
                                             setNextUrl(resp.data.next || null);
-                                        } catch (err) {
+                                            setNextUrl(resp.data.next || null);
+                                        } catch (err: any) {
+                                            errorHandler(err);
                                             console.error('Error loading more hashtags', err);
                                         } finally {
                                             setLoadingMore(false);

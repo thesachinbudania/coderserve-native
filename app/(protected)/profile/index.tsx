@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { ActivityIndicator, Dimensions, Image, Pressable, ScrollView, View, Text, Share, StyleSheet } from 'react-native';
 import BlueButton from '@/components/buttons/BlueButton';
-import IconButton from '@/components/profile/IconButton';
+import IconButton from '@/components/buttons/IconButton';
 import Tabs from '@/components/profile/home/Tabs';
 import { useUserStore } from '@/zustand/stores';
 import ImageLoader from '@/components/ImageLoader';
@@ -12,6 +12,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTabPressScrollToTop } from '@/helpers/hooks/useTabBarScrollToTop';
 import syncUser from '@/helpers/general/syncUser';
 import { useFocusEffect } from 'expo-router';
+import { useNotificationsUnreadStore } from '@/zustand/stores';
 
 
 export function ProfileButton({ count, onPress = () => { }, title, disabled = false }: { count: number, disabled?: boolean, onPress?: () => void, title: string }) {
@@ -117,6 +118,8 @@ export default function ProfileHome() {
     }
   }
 
+  const { account, journey, job_alerts, follow_requests, upvotes, downvotes, comments, replies, tags, support } = useNotificationsUnreadStore();
+
   return (
     <ScrollView
       contentContainerStyle={[{ backgroundColor: 'white', paddingTop: top }, loading && { flex: 1 }]}
@@ -132,8 +135,14 @@ export default function ProfileHome() {
     >
 
       <View style={styles.header}>
-        <IconButton>
-          <Image source={require('@/assets/images/profile/home/notifications.png')} style={styles.menuIcon} />
+        <IconButton
+          onPress={() => router.push('/(freeRoutes)/notifications')}
+          unread={account + journey + job_alerts + follow_requests + upvotes + downvotes + comments + replies + tags + support > 0}
+        >
+          <Image
+            source={require("@/assets/images/profile/home/notifications.png")}
+            style={{ width: 24, height: 24 }}
+          />
         </IconButton>
         <IconButton onPress={() => router.push('/profile/controlCenter')}>
           <Image source={require('@/assets/images/profile/home/menu.png')} style={styles.menuIcon} />

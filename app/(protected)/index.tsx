@@ -13,6 +13,7 @@ import protectedApi from '@/helpers/axios';
 import ProgressRing from '@/components/general/ProgressRing';
 import { useFocusEffect } from 'expo-router';
 import { useNotificationsUnreadStore } from '@/zustand/stores';
+import BottomDrawer from '@/components/BottomDrawer';
 
 const { width } = Dimensions.get('window');
 

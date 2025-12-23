@@ -18,14 +18,20 @@ import handleApiError from '@/helpers/apiErrorHandler';
 const formSchema = zod.object({
   email: zod.string().email('Something went wrong on our side! Please report the porblem to support.'),
   current_password: zod.string(),
-  new_password: zod.string(),
+  new_password: zod.string()
+    .min(8, { message: 'Password must be at least 8 characters long' })
+    .regex(/[A-Z]/, { message: 'Password must contain at least one uppercase letter' })
+    .regex(/[a-z]/, { message: 'Password must contain at least one lowercase letter' })
+    .regex(/[0-9]/, { message: 'Password must contain at least one number' })
+    .regex(/[^A-Za-z0-9]/, { message: 'Password must contain at least one special character (e.g., !, @, #)' })
+    .regex(/^(?!.*\b(first_name)\b).+$/i, { message: "Don't use your name in the password" }),
 })
 
 type FormData = zod.infer<typeof formSchema>
 
 
 export default function NewPasswordScreen({ currentPassword }: { currentPassword: string }) {
-  const email = useUserStore(state => state.email);
+  const { email, first_name } = useUserStore();
   const { handleSubmit, watch, setError: setFormError, control, formState: { errors, isSubmitting } } = useForm<FormData>({
     defaultValues: {
       email: email || '',
@@ -43,6 +49,7 @@ export default function NewPasswordScreen({ currentPassword }: { currentPassword
   const casingError = !/[A-Z]/.test(password) || !/[a-z]/.test(password);
   const noNumber = !/[0-9]/.test(password);
   const hasSC = !/[^A-Za-z0-9]/.test(password);
+  const containsName = password.toLowerCase().includes(first_name?.toLowerCase() || '');
 
   const [error, setError] = React.useState('');
   const router = useRouter();
@@ -52,11 +59,10 @@ export default function NewPasswordScreen({ currentPassword }: { currentPassword
   }, [password, confirmPass]);
 
   function isFormValid() {
-    return !insufficientLength && !casingError && !noNumber && !hasSC && password === confirmPass;
+    return !insufficientLength && !casingError && !noNumber && !hasSC && !containsName && password === confirmPass;
   }
 
   const savePassword: SubmitHandler<FormData> = async (data) => {
-    console.log('coming here with this data', data)
     await protectedApi.put('/accounts/change_password/', data).then((response) => {
       const access = response.data.access_token;
       const refresh = response.data.refresh_token;
@@ -95,6 +101,7 @@ export default function NewPasswordScreen({ currentPassword }: { currentPassword
             <ErrorMessage message='Contains both uppercase and lowercase letters' status={casingError ? 'error' : 'success'} />
             <ErrorMessage message='Includes number' status={noNumber ? 'error' : 'success'} />
             <ErrorMessage message='Contains at least one special character (e.g., !, @, #)' status={hasSC ? 'error' : 'success'} />
+            <ErrorMessage message="Don't use your name in the password" status={containsName ? 'error' : 'success'} />
           </View>
 
           )

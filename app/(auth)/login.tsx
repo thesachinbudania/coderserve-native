@@ -7,6 +7,7 @@ import FormInput from '@/components/form/FormInput';
 import handleApiError from '@/helpers/apiErrorHandler';
 import PasswordField from "@/components/form/PasswordField";
 import protectedApi from '@/helpers/axios';
+import errorHandler from '@/helpers/general/errorHandler';
 import React from 'react';
 import SmallTextButton from '@/components/buttons/SmallTextButton';
 import TimedError from '@/components/messsages/TimedError';
@@ -58,8 +59,13 @@ export default function SignIn() {
       const response = await api.post('/login/', data);
       setUser(response.data);
       setTokens({ refresh: response.data.token.refresh, access: response.data.token.access });
-      const resumeState = await protectedApi.get('/jobs/resume/update_resume/');
-      setJobsState(resumeState.data);
+      setTokens({ refresh: response.data.token.refresh, access: response.data.token.access });
+      try {
+        const resumeState = await protectedApi.get('/jobs/resume/update_resume/');
+        setJobsState(resumeState.data);
+      } catch (e: any) {
+        errorHandler(e);
+      }
       router.replace('/');
     } catch (error) {
       handleApiError(error, setError);
@@ -101,8 +107,8 @@ export default function SignIn() {
           <SmallTextButton title={'Forgot password?'} onPress={() => router.push('/(auth)/forgot_password')} />
         </View>
       </View>
-  {/* Error message for failed login */}
-  <TimedError messageKey={errorKey} message={errors.root?.message || ''} />
+      {/* Error message for failed login */}
+      <TimedError messageKey={errorKey} message={errors.root?.message || ''} />
       <DefaultButton
         title={'Sign In'}
         disabled={!(formState.email_or_username && formState.password)}

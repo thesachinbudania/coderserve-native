@@ -10,6 +10,7 @@ import * as zod from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm, SubmitHandler, Controller } from 'react-hook-form';
 import protectedApi from '@/helpers/axios';
+import errorHandler from '@/helpers/general/errorHandler';
 
 const formSchema = zod.object({
   background_pattern_code: zod.number(),
@@ -76,6 +77,7 @@ export default function Background() {
       setUser(({ background_pattern_code: background_pattern_code, background_type: 'default' }))
       router.back();
     }).catch((error) => {
+      errorHandler(error);
       console.log(error)
     })
   }

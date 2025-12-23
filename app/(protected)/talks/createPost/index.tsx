@@ -2,7 +2,7 @@ import { View } from 'react-native';
 import { SectionContainer, Section, SectionOption } from '@/components/general/OptionsSection';
 import PageLayout from '@/components/general/PageLayout';
 import BottomFixedSingleButton from '@/components/general/BottomFixedContainer';
-import NoBgButton from '@/components/buttons/NoBgButton'; 
+import NoBgButton from '@/components/buttons/NoBgButton';
 import BlueButton from '@/components/buttons/BlueButton';
 import { useRouter } from 'expo-router';
 import { useNewPostStore } from '@/zustand/talks/newPostStore';
@@ -11,6 +11,7 @@ import React from 'react';
 import * as zod from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import errorHandler from '@/helpers/general/errorHandler';
 
 export default function CreatePost() {
   const router = useRouter();
@@ -61,7 +62,7 @@ export default function CreatePost() {
       if (editId) {
         form.append('content', values.content)
       }
-      else{
+      else {
         form.append('content', JSON.stringify(values.content));
       }
       try {
@@ -86,15 +87,15 @@ export default function CreatePost() {
         }
         // also reset the local form values
         reset({ title: '', hashtags: [], content: '', thumbnail: undefined });
-        if (editId){
+        if (editId) {
           router.back();
         }
-        else{
-        router.push('/(protected)/talks');
+        else {
+          router.push('/(protected)/talks');
         }
       } catch (error: any) {
+        errorHandler(error);
         console.error('Error uploading post:', error?.response?.data || error);
-        throw error; // rethrow so isSubmitting toggles off
       }
     },
     (zodErrors) => {
@@ -145,7 +146,7 @@ export default function CreatePost() {
           <View style={{ flex: 1 / 2 }}>
             <BlueButton
               title={editId ? 'Update' : 'Post '}
-              disabled={!title || !hashtags.length || !content }
+              disabled={!title || !hashtags.length || !content}
               loading={isSubmitting}
               onPress={uploadPost}
             />

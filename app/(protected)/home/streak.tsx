@@ -4,6 +4,7 @@ import React from 'react';
 import protectedApi from '@/helpers/axios';
 import { useRouter } from 'expo-router';
 import { SuggestionCard } from '..';
+import errorHandler from '@/helpers/general/errorHandler';
 import FaqComponent from '@/components/general/Faq';
 import BottomName from '@/components/profile/home/BottomName';
 import { DateSelectorStreak } from '@/components/home/DateSelectorStreak';
@@ -131,6 +132,7 @@ export default function Streak() {
         setTopPerformers(res.data);
       })
       .catch((err) => {
+        errorHandler(err, false);
         console.error(err);
       })
       .finally(() => {
@@ -162,7 +164,10 @@ export default function Streak() {
       (res) => {
         setActivities(res.data)
       }
-    )
+    ).catch(err => {
+      errorHandler(err, false);
+      console.error(err);
+    })
   }
 
   const [initialFetch, setInitialFetch] = React.useState(false);
@@ -178,7 +183,11 @@ export default function Streak() {
     protectedApi.get("/home/streak/").then((res) => {
       setCurrentStreak(res.data.current_streak);
       setStreakRate(res.data.streak_rate);
+      setStreakRate(res.data.streak_rate);
       setLoaded((prev) => prev + 1);
+    }).catch(err => {
+      errorHandler(err, false);
+      console.error(err);
     })
   }, [])
   const date = new Date(selectedDate);

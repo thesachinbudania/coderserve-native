@@ -1,4 +1,4 @@
-import { Dimensions, Text, Pressable, View, Image, StyleSheet } from 'react-native';
+import { Dimensions, Text, Pressable, View, Image, StyleSheet, Linking, AppState } from 'react-native';
 import ListPageLayout from '@/components/general/ListPageLayout';
 import FloatingButton from '@/components/buttons/FlotingButton';
 import { useRouter } from 'expo-router';
@@ -7,6 +7,10 @@ import { useFetchData, DataList } from '@/helpers/general/handleFetchedData';
 import ImageLoader from '@/components/ImageLoader';
 import TruncatedText from '@/components/general/TruncatedText';
 import { formatTime } from '@/helpers/helpers';
+import * as Notification from 'expo-notifications';
+import BottomDrawer from '@/components/BottomDrawer';
+import BlueButton from '@/components/buttons/BlueButton';
+
 
 
 
@@ -53,6 +57,48 @@ export default function Messages() {
     }
   }, [searchQuery, combinedData]);
 
+
+  // show notification drawer if not permitted
+  const drawerRef = React.useRef<any>(null);
+  const [permission, setPermission] = React.useState<Notification.PermissionResponse | null>(null)
+
+  React.useEffect(() => {
+    Notification.getPermissionsAsync().then((permission) => {
+      setPermission(permission)
+    })
+  }, [])
+
+  const checkPermissions = () => {
+    if (permission && !permission.granted) {
+      setTimeout(() => {
+        drawerRef.current?.open()
+      }, 2000)
+    }
+    else {
+      drawerRef.current?.close()
+    }
+  }
+
+  React.useEffect(() => {
+    checkPermissions()
+  }, [permission])
+
+  // check for permissions again after switching to the app
+  React.useEffect(() => {
+    const subscription = AppState.addEventListener('change', (nextAppState) => {
+      if (nextAppState === 'active') {
+        checkPermissions();
+      }
+    });
+
+    return () => {
+      subscription.remove();
+    };
+  }, []);
+
+
+
+
   return (
     <>
       <ListPageLayout
@@ -83,6 +129,24 @@ export default function Messages() {
       <FloatingButton
         onPress={() => router.push('/(freeRoutes)/messages/recipients')}
       />
+      <BottomDrawer
+        sheetRef={drawerRef}
+        draggableIconHeight={0}
+        closeOnPressMask={false}
+      >
+        <View style={{ marginHorizontal: 16 }}>
+          <Image source={require('@/assets/images/home/allowNotifications.png')} style={{ height: 60, width: 60, marginHorizontal: 'auto' }} />
+          <Text style={{ fontSize: 15, fontWeight: 'bold', textAlign: 'center', marginTop: 12 }}>Enable Notifications to Use Messages</Text>
+          <Text style={{ fontSize: 13, textAlign: 'center', color: "#73737", marginTop: 12 }}>To receive and reply to messages in real time, notifications are required. Enable notifications so you never miss a message or important update on Coder Serve.</Text>
+          <BlueButton
+            title="Allow notifications"
+            style={{ marginTop: 32 }}
+            onPress={() => {
+              Linking.openSettings();
+            }}
+          />
+        </View>
+      </BottomDrawer>
     </>
   )
 }

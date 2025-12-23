@@ -30,6 +30,7 @@ import Search from "@/components/talks/home/Search";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useGeneralStore } from "@/zustand/talks/generalStore";
 import { useFocusEffect } from "expo-router";
+import errorHandler from "@/helpers/general/errorHandler";
 
 const width = Dimensions.get("window").width;
 
@@ -240,7 +241,8 @@ export default function Page() {
         const response = await protectedApi.get(`talks/search_suggestions/?q=${encodeURIComponent(search)}`);
         const data = await response.data;
         setSearchResults(data);
-      } catch (error) {
+      } catch (error: any) {
+        errorHandler(error, false);
         console.error("Error fetching search results:", error);
       }
     };
@@ -259,7 +261,8 @@ export default function Page() {
       const resp = await protectedApi.get('/talks/preferences/hashtags/');
       const names = (resp.data?.hashtags || []).map((h: any) => h.name);
       setHashtagsFollowed(names);
-    } catch (err) {
+    } catch (err: any) {
+      errorHandler(err, false);
       console.error('Error fetching hashtag preferences', err);
     } finally {
       setLoadingPrefs(false);
@@ -509,7 +512,13 @@ export default function Page() {
               Follow topics that interest you the most.
             </Text>
           </MenuButton>
-          <MenuButton dark>
+          <MenuButton
+            dark
+            onPress={() => {
+              menuRef?.current.close();
+              router.push("/(freeRoutes)/goPro");
+            }}
+          >
             <Text
               style={[styles.menuButtonHeading, { color: "white" }]}
             >

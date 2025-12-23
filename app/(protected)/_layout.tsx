@@ -10,9 +10,13 @@ import { Redirect, Tabs, useSegments, usePathname } from 'expo-router'
 import * as SecureStore from 'expo-secure-store'
 import DeviceInfo from 'react-native-device-info'
 import React from 'react'
-import { View, ActivityIndicator, StatusBar, Keyboard, TouchableWithoutFeedback, Pressable } from 'react-native';
+import { Image, View, ActivityIndicator, StatusBar, Keyboard, TouchableWithoutFeedback, Pressable, Text } from 'react-native';
 import { notify } from '@alexsandersarmento/react-native-event-emitter'
 import { websocketUrl } from "@/constants/env";
+import BottomDrawer from "@/components/BottomDrawer";
+import * as Notification from 'expo-notifications'
+import BlueButton from "@/components/buttons/BlueButton";
+import errorHandler from "@/helpers/general/errorHandler";
 
 function LoadingScreen() {
   return (
@@ -32,6 +36,26 @@ const AppTabs = () => {
   const segment = useSegments()
   const pathname = usePathname()
   const [showFooter, setShowFooter] = React.useState(true)
+  const drawerRef = React.useRef<any>(null);
+  const [permission, setPermission] = React.useState<Notification.PermissionResponse | null>(null)
+
+  React.useEffect(() => {
+    Notification.getPermissionsAsync().then((permission) => {
+      setPermission(permission)
+    })
+  }, [])
+
+  React.useEffect(() => {
+    if (permission?.canAskAgain && !permission?.granted) {
+      setTimeout(() => {
+        drawerRef.current?.open()
+      }, 10000)
+    }
+    else {
+      drawerRef.current?.close()
+    }
+  }, [permission])
+
 
   // List of exact paths where footer should be visible
   const visiblePaths = [
@@ -87,6 +111,29 @@ const AppTabs = () => {
             <Tabs.Screen name='profile' options={{ tabBarIcon: ProfileIcon, tabBarLabel: 'Profile' }} />
             <Tabs.Screen name='home' options={{ href: null }} />
           </Tabs>
+          <BottomDrawer
+            sheetRef={drawerRef}
+            draggableIconHeight={0}
+            closeOnPressMask={false}
+          >
+            <View style={{ marginHorizontal: 16 }}>
+              <Image source={require('@/assets/images/home/allowNotifications.png')} style={{ height: 60, width: 60, marginHorizontal: 'auto' }} />
+              <Text style={{ fontSize: 15, fontWeight: 'bold', textAlign: 'center', marginTop: 12 }}>Stay in the Loop</Text>
+              <Text style={{ fontSize: 13, textAlign: 'center', color: "#73737", marginTop: 12 }}>Don't miss out! Enable notifications so we can keep you updated with important alerts, messages, and new opportunities on CoderServe.</Text>
+              <BlueButton
+                title="Allow notifications"
+                style={{ marginTop: 32 }}
+                onPress={() => {
+                  Notification.requestPermissionsAsync().then((permission) => {
+                    setPermission(permission)
+                    if (permission?.granted) {
+                      drawerRef.current?.close()
+                    }
+                  })
+                }}
+              />
+            </View>
+          </BottomDrawer>
         </View>
       </>
     </TouchableWithoutFeedback>
@@ -122,12 +169,9 @@ export default function AuthProvider() {
           setNotificationsUnread(data.unread_count)
         }
       }
-      ws.onerror = (error) => {
-        console.error('WebSocket error:', error)
-      }
     }
     catch {
-      console.log('WebSocket connection failed')
+      errorHandler(new Error('WebSocket connection failed'), false)
     }
   }, [refresh, access])
 
@@ -146,7 +190,7 @@ export default function AuthProvider() {
         setJobsState(resumeState.data)
       }
     } catch (error) {
-      console.log('Auth validation error:', error)
+      errorHandler(error as Error)
     } finally {
       setIsLoading(false)
     }

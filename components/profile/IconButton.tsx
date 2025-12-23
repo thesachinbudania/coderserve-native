@@ -2,7 +2,7 @@ import { StyleSheet, View, Pressable } from 'react-native';
 import React from 'react';
 import * as Haptics from 'expo-haptics';
 
-export default function IconButton({ children, onPress = () => { } }: { children: React.ReactNode, onPress?: () => void }) {
+export default function IconButton({ children, onPress = () => { }, dark = false }: { children: React.ReactNode, onPress?: () => void, dark?: boolean }) {
 	return (
 		<Pressable onPress={() => {
 			Haptics.selectionAsync();
@@ -10,7 +10,7 @@ export default function IconButton({ children, onPress = () => { } }: { children
 		}}>
 			{
 				({ pressed }) => (
-					<View style={[styles.menuIconContainer, pressed && { backgroundColor: '#d9d9d9' }]}>
+					<View style={[styles.menuIconContainer, dark && { backgroundColor: '#111111' }, pressed && { backgroundColor: dark ? '#202020' : '#d9d9d9' }]}>
 						{children}
 					</View>
 				)

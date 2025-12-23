@@ -10,6 +10,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm, Controller, SubmitHandler } from 'react-hook-form';
 import secureApi from '@/helpers/auth/axios';
 import handleApiError from '@/helpers/apiErrorHandler';
+import { useUserStore } from '@/zustand/stores';
 
 const formSchema = zod.object({
 	email: zod.string().email(),
@@ -18,7 +19,8 @@ const formSchema = zod.object({
 		.regex(/[A-Z]/, { message: 'Password must contain at least one uppercase letter' })
 		.regex(/[a-z]/, { message: 'Password must contain at least one lowercase letter' })
 		.regex(/[0-9]/, { message: 'Password must contain at least one number' })
-		.regex(/[^A-Za-z0-9]/, { message: 'Password must contain at least one special character (e.g., !, @, #)' }),
+		.regex(/[^A-Za-z0-9]/, { message: 'Password must contain at least one special character (e.g., !, @, #)' })
+		.regex(/^(?!.*\b(first_name)\b).+$/i, { message: "Don't use your name in the password" }),
 })
 
 type FormData = zod.infer<typeof formSchema>;
@@ -35,14 +37,17 @@ export default function PasswordScreen({ email, setScreen }: { email: string, se
 	const { password } = watch();
 	const [confirmPass, setConfirmPass] = React.useState('');
 
+	const { first_name } = useUserStore((state) => state);
+
 	// states for taking care of errors in password
 	const insufficientLength = password.length < 8;
 	const casingError = !/[A-Z]/.test(password) || !/[a-z]/.test(password);
 	const noNumber = !/[0-9]/.test(password);
 	const hasSC = !/[^A-Za-z0-9]/.test(password);
+	const containsName = password.toLowerCase().includes(first_name?.toLowerCase() || '');
 
 	function isFormValid() {
-		return !insufficientLength && !casingError && !noNumber && !hasSC && password === confirmPass;
+		return !insufficientLength && !casingError && !noNumber && !hasSC && password === confirmPass && !containsName;
 	}
 
 	const savePassword: SubmitHandler<FormData> = async (data) => {
@@ -78,6 +83,7 @@ export default function PasswordScreen({ email, setScreen }: { email: string, se
 						<ErrorMessage message='Contains both uppercase and lowercase letters' status={casingError ? 'error' : 'success'} />
 						<ErrorMessage message='Includes number' status={noNumber ? 'error' : 'success'} />
 						<ErrorMessage message='Contains at least one special character (e.g., !, @, #)' status={hasSC ? 'error' : 'success'} />
+						<ErrorMessage message="Don't use your name in the password" status={containsName ? 'error' : 'success'} />
 					</View>
 
 					)

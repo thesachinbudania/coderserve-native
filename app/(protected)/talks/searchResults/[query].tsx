@@ -8,6 +8,7 @@ import { useRouter } from 'expo-router';
 import ImageLoader from '@/components/ImageLoader';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import OptionChip from '@/components/general/OptionChip';
+import errorHandler from '@/helpers/general/errorHandler';
 
 
 function SearchBar({ text = '', onChangeText, isFocused, setIsFocused, placeholder = null, placholderText = [], onSubmitEditing }: { onSubmitEditing?: () => void, text?: string, onChangeText: React.Dispatch<React.SetStateAction<string>>, isFocused: boolean, placeholder?: string | null, placholderText?: string[], setIsFocused: React.Dispatch<React.SetStateAction<boolean>> }) {
@@ -114,7 +115,8 @@ export default function Search() {
         const response = await protectedApi.get(`talks/search_suggestions/?q=${encodeURIComponent(search)}`);
         const data = await response.data;
         setSearchTerms(data);
-      } catch (error) {
+      } catch (error: any) {
+        errorHandler(error, false);
         console.error("Error fetching search results:", error);
       }
     };
@@ -153,7 +155,8 @@ export default function Search() {
         }
       });
       setSearchResults(response.data);
-    } catch (error) {
+    } catch (error: any) {
+      errorHandler(error);
       console.error('Error fetching search results:', error);
     } finally {
       setIsLoading(false);

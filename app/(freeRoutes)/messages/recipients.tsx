@@ -5,6 +5,7 @@ import React from 'react';
 import { useFetchData, DataList } from '@/helpers/general/handleFetchedData';
 import ImageLoader from '@/components/ImageLoader';
 import { useRouter } from 'expo-router';
+import errorHandler from '@/helpers/general/errorHandler';
 
 export default function Recipients() {
   const router = useRouter();
@@ -17,6 +18,7 @@ export default function Recipients() {
       setIsInitiating(false);
       router.push('/(freeRoutes)/messages/chat/' + res.data.id);
     }).catch((err) => {
+      errorHandler(err);
       console.error(err.response.data);
       setIsInitiating(false);
     });
@@ -59,7 +61,7 @@ export default function Recipients() {
               onRefresh={handleRefresh}
               onSearchChange={setSearchQuery}
             /> :
-            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', marginHorizontal: 16, marginTop: -57 }}>
               <Image source={require('@/assets/images/stars.png')} style={{ width: 128, height: 128 }} />
               <Text style={{ marginTop: 32, textAlign: 'center', fontSize: 11, color: '#a6a6a6' }}>Follow someone or gain followers to unlock conversations. Your first chat could lead to something amazing!</Text>
             </View>

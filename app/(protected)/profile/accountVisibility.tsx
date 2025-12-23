@@ -9,6 +9,7 @@ import * as zod from 'zod';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import protectedApi from '@/helpers/axios';
+import errorHandler from '@/helpers/general/errorHandler';
 
 const formSchema = zod.object({
   permission_status: zod.number().int().min(0).max(4).nullish()
@@ -36,7 +37,9 @@ export default function AccountVisibility() {
         const response = await protectedApi.get('/accounts/user_visibility/');
         setValue('permission_status', response.data.visibility);
         setIsLoading(false);
-      } catch (error) {
+        setIsLoading(false);
+      } catch (error: any) {
+        errorHandler(error);
         console.error('Error fetching current visibility status:', error);
       }
     }
@@ -50,7 +53,10 @@ export default function AccountVisibility() {
       });
       setValue('permission_status', permissionStatus === 0 ? 1 : 0);
       drawerRef.current?.close();
-    } catch (error) {
+      setValue('permission_status', permissionStatus === 0 ? 1 : 0);
+      drawerRef.current?.close();
+    } catch (error: any) {
+      errorHandler(error);
       console.error('Error updating account visibility:', error);
     }
   }

@@ -3,6 +3,7 @@ import { View, KeyboardAvoidingView, Platform, FlatList, StyleSheet, ActivityInd
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import protectedApi from '@/helpers/axios';
 import { useUserStore } from '@/zustand/stores';
+import errorHandler from '@/helpers/general/errorHandler';
 import dayjs from 'dayjs';
 import isToday from 'dayjs/plugin/isToday';
 import isYesterday from 'dayjs/plugin/isYesterday';
@@ -51,7 +52,8 @@ const SupportChat = () => {
                 isFirstInGroup: false, // will update in useMemo
             }));
             setMessages(adaptedMessages);
-        } catch (error) {
+        } catch (error: any) {
+            errorHandler(error);
             console.log('Error fetching messages:', error);
             // alert('Failed to load messages');
         } finally {
@@ -63,7 +65,8 @@ const SupportChat = () => {
         try {
             const response = await protectedApi.get(`/talks/support/tickets/${id}/`);
             setTicket(response.data);
-        } catch (error) {
+        } catch (error: any) {
+            errorHandler(error);
             console.log('Error fetching ticket details:', error);
         }
     };
@@ -108,7 +111,8 @@ const SupportChat = () => {
 
             // Refresh to get real ID and any auto-replies
             fetchMessages();
-        } catch (error) {
+        } catch (error: any) {
+            errorHandler(error, false);
             console.log('Error sending message:', error);
             alert('Failed to send message');
             // Remove optimistic message? or show error state.
@@ -179,7 +183,8 @@ const SupportChat = () => {
             // Refresh messages to get the real message from server
             fetchMessages();
 
-        } catch (error) {
+        } catch (error: any) {
+            errorHandler(error, false);
             console.error('Image upload failed:', error);
             alert('Failed to upload image');
             setMessages(prev => prev.map(msg =>

@@ -10,6 +10,7 @@ import BlueButton from "@/components/buttons/BlueButton";
 import BottomDrawer from "@/components/BottomDrawer";
 import GreyBgButton from "@/components/buttons/GreyBgButton";
 import protectedApi from "@/helpers/axios";
+import errorHandler from "@/helpers/general/errorHandler";
 
 const options = [
   { 'Everyone': 'Anyone can tag me in their posts and comments.' },
@@ -47,7 +48,9 @@ export default function CommentPersmissions() {
         setValue('permission_status', response.data.tag_permissions);
         setCurrentPermission(response.data.tag_permissions);
         setInitialLoading(false);
-      } catch (error) {
+        setInitialLoading(false);
+      } catch (error: any) {
+        errorHandler(error);
         console.error('Error fetching current permission status:', error);
       }
     }
@@ -61,7 +64,10 @@ export default function CommentPersmissions() {
       });
       setCurrentPermission(data.permission_status || 0);
       drawerRef.current?.close();
-    } catch (error) {
+      setCurrentPermission(data.permission_status || 0);
+      drawerRef.current?.close();
+    } catch (error: any) {
+      errorHandler(error);
       console.error('Error updating permission status:', error);
     }
   };

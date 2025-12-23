@@ -2,6 +2,7 @@ import protectedApi from "@/helpers/axios";
 import VoteButton from "@/components/buttons/VoteButton";
 import { View, Text } from "react-native";
 import { StyleSheet } from "react-native";
+import errorHandler from "@/helpers/general/errorHandler";
 
 // --- Vote component: handles upvote/downvote logic and UI ---
 export const Votes = ({ id, upvoted, downvoted, setUpvoted, setDownvoted, setUpvotes, setDownvotes, upvotes, downvotes }: { id: string, upvoted: boolean, downvoted: boolean, setUpvoted: (downvoted: boolean) => void, setDownvoted: (upvoted: boolean) => void, setUpvotes: (upvotes: number) => void, setDownvotes: (downvotes: number) => void, upvotes: number, downvotes: number }) => {
@@ -20,6 +21,7 @@ export const Votes = ({ id, upvoted, downvoted, setUpvoted, setDownvoted, setUpv
                 }
             })
             .catch(err => {
+                errorHandler(err);
                 console.error('Error upvoting post:', err.response.data);
             });
     }
@@ -38,6 +40,7 @@ export const Votes = ({ id, upvoted, downvoted, setUpvoted, setDownvoted, setUpv
                 }
             })
             .catch(err => {
+                errorHandler(err);
                 console.error('Error downvoting post:', err.response.data);
             });
     }
