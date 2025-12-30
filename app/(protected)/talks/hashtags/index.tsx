@@ -252,9 +252,6 @@ export default function Hashtags() {
                         initialHashtags.length > 0 ? (
                             <View style={{ flexDirection: 'row', gap: 12 }}>
                                 <View style={{ flex: 1 }}>
-                                    <DefaultButton title='Reset' loading={resetting} onPress={() => resetSheetRef.current?.open()} />
-                                </View>
-                                <View style={{ flex: 1 }}>
                                     <BlueButton
                                         title='Update'
                                         loading={saving}
@@ -298,15 +295,19 @@ export default function Hashtags() {
                 draggableIconHeight={0}
             >
                 <View style={{ paddingHorizontal: 16 }}>
-                    <Text style={{ textAlign: 'center', fontSize: 15, fontWeight: 'bold' }}>Hashtags {!showNewCustomSection ? 'Updated!' : 'Saved!'}</Text>
+                    <Text style={{ textAlign: 'center', fontSize: 15, fontWeight: 'bold' }}>Hashtags {selectedHashtags.length == 0 ? 'Removed!' : !showNewCustomSection ? 'Updated!' : 'Saved!'}</Text>
                     <Text style={{ fontSize: 13, color: "#a6a6a6", marginTop: 16, textAlign: 'center' }}>
-                        {(showNewCustomSection)
-                            ? `You'll now see a new "Custom" section in Talks featuring posts that match your selected interests.`
-                            : `Your interests have been refreshed. You'll now see posts in "Custom" that reflect your updated hashtags.`
+                        {selectedHashtags.length == 0 ? 'You have removed all saved hashtags. The "Custom" section is no longer active, and Talks is back to the default feed.' :
+                            (showNewCustomSection)
+                                ? `You'll now see a new "Custom" section in Talks featuring posts that match your selected interests.`
+                                : `Your interests have been refreshed. You'll now see posts in "Custom" that reflect your updated hashtags.`
                         }
                     </Text>
                     <View style={{ marginTop: 32 }}>
-                        <BlueButton title="Okay" onPress={() => router.back()} />
+                        <BlueButton title="Okay" onPress={() => {
+                            sheetRef.current?.close();
+                            router.back();
+                        }} />
                     </View>
                 </View>
             </BottomDrawer>

@@ -153,7 +153,7 @@ export default function PreviewPost() {
   const { title, hashtags, thumbnail, content } = useNewPostStore();
   return (
     <ScrollView
-      contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 48, backgroundColor: 'white', flex: 1 }}
+      contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 48, backgroundColor: 'white', minHeight: "100%" }}
     >
       <Header />
       <PostContent title={title} hashtags={hashtags} thumbnail={thumbnail ? thumbnail.uri : undefined} content={content} />

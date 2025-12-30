@@ -8,6 +8,8 @@ export default function useSearchBar({ isSearchFocused, setIsSearchFocused }: { 
   const searchBarMarginTop = useAnimatedValue(0);
   const contentWidth = useAnimatedValue(width - 32);
   const contentOpacity = useAnimatedValue(1);
+  const scaleX = React.useRef(new Animated.Value(1)).current;
+  const targetScale = width / (width - 32);
   const router = useRouter();
 
   const [keyboardVisible, setKeyboardVisible] = React.useState(false);
@@ -62,6 +64,11 @@ export default function useSearchBar({ isSearchFocused, setIsSearchFocused }: { 
         duration: 200,
         useNativeDriver: true,
       }).start();
+      Animated.timing(scaleX, {
+        toValue: targetScale,
+        duration: 200,
+        useNativeDriver: true,
+      }).start();
     } else {
       Animated.timing(searchBarMarginTop, {
         toValue: 0,
@@ -78,7 +85,12 @@ export default function useSearchBar({ isSearchFocused, setIsSearchFocused }: { 
         duration: 200,
         useNativeDriver: true,
       }).start();
+      Animated.timing(scaleX, {
+        toValue: 1,
+        duration: 200,
+        useNativeDriver: true,
+      }).start();
     }
   });
-  return { searchBarMarginTop, contentWidth, contentOpacity }
+  return { searchBarMarginTop, contentWidth, contentOpacity, scaleX }
 }

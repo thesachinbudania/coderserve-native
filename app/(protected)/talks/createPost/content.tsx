@@ -28,8 +28,8 @@ function ImageFormatButton({ onPress, active, icon, disabled }: ImageFormatButto
   return (
     <Pressable
       style={({ pressed }) => [{ borderWidth: 1, borderRadius: 8, borderColor: '#f5f5f5', height: 40, width: 40, alignItems: 'center', justifyContent: 'center', },
-      active && { backgroundColor: '#006dff', borderColor: '#006dff' }, pressed && !disabled && { backgroundColor: active ? '#202020' :'#f5f5f5', borderColor: active ? '#202020' : '#f5f5f5' }]}
-      onPress={disabled ? () => {} : onPress}
+      active && { backgroundColor: '#006dff', borderColor: '#006dff' }, pressed && !disabled && { backgroundColor: active ? '#202020' : '#f5f5f5', borderColor: active ? '#202020' : '#f5f5f5' }]}
+      onPress={disabled ? () => { } : onPress}
     >
       {
         ({ pressed }) =>
@@ -46,8 +46,8 @@ function FormatButton({ onPress, active, title, toggleable = false }: FormatButt
   return (
     <Pressable
       style={({ pressed }) => [{ borderWidth: 1, borderRadius: 8, height: 40, borderColor: '#f5f5f5', paddingHorizontal: 16, alignItems: 'center', justifyContent: 'center', },
-        
-      active && { backgroundColor: '#006dff', borderColor: '#006dff' }, !toggleable && pressed && { backgroundColor: '#006dff', borderColor: '#006dff' }, pressed && {backgroundColor: active ? '#202020' : "#f5f5f5" , borderColor: active ? '#202020' : "#f5f5f5" }]}
+
+      active && { backgroundColor: '#006dff', borderColor: '#006dff' }, !toggleable && pressed && { backgroundColor: '#006dff', borderColor: '#006dff' }, pressed && { backgroundColor: active ? '#202020' : "#f5f5f5", borderColor: active ? '#202020' : "#f5f5f5" }]}
       onPress={onPress}
     >
       {
@@ -136,83 +136,83 @@ const TextTypeButton = ({ isHeading, isHeading2, setIsHeading, setIsHeading2, ch
       {isOpen && (
         <Portal>
           <KeyboardAvoidingView behavior="padding" style={{ position: 'absolute', top: 0, bottom: 0, right: 0, left: 0, zIndex: 20 }}>
-          <Pressable
-            style={{ position: 'absolute', top: 0, bottom: 0, right: 0, left: 0, backgroundColor: 'black', opacity: 0.4 }}
-            onPress={() => setIsOpen(false)}
-          >
-          </Pressable>
-          <View
-            style={{
+            <Pressable
+              style={{ position: 'absolute', top: 0, bottom: 0, right: 0, left: 0, backgroundColor: 'black', opacity: 0.4 }}
+              onPress={() => setIsOpen(false)}
+            >
+            </Pressable>
+            <View
+              style={{
+                position: 'absolute',
+                left: popupPos.left,
+                top: popupPos.top,
+                width: popupWidth,
+                backgroundColor: 'white',
+                borderWidth: 1,
+                borderColor: '#eeeeee',
+                borderRadius: 8,
+                zIndex: 30,
+                padding: 16,
+                gap: 16
+              }}
+            >
+              <Pressable onPress={() => {
+                setIsOpen(false)
+                setIsHeading && setIsHeading(true)
+                setIsHeading2 && setIsHeading2(false)
+                setChangeHeading && setChangeHeading(!changeHeading)
+                if (isHeading2 && setChangeHeading2) setChangeHeading2(!changeHeading2)
+
+              }} >
+                {
+                  ({ pressed }) => <Text style={{ fontSize: 17, fontWeight: 'bold', color: pressed ? '#006dff' : '#000' }}>Heading 1</Text>
+                }
+              </Pressable>
+              <Pressable onPress={() => {
+                setIsOpen(false)
+                setIsHeading && setIsHeading(false)
+                setIsHeading2 && setIsHeading2(true)
+                if (isHeading && setChangeHeading) setChangeHeading(!changeHeading)
+                setChangeHeading2 && setChangeHeading2(!changeHeading2)
+              }} >
+                {
+                  ({ pressed }) => <Text style={{ fontSize: 15, fontWeight: 'bold', color: pressed ? '#006dff' : '#000' }}>Heading 2</Text>
+                }
+              </Pressable>
+              <Pressable onPress={() => {
+                setIsOpen(false)
+                setIsHeading && setIsHeading(false)
+                setIsHeading2 && setIsHeading2(false)
+                if (isHeading && setChangeHeading) setChangeHeading(!changeHeading)
+                if (isHeading2 && setChangeHeading2) setChangeHeading2(!changeHeading2)
+              }} >
+                {
+                  ({ pressed }) => <Text style={{ fontSize: 13, color: pressed ? '#006dff' : '#737373' }}>Paragraph</Text>
+                }
+              </Pressable>
+
+            </View>
+            <Pressable style={{
               position: 'absolute',
-              left: popupPos.left,
-              top: popupPos.top,
+              left: leftButtonPos,
+              top: popupPos.top + 148,
               width: popupWidth,
-              backgroundColor: 'white',
               borderWidth: 1,
-              borderColor: '#eeeeee',
-              borderRadius: 8,
-              zIndex: 30,
-              padding: 16,
-              gap: 16
+              borderColor: '#f5f5f5',
+              borderRadius: 6,
+              height: 40,
+              paddingHorizontal: 16,
+              alignItems: 'center',
+              justifyContent: 'center',
+              flexDirection: 'row',
+              gap: 8,
+              backgroundColor: 'white',
             }}
-          >
-            <Pressable onPress={() => {
-              setIsOpen(false)
-              setIsHeading && setIsHeading(true)
-              setIsHeading2 && setIsHeading2(false)
-              setChangeHeading && setChangeHeading(!changeHeading)
-              setChangeHeading2 && setChangeHeading2(false)
-
-            }} >
-              {
-                ({ pressed }) => <Text style={{ fontSize: 17, fontWeight: 'bold', color: pressed ? '#006dff' : '#000' }}>Heading 1</Text>
-              }
+              onPress={togglePopup}
+            >
+              <Text style={{ fontSize: 13 }}>{isHeading ? 'Heading 1' : isHeading2 ? 'Heading 2' : 'Paragraph'}</Text>
+              <Image source={require('@/assets/images/home/greyDownArrow.png')} style={{ width: 10, height: 8 }} />
             </Pressable>
-            <Pressable onPress={() => {
-              setIsOpen(false)
-              setIsHeading && setIsHeading(false)
-              setIsHeading2 && setIsHeading2(true)
-              setChangeHeading && setChangeHeading(false)
-              setChangeHeading2 && setChangeHeading2(!changeHeading2)
-            }} >
-              {
-                ({ pressed }) => <Text style={{ fontSize: 15, fontWeight: 'bold', color: pressed ? '#006dff' : '#000' }}>Heading 2</Text>
-              }
-            </Pressable>
-            <Pressable onPress={() => {
-              setIsOpen(false)
-              setIsHeading && setIsHeading(false)
-              setIsHeading2 && setIsHeading2(false)
-              setChangeHeading && setChangeHeading(false)
-              setChangeHeading2 && setChangeHeading2(false)
-            }} >
-              {
-                ({ pressed }) => <Text style={{ fontSize: 13, color: pressed ? '#006dff' : '#737373' }}>Paragraph</Text>
-              }
-            </Pressable>
-
-          </View>
-          <Pressable style={{
-            position: 'absolute',
-            left: leftButtonPos,
-            top: popupPos.top + 148,
-            width: popupWidth,
-            borderWidth: 1,
-            borderColor: '#f5f5f5',
-            borderRadius: 6,
-            height: 40,
-            paddingHorizontal: 16,
-            alignItems: 'center',
-            justifyContent: 'center',
-            flexDirection: 'row',
-            gap: 8,
-            backgroundColor: 'white',
-          }} 
-          onPress={togglePopup}
-          >
-            <Text style={{ fontSize: 13 }}>{isHeading ? 'Heading 1' : isHeading2 ? 'Heading 2' : 'Paragraph'}</Text>
-            <Image source={require('@/assets/images/home/greyDownArrow.png')} style={{ width: 10, height: 8 }} />
-          </Pressable>
           </KeyboardAvoidingView>
         </Portal>
       )}
@@ -270,7 +270,7 @@ export default function Content() {
   const [editorState, setEditorState] = React.useState<string | null>(content);
   const [plainText, setPlainText] = React.useState("");
   const [undoEnabled, setUndoEnabled] = React.useState(false);
-  const {bottom} = useSafeAreaInsets();
+  const { bottom } = useSafeAreaInsets();
   const [image, setImage] = React.useState<any>(null);
 
   const pickImage = async () => {
@@ -295,7 +295,7 @@ export default function Content() {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: 'white' }}>
-      <View style={{ flex: 1, backgroundColor: 'white', paddingTop: 57, paddingBottom: bottom > 16 ?  134: 149}}>
+      <View style={{ flex: 1, backgroundColor: 'white', paddingTop: 57, paddingBottom: bottom > 16 ? 134 : 149 }}>
         <Header
           title='Post Content'
           onBackPress={() => router.back()}
@@ -336,13 +336,13 @@ export default function Content() {
         />
       </View>
 
-      <KeyboardAvoidingView 
-        style={{ position: 'absolute', bottom:bottom > 16 ? bottom + 61: 77, backgroundColor: 'white', borderTopWidth: 1, borderColor: '#f5f5f5' }}
+      <KeyboardAvoidingView
+        style={{ position: 'absolute', bottom: bottom > 16 ? bottom + 61 : 77, backgroundColor: 'white', borderTopWidth: 1, borderColor: '#f5f5f5' }}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
-        <ScrollView 
-          horizontal={true} 
-          showsHorizontalScrollIndicator={false} 
+        <ScrollView
+          horizontal={true}
+          showsHorizontalScrollIndicator={false}
           contentContainerStyle={{ flexDirection: 'row', gap: 16, padding: 16, }}
         >
           <ImageFormatButton
@@ -431,7 +431,8 @@ export default function Content() {
           />
           <FormatButton
             onPress={() => {
-              setChangeCodeBlock(!changeCodeBlock)}}
+              setChangeCodeBlock(!changeCodeBlock)
+            }}
             active={isCodeBlock}
             title="Code"
             toggleable

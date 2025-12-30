@@ -134,7 +134,7 @@ const styles = StyleSheet.create({
     marginTop: 16,
     textAlign: 'center',
     textDecorationLine: 'underline',
-    fontSize: 15,
+    fontSize: 14,
     fontWeight: 'bold',
 
   }

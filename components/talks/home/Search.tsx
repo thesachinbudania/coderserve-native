@@ -4,8 +4,17 @@ import SearchBar from '@/components/profile/SearchBar';
 import { useRouter } from 'expo-router';
 import React from 'react';
 
+type SearchProps = {
+  search: string,
+  setSearch: React.Dispatch<React.SetStateAction<string>>,
+  isSearchFocused: boolean,
+  setIsSearchFocused: React.Dispatch<React.SetStateAction<boolean>>,
+  searchResults: Array<{ first_name: string, last_name: string, username: string, profile_image: string }>
+  resultComponent?: (data: any) => JSX.Element,
+}
 
-export default function Search({ search, setSearch, isSearchFocused, setIsSearchFocused, searchResults }: { search: string, setSearch: React.Dispatch<React.SetStateAction<string>>, isSearchFocused: boolean, setIsSearchFocused: React.Dispatch<React.SetStateAction<boolean>>, searchResults: Array<{ first_name: string, last_name: string, username: string, profile_image: string }> }) {
+
+export default function Search({ search, setSearch, isSearchFocused, setIsSearchFocused, searchResults, resultComponent }: SearchProps) {
   const router = useRouter();
   const onSubmit = () => {
     Keyboard.dismiss();
@@ -28,7 +37,7 @@ export default function Search({ search, setSearch, isSearchFocused, setIsSearch
         {
           search.length > 0 && (
             <Pressable
-              style={{ flexDirection: 'row', gap: 8, marginBottom:24}}
+              style={{ flexDirection: 'row', gap: 8, marginBottom: 24 }}
               onPress={() => {
                 setSearch("");
                 Keyboard.dismiss();
@@ -42,26 +51,28 @@ export default function Search({ search, setSearch, isSearchFocused, setIsSearch
         }
         {searchResults.length > 0 &&
           searchResults.map((data, index) => (
-            <Pressable
-              key={index}
-              style={styles.headContainer}
-              onPress={() => {
-                setSearch("");
-                Keyboard.dismiss();
-                router.push('/(freeRoutes)/profile/userProfile/' + data.username);
-              }}
-            >
-              <View>
-              <ImageLoader
-                size={54}
-                uri={data.profile_image}
-              />
-              </View>
-              <View style={{ gap: 8}}>
-                <Text style={styles.name}>{data.first_name} {data.last_name}</Text>
-                <Text style={styles.time}>@{data.username}</Text>
-              </View>
-            </Pressable>
+            resultComponent ? <View key={index}>{resultComponent(data)}</View> : (
+              <Pressable
+                key={index}
+                style={styles.headContainer}
+                onPress={() => {
+                  setSearch("");
+                  Keyboard.dismiss();
+                  router.push('/(freeRoutes)/profile/userProfile/' + data.username);
+                }}
+              >
+                <View>
+                  <ImageLoader
+                    size={54}
+                    uri={data.profile_image}
+                  />
+                </View>
+                <View style={{ gap: 8 }}>
+                  <Text style={styles.name}>{data.first_name} {data.last_name}</Text>
+                  <Text style={styles.time}>@{data.username}</Text>
+                </View>
+              </Pressable>
+            )
           ))
         }
       </ScrollView>

@@ -1,7 +1,6 @@
 import { Stack } from 'expo-router';
 import { PortalProvider } from '@gorhom/portal';
 import { Provider } from 'react-native-paper';
-import { useNetInfo } from '@react-native-community/netinfo';
 import { Image, View, Text } from 'react-native';
 import BlueButton from '@/components/buttons/BlueButton';
 
@@ -19,7 +18,7 @@ function NoInternet() {
 }
 
 export default function Layout() {
-  const netInfo = useNetInfo();
+  const netInfo = { isConnected: true };
   if (!netInfo.isConnected) {
     return <NoInternet />
   }

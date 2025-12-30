@@ -88,6 +88,7 @@ export default function SelectMenu({ allowSearch = true, error = false, placehol
           {allowSearch && (
             <SearchBar
               onChangeText={setSearchValue}
+              forSelectMenu
             />
           )}
 

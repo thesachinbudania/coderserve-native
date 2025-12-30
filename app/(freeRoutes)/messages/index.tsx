@@ -10,9 +10,8 @@ import { formatTime } from '@/helpers/helpers';
 import * as Notification from 'expo-notifications';
 import BottomDrawer from '@/components/BottomDrawer';
 import BlueButton from '@/components/buttons/BlueButton';
-
-
-
+import SearchBar from '@/components/form/SearchBar';
+import OptionChip from '@/components/general/OptionChip';
 
 
 export default function Messages() {
@@ -96,7 +95,7 @@ export default function Messages() {
     };
   }, []);
 
-
+  const [tab, setTab] = React.useState<'direct' | 'groups' | 'job_updates'>('direct')
 
 
   return (
@@ -104,31 +103,54 @@ export default function Messages() {
       <ListPageLayout
         headerTitle='Messages'
       >
-        {
-          combinedData.length > 0 || initialLoading || isLoading || refreshing ?
-            <DataList
-              data={filteredData}
-              RenderItem={RenderItem}
-              initialLoading={initialLoading}
-              refreshing={refreshing}
-              allowSearch={true}
-              onSearchChange={setSearchQuery}
-              onEndReached={handleEndReached}
-              onRefresh={handleRefresh}
-            />
-            :
-
-            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 16 }}>
-              <Image source={require('@/assets/images/messages.png')} style={{ height: 128, width: 138, objectFit: 'contain' }}></Image>
-              <Text style={[styles.emptyText, { marginTop: 32 }]}>Private chats with people you follow - and those who follow you - will show up here.</Text>
-              <Text style={styles.emptyText}>Start a converstion and stay connected!</Text>
+        <DataList
+          data={tab === 'direct' ? filteredData : []}
+          RenderItem={RenderItem}
+          initialLoading={initialLoading}
+          refreshing={refreshing}
+          allowSearch={false}
+          onSearchChange={setSearchQuery}
+          onEndReached={handleEndReached}
+          onRefresh={handleRefresh}
+          customHeader={<View>
+            <View style={{ marginBottom: 50 - 16 }}>
+              <SearchBar onChangeText={setSearchQuery} />
+              <View style={{ backgroundColor: '#f5f5f5', paddingBottom: 8, marginBottom: -24, marginHorizontal: -16 }}>
+                <View style={{ flexDirection: 'row', gap: 16, paddingTop: 32, paddingBottom: 16, backgroundColor: 'white', paddingHorizontal: 16 }}>
+                  <OptionChip
+                    selected={tab === 'direct'}
+                    title="Direct"
+                    onPress={() => setTab('direct')}
+                  />
+                  <OptionChip
+                    selected={tab === 'groups'}
+                    title="Groups"
+                    onPress={() => setTab('groups')}
+                  />
+                  <OptionChip
+                    selected={tab === 'job_updates'}
+                    title="Job Updates"
+                    onPress={() => setTab('job_updates')}
+                  />
+                </View>
+              </View>
             </View>
-        }
-      </ListPageLayout>
+          </View>}
+          noData={<View style={{ paddingTop: 96, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 16 }}>
+            <Image source={require('@/assets/images/messages.png')} style={{ height: 128, width: 138, objectFit: 'contain' }}></Image>
+            <Text style={[styles.emptyText, { marginTop: 32 }]}>{tab === 'direct' ? 'Private chats with people you follow - and those who follow you - will show up here. Start a converstion and stay connected!' : tab === 'groups' ? 'Direct ideas grow stronger together! Create or join a group, collaborate to learn and grow as a team.' : 'Your job-related chats live here. Apply to your dream job roles and be the first to hear back from recruiters - all in one place.'}</Text>
+          </View>}
+        />
 
-      <FloatingButton
-        onPress={() => router.push('/(freeRoutes)/messages/recipients')}
-      />
+      </ListPageLayout>
+      {
+        tab != 'job_updates' && (
+          <FloatingButton
+            onPress={() => router.push('/(freeRoutes)/messages/recipients')}
+          />
+        )
+      }
+
       <BottomDrawer
         sheetRef={drawerRef}
         draggableIconHeight={0}
@@ -137,7 +159,7 @@ export default function Messages() {
         <View style={{ marginHorizontal: 16 }}>
           <Image source={require('@/assets/images/home/allowNotifications.png')} style={{ height: 60, width: 60, marginHorizontal: 'auto' }} />
           <Text style={{ fontSize: 15, fontWeight: 'bold', textAlign: 'center', marginTop: 12 }}>Enable Notifications to Use Messages</Text>
-          <Text style={{ fontSize: 13, textAlign: 'center', color: "#73737", marginTop: 12 }}>To receive and reply to messages in real time, notifications are required. Enable notifications so you never miss a message or important update on Coder Serve.</Text>
+          <Text style={{ fontSize: 13, textAlign: 'center', color: "#737373", marginTop: 12 }}>To receive and reply to messages in real time, notifications are required. Enable notifications so you never miss a message or important update on Coder Serve.</Text>
           <BlueButton
             title="Allow notifications"
             style={{ marginTop: 32 }}

@@ -5,7 +5,20 @@ import { ActivityIndicator, Platform, FlatList, View } from 'react-native';
 import { useFocusEffect } from 'expo-router';
 import SearchBar from '@/components/form/SearchBar';
 
-
+type DataListProps = {
+  data: any[];
+  RenderItem: ({ item, index }: { item: any; index: number }) => React.JSX.Element;
+  initialLoading: boolean;
+  isPaginating?: boolean;
+  refreshing: boolean;
+  gap?: number;
+  allowSearch: boolean;
+  onSearchChange: React.Dispatch<React.SetStateAction<string>>;
+  onEndReached: () => void;
+  onRefresh: () => void;
+  customHeader?: JSX.Element;
+  noData?: JSX.Element;
+}
 
 export function DataList({
   data,
@@ -17,19 +30,10 @@ export function DataList({
   onSearchChange,
   onEndReached,
   onRefresh,
-  isPaginating = false
-}: {
-  data: any[];
-  RenderItem: ({ item, index }: { item: any; index: number }) => React.JSX.Element;
-  initialLoading: boolean;
-  isPaginating?: boolean;
-  refreshing: boolean;
-  gap?: number;
-  allowSearch: boolean;
-  onSearchChange: React.Dispatch<React.SetStateAction<string>>;
-  onEndReached: () => void;
-  onRefresh: () => void;
-}) {
+  isPaginating = false,
+  customHeader,
+  noData
+}: DataListProps) {
   useFocusEffect(
     React.useCallback(() => {
       onRefresh();
@@ -60,7 +64,7 @@ export function DataList({
           <View style={{ marginBottom: 50 - gap }}>
             <SearchBar onChangeText={onSearchChange} />
           </View>
-        ) : undefined
+        ) : customHeader ? customHeader : undefined
       }
       renderItem={RenderItem}
       onEndReached={onEndReached}
@@ -76,6 +80,7 @@ export function DataList({
       ListFooterComponent={isPaginating && !refreshing ? (
         <ActivityIndicator style={{ marginVertical: 32 }} color={'#202020'} />
       ) : null}
+      ListEmptyComponent={noData}
     />
   );
 }

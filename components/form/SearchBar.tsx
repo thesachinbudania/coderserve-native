@@ -2,7 +2,7 @@ import { Image, TextInput, StyleSheet, View } from 'react-native';
 import React from 'react';
 
 
-export default function SearchBar({ onChangeText }: { onChangeText: React.Dispatch<React.SetStateAction<string>> }) {
+export default function SearchBar({ onChangeText, forSelectMenu = false }: { forSelectMenu?: boolean, onChangeText: React.Dispatch<React.SetStateAction<string>> }) {
   const [isFocused, setIsFocused] = React.useState(false);
   const [text, setText] = React.useState('');
 
@@ -14,7 +14,7 @@ export default function SearchBar({ onChangeText }: { onChangeText: React.Dispat
     <View
       style={styles.container}
     >
-      <Image source={require('./assets/searchIcon.png')} style={styles.searchIcon} />
+      <Image source={forSelectMenu ? require('@/assets/images/profile/searchIcon.png') : require('@/assets/images/searchIcon.png')} style={styles.searchIcon} />
       <TextInput
         style={[styles.input, isFocused && { borderColor: '#006dff' }]}
         onFocus={() => setIsFocused(true)}
@@ -34,16 +34,16 @@ const styles = StyleSheet.create({
     borderColor: '#000',
     borderRadius: 8,
     height: 45,
-    paddingLeft: 38,
-    fontSize: 15,
+    paddingLeft: 39,
+    fontSize: 14,
     flexDirection: 'row',
     gap: 8,
   },
   searchIcon: {
-    height: 18,
-    width: 18,
+    height: 15,
+    width: 15,
     position: 'absolute',
-    left: 12,
+    left: 16,
   },
   container: {
     justifyContent: 'center',

@@ -2,7 +2,7 @@ import { useGlobalSearchParams } from 'expo-router';
 import React from 'react';
 import { ActivityIndicator, Dimensions, Image, TextInput, StyleSheet, ScrollView, Pressable, Platform, TouchableWithoutFeedback, Text, View, Keyboard } from 'react-native';
 import protectedApi from '@/helpers/axios';
-import { Post } from '..';
+import { Post } from '@/app/(protected)/talks';
 import BottomName from '@/components/profile/home/BottomName';
 import { useRouter } from 'expo-router';
 import ImageLoader from '@/components/ImageLoader';

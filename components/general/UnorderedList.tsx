@@ -18,10 +18,10 @@ const UnorderedList = ({ items, gap = 6, textStyle }: { items: string[], gap?: n
   );
 };
 
-const styles = StyleSheet.create({
+export const styles = StyleSheet.create({
   listItem: {
     flexDirection: 'row',
-    alignItems: 'flex-start',
+    alignItems: 'center',
   },
   bullet: {
     marginRight: 6,

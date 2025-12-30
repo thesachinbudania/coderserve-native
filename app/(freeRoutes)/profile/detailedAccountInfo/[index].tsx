@@ -9,14 +9,14 @@ export default function DetailedInfo() {
   const { index } = useGlobalSearchParams();
   const { fullName, commentedPosts, your_commentedPosts, votedPosts, your_votedPosts, commentMentionedPosts, your_commentMentionedPosts } = useAccountInfoStore();
   const data = [votedPosts, commentedPosts, commentMentionedPosts, your_votedPosts, your_commentedPosts, your_commentMentionedPosts];
- const noDataText = [
+  const noDataText = [
     `${fullName} hasn't voted on any of your posts.`,
     `${fullName} hasn't commented on any of your posts.`,
     `${fullName} hasn't tagged you in any posts.`,
     `You haven't voted on any of ${fullName}'s posts.`,
     `You haven't commented on any of ${fullName}'s posts.`,
     `You haven't tagged ${fullName} in any posts.`,
-  ] 
+  ]
 
 
 

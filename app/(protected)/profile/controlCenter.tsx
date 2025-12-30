@@ -11,6 +11,7 @@ import BottomDrawer from '@/components/BottomDrawer';
 import GreyBgButton from '@/components/buttons/GreyBgButton';
 import BlueButton from '@/components/buttons/BlueButton';
 import errorHandler from '@/helpers/general/errorHandler';
+import BottomName from '@/components/profile/home/BottomName';
 
 export default function ControlCentre() {
   const [search, setSearch] = React.useState('');
@@ -128,7 +129,7 @@ export default function ControlCentre() {
                   isFocused={isFocused}
                 />
               </View>
-              <Animated.View style={{ opacity: contentOpacity, marginBottom: 144 }}>
+              <Animated.View style={{ opacity: contentOpacity, marginBottom: 64 }}>
                 <SectionContainer>
                   <Section title='Your Account'>
                     <SectionOption
@@ -206,6 +207,7 @@ export default function ControlCentre() {
                     loading={isLoading}
                   />
                 </SectionContainer>
+                <BottomName />
               </Animated.View>
             </Animated.View>
           </TouchableWithoutFeedback>

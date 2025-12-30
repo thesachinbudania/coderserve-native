@@ -14,7 +14,7 @@ export default function App() {
     <SafeAreaProvider>
       <PaperProvider>
         <StatusBar
-          barStyle='dark-content'
+          barStyle='light-content'
           backgroundColor='#0d0d0d'
         />
         <View style={styles.container}>

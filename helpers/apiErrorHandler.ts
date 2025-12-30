@@ -3,6 +3,7 @@ import errorHandler from "./general/errorHandler";
 const handleApiError = (error: any, setError: any) => {
   const response = error?.response || {};
   const { data, status } = response;
+  console.log(data)
 
   // Clear previous server errors
   setError("root", { type: "server" });

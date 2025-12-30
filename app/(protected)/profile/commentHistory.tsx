@@ -1,8 +1,8 @@
 import React from 'react';
 import PageLayout from "@/components/general/PageLayout";
 import { Image, View } from 'react-native';
-import useFetchData from '@/helpers/general/handleFetchedData';
-import { Post } from '@/app/(protected)/talks/index';
+import { useFetchData } from '@/helpers/general/handleFetchedData';
+import { Post } from '@/app/(protected)/talks';
 import BottomName from '@/components/profile/home/BottomName';
 import NoData from '@/components/general/NoData';
 
@@ -14,18 +14,18 @@ export default function CommentHistory() {
         </View>
     );
 
-    const { RenderData, combinedData, initialLoading} = useFetchData({ url: '/api/talks/commented_posts/', RenderItem });
+    const { RenderData, combinedData, initialLoading } = useFetchData({ url: '/api/talks/commented_posts/', RenderItem });
 
     return (
         <PageLayout headerTitle="Comment History" >
-            <View style={{marginHorizontal: -16, marginTop: -24}}>
-            <RenderData />
-</View>
-{
-    !initialLoading && (combinedData.length === 0 ? (
-        <NoData text="No comments yet. Once you join discussions, all your comments will be collected here."/>
-    ): <BottomName />)
-}
+            <View style={{ marginHorizontal: -16, marginTop: -24 }}>
+                <RenderData />
+            </View>
+            {
+                !initialLoading && (combinedData.length === 0 ? (
+                    <NoData text="No comments yet. Once you join discussions, all your comments will be collected here." />
+                ) : <BottomName />)
+            }
         </PageLayout>
     );
 }

@@ -1,4 +1,4 @@
-import { ActivityIndicator, Text, Image, View, ScrollView } from 'react-native';
+import { ActivityIndicator, Text, Image, View, ScrollView, StatusBar } from 'react-native';
 import IconButton from '@/components/profile/IconButton';
 import { useRouter } from 'expo-router';
 import { useFonts } from '@expo-google-fonts/roboto';
@@ -113,6 +113,7 @@ export default function GoPro() {
             const res = await protectedApi.get('/home/is_waitlisted/');
             setWaitlisted(res.data.is_waitlisted);
         } catch (err: any) {
+            console.log(err.response.data)
             errorHandler(err);
         } finally {
             setLoading(false);
@@ -143,6 +144,7 @@ export default function GoPro() {
         !loaded || loading ? <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
             <ActivityIndicator size="large" color="#202020" />
         </View> : <View style={{ backgroundColor: "#0d0d0d", flex: 1 }}>
+            <StatusBar backgroundColor={'#0d0d0d'} barStyle={'light-content'} />
             <ScrollView style={{ paddingTop: top }}>
                 <View style={{ marginHorizontal: 16 }}>
                     <View style={{ flexDirection: 'row' }}>

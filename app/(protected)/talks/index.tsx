@@ -31,6 +31,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useGeneralStore } from "@/zustand/talks/generalStore";
 import { useFocusEffect } from "expo-router";
 import errorHandler from "@/helpers/general/errorHandler";
+import timeAgo from "@/helpers/timeAgo";
 
 const width = Dimensions.get("window").width;
 
@@ -57,11 +58,7 @@ const hashChipStyles = StyleSheet.create({
 
 export function Post({ data }: { data: any }) {
   const router = useRouter();
-  let result = formatDistanceToNow(new Date(data.created_at), { addSuffix: true });
-  result = result.replace(/^about\s/, '');
-  result = result.replace(/^almost\s/, '');
-  result = result.replace(/^in\s/, '');
-  result = result.replace(/^less than\s/, '');
+  let result = timeAgo(data.created_at, true);
   return (
     <Pressable
       android_ripple={{ color: '#f5f5f5' }}
@@ -133,7 +130,7 @@ const postStyles = StyleSheet.create({
     color: "#a6a6a6",
   },
   content: {
-    fontSize: 15,
+    fontSize: 14,
     textAlign: "justify",
   },
   image: {
@@ -458,7 +455,7 @@ export default function Page() {
                 {
                   combinedData.length === 0 && !pageLoading && !isLoading && !refreshing && selectedTab == 'following' && (
                     <Animated.View style={{ paddingTop: 112, backgroundColor: 'white' }}>
-                      <Image source={require('@/assets/images/stars.png')} style={{ marginHorizontal: 'auto', height: 128, width: 128, marginBottom: 32 }} />
+                      <Image source={require('@/assets/images/stars.png')} style={{ marginHorizontal: 'auto', height: 128, width: 128, marginBottom: 32, objectFit: 'contain' }} />
                       <Text style={{ fontSize: 11, color: "#a6a6a6", textAlign: 'center', paddingHorizontal: 16 }}>
                         Follow people or connect with those who share similar backgrounds to start seeing relevant posts and conversations here.
                       </Text>
@@ -496,7 +493,7 @@ export default function Page() {
               similarProfileOnClickHandler()
             }}
           >
-            <Text style={styles.menuButtonHeading}>Similar Profiles</Text>
+            <Text style={styles.menuButtonHeading}>Spotlight</Text>
             <Text style={styles.menuButtonText}>
               Find users with similar backgrounds.
             </Text>
@@ -583,7 +580,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
   },
   menuButtonHeading: {
-    fontSize: 15,
+    fontSize: 14,
     fontWeight: "bold",
   },
   menuButtonText: {

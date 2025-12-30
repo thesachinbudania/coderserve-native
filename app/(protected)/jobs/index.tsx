@@ -513,7 +513,7 @@ const styles = StyleSheet.create({
     gap: 16,
   },
   menuButtonHeading: {
-    fontSize: 15,
+    fontSize: 14,
     fontWeight: "bold",
   },
   menuButtonText: {

@@ -388,9 +388,9 @@ export function EditResume({ showLess = false, editable = true }: { showLess?: b
       )}
 
       <View>
-        <Text style={styles.detailsHeading}>Projects</Text>
+        <Text style={styles.detailsHeading}>Challenges</Text>
         <Text style={styles.detailsContent}>
-          {editable ? "You haven't completed any project yet. Once you do, they'll be showcased here." : "This user hasn't completed any projects yet."}
+          {editable ? "You haven't completed any challenge yet. Once you do, they'll be showcased here." : "This user hasn't completed any challenges yet."}
         </Text>
       </View>
       {

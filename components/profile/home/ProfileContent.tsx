@@ -38,15 +38,15 @@ export const StreakRate = () => {
       }
       <View style={{ marginTop: 16, flexDirection: 'row', gap: 4, justifyContent: 'space-between' }}>
         <View style={{ flexDirection: 'row', gap: 4 }}>
-          <Text style={{ color: "#a6a6a6", fontSize: 9 }}>Less</Text>
+          <Text style={{ color: "#a6a6a6", fontSize: 10 }}>Less</Text>
           <StreakSquare intensity={0} />
           <StreakSquare intensity={1} />
           <StreakSquare intensity={2} />
           <StreakSquare intensity={3} />
-          <Text style={{ color: "#a6a6a6", fontSize: 9 }}>More</Text>
+          <Text style={{ color: "#a6a6a6", fontSize: 10 }}>More</Text>
         </View>
         <View>
-          <SmallTextButton title="Learn how we count Streak" style={{ fontSize: 9, textDecorationLine: 'underline', color: "#a6a6a6" }} onPress={() => router.push('/(protected)/talks/profile/streakCalculation')} />
+          <SmallTextButton title="Learn how we count Streak" style={{ fontSize: 10, textDecorationLine: 'underline', color: "#a6a6a6" }} onPress={() => router.push('/(protected)/talks/profile/streakCalculation')} />
         </View>
       </View>
       <View style={{ flexDirection: 'row', marginTop: 32, gap: 16 }}>

@@ -85,7 +85,7 @@ export default function YourProfile() {
             </View>
           </View>
           <Text style={styles.name}>{user.first_name} {user.last_name}</Text>
-          <Text style={{color: "#004aad", marginTop: 8, fontSize: 13, fontWeight: "bold"}}>Ranked #50</Text>
+          <Text style={{ color: "#004aad", marginTop: 8, fontSize: 13, fontWeight: "bold" }}>Ranked #50</Text>
           <Text style={styles.username}>@{user.username}</Text>
           <Text style={styles.userLocation}>{user.city}, {user.state}, {user.country}</Text>
           <View style={styles.buttonContainer}>
@@ -222,7 +222,7 @@ const styles = StyleSheet.create({
     gap: 16,
   },
   menuButtonHeading: {
-    fontSize: 15,
+    fontSize: 14,
     fontWeight: "bold",
   },
   menuButtonText: {

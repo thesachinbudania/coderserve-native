@@ -25,7 +25,7 @@ export default function SearchBar({ text = '', onChangeText, isFocused, setIsFoc
         style={[styles.container,]}
       >
         {(!placeholder || isFocused) && (
-          <Image source={require('@/assets/images/profile/searchIcon.png')} style={styles.searchIcon} />
+          <Image source={require('@/assets/images/searchIcon.png')} style={styles.searchIcon} />
         )}
         <TextInput
           ref={inputRef}
@@ -60,17 +60,17 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 8,
     height: 45,
-    paddingLeft: 43,
-    fontSize: 15,
+    paddingLeft: 39,
+    fontSize: 14,
     flexDirection: 'row',
     gap: 8,
     backgroundColor: 'white'
   },
   searchIcon: {
-    height: 20,
-    width: 20,
+    height: 15,
+    width: 15,
     position: 'absolute',
-    left: 12,
+    left: 16,
     zIndex: 1
   },
   container: {
@@ -78,7 +78,7 @@ const styles = StyleSheet.create({
   },
   placeholderText: {
     position: 'absolute',
-    top: 13,
-    left: 43,
+    top: 12,
+    left: 39,
   }
 })

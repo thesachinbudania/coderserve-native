@@ -52,24 +52,24 @@ export function Header({ menuRef, title }: { menuRef: React.RefObject<any>, titl
   const router = useRouter();
   const focused = useIsFocused();
   return (
-    focused && 
+    focused &&
     <Portal>
       <View style={[styles.header, { top: 0, paddingTop: top + 8 }]}>
         {
           title && (
-<View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-          <IconButton onPress={() => router.back()}>
-            <Image source={require('@/assets/images/Back.png')} style={styles.menuIcon} />
-          </IconButton>
-          <Text style={styles.headerText}>{title}</Text>
-        </View>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+              <IconButton onPress={() => router.back()}>
+                <Image source={require('@/assets/images/Back.png')} style={styles.menuIcon} />
+              </IconButton>
+              <Text style={styles.headerText}>{title}</Text>
+            </View>
           )
         }
-        <View style={[!title && {flex: 1, alignItems: 'flex-end' }]}> 
-        <IconButton onPress={() => menuRef?.current.open()}>
-          <Image source={require('@/assets/images/profile/home/menu.png')} style={styles.menuIcon} />
-        </IconButton>
-</View>
+        <View style={[!title && { flex: 1, alignItems: 'flex-end' }]}>
+          <IconButton onPress={() => menuRef?.current.open()}>
+            <Image source={require('@/assets/images/profile/home/menu.png')} style={styles.menuIcon} />
+          </IconButton>
+        </View>
       </View>
     </Portal>
 
@@ -196,8 +196,8 @@ export function ResumeDetails({ showLess = false, jobsState, userState }: { show
         }
       </View>
       <View>
-        <Text style={styles.heading}>Projects</Text>
-        <Text style={styles.smallText}>The user hasn't completed any projects yet.</Text>
+        <Text style={styles.heading}>Challenges</Text>
+        <Text style={styles.smallText}>The user hasn't completed any challenges yet.</Text>
       </View>
       {
         !showLess && (

@@ -3,7 +3,7 @@ import PageLayout from '@/components/general/PageLayout';
 import React from 'react';
 import protectedApi from '@/helpers/axios';
 import { useRouter } from 'expo-router';
-import { SuggestionCard } from '..';
+import { SuggestionCard } from '../talks';
 import errorHandler from '@/helpers/general/errorHandler';
 import FaqComponent from '@/components/general/Faq';
 import BottomName from '@/components/profile/home/BottomName';

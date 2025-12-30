@@ -1,12 +1,12 @@
-import HomeIcon from "@/components/bottomBar/homeIcon";
 import TalksIcon from "@/components/bottomBar/talksIcon";
 import JobsIcon from "@/components/bottomBar/jobsIcon";
 import ProfileIcon from "@/components/bottomBar/profileIcon";
+import CollabIcon from "@/components/bottomBar/collabIcon";
 import { useNotificationsUnreadStore, useUserStore, useTokensStore } from '@/zustand/stores'
 import { useStore } from '@/zustand/auth/stores'
 import { useJobsState } from "@/zustand/jobsStore";
 import protectedApi from '@/helpers/axios'
-import { Redirect, Tabs, useSegments, usePathname } from 'expo-router'
+import { Redirect, Tabs, useSegments, usePathname, router } from 'expo-router'
 import * as SecureStore from 'expo-secure-store'
 import DeviceInfo from 'react-native-device-info'
 import React from 'react'
@@ -59,17 +59,14 @@ const AppTabs = () => {
 
   // List of exact paths where footer should be visible
   const visiblePaths = [
-    '/',
     '/profile',
     '/talks',
     '/jobs',
     '/projects',
     '/home' // In case 'home' index maps to this
   ];
-
+  console.log(pathname)
   React.useEffect(() => {
-    // Check if the current pathname exactly matches one of the allowed roots
-    // We normalize by removing trailing slashes if any, though usually not needed in expo-router for exact match logic
     const isVisible = visiblePaths.includes(pathname) || visiblePaths.includes(pathname.replace(/\/$/, ""));
     setShowFooter(isVisible);
   }, [pathname])
@@ -77,7 +74,7 @@ const AppTabs = () => {
   return (
     <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()} accessible={false}>
       <>
-        <StatusBar backgroundColor={'#202020'} barStyle={'default'} />
+        <StatusBar backgroundColor={'#202020'} barStyle={'light-content'} />
         <View style={{ flex: 1, backgroundColor: 'white', paddingBottom: 0 }}>
           <Tabs
             screenListeners={() => ({
@@ -105,11 +102,11 @@ const AppTabs = () => {
               )
             }}
           >
-            <Tabs.Screen name='index' options={{ tabBarIcon: HomeIcon, tabBarLabel: "Home" }} />
             <Tabs.Screen name='talks' options={{ tabBarIcon: TalksIcon, tabBarLabel: "Talks" }} />
+            <Tabs.Screen name='home' options={{ tabBarIcon: CollabIcon, tabBarLabel: "Collab" }} />
             <Tabs.Screen name='jobs' options={{ tabBarIcon: JobsIcon, tabBarLabel: "Jobs" }} />
             <Tabs.Screen name='profile' options={{ tabBarIcon: ProfileIcon, tabBarLabel: 'Profile' }} />
-            <Tabs.Screen name='home' options={{ href: null }} />
+            <Tabs.Screen name='index' options={{ href: null }} />
           </Tabs>
           <BottomDrawer
             sheetRef={drawerRef}
@@ -119,7 +116,7 @@ const AppTabs = () => {
             <View style={{ marginHorizontal: 16 }}>
               <Image source={require('@/assets/images/home/allowNotifications.png')} style={{ height: 60, width: 60, marginHorizontal: 'auto' }} />
               <Text style={{ fontSize: 15, fontWeight: 'bold', textAlign: 'center', marginTop: 12 }}>Stay in the Loop</Text>
-              <Text style={{ fontSize: 13, textAlign: 'center', color: "#73737", marginTop: 12 }}>Don't miss out! Enable notifications so we can keep you updated with important alerts, messages, and new opportunities on CoderServe.</Text>
+              <Text style={{ fontSize: 13, textAlign: 'center', color: "#737373", marginTop: 12 }}>Don't miss out! Enable notifications so we can keep you updated with important alerts, messages, and new opportunities on CoderServe.</Text>
               <BlueButton
                 title="Allow notifications"
                 style={{ marginTop: 32 }}
@@ -190,7 +187,7 @@ export default function AuthProvider() {
         setJobsState(resumeState.data)
       }
     } catch (error) {
-      errorHandler(error as Error)
+      router.replace('/(auth)/login')
     } finally {
       setIsLoading(false)
     }

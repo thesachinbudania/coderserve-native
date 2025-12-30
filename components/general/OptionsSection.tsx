@@ -56,11 +56,11 @@ const sectionStyles = StyleSheet.create({
 		alignItems: 'center',
 	},
 	optionTitle: {
-		fontSize: 15,
+		fontSize: 14,
 		fontWeight: 'bold',
 	},
 	optionSubTitle: {
-		fontSize: 13,
+		fontSize: 12,
 		color: '#a6a6a6',
 		marginTop: 8,
 	},
