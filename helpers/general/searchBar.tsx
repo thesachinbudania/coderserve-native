@@ -91,6 +91,6 @@ export default function useSearchBar({ isSearchFocused, setIsSearchFocused }: { 
         useNativeDriver: true,
       }).start();
     }
-  });
+  }, [isSearchFocused]);
   return { searchBarMarginTop, contentWidth, contentOpacity, scaleX }
 }

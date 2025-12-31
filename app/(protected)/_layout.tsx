@@ -65,7 +65,6 @@ const AppTabs = () => {
     '/projects',
     '/home' // In case 'home' index maps to this
   ];
-  console.log(pathname)
   React.useEffect(() => {
     const isVisible = visiblePaths.includes(pathname) || visiblePaths.includes(pathname.replace(/\/$/, ""));
     setShowFooter(isVisible);

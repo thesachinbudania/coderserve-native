@@ -9,15 +9,18 @@ import CourseCard from '@/components/general/CourseCard';
 import { useRouter } from 'expo-router';
 import React from 'react';
 import protectedApi from '@/helpers/axios';
-import ProgressRing from '@/components/general/ProgressRing';
 import { useNotificationsUnreadStore } from '@/zustand/stores';
 import useSearchBar from '@/helpers/general/searchBar';
 import Search from '@/components/talks/home/Search';
+import BottomDrawer from '@/components/BottomDrawer';
+import { MenuButton } from '@/components/jobs/Menu';
+import FunnelChart from '@/components/home/FunnelChart';
+import { ActivityIndicator } from 'react-native-paper';
 
 const { width } = Dimensions.get('window');
 
 
-function Header({ rank }: { rank: number | null }) {
+function Header({ rank, menuRef }: { rank: number | null, menuRef?: any }) {
   const user = useUserStore(state => state);
   const { top } = useSafeAreaInsets();
   const router = useRouter();
@@ -44,15 +47,6 @@ function Header({ rank }: { rank: number | null }) {
         </View>
       </View>
       < View style={{ flexDirection: 'row', gap: 16 }}>
-        <IconButton
-          onPress={() => router.push('/(freeRoutes)/notifications')}
-          unread={account + journey + job_alerts + follow_requests + upvotes + downvotes + comments + replies + tags + support > 0}
-        >
-          <Image
-            source={require("@/assets/images/profile/home/notifications.png")}
-            style={styles.headerIcon}
-          />
-        </IconButton>
         < IconButton
           onPress={() => router.push('/(freeRoutes)/messages')}
         >
@@ -61,28 +55,72 @@ function Header({ rank }: { rank: number | null }) {
             style={styles.headerIcon}
           />
         </IconButton>
+        <IconButton
+          onPress={() => menuRef.current?.open()}
+        >
+          <Image
+            source={require("@/assets/images/profile/home/menu.png")}
+            style={styles.headerIcon}
+          />
+        </IconButton>
       </View>
     </View>
   );
 }
-const DateRing = ({ date, streak, faded = false }: { date: string, streak: number, faded?: boolean }) => {
-  return (
-    <View>
-      <ProgressRing progress={streak} backgroundColor={faded ? '#f5f5f5' : '#eeeeee'} />
-      < Text style={{ fontSize: 9, color: faded ? '#d9d9d9' : '#a6a6a6', marginTop: 4, textAlign: 'center' }}> {date} </Text>
-    </View>
-  )
-}
 
 const StreakContainer = () => {
-  return (
+  const [data, setData] = React.useState({
+    basics: 0,
+    text: 0,
+    image: 0,
+    video: 0,
+    multimodal: 0,
+    voice: 0
+  })
+  const [loading, setLoading] = React.useState(true)
+  React.useEffect(() => {
+    protectedApi.get('/home/user_specialization_stats/').then(res => {
+      setData({
+        basics: res.data.basics,
+        text: res.data.text,
+        image: res.data.image,
+        video: res.data.video,
+        multimodal: res.data.multimodel,
+        voice: res.data.voice
+      })
+      setLoading(false)
+    }).catch(() => {
+      setLoading(false)
+    })
+  }, [])
+  const isData = Object.values(data).reduce((a, b) => a + b, 0) === 0
+  const sheetRef = React.useRef<any>(null);
+  return (<>
     <View style={{ flexDirection: 'row', marginTop: 32, gap: 16 }}>
-      <View style={{ borderRadius: 12, backgroundColor: "#f7f7f7", flex: 1 / 2 }}>
-        <Text style={{ fontSize: 11, color: "#a6a6a6", marginTop: 16, marginLeft: 16 }}>Expertise in</Text>
-        <View style={{ marginVertical: 48, alignItems: 'center' }}>
-          <Image source={require('@/assets/images/home/frowny.png')} style={{ height: 45, width: 45 }} />
-        </View>
-      </View>
+      <Pressable
+        style={({ pressed }) => [{ borderRadius: 12, backgroundColor: "#f7f7f7", flex: 1 / 2, padding: 16 }, !isData && pressed && { backgroundColor: '#202020' }]}
+        onPress={!isData ? () => sheetRef.current?.open() : () => { }}
+      >
+        <Text style={{ fontSize: 11, color: "#a6a6a6" }}>Expertise in</Text>
+        {
+          loading ? (
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+              <ActivityIndicator color='#202020' />
+            </View>
+          ) : isData ? (
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+              <Image source={require('@/assets/images/home/frowny.png')} style={{ height: 45, width: 45 }} />
+            </View>
+          ) : (
+            <FunnelChart
+              data={data}
+              showLabels={false}
+              lineColor="#a6a6a6"
+              contentContainerStyle={{ marginTop: 8 }}
+            />
+          )
+        }
+      </Pressable>
       <View style={{ flex: 1 / 2, gap: 16 }}>
         <View style={{ borderRadius: 12, backgroundColor: "#f7f7f7", padding: 16 }}>
           <Text style={{ fontSize: 11, color: '#a6a6a6' }}>Streak Rate</Text>
@@ -94,6 +132,18 @@ const StreakContainer = () => {
         </View>
       </View>
     </View>
+    <BottomDrawer sheetRef={sheetRef}>
+      <View style={{ paddingHorizontal: 16, marginBottom: 8 }}>
+        <Text style={{ fontSize: 13, fontWeight: 'bold', marginTop: 16, marginBottom: 32, textAlign: 'center' }}>Expertise In</Text>
+        <View style={{ borderWidth: 1, borderColor: '#f5f5f5', borderRadius: 12, overflow: 'hidden', height: 390 }}>
+          <FunnelChart
+            data={data}
+            contentContainerStyle={{ marginTop: -2, marginBottom: -2 }}
+          />
+        </View>
+      </View>
+    </BottomDrawer>
+  </>
   )
 }
 
@@ -146,13 +196,44 @@ export const SuggestionCard = ({ name, onPress, rank, points, image }: Suggestio
   )
 }
 
-const ResultsComponent = (data: any) => {
-  console.log('happeing')
+const ResultsComponent = ({ data }: { data: any }) => {
+  const router = useRouter();
+  const SearchResult = ({ title, subTitle, onPress = () => { } }: { title: string, subTitle?: string, onPress?: () => void }) => {
+    return (
+      <Pressable onPress={onPress} >
+        {
+          ({ pressed }) => (
+            <>
+              <View style={{ flexDirection: 'row', gap: 8, alignItems: 'center' }}>
+                <Image source={require('@/assets/images/searchIcon.png')} style={{ height: 15, width: 15 }} />
+                <Text style={[{ fontSize: 15 }, pressed && { color: "#006dff" }]}>{title}</Text>
+              </View>
+              {subTitle && <Text style={[{ fontSize: 11, color: "#a6a6a6", marginLeft: 23, marginTop: 8 }, pressed && { color: "#a1c2ed" }]}>{subTitle}</Text>}
+            </>
+          )
+        }
+      </Pressable>
+    )
+  }
   return (
-    data.type === 'course' ? <View style={{ backgroundColor: 'blue', height: 165, width: 354 }}>
-      <Image source={require('@/assets/images/searchIcon.png')} style={{ height: 15, width: 15, marginLeft: 16 }} />
-      <Text>{data.title}</Text>
-    </View> : null
+    data.type === 'course' ? <SearchResult
+      title={data.title}
+      subTitle={data.category === 'super_set' ? 'Super Set' : 'Additional Resources'}
+      onPress={data.course_type === 'lesson' ? () => router.push(`/(protected)/home/courses/lesson/${data.id}`) : () => router.push(`/(protected)/home/courses/modules/${data.id}`)}
+    />
+      : data.type === 'module' ? <SearchResult
+        title={data.title}
+        subTitle={data.category.startsWith('Module') ? 'Module' : data.category}
+        onPress={data.unlocked ? () => router.push(`/(protected)/home/courses/lesson/${data.module_lessons[0]}`) : () => router.push(`/(protected)/home/courses/modules/${data.course_id}`)}
+      />
+        : data.type === 'lesson' ?
+          <View style={{ gap: 24 }}>
+            {
+              data.matches.map((match: any, index: number) => (
+                <SearchResult key={index} title={match} onPress={() => router.push(`/(protected)/home/courses/lesson/${data.id}`)} />
+              ))
+            }
+          </View> : <></>
   )
 }
 
@@ -169,31 +250,37 @@ const suggestionCardStyles = StyleSheet.create({
 
 export default function Home() {
   const router = useRouter();
-  const [loading, setLoading] = React.useState(true);
-
-
-
-
   const [isSearchFocused, setIsSearchFocused] = React.useState(false);
   const [search, setSearch] = React.useState('');
   const { searchBarMarginTop, contentOpacity, scaleX } = useSearchBar({ setIsSearchFocused, isSearchFocused });
   const [searchResults, setSearchResults] = React.useState<any>([]);
+  const menuRef = React.useRef<any>(null)
   React.useEffect(() => {
-    if (search.length < 3) return;
+    if (search.length < 3) {
+      setSearchResults([])
+      return;
+    };
     protectedApi.get(`/home/search/?q=${search}`)
       .then((res) => {
-        console.log(res.data)
         setSearchResults(res.data)
       })
       .catch(err => console.log(err.response.data))
   }, [search])
 
+  React.useEffect(() => {
+    if (!isSearchFocused) {
+      setSearchResults([]);
+      setSearch('');
+    }
+  }, [isSearchFocused])
+
   return (
-    <ScrollView contentContainerStyle={{ backgroundColor: 'white', alignItems: 'center' }
-    }>
+    <ScrollView contentContainerStyle={{ backgroundColor: 'white', alignItems: 'center' }}
+      scrollEnabled={!isSearchFocused}
+    >
       <Animated.View style={{ width: '100%', paddingHorizontal: 16, transform: [{ scaleX: scaleX }] }}>
         <Animated.View style={{ opacity: contentOpacity }}>
-          <Header rank={70} />
+          <Header rank={70} menuRef={menuRef} />
         </Animated.View>
         <Animated.View style={{ transform: [{ translateY: searchBarMarginTop }] }}>
           <Search
@@ -202,7 +289,7 @@ export default function Home() {
             isSearchFocused={isSearchFocused}
             setIsSearchFocused={setIsSearchFocused}
             searchResults={searchResults}
-            resultComponent={(data) => <ResultsComponent data={data} />}
+            ResultComponent={ResultsComponent}
           />
         </Animated.View>
         <Animated.View style={{ opacity: contentOpacity }}>
@@ -248,6 +335,14 @@ export default function Home() {
           < BottomName />
         </Animated.View>
       </Animated.View>
+      <BottomDrawer sheetRef={menuRef} draggableIconHeight={0}>
+        <View style={{ gap: 16, marginHorizontal: 16 }}>
+          <MenuButton heading='Challenges' text='Level up with problem-solving tasks.' />
+          <MenuButton heading='Leaderboard' text='See where you stand among others.' />
+          <MenuButton heading='Contests' text='Compete with real-world champions.' />
+          <MenuButton heading='Go Pro' text='Unlock advanced features and accelerate your skills.' dark />
+        </View>
+      </BottomDrawer>
     </ScrollView>
   );
 }

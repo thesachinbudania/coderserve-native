@@ -20,7 +20,6 @@
         "googleMapsApiKey": "AIzaSyArSeVMODwcvE9Vb7_0E7vGj4kWpCq06Ks"
       },
       "infoPlist": {
-        "NSUserNotificationUsageDescription": "We send notifications to keep you updated about important activity and reminders.",
         "NSLocationWhenInUseUsageDescription": "Your location helps us show nearby jobs, events, and relevant content.",
         "NSContactsUsageDescription": "Contacts access lets you find people you know and invite them easily.",
         "NSPhotoLibraryUsageDescription": "Allows you to select photos to upload and share in the app."

@@ -3,7 +3,18 @@ import { Image, TextInput, StyleSheet, TouchableWithoutFeedback, View } from 're
 import Typewriter from '@/components/Typewriter';
 
 
-export default function SearchBar({ text = '', onChangeText, isFocused, setIsFocused, placeholder = null, placholderText = [], onSubmitEditing }: { text?: string, onChangeText: React.Dispatch<React.SetStateAction<string>>, isFocused: boolean, placeholder?: string | null, placholderText?: string[], setIsFocused: React.Dispatch<React.SetStateAction<boolean>>, onSubmitEditing?: () => void }) {
+type SearchBarProps = {
+  text: string,
+  onChangeText: React.Dispatch<React.SetStateAction<string>>,
+  isFocused: boolean,
+  setIsFocused: React.Dispatch<React.SetStateAction<boolean>>,
+  placeholder?: string | null,
+  placholderText?: string[],
+  onSubmitEditing?: () => void
+  unfocusOnBlur?: boolean
+}
+
+export default function SearchBar({ text = '', onChangeText, isFocused, setIsFocused, placeholder = null, placholderText = [], onSubmitEditing, unfocusOnBlur = true }: SearchBarProps) {
   const inputRef = React.useRef<TextInput>(null);
 
   const handleFocus = () => {
@@ -31,7 +42,7 @@ export default function SearchBar({ text = '', onChangeText, isFocused, setIsFoc
           ref={inputRef}
           style={[styles.input, placeholder && !isFocused && { paddingLeft: 12 }, { borderColor: isFocused ? '#eeeeee' : 'black' }, isFocused && { borderWidth: 0, borderColor: '#eeeeee', borderBottomWidth: 1, borderRadius: 0, height: 62 }]}
           onFocus={() => setIsFocused(true)}
-          onBlur={() => setIsFocused(false)}
+          onBlur={unfocusOnBlur ? () => setIsFocused(false) : undefined}
           placeholder={!isFocused && placeholder ? placeholder : (placholderText.length > 0 && !isFocused ? '' : 'Search')}
           value={text}
           onChangeText={onChangeText}
