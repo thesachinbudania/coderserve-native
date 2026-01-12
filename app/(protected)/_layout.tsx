@@ -113,8 +113,8 @@ const AppTabs = () => {
             closeOnPressMask={false}
           >
             <View style={{ marginHorizontal: 16 }}>
-              <Image source={require('@/assets/images/home/allowNotifications.png')} style={{ height: 60, width: 60, marginHorizontal: 'auto' }} />
-              <Text style={{ fontSize: 15, fontWeight: 'bold', textAlign: 'center', marginTop: 12 }}>Stay in the Loop</Text>
+              <Image source={require('@/assets/images/home/allowNotifications.png')} style={{ height: 64, width: 64, marginHorizontal: 'auto' }} />
+              <Text style={{ fontSize: 15, fontWeight: 'bold', textAlign: 'center', marginTop: 16, lineHeight: 15 }}>Stay in the Loop</Text>
               <Text style={{ fontSize: 13, textAlign: 'center', color: "#737373", marginTop: 12 }}>Don't miss out! Enable notifications so we can keep you updated with important alerts, messages, and new opportunities on CoderServe.</Text>
               <BlueButton
                 title="Allow notifications"

@@ -11,19 +11,12 @@ type SearchProps = {
   setIsSearchFocused: React.Dispatch<React.SetStateAction<boolean>>,
   searchResults: Array<{ first_name: string, last_name: string, username: string, profile_image: string }>
   ResultComponent?: (data: any) => JSX.Element,
+  onSubmit?: () => void
 }
 
 
-export default function Search({ search, setSearch, isSearchFocused, setIsSearchFocused, searchResults, ResultComponent }: SearchProps) {
+export default function Search({ search, setSearch, isSearchFocused, onSubmit, setIsSearchFocused, searchResults, ResultComponent }: SearchProps) {
   const router = useRouter();
-  const onSubmit = () => {
-    Keyboard.dismiss();
-    if (search && search.trim().length > 0) {
-      router.push('/(protected)/talks/searchResults/' + search);
-      setSearch('');
-      setIsSearchFocused(false);
-    }
-  }
   return (
     <>
       <SearchBar
@@ -38,51 +31,53 @@ export default function Search({ search, setSearch, isSearchFocused, setIsSearch
         keyboardShouldPersistTaps="handled"
         style={{ height: '100%', gap: 0, paddingTop: 24, paddingHorizontal: 16, width: '100%', backgroundColor: 'white', display: isSearchFocused ? 'flex' : 'none' }}
       >
-        {
-          search.length > 0 && !ResultComponent && (
-            <Pressable
-              style={{ flexDirection: 'row', gap: 8, marginBottom: 24, alignItems: 'center' }}
-              onPress={() => {
-                setSearch("");
-                Keyboard.dismiss();
-                router.push('/(protected)/talks/searchResults/' + search);
-              }}
-            >
-              <Image source={require('@/assets/images/searchIcon.png')} style={{ height: 15, width: 15 }} />
-              <Text style={{ fontSize: 15 }}>{search}</Text>
-            </Pressable>
-          )
-        }
-        {searchResults.length > 0 &&
-          <TouchableWithoutFeedback onPress={() => setIsSearchFocused(false)}>
-            <View style={{ gap: 24 }}>
-              {searchResults.map((data, index) => (
-                ResultComponent ? <View key={index}><ResultComponent data={data} /></View> : (
-                  <Pressable
-                    key={index}
-                    style={styles.headContainer}
-                    onPress={() => {
-                      setSearch("");
-                      Keyboard.dismiss();
-                      router.push('/(freeRoutes)/profile/userProfile/' + data.username);
-                    }}
-                  >
-                    <View>
-                      <ImageLoader
-                        size={54}
-                        uri={data.profile_image}
-                      />
-                    </View>
-                    <View style={{ gap: 8 }}>
-                      <Text style={styles.name}>{data.first_name} {data.last_name}</Text>
-                      <Text style={styles.time}>@{data.username}</Text>
-                    </View>
-                  </Pressable>
-                )
-              ))}
-            </View>
-          </TouchableWithoutFeedback>
-        }
+        <TouchableWithoutFeedback onPress={() => setIsSearchFocused(false)}>
+          <View style={{ flex: 1, minHeight: '100%' }}>
+            {
+              search.length > 0 && !ResultComponent && (
+                <Pressable
+                  style={{ flexDirection: 'row', gap: 8, marginBottom: 24, alignItems: 'center' }}
+                  onPress={() => {
+                    setSearch("");
+                    Keyboard.dismiss();
+                    router.push('/(protected)/talks/searchResults/' + search);
+                  }}
+                >
+                  <Image source={require('@/assets/images/searchIcon.png')} style={{ height: 15, width: 15 }} />
+                  <Text style={{ fontSize: 15 }}>{search}</Text>
+                </Pressable>
+              )
+            }
+            {searchResults.length > 0 &&
+              <View style={{ gap: 24 }}>
+                {searchResults.map((data, index) => (
+                  ResultComponent ? <View key={index}><ResultComponent data={data} /></View> : (
+                    <Pressable
+                      key={index}
+                      style={styles.headContainer}
+                      onPress={() => {
+                        setSearch("");
+                        Keyboard.dismiss();
+                        router.push('/(freeRoutes)/profile/userProfile/' + data.username);
+                      }}
+                    >
+                      <View>
+                        <ImageLoader
+                          size={54}
+                          uri={data.profile_image}
+                        />
+                      </View>
+                      <View style={{ gap: 8 }}>
+                        <Text style={styles.name}>{data.first_name} {data.last_name}</Text>
+                        <Text style={styles.time}>@{data.username}</Text>
+                      </View>
+                    </Pressable>
+                  )
+                ))}
+              </View>
+            }
+          </View>
+        </TouchableWithoutFeedback>
       </ScrollView>
     </>
   )

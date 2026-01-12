@@ -70,7 +70,7 @@ function AccountNotification({ notification }: { notification: any }) {
     <View>
       <Text style={{ fontSize: 14, fontWeight: "bold" }}>{notification.payload.heading}</Text>
       <Text style={{ fontSize: 13, color: "#737373", marginTop: 8 }}>{notification.payload.subheading}</Text>
-      <Text style={{ fontSize: 11, color: "#a6a6a6", marginTop: 8, textAlign: 'right' }}>{formatDateTime(notification.created_at).time}</Text>
+      <Text style={{ fontSize: 11, color: "#a6a6a6", marginTop: 8, textAlign: 'right', lineHeight: 11 }}>{formatDateTime(notification.created_at).time}</Text>
     </View>
   )
 }
@@ -132,19 +132,24 @@ export default function Notifications() {
     <>
       <ListPageLayout
         headerTitle='Notifications'
+        flex1
       >
         {
           combinedData.length === 0 && !isLoading && !initialLoading ? (
             <NoData text={noDataText[selectedTab]} />
           ) : (
-            <View style={{ marginTop: 54, paddingTop: 16 }}>
+            <View style={{ marginTop: 54, paddingTop: 16, flex: 1 }}>
               <DataList
                 data={labelledData}
                 RenderItem={({ item }) =>
                   item.isSeparator ?
-                    <Text style={{ fontSize: 11, color: "#a6a6a6", textAlign: 'center', fontWeight: "bold", paddingTop: 16, paddingBottom: 8 }}>{item.date}</Text>
-                    : item.category === 'follow_requests' ? <FollowRequest request={item.payload} handleRefresh={handleRefresh} created_at={item.created_at} /> : <AccountNotification notification={item} />}
-                initialLoading={initialLoading}
+                    <Text style={{ fontSize: 11, color: "#a6a6a6", textAlign: 'center', fontWeight: "bold", paddingTop: 16, paddingBottom: 8, lineHeight: 11 }}>
+                      {item.date}
+                    </Text>
+                    : item.category === 'follow_requests' ?
+                      <FollowRequest request={item.payload} handleRefresh={handleRefresh} created_at={item.created_at} />
+                      : <AccountNotification notification={item} />}
+                initialLoading={initialLoading || isLoading}
                 refreshing={refreshing}
                 onEndReached={handleEndReached}
                 onRefresh={handleRefresh}

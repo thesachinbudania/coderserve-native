@@ -54,7 +54,7 @@ export default function Introduction() {
 
   return (
     loading ? <Loading /> :
-      <PageLayout headerTitle="Introduction to AI">
+      <PageLayout headerTitle={data.title}>
         {data.image &&
           <Image source={{ uri: data.image }} style={{ marginHorizontal: 'auto', objectFit: 'contain', width: 256, height: 256 }} />
         }

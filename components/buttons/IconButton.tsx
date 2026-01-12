@@ -29,7 +29,10 @@ export default function IconButton({ children, onPress = () => { }, square = fal
 const styles = StyleSheet.create({
 	menuIconContainer: {
 		backgroundColor: '#f5f5f5',
-		padding: 8,
+		height: 42,
+		width: 42,
+		alignItems: 'center',
+		justifyContent: 'center',
 		borderRadius: 44,
 	},
 })

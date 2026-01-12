@@ -38,6 +38,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     flexDirection: 'row',
     gap: 8,
+    lineHeight: 14,
   },
   searchIcon: {
     height: 15,

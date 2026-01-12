@@ -3,6 +3,7 @@ import {
   Animated,
   Dimensions,
   Image,
+  Keyboard,
   Pressable,
   RefreshControl,
   ScrollView,
@@ -52,7 +53,10 @@ const hashChipStyles = StyleSheet.create({
     borderWidth: 0.5,
     borderColor: '#a6a6a6',
     borderRadius: 6,
-    padding: 4
+    height: 24,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 8,
   }
 })
 
@@ -82,7 +86,7 @@ export function Post({ data }: { data: any }) {
             />
           </View>
         </Pressable>
-        <View style={{ gap: 6 }}>
+        <View style={{ gap: 8 }}>
           <Text style={postStyles.name}>{data.author.first_name}</Text>
           <Text style={postStyles.time}>{result}</Text>
         </View>
@@ -95,15 +99,12 @@ export function Post({ data }: { data: any }) {
       <View
         style={{ marginTop: 16 }}
         pointerEvents="none"
-        onLayout={(e) => {
-          // container width is handled via state inside Hashtags component if needed; this inline approach measures per post
-        }}
       >
         <SingleLineHashtags hashtags={data.hashtags} />
       </View>
       {
         data.thumbnail && <View style={{ marginTop: 16 }} pointerEvents="none">
-          <Image style={{ width: '100%', height: 144, borderRadius: 12 }} source={{ uri: data.thumbnail }} />
+          <Image style={{ width: '100%', height: 150, borderRadius: 12 }} source={{ uri: data.thumbnail }} />
         </View>
       }
 
@@ -124,10 +125,12 @@ const postStyles = StyleSheet.create({
   name: {
     fontSize: 15,
     fontWeight: "bold",
+    lineHeight: 15
   },
   time: {
     fontSize: 11,
     color: "#a6a6a6",
+    lineHeight: 11
   },
   content: {
     fontSize: 14,
@@ -272,7 +275,7 @@ export default function Page() {
 
 
 
-  const { contentWidth, contentOpacity, searchBarMarginTop } = useSearchBar({ setIsSearchFocused, isSearchFocused });
+  const { scaleX, contentOpacity, searchBarMarginTop } = useSearchBar({ setIsSearchFocused, isSearchFocused });
   const handleAddPostPress = () => {
     if (isTalksProfileCompleted()) {
       router.push("/(protected)/talks/createPost");
@@ -313,7 +316,7 @@ export default function Page() {
   );
 
   return (
-    <View style={{ flex: 1, backgroundColor: 'white', paddingTop: top }}>
+    <View style={{ flex: 1, backgroundColor: 'white', }}>
       <ScrollView
         contentContainerStyle={{
           backgroundColor: !isSearchFocused ? "white" : "#f7f7f7",
@@ -341,14 +344,13 @@ export default function Page() {
         }}
         keyboardShouldPersistTaps="handled"
       >
-        <Animated.View style={{ width: contentWidth }}>
+        <Animated.View style={{ width: '100%', paddingHorizontal: 16, transform: [{ scaleX: scaleX }] }}>
           <Animated.View style={{ opacity: initialLoading ? 1 : contentOpacity }}>
             <Header
               menuRef={menuRef}
               forTalks
             />
           </Animated.View>
-          {/* Hide search while page is loading so only header + centered loader are visible */}
           {!pageLoading && (
             <Animated.View
               style={{
@@ -361,6 +363,14 @@ export default function Page() {
                 isSearchFocused={isSearchFocused}
                 setIsSearchFocused={setIsSearchFocused}
                 searchResults={searchResults}
+                onSubmit={() => {
+                  Keyboard.dismiss();
+                  if (search && search.trim().length > 0) {
+                    router.push('/(protected)/talks/searchResults/' + search);
+                    setSearch('');
+                    setIsSearchFocused(false);
+                  }
+                }}
               />
             </Animated.View>
           )}
@@ -464,7 +474,7 @@ export default function Page() {
                 }
                 {combinedData.length > 0 &&
                   <View style={{ width: '100%', backgroundColor: "white" }}>
-                    <BottomName />
+                    <BottomName contentContainerStyle={{ marginBottom: 64 }} />
                   </View>
                 }
               </>}
@@ -564,15 +574,15 @@ const styles = StyleSheet.create({
   },
   addHashContainer: {
     backgroundColor: '#f5f5f5',
-    height: 38,
-    width: 38,
+    height: 42,
+    width: 42,
     borderRadius: 36,
     alignItems: 'center',
     justifyContent: 'center',
   },
   addHashImage: {
-    height: 20,
-    width: 20,
+    height: 24,
+    width: 24,
     tintColor: "#737373"
   },
   menuContainer: {

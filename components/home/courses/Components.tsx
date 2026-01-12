@@ -1,5 +1,5 @@
 import React from 'react';
-import { ActivityIndicator, Pressable, Text, TextInput, View } from 'react-native';
+import { ActivityIndicator, Pressable, Text, TextInput, View, StyleSheet } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import { useRouter } from 'expo-router';
 import { useUserStore } from '@/zustand/stores';
@@ -17,7 +17,7 @@ function Heading({ children }: { children: string }) {
 
 function SubHeading({ children, topMargin = 0, bottomMargin = 0 }: { children: string, topMargin?: number, bottomMargin?: number }) {
   return (
-    <Text style={{ fontSize: 16, fontWeight: 'bold', marginTop: topMargin, marginBottom: bottomMargin }}>{children}</Text>
+    <Text style={{ fontSize: 15, fontWeight: 'bold', marginTop: topMargin, marginBottom: bottomMargin }}>{children}</Text>
   )
 }
 
@@ -31,20 +31,9 @@ function Paragraph({ children, topMargin = 8, bottomMargin = 0 }: ParagraphProps
   return (
     typeof children === 'string' ?
       <Text style={{ marginTop: topMargin, marginBottom: bottomMargin, fontSize: 13, color: '#737373' }}>{children}</Text> :
-      <Text style={{ marginTop: topMargin, marginBottom: bottomMargin, flexWrap: 'wrap' }}>
-        {children.map((child, idx) => {
-          if (child.type === 'text') {
-            return <Text key={idx} style={{ fontSize: 13, color: "#737373" }}>{child.content} </Text>;
-          } else if (child.type === 'code') {
-            return (
-              <Text key={idx} style={{ color: '#3c5fff', fontSize: 13 }}>
-                {child.content}
-              </Text>
-            );
-          }
-          return null;
-        })}
-      </Text>
+      <View style={{ marginTop: topMargin, marginBottom: bottomMargin }}>
+        <InlineRichText data={children} />
+      </View>
   )
 }
 
@@ -88,6 +77,36 @@ function Table({ title1, title2, width1, width2, data, bottomMargin = 0, topMarg
   )
 }
 
+type InlineContent = {
+  type: 'text' | 'code';
+  content: string;
+};
+
+export function InlineRichText({ data }: { data: InlineContent[] }) {
+  return (
+    <Text style={richTextStyles.baseText}>
+      {data.map((item, index) => (
+        <Text
+          key={index}
+          style={item.type === 'code' ? richTextStyles.codeText : richTextStyles.baseText}
+        >
+          {item.content}
+        </Text>
+      ))}
+    </Text>
+  );
+}
+
+const richTextStyles = StyleSheet.create({
+  baseText: {
+    color: '#737373',
+    fontSize: 13,
+  },
+  codeText: {
+    color: '#3c5fff',
+  },
+});
+
 interface UnorderedListProps {
   items: string[] | { type: 'text' | 'code', content: string }[][];
   topMargin?: number;
@@ -105,7 +124,9 @@ const UnorderedList = ({ items, topMargin = 8, bottomMargin = 0, gap = 16 }: Uno
             lineHeight: 22,
             color: '#737373'
           }}>{'\u2022'}</Text>
-          <Paragraph children={item} topMargin={0} bottomMargin={0} />
+          {
+            typeof (item) === 'string' ? <Paragraph children={item} topMargin={0} bottomMargin={0} /> : <InlineRichText data={item} />
+          }
         </View>
       ))}
     </View>
@@ -353,12 +374,12 @@ const YellowButton = ({ title, onPress, disabled, loading = false }: { title: st
   )
 }
 
-const EndBox = ({ text = null, onPress = null, buttonText = null }: { text?: string | null, onPress?: (() => void) | null, buttonText?: string | null }) => {
+const EndBox = ({ text = null, onPress = null, buttonText = null, courseName = null }: { text?: string | null, onPress?: (() => void) | null, buttonText?: string | null, courseName?: string | null }) => {
   const router = useRouter();
   const { first_name } = useUserStore();
   return (
     <GradientBoxWithButton
-      text={text ? text : `Congrats ${first_name}! You successfully completed Introduction to AI`}
+      text={text ? text : `Congrats ${first_name}! You successfully completed ${courseName}`}
       buttonTitle={buttonText ? buttonText : 'Close'}
       onPress={onPress ? onPress : () => router.back()}
     />

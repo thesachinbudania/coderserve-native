@@ -8,28 +8,32 @@ import protectedApi from '@/helpers/axios';
 import Loading from '@/components/general/Loading';
 import errorHandler from '@/helpers/general/errorHandler';
 import { useFocusEffect } from 'expo-router';
+import { useIsFocused } from '@react-navigation/native';
 
 export default function FullStackAi() {
   const { id } = useGlobalSearchParams();
   const [data, setData] = React.useState<any>(null);
   const [loading, setLoading] = React.useState(true);
-
-  useFocusEffect(
-    React.useCallback(() => {
-      async function fetchData() {
-        try {
-          const response = await protectedApi.get(`/home/courses/${id}/`);
-          setData(response.data);
-        } catch (error: any) {
-          errorHandler(error);
-          console.error('Error fetching course data:', error.response.data);
-        } finally {
-          setLoading(false);
-        }
-      }
+  const isFocused = useIsFocused()
+  async function fetchData() {
+    setLoading(true)
+    try {
+      const response = await protectedApi.get(`/home/courses/${id}/`);
+      setData(response.data);
+    } catch (error: any) {
+      errorHandler(error);
+      console.error('Error fetching course data:', error.response.data);
+    } finally {
+      setLoading(false);
+    }
+  }
+  React.useEffect(() => {
+    if (isFocused) {
       fetchData();
-    }, [])
-  )
+    }
+  }, [isFocused])
+
+
 
   const router = useRouter();
   return (

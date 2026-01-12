@@ -3,7 +3,6 @@ import PageLayout from '@/components/general/PageLayout';
 import React from 'react';
 import protectedApi from '@/helpers/axios';
 import { useRouter } from 'expo-router';
-import { SuggestionCard } from '../talks';
 import errorHandler from '@/helpers/general/errorHandler';
 import FaqComponent from '@/components/general/Faq';
 import BottomName from '@/components/profile/home/BottomName';
@@ -255,34 +254,6 @@ export default function Streak() {
               /> : <View style={{ paddingVertical: 96, marginTop: 16, marginBottom: 48, borderWidth: 1, borderRadius: 12, borderColor: '#f5f5f5' }}>
                 <Text style={{ textAlign: 'center', color: "#d9d9d9", fontSize: 11 }}>{todayDate === selectedDate ? 'Start learning  or posting to see your progress here.' : 'No Activity Logged'}</Text>
               </View>}
-            </View>
-            < View style={{ gap: 16, marginHorizontal: -16 }}>
-              <Text style={{ fontSize: 15, fontWeight: 'bold', paddingHorizontal: 16 }}>Leaderboard</Text>
-              {topPerformrs && (
-                < FlatList
-                  data={topPerformrs.results}
-                  renderItem={({ item, index }) => <SuggestionCard
-                    name={item.first_name}
-                    id={item.id}
-                    rank={index + 1}
-                    points={item.points}
-                    onPress={() => router.push(`/(freeRoutes)/profile/userProfile/${item['username']}`)}
-                    image={item.profile_image || 'https://api.coderserve.com/media/profile_images/default_profile_image.png'}
-                  />}
-                  keyExtractor={(item) => item.toString()}
-                  horizontal
-                  showsHorizontalScrollIndicator={false}
-                  contentContainerStyle={{ gap: 16, paddingHorizontal: 16 }}
-                />
-              )}
-            </View>
-            <View style={styles.dividerContainer}>
-              <View style={styles.dividerLine} />
-              <Image
-                source={require("@/assets/images/home/greyStar.png")}
-                style={styles.starImage}
-              />
-              <View style={styles.dividerLine} />
             </View>
             <View style={{ marginTop: 48 }}>
               <Text style={{ fontSize: 15, color: "#a6a6a6", fontWeight: 'bold' }}>FAQs</Text>

@@ -48,6 +48,7 @@ export function DataList({
           flex: 1,
           justifyContent: 'center',
           alignItems: 'center',
+          minHeight: 400
         }}
       >
         <ActivityIndicator size="large" color={'#202020'} />
@@ -61,7 +62,7 @@ export function DataList({
       keyExtractor={(item) => item.id.toString()}
       ListHeaderComponent={
         allowSearch ? (
-          <View style={{ marginBottom: 50 - gap }}>
+          <View style={{ marginBottom: 48 - gap }}>
             <SearchBar onChangeText={onSearchChange} />
           </View>
         ) : customHeader ? customHeader : undefined
@@ -75,7 +76,8 @@ export function DataList({
         paddingTop: 24,
         paddingHorizontal: 16,
         paddingBottom: Platform.OS === 'ios' ? 128 : 64,
-        minHeight: 400
+        minHeight: 400,
+        flex: 1,
       }}
       ListFooterComponent={isPaginating && !refreshing ? (
         <ActivityIndicator style={{ marginVertical: 32 }} color={'#202020'} />

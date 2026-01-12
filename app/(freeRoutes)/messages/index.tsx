@@ -102,6 +102,7 @@ export default function Messages() {
     <>
       <ListPageLayout
         headerTitle='Messages'
+        flex1
       >
         <DataList
           data={tab === 'direct' ? filteredData : []}
@@ -113,9 +114,9 @@ export default function Messages() {
           onEndReached={handleEndReached}
           onRefresh={handleRefresh}
           customHeader={<View>
-            <View style={{ marginBottom: 50 - 16 }}>
+            <View style={{}}>
               <SearchBar onChangeText={setSearchQuery} />
-              <View style={{ backgroundColor: '#f5f5f5', paddingBottom: 8, marginBottom: -24, marginHorizontal: -16 }}>
+              <View style={{ backgroundColor: '#f5f5f5', paddingBottom: 8, marginHorizontal: -16 }}>
                 <View style={{ flexDirection: 'row', gap: 16, paddingTop: 32, paddingBottom: 16, backgroundColor: 'white', paddingHorizontal: 16 }}>
                   <OptionChip
                     selected={tab === 'direct'}
@@ -136,9 +137,9 @@ export default function Messages() {
               </View>
             </View>
           </View>}
-          noData={<View style={{ paddingTop: 96, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 16 }}>
-            <Image source={require('@/assets/images/messages.png')} style={{ height: 128, width: 138, objectFit: 'contain' }}></Image>
-            <Text style={[styles.emptyText, { marginTop: 32 }]}>{tab === 'direct' ? 'Private chats with people you follow - and those who follow you - will show up here. Start a converstion and stay connected!' : tab === 'groups' ? 'Direct ideas grow stronger together! Create or join a group, collaborate to learn and grow as a team.' : 'Your job-related chats live here. Apply to your dream job roles and be the first to hear back from recruiters - all in one place.'}</Text>
+          noData={<View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 16 }}>
+            <Image source={require('@/assets/images/messages.png')} style={{ height: 120, width: 130, objectFit: 'contain' }}></Image>
+            <Text style={[styles.emptyText, { marginTop: 28 }]}>{tab === 'direct' ? 'Private chats with people you follow - and those who follow you - will show up here. Start a converstion and stay connected!' : tab === 'groups' ? 'Direct ideas grow stronger together! Create or join a group, collaborate to learn and grow as a team.' : 'Your job-related chats live here. Apply to your dream job roles and be the first to hear back from recruiters - all in one place.'}</Text>
           </View>}
         />
 

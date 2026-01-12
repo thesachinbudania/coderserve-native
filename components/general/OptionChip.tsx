@@ -6,6 +6,7 @@ type OptionChipProps = {
   onPress?: () => void;
   selected?: boolean;
   unselectable?: boolean;
+  width?: number;
 };
 
 export default function OptionChip({
@@ -13,15 +14,17 @@ export default function OptionChip({
   onPress = () => { },
   selected = false,
   unselectable = false,
+  width
 }: OptionChipProps) {
   return (
     <Pressable
       onPress={onPress}
-      style={({pressed}) =>[
+      style={({ pressed }) => [
         optionChipStyles.container,
         !selected && { backgroundColor: "#f5f5f5" },
-        !selected && pressed && {backgroundColor: "#d9d9d9"},
-        selected && pressed && unselectable && {backgroundColor: "#006dff"},
+        !selected && pressed && { backgroundColor: "#d9d9d9" },
+        selected && pressed && unselectable && { backgroundColor: "#006dff" },
+        { width: width ? width : undefined },
       ]}
     >
       <Text style={[optionChipStyles.text, !selected && { color: "#737373", fontWeight: 'normal' }]}>
@@ -33,15 +36,17 @@ export default function OptionChip({
 
 const optionChipStyles = StyleSheet.create({
   container: {
-    height: 38,
-    paddingHorizontal: 16,
+    height: 42,
+    paddingHorizontal: 24,
     justifyContent: 'center',
     borderRadius: 32,
     backgroundColor: "#202020",
+    alignItems: 'center',
   },
   text: {
     fontSize: 13,
     color: "white",
+    fontWeight: 'bold',
   },
 });
 

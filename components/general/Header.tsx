@@ -1,5 +1,5 @@
 import { Platform, Image, View, StyleSheet, Text } from 'react-native';
-import IconButton from '@/components/profile/IconButton';
+import IconButton from '../buttons/IconButton';
 import { Portal } from 'react-native-paper';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useIsFocused } from '@react-navigation/native';
@@ -48,8 +48,8 @@ const styles = StyleSheet.create({
     width: '100%'
   },
   menuIcon: {
-    width: 24,
-    height: 24,
+    height: 32,
+    width: 32
   },
   headerTitle: {
     fontSize: 15,

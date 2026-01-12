@@ -49,12 +49,14 @@ export function Header({ menuRef, forTalks = false }: { forTalks?: boolean, menu
     }, [])
   )
   return (
-    <View style={[styles.headerContainer, { paddingTop: forTalks ? 8 : top + 8 }]}>
-      <View style={{ flexDirection: "row", gap: 4 }}>
-        {user.profile_image && (
-          <ImageLoader size={45} uri={user.profile_image} border={1} />
-        )}
-        <View style={{ gap: 6, justifyContent: "center" }}>
+    <View style={[styles.headerContainer, { paddingTop: forTalks ? 16 : top + 16 }]}>
+      <View style={{ flexDirection: "row", gap: 8 }}>
+        <View>
+          {user.profile_image && (
+            <ImageLoader size={45} uri={user.profile_image} border={1} />
+          )}
+        </View>
+        <View style={{ gap: 8, justifyContent: "center" }}>
           <Text
             numberOfLines={1}
             ellipsizeMode="tail"
@@ -552,10 +554,12 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: "bold",
     width: width - 192,
+    lineHeight: 15
   },
   secondaryHeaderText: {
     fontSize: 11,
     color: "#a6a6a6",
+    lineHeight: 11
   },
   headerIcon: {
     width: 24,

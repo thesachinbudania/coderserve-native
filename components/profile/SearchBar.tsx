@@ -40,7 +40,7 @@ export default function SearchBar({ text = '', onChangeText, isFocused, setIsFoc
         )}
         <TextInput
           ref={inputRef}
-          style={[styles.input, placeholder && !isFocused && { paddingLeft: 12 }, { borderColor: isFocused ? '#eeeeee' : 'black' }, isFocused && { borderWidth: 0, borderColor: '#eeeeee', borderBottomWidth: 1, borderRadius: 0, height: 62 }]}
+          style={[styles.input, placeholder && !isFocused && { paddingLeft: 16 }, { borderColor: isFocused ? '#eeeeee' : 'black' }, isFocused && { borderWidth: 0, borderColor: '#eeeeee', borderBottomWidth: 1, borderRadius: 0, height: 62 }]}
           onFocus={() => setIsFocused(true)}
           onBlur={unfocusOnBlur ? () => setIsFocused(false) : undefined}
           placeholder={!isFocused && placeholder ? placeholder : (placholderText.length > 0 && !isFocused ? '' : 'Search')}
@@ -71,15 +71,15 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 8,
     height: 45,
-    paddingLeft: 39,
+    paddingLeft: 40,
     fontSize: 14,
     flexDirection: 'row',
     gap: 8,
     backgroundColor: 'white'
   },
   searchIcon: {
-    height: 15,
-    width: 15,
+    height: 16,
+    width: 16,
     position: 'absolute',
     left: 16,
     zIndex: 1

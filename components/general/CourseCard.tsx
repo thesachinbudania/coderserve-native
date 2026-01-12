@@ -14,7 +14,7 @@ const CourseCard = ({ name, time, onPress = () => { }, available = true }: { nam
         <Text
           numberOfLines={1}
           ellipsizeMode="tail"
-          style={{ fontSize: 15 }}>{name}</Text>
+          style={{ fontSize: 14 }}>{name}</Text>
         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 8 }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
             <Image source={require('@/assets/images/home/time.png')} style={{ width: 12, height: 12 }} />

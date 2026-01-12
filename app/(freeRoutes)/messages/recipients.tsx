@@ -60,10 +60,11 @@ export default function Recipients() {
               onEndReached={handleEndReached}
               onRefresh={handleRefresh}
               onSearchChange={setSearchQuery}
+              gap={0}
             /> :
             <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', marginHorizontal: 16, marginTop: -57 }}>
-              <Image source={require('@/assets/images/stars.png')} style={{ width: 128, height: 128 }} />
-              <Text style={{ marginTop: 32, textAlign: 'center', fontSize: 11, color: '#a6a6a6' }}>Follow someone or gain followers to unlock conversations. Your first chat could lead to something amazing!</Text>
+              <Image source={require('@/assets/images/stars.png')} style={{ width: 128, height: 128, objectFit: 'contain' }} />
+              <Text style={{ marginTop: 28, textAlign: 'center', fontSize: 11, color: '#a6a6a6' }}>Follow someone or gain followers to unlock conversations. Your first chat could lead to something amazing!</Text>
             </View>
         )
       }
@@ -74,13 +75,15 @@ export default function Recipients() {
 function UserProfileCard({ item, handleInitiateChat }: { item: any, handleInitiateChat: (id: number) => void }) {
   return (
     <Pressable
-      style={{ flexDirection: 'row', gap: 8, alignItems: 'center' }}
+      style={{ flexDirection: 'row', gap: 16, alignItems: 'center', paddingVertical: 8 }}
       onPress={() => handleInitiateChat(item.id)}
     >
-      <ImageLoader size={48} uri={item.profile_image} />
-      <View style={{ gap: 4 }}>
-        <Text style={{ fontWeight: "bold", fontSize: 15 }}>{item.first_name} {item.last_name}</Text>
-        <Text style={{ fontSize: 13, color: '#737373' }}>@{item.username}</Text>
+      <View>
+        <ImageLoader size={54} uri={item.profile_image} />
+      </View>
+      <View style={{ gap: 8 }}>
+        <Text style={{ fontWeight: "bold", fontSize: 15, lineHeight: 15 }}>{item.first_name} {item.last_name}</Text>
+        <Text style={{ fontSize: 12, color: '#737373', lineHeight: 12 }}>@{item.username}</Text>
       </View>
     </Pressable>
   )
