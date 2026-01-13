@@ -157,7 +157,7 @@ const styles = StyleSheet.create({
     messageRow: { marginVertical: 4 },
     currentUserRow: { alignSelf: 'flex-end' },
     otherUserRow: { alignSelf: 'flex-start' },
-    messageBubble: { paddingVertical: 16, paddingHorizontal: 16, borderRadius: 10, maxWidth: '80%' },
+    messageBubble: { paddingVertical: 16, paddingHorizontal: 16, borderRadius: 12, maxWidth: '85%' },
     currentUserBubble: { backgroundColor: '#004AAD' },
     otherUserBubble: { backgroundColor: '#F5F5F5' },
     firstInGroupCurrentUser: { borderTopRightRadius: 0 },

@@ -22,19 +22,21 @@ export default function Messages() {
     const messageTime = formatTime(item.last_message_time)
     return (
       <Pressable
-        style={{ flexDirection: 'row', alignItems: 'center' }}
+        style={{ flexDirection: 'row', alignItems: 'center', gap: 16, paddingVertical: 8 }}
         onPress={() => {
           router.push('/(freeRoutes)/messages/chat/' + item.id);
         }}
       >
-        <ImageLoader size={48} uri={profileImage} />
-        <View style={{ gap: 8, marginLeft: 16 }}>
+        <View>
+          <ImageLoader size={54} uri={profileImage} />
+        </View>
+        <View style={{ gap: 8, marginLeft: 0 }}>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline', width: width - 96 }}>
-            <Text style={{ fontSize: 15, fontWeight: 'bold' }}>{item.other_participant?.first_name || ''} {item.unseen_count > 0 && <Text style={{ color: "#737373" }}>({item.unseen_count})</Text>}</Text>
-            <Text style={{ fontSize: 11, color: "#b4b4b4" }}>{messageTime}</Text>
+            <Text style={{ fontSize: 15, fontWeight: 'bold', lineHeight: 15 }}>{item.other_participant?.first_name || ''} {item.unseen_count > 0 && <Text style={{ color: "#737373" }}>({item.unseen_count})</Text>}</Text>
+            <Text style={{ fontSize: 11, color: "#b4b4b4", lineHeight: 11, marginRight: 6, }}>{messageTime}</Text>
           </View>
           <TruncatedText
-            style={{ fontSize: 13, color: "#737373" }}
+            style={{ fontSize: 13, color: "#737373", lineHeight: 13 }}
             negativeWidth={96}
           >{item.last_message?.content || ''}</TruncatedText>
         </View>
@@ -113,6 +115,7 @@ export default function Messages() {
           onSearchChange={setSearchQuery}
           onEndReached={handleEndReached}
           onRefresh={handleRefresh}
+          gap={0}
           customHeader={<View>
             <View style={{}}>
               <SearchBar onChangeText={setSearchQuery} />

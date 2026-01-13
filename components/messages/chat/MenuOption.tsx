@@ -79,11 +79,11 @@ export default function MenuOption({ title, subTitle, pressTimer = 15, onPress =
             >
                 {/* Header row with title and timer */}
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <Text style={{ fontSize: 15, fontWeight: 'bold' }}>{title}</Text>
+                    <Text style={{ fontSize: 15, lineHeight: 15, fontWeight: 'bold' }}>{title}</Text>
 
                     {/* Countdown timer badge - only shown when time is available */}
                     {timeLeft && timeLeft > 0 && (
-                        <Text style={{ fontSize: 11, color: '#00bf63', paddingHorizontal: 12, paddingVertical: 4, backgroundColor: '#d3ffea', borderRadius: 12 }}>{
+                        <Text style={{ fontSize: 11, lineHeight: 11, color: '#00bf63', paddingHorizontal: 12, paddingVertical: 4, backgroundColor: '#d3ffea', borderRadius: 12 }}>{
                             /* Format as MM:SS */
                             `${Math.floor(timeLeft / 60).toString().padStart(2, '0')}:${(timeLeft % 60).toString().padStart(2, '0')}`
                         }</Text>
@@ -91,7 +91,7 @@ export default function MenuOption({ title, subTitle, pressTimer = 15, onPress =
                 </View>
 
                 {/* Subtitle/description */}
-                <Text style={{ fontSize: 12, color: "#a6a6a6", marginTop: 8 }}>{subTitle}</Text>
+                <Text style={{ fontSize: 12, lineHeight: 12, color: "#a6a6a6", marginTop: 8 }}>{subTitle}</Text>
             </Pressable>
         )
     )

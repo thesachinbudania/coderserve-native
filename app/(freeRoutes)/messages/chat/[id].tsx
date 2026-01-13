@@ -692,7 +692,7 @@ export default Chat;
 // --- STYLES ---
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: 'white' },
-  messagesContainer: { paddingHorizontal: 16, paddingVertical: 10, flexGrow: 1 },
+  messagesContainer: { paddingHorizontal: 16, paddingVertical: 0, flexGrow: 1, paddingTop: 16 },
   // Styles for the "Seen" indicator
   seenContainer: {
     alignSelf: 'flex-end',

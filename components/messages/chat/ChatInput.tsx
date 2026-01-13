@@ -131,7 +131,7 @@ export default function ChatInput({ value, onChange, onSend, onPickImage, disabl
                                 style={({ pressed }) => [
                                     {
                                         height: 45, width: 45, justifyContent: 'center', alignItems: 'center',
-                                        backgroundColor: canSend ? '#202020' : '#f5f5f5', borderRadius: 45, margin: 8,
+                                        backgroundColor: canSend ? '#202020' : '#f5f5f5', borderRadius: 45, margin: 8, marginRight: 16
                                     },
                                     pressed && canSend && { backgroundColor: '#006dff' },
                                     pressed && !canSend && { backgroundColor: "#d9d9d9" }
@@ -169,11 +169,9 @@ const styles = StyleSheet.create({
         color: 'black',
         maxHeight: 100,
         minHeight: 40,
-        paddingTop: 16,
-        paddingBottom: 16,
+        paddingVertical: 16,
         paddingLeft: 16,
         textAlignVertical: 'center',
-        // No paddingRight so the send button is flush
     },
     commentInputContainer: {
         width: '100%',
