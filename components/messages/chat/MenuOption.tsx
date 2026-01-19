@@ -74,7 +74,7 @@ export default function MenuOption({ title, subTitle, pressTimer = 15, onPress =
     return (
         timeLeft && timeLeft > 0 && (
             <Pressable
-                style={{ padding: 16, borderWidth: 1, borderColor: '#f5f5f5', borderRadius: 12 }}
+                style={({ pressed }) => [{ padding: 16, borderWidth: 1, borderColor: '#f5f5f5', borderRadius: 12 }, pressed && { borderColor: "#006dff" }]}
                 onPress={onPress}
             >
                 {/* Header row with title and timer */}

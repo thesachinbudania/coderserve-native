@@ -28,16 +28,18 @@ export default function BottomDrawer({
   return (
     <>
       {/* Invisible off-screen measurement */}
-      <View
-        style={styles.offscreen}
-        onLayout={(e) => {
-          const h = e.nativeEvent.layout.height;
-          const maxHeight = SCREEN_HEIGHT * 0.85; // cap
-          setMeasuredHeight(bottom > 0 ? Math.min(h, maxHeight) + bottom + 16 : Math.min(h, maxHeight) + 32);
-        }}
-      >
-        {children}
-      </View>
+      {!height && (
+        <View
+          style={styles.offscreen}
+          onLayout={(e) => {
+            const h = e.nativeEvent.layout.height;
+            const maxHeight = SCREEN_HEIGHT * 0.85; // cap
+            setMeasuredHeight(bottom > 0 ? Math.min(h, maxHeight) + bottom + 16 : Math.min(h, maxHeight) + 32);
+          }}
+        >
+          {children}
+        </View>
+      )}
 
       {/* Actual Bottom Sheet WITH perfect height */}
       <RBSheet

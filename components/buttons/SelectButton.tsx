@@ -1,4 +1,4 @@
-import {Pressable, View, Text, StyleSheet} from 'react-native';
+import { Pressable, View, Text, StyleSheet } from 'react-native';
 import * as Haptics from 'expo-haptics';
 
 export default function SelectButton({ title, subTitle, selected, setSelected, index }: { index: number, title: string, subTitle: string, selected: boolean, setSelected: React.Dispatch<React.SetStateAction<number | null>> }) {
@@ -37,17 +37,18 @@ const buttonStyles = StyleSheet.create({
     borderWidth: 3,
     borderColor: '#a6a6a6',
     borderRadius: 50,
-    height: 16,
-    width: 16
+    height: 15,
+    width: 15
   },
   heading: {
-    fontSize: 15,
+    fontSize: 14,
     fontWeight: 'bold',
+    lineHeight: 14,
   },
   text: {
-    fontSize: 13,
+    fontSize: 12,
     color: '#a6a6a6',
     paddingRight: 16,
-    marginTop: 4
+    marginTop: 2,
   }
 })

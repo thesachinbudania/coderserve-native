@@ -58,6 +58,7 @@ export function DataList({
 
   return (
     <FlatList
+      style={{ flex: 1, width: '100%' }}
       data={data}
       keyExtractor={(item) => item.id.toString()}
       ListHeaderComponent={
@@ -77,7 +78,7 @@ export function DataList({
         paddingHorizontal: 16,
         paddingBottom: Platform.OS === 'ios' ? 128 : 64,
         minHeight: 400,
-        flex: 1,
+        flexGrow: 1,
       }}
       ListFooterComponent={isPaginating && !refreshing ? (
         <ActivityIndicator style={{ marginVertical: 32 }} color={'#202020'} />
@@ -93,7 +94,7 @@ export function useFetchData({
   refreshOnFocus = true,
   allowSearch = false
 }: {
-  url: string;
+  url: string | null;
   gap?: number;
   paddingTop?: number;
   refreshOnFocus?: boolean;
@@ -101,14 +102,14 @@ export function useFetchData({
 }) {
   const [allData, setAllData] = React.useState<any[]>([]);
   const [combinedData, setCombinedData] = React.useState<any[]>([]);
-  const [nextPage, setNextPage] = React.useState<string | null>(`${apiUrl}${url}`);
+  const [nextPage, setNextPage] = React.useState<string | null>(url ? `${apiUrl}${url}` : null);
   const [initialLoading, setInitialLoading] = React.useState(true);
   const [isPaginating, setIsPaginating] = React.useState(false);
   const [refreshing, setRefreshing] = React.useState(false);
   const [filteredData, setFilteredData] = React.useState(combinedData);
   const [searchQuery, setSearchQuery] = React.useState('');
 
-  const { data, isLoading, refetch } = useFetch(nextPage || '');
+  const { data, isLoading, refetch } = useFetch(nextPage || '', !!url);
 
   React.useEffect(() => {
     if (data) {
@@ -125,7 +126,33 @@ export function useFetchData({
         return unique;
       });
 
-      setNextPage(data.next);
+      // Construct next page URL using the current base URL + query params from backend response
+      // This fixes issues where backend might return a next link pointing to a different endpoint (e.g. trending vs custom)
+      if (data.next) {
+        try {
+          // Extract query parameters from data.next (e.g. ?page=2 or ?limit=10&offset=10)
+          const nextUrlParts = data.next.split('?');
+          if (nextUrlParts.length > 1) {
+            const queryParams = nextUrlParts[1];
+            // Use the client-side URL path (base) to ensure we stay on the correct endpoint (e.g. preferences/posts/)
+            // We assume the server's 'next' link contains all necessary accumulated query state (search, filter, page)
+            if (url) {
+              const clientUrlBase = url.split('?')[0];
+              setNextPage(`${apiUrl}${clientUrlBase}?${queryParams}`);
+            } else {
+              setNextPage(data.next);
+            }
+          } else {
+            // Fallback if no query params found (unlikely for pagination)
+            setNextPage(data.next);
+          }
+        } catch (e) {
+          setNextPage(data.next);
+        }
+      } else {
+        setNextPage(null);
+      }
+
       setIsPaginating(false);
       if (initialLoading) {
         setInitialLoading(false);
@@ -137,8 +164,13 @@ export function useFetchData({
     setAllData([]);
     setCombinedData([]);
     setFilteredData([]);
-    setNextPage(`${apiUrl}${url}`);
-    refetch(`${apiUrl}${url}`);
+    if (url) {
+      const resetUrl = `${apiUrl}${url}`;
+      setNextPage(resetUrl);
+      refetch(resetUrl);
+    } else {
+      setNextPage(null);
+    }
   }, [url]);
 
   React.useEffect(() => {

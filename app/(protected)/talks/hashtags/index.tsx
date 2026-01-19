@@ -202,7 +202,7 @@ export default function Hashtags() {
                                     columnWrapperStyle={{ justifyContent: 'center', flexWrap: 'wrap', gap: 16, marginBottom: 12 }}
                                     renderItem={({ item }: ListRenderItemInfo<any>) => (
                                         <OptionChip
-                                            title={item.name}
+                                            title={'#' + item.name}
                                             key={item.id ?? item.name}
                                             onPress={() => {
                                                 if (selectedHashtags.includes(item.name)) {
@@ -218,6 +218,7 @@ export default function Hashtags() {
                                             }}
                                             selected={selectedHashtags.includes(item.name)}
                                             unselectable={true}
+                                            large
                                         />
                                     )}
                                     onEndReachedThreshold={0.5}
@@ -277,10 +278,10 @@ export default function Hashtags() {
             >
                 <View style={{ paddingHorizontal: 16 }}>
                     <Text style={{ textAlign: 'center', fontSize: 15, fontWeight: 'bold' }}>Are you sure you want to reset?</Text>
-                    <Text style={{ fontSize: 13, color: "#a6a6a6", marginTop: 16, textAlign: 'center' }}>
+                    <Text style={{ fontSize: 13, color: "#737373", marginTop: 12, textAlign: 'center' }}>
                         All your selected hashtags will be cleared, and the "Custom" section will be removed.
                     </Text>
-                    <View style={{ marginTop: 32, gap: 16, flexDirection: "row" }}>
+                    <View style={{ marginTop: 30, gap: 16, flexDirection: "row" }}>
                         <View style={{ flex: 1 / 2 }}>
                             <GreyBgButton title="Cancel" onPress={() => resetSheetRef.current?.close()} />
                         </View>
@@ -296,14 +297,14 @@ export default function Hashtags() {
             >
                 <View style={{ paddingHorizontal: 16 }}>
                     <Text style={{ textAlign: 'center', fontSize: 15, fontWeight: 'bold' }}>Hashtags {selectedHashtags.length == 0 ? 'Removed!' : !showNewCustomSection ? 'Updated!' : 'Saved!'}</Text>
-                    <Text style={{ fontSize: 13, color: "#a6a6a6", marginTop: 16, textAlign: 'center' }}>
+                    <Text style={{ fontSize: 13, color: "#737373", marginTop: 12, textAlign: 'center' }}>
                         {selectedHashtags.length == 0 ? 'You have removed all saved hashtags. The "Custom" section is no longer active, and Talks is back to the default feed.' :
                             (showNewCustomSection)
                                 ? `You'll now see a new "Custom" section in Talks featuring posts that match your selected interests.`
                                 : `Your interests have been refreshed. You'll now see posts in "Custom" that reflect your updated hashtags.`
                         }
                     </Text>
-                    <View style={{ marginTop: 32 }}>
+                    <View style={{ marginTop: 30 }}>
                         <BlueButton title="Okay" onPress={() => {
                             sheetRef.current?.close();
                             router.back();

@@ -6,8 +6,8 @@ import { Post } from '@/app/(protected)/talks';
 
 const titles = ['Votes', 'Commments', 'Tags', 'Votes', 'Comments', 'Tags'];
 export default function DetailedInfo() {
-  const { index } = useGlobalSearchParams();
-  const { fullName, commentedPosts, your_commentedPosts, votedPosts, your_votedPosts, commentMentionedPosts, your_commentMentionedPosts } = useAccountInfoStore();
+  const { index, forSelf } = useGlobalSearchParams();
+  const { username, fullName, commentedPosts, your_commentedPosts, votedPosts, your_votedPosts, commentMentionedPosts, your_commentMentionedPosts } = useAccountInfoStore();
   const data = [votedPosts, commentedPosts, commentMentionedPosts, your_votedPosts, your_commentedPosts, your_commentMentionedPosts];
   const noDataText = [
     `${fullName} hasn't voted on any of your posts.`,
@@ -18,23 +18,29 @@ export default function DetailedInfo() {
     `You haven't tagged ${fullName} in any posts.`,
   ]
 
-
-
   return <PageLayout
     headerTitle={titles[Number(index)]}
     bottomPadding={false}
+    flex1
   >
     {
       data[Number(index)]?.length > 0 ? (
-        <View style={{ flex: 1, marginHorizontal: -16, gap: 8, backgroundColor: "#f5f5f5", marginTop: -24 }}>
+        <View style={{ flex: 1, marginHorizontal: -16, backgroundColor: "#fff", marginTop: -24 }}>
           {data[Number(index)]?.map((post: any) => (
-            <Post key={post.id} data={post} />
+            <>
+              <Post
+                key={post.id}
+                data={post}
+                detailedPostUsername={forSelf ? null : username}
+              />
+              <View style={{ width: '100%', height: 8, backgroundColor: '#f5f5f5' }} />
+            </>
           ))}
         </View>
       ) :
-        <View style={{ paddingTop: 256, justifyContent: 'center', alignItems: 'center' }}>
-          <Image source={require('@/assets/images/stars.png')} style={{ width: 112, height: 112, }} />
-          <Text style={{ fontSize: 11, color: '#a6a6a6', marginTop: 24, textAlign: 'center' }}>{noDataText[Number(index)]}</Text>
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+          <Image source={require('@/assets/images/stars.png')} style={{ width: 112, height: 120, objectFit: 'contain' }} />
+          <Text style={{ fontSize: 11, color: '#a6a6a6', marginTop: 30, textAlign: 'center' }}>{noDataText[Number(index)]}</Text>
         </View>
     }
   </PageLayout>

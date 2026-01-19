@@ -6,6 +6,7 @@ import React from 'react';
 import { useFetchData, DataList } from '@/helpers/general/handleFetchedData';
 import SmallTextButton from '@/components/buttons/SmallTextButton';
 import { formatTime, formatDateShort } from '@/helpers/helpers';
+import LineGraph from '@/components/home/LineGraph';
 
 
 
@@ -28,26 +29,26 @@ export default function Activity() {
         </View>
         <View style={{ paddingBottom: 48, marginTop: -4, gap: 8 }}>
           <View style={{ flexDirection: 'row', gap: 4 }}>
-            <Text style={{ fontSize: 13 }}>You {item.action}{item.action === 'commented' && ' on '} Post</Text>
+            <Text style={{ fontSize: 13, lineHeight: 13 }}>You {item.action}{item.action === 'commented' && ' on '} Post</Text>
             <SmallTextButton
               onPress={() => router.push('/(freeRoutes)/talks/viewPost/' + item.related_post.id)}
-              title={`#${String(item.related_post.id).padStart(12, "0")}`} style={{ textDecorationLine: "underline", fontSize: 13 }}></SmallTextButton>
+              title={`#${String(item.related_post.id).padStart(12, "0")}`} style={{ textDecorationLine: "underline", fontSize: 13, lineHeight: 13 }}></SmallTextButton>
           </View>
           {
             item.action === 'commented' && (
-              <Text style={{ fontSize: 13, color: "#737373" }}>"{item.related_comment.content}"</Text>
+              <Text style={{ fontSize: 13, color: "#737373", lineHeight: 13 }}>"{item.related_comment.content}"</Text>
             )
           }
           <View style={{ flexDirection: 'row', gap: 8 }}>
-            <Text style={{ fontSize: 11, color: "#a6a6a6" }}>{formatTime(item.timestamp)}</Text>
-            <Text style={{ fontSize: 11, color: "#a6a6a6" }}>{formatDateShort(item.timestamp)}</Text>
+            <Text style={{ fontSize: 11, color: "#a6a6a6", lineHeight: 11 }}>{formatTime(item.timestamp)}</Text>
+            <Text style={{ fontSize: 11, color: "#a6a6a6", lineHeight: 11 }}>{formatDateShort(item.timestamp)}</Text>
           </View>
         </View>
       </View>
     )
   }
   return (
-    <ListPageLayout headerTitle='Your Activity' >
+    <ListPageLayout headerTitle='Your Activity' flex1>
       {
         combinedData.length > 0 || isLoading || initialLoading || refreshing ? (
           <DataList

@@ -86,9 +86,9 @@ export default function ({ editable = true, username, canView = true }: { canVie
         draggableIconHeight={0}
       >
         <View style={{ gap: 32, paddingHorizontal: 16 }}>
-          <View style={{ gap: 8 }}>
-            <Text style={{ textAlign: 'center', fontWeight: 'bold', fontSize: 15 }}>Complete Your Profile</Text>
-            <Text style={{ textAlign: 'center', color: '#a6a6a6', fontSize: 13 }}>
+          <View style={{ gap: 6 }}>
+            <Text style={{ textAlign: 'center', fontWeight: 'bold', fontSize: 15, lineHeight: 15 }}>Complete Your Profile</Text>
+            <Text style={{ textAlign: 'center', color: '#737373', fontSize: 13 }}>
               Your profile is incomplete. Please complete your profile to start creating and sharing posts with the community.
             </Text>
           </View>
@@ -136,6 +136,6 @@ const styles = StyleSheet.create({
     textDecorationLine: 'underline',
     fontSize: 14,
     fontWeight: 'bold',
-
+    lineHeight: 14
   }
 })

@@ -18,9 +18,9 @@ export function Header({ post, menuRef }: { post: any, menuRef?: any }) {
         <View style={[styles.headerContainer, { paddingTop: top + 8 }]}>
             <View style={{ flexDirection: "row", gap: 4 }}>
                 {post.author.profile_image && (
-                    <ImageLoader size={48} uri={post.author.profile_image} border={1} />
+                    <ImageLoader size={45} uri={post.author.profile_image} border={1} />
                 )}
-                <View style={{ gap: 6, justifyContent: "center" }}>
+                <View style={{ gap: 4, justifyContent: "center" }}>
                     <Text
                         numberOfLines={1}
                         ellipsizeMode="tail"

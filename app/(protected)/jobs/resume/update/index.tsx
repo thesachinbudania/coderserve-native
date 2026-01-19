@@ -633,12 +633,12 @@ export const styles = StyleSheet.create({
   resumeContainer: {
     marginHorizontal: 16,
     marginTop: 32,
-    gap: 48,
+    gap: 44,
   },
   detailsHeading: {
     fontWeight: "bold",
     fontSize: 15,
-    marginBottom: 8,
+    marginBottom: 6,
   },
   menuIcon: {
     height: 24,

@@ -114,7 +114,7 @@ export default function CommentPersmissions() {
             <BottomDrawer sheetRef={drawerRef} draggableIconHeight={0}>
               <View style={{ paddingHorizontal: 16 }}>
                 <Text style={{ fontSize: 15, fontWeight: 'bold', textAlign: 'center' }}>Apply Tag Settings?</Text>
-                <Text style={{ fontSize: 13, color: "#a6a6a6", textAlign: 'center', marginTop: 12 }}>Your new tag preference. Are you sure you want to proceed?</Text>
+                <Text style={{ fontSize: 13, color: "#737373", textAlign: 'center', marginTop: 12 }}>Your new tag preference. Are you sure you want to proceed?</Text>
                 <View style={{ flexDirection: 'row', gap: 16, width: '100%', marginTop: 24 }}>
                   <View style={{ flex: 1 / 2 }}>
                     <GreyBgButton

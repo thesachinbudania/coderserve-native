@@ -10,6 +10,7 @@ interface AccountInfoState {
   usernameChanges: any[];
   your_usernameChanges: any[];
   fullName?: string;
+  username?: string;
 
   setAccountInfo: (accountInfo: Partial<AccountInfoState>) => void;
 }

@@ -17,17 +17,19 @@ const styles = StyleSheet.create({
   countText: {
     fontSize: 13,
     fontWeight: 'bold',
+    lineHeight: 13,
   },
   countBox: {
     alignItems: 'center',
     flex: 1,
     paddingVertical: 8,
-    gap: 6,
+    gap: 8,
     borderRadius: 8,
   },
   countHeading: {
     fontSize: 11,
     color: '#737373',
+    lineHeight: 11,
   },
 
 });

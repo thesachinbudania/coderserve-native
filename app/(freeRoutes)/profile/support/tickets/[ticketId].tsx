@@ -21,7 +21,7 @@ dayjs.extend(isToday);
 dayjs.extend(isYesterday);
 
 const SupportChat = () => {
-    const { id } = useLocalSearchParams<{ id: string }>();
+    const { ticketId } = useLocalSearchParams<{ ticketId: string }>();
     const router = useRouter();
     const currentUser = useUserStore();
     const username = currentUser?.username || 'current-user'; // fallback
@@ -38,7 +38,7 @@ const SupportChat = () => {
 
     const fetchMessages = async () => {
         try {
-            const response = await protectedApi.get(`/talks/support/tickets/${id}/messages/`);
+            const response = await protectedApi.get(`/talks/support/tickets/${ticketId}/messages/`);
             // Adapt API response to Message type
             const adaptedMessages: Message[] = response.data.map((msg: any) => ({
                 id: String(msg.id),
@@ -63,7 +63,7 @@ const SupportChat = () => {
 
     const fetchTicketDetails = async () => {
         try {
-            const response = await protectedApi.get(`/talks/support/tickets/${id}/`);
+            const response = await protectedApi.get(`/talks/support/tickets/${ticketId}/`);
             setTicket(response.data);
         } catch (error: any) {
             errorHandler(error);
@@ -72,7 +72,7 @@ const SupportChat = () => {
     };
 
     useEffect(() => {
-        if (id) {
+        if (ticketId) {
             fetchMessages();
             fetchTicketDetails();
             // Optional: Poll for new messages every 10 seconds?
@@ -81,7 +81,7 @@ const SupportChat = () => {
             const interval = setInterval(fetchMessages, 5000);
             return () => clearInterval(interval);
         }
-    }, [id]);
+    }, [ticketId]);
 
     const handleSend = async () => {
         const text = inputText.trim();
@@ -105,7 +105,7 @@ const SupportChat = () => {
 
             // API Call
             // Endpoint: POST /talks/support/tickets/<ticket_id>/messages/
-            await protectedApi.post(`/talks/support/tickets/${id}/messages/`, {
+            await protectedApi.post(`/talks/support/tickets/${ticketId}/messages/`, {
                 content: text
             });
 
@@ -176,7 +176,7 @@ const SupportChat = () => {
             console.log(imageUrl, 'this is the image url')
 
             // 2. Send Message with Image URL
-            await protectedApi.post(`/talks/support/tickets/${id}/messages/`, {
+            await protectedApi.post(`/talks/support/tickets/${ticketId}/messages/`, {
                 image_url: imageUrl
             });
 
@@ -298,8 +298,8 @@ const SupportChat = () => {
                                 />
                             );
                         }}
-                        contentContainerStyle={[styles.messagesContainer, { paddingBottom: ticket && ticket.status === 'open' ? 16 : 48 }]}
-                        onContentSizeChange={() => flatListRef.current?.scrollToEnd({ animated: false })}
+                        contentContainerStyle={[styles.messagesContainer, { paddingBottom: ticket && ticket.status === 'open' ? 12 : 48 }]}
+                        onContentSizeChange={() => flatListRef.current?.scrollToEnd({ animated: true })}
                     />
                 )}
 

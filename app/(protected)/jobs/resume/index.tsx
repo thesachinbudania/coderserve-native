@@ -380,9 +380,9 @@ export const styles = StyleSheet.create({
   heading: {
     fontSize: 15,
     fontWeight: 'bold',
+    marginBottom: 4,
   },
   smallText: {
-    marginTop: 4,
     fontSize: 13,
     color: '#A6A6A6',
     textAlign: 'justify'
@@ -432,8 +432,8 @@ export const styles = StyleSheet.create({
     borderBottomColor: '#f5f5f5',
   },
   menuIcon: {
-    width: 24,
-    height: 24,
+    width: 32,
+    height: 32,
   },
   bgImage: {
     width: '100%',

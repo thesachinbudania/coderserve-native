@@ -17,7 +17,7 @@ const StreakSquare = ({ intensity = 0 }: { intensity?: number }) => {
 export const StreakRate = () => {
   const router = useRouter();
   return (
-    <View style={{ marginTop: 8, borderRadius: 12, padding: 16, borderColor: '#f5f5f5', borderWidth: 1 }}>
+    <View style={{ marginTop: 6, borderRadius: 12, padding: 16, borderColor: '#f5f5f5', borderWidth: 1 }}>
       {
         Array.from({ length: 7 }).map((_, rowIndex) => {
           return (
@@ -51,12 +51,12 @@ export const StreakRate = () => {
       </View>
       <View style={{ flexDirection: 'row', marginTop: 32, gap: 16 }}>
         <View style={{ flex: 1 / 2, alignItems: 'center', justifyContent: 'center', padding: 16, backgroundColor: "#f5f5f5", borderRadius: 8 }}>
-          <Text style={{ color: "#a6a6a6", fontSize: 11 }}> Streak Rate</Text>
-          <Text style={{ fontWeight: 'bold', fontSize: 15, marginTop: 8 }}>0.00</Text>
+          <Text style={{ color: "#a6a6a6", fontSize: 11, lineHeight: 11 }}> Streak Rate</Text>
+          <Text style={{ fontWeight: 'bold', fontSize: 15, marginTop: 8, lineHeight: 15 }}>0.00</Text>
         </View>
         <View style={{ flex: 1 / 2, alignItems: 'center', justifyContent: 'center', padding: 16, backgroundColor: "#f5f5f5", borderRadius: 8 }}>
-          <Text style={{ color: "#a6a6a6", fontSize: 11 }}> Current Streak</Text>
-          <Text style={{ fontWeight: 'bold', fontSize: 15, marginTop: 8 }}>0 Day</Text>
+          <Text style={{ color: "#a6a6a6", fontSize: 11, lineHeight: 11 }}> Current Streak</Text>
+          <Text style={{ fontWeight: 'bold', fontSize: 15, marginTop: 8, lineHeight: 15 }}>0 Day</Text>
         </View>
       </View>
     </View>
@@ -83,7 +83,7 @@ export default function ProfileContent({
           <StreakRate />
         </View>
       </View>
-      <BottomText />
+      <BottomText contentContainerStyle={{ marginTop: 80, marginBottom: 64 }} />
     </>
   );
 }
@@ -99,7 +99,7 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: "#a6a6a6",
     textAlign: "justify",
-    marginTop: 8,
+    marginTop: 6,
     verticalAlign: "bottom",
   },
   tabContent: {

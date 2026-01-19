@@ -54,16 +54,16 @@ export default function TimerMenuOption({
 
     return (
         <Pressable
-            style={{ padding: 16, borderWidth: 1, borderColor: '#f5f5f5', borderRadius: 12 }}
+            style={({ pressed }) => ({ padding: 16, borderWidth: 1, borderColor: pressed ? '#006dff' : '#f5f5f5', borderRadius: 12, opacity: pressed ? 0.8 : 1 })}
             onPress={onPress}
         >
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                <Text style={{ fontSize: 15, fontWeight: 'bold' }}>{title}</Text>
-                <Text style={{ fontSize: 11, color: '#00bf63', paddingHorizontal: 12, paddingVertical: 4, backgroundColor: '#d3ffea', borderRadius: 12 }}>{
+                <Text style={{ fontSize: 14, fontWeight: 'bold', lineHeight: 15 }}>{title}</Text>
+                <Text style={{ fontSize: 11, color: '#00bf63', paddingHorizontal: 12, paddingVertical: 2, backgroundColor: '#d3ffea', borderRadius: 12, lineHeight: 11 }}>{
                     `${Math.floor(timeLeft / 60).toString().padStart(2, '0')}:${(timeLeft % 60).toString().padStart(2, '0')}`
                 }</Text>
             </View>
-            <Text style={{ fontSize: 12, color: "#a6a6a6", marginTop: 8 }}>{subTitle}</Text>
+            <Text style={{ fontSize: 12, color: "#a6a6a6", marginTop: 8, lineHeight: 12 }}>{subTitle}</Text>
         </Pressable>
     );
 }

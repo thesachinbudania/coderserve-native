@@ -4,7 +4,6 @@ import { useRouter } from 'expo-router';
 import { PostContent } from '@/app/(protected)/talks/createPost/previewPost';
 import protectedApi from '@/helpers/axios';
 import { useGlobalSearchParams } from 'expo-router';
-import VoteButton from '@/components/buttons/VoteButton';
 import BottomDrawer from '@/components/BottomDrawer';
 import BottomName from '@/components/profile/home/BottomName';
 import BottomSheet from '@/components/messsages/BottomSheet';
@@ -18,7 +17,7 @@ import TimerMenuOption from '@/components/buttons/TimerMenuOption';
 import { Comments } from '@/components/talks/viewPost/Comments';
 import { Header } from '@/components/talks/viewPost/Header';
 import { Votes } from '@/components/talks/viewPost/Votes';
-
+import errorHandler from '@/helpers/general/errorHandler';
 const { width } = Dimensions.get('window');
 
 
@@ -28,7 +27,7 @@ const { width } = Dimensions.get('window');
 // --- Main post view: fetches post, handles save, renders all sections ---
 export default function ViewPost() {
   // --- State and refs ---
-  const { id } = useGlobalSearchParams();
+  const { postId, detailsfor } = useGlobalSearchParams();
   const router = useRouter();
   const [post, setPost] = React.useState<any | null>(null);
   const [upvoted, setUpvoted] = React.useState(false);
@@ -36,6 +35,7 @@ export default function ViewPost() {
   const [upvotes, setUpvotes] = React.useState(0);
   const [downvotes, setDownvotes] = React.useState(0);
   const [postSaved, setPostSaved] = React.useState(false);
+  const [muted, setMuted] = React.useState(false);
   const [creationTime, setCreationTime] = React.useState<string | null>(null);
   const menuRef = React.useRef<any>(null);
   const deleteSheetRef = React.useRef<any>(null);
@@ -47,10 +47,10 @@ export default function ViewPost() {
   async function shareProfileAsync() {
     try {
       await Share.share({
-        message: 'https://coderserve.com/posts/' + id,
+        message: 'https://coderserve.com/posts/' + postId,
       });
     } catch (error) {
-      console.error('Error sharing profile:', error);
+      console.log("something went wrong")
     }
   }
 
@@ -82,16 +82,16 @@ export default function ViewPost() {
       // If unsaved (toggled off), do nothing special for now
     } catch (err: any) {
       // handle errors minimally
-      console.error('Error toggling save post:', err?.response?.data || err?.message || err);
+      errorHandler(err)
     }
   }
   const [fetchingPost, setFetchingPost] = React.useState(true);
 
   const fetchPost = async () => {
-    if (!id) return;
+    if (!postId) return;
     setFetchingPost(true);
     try {
-      const res = await protectedApi.get(`/talks/posts/${id}/`);
+      const res = await protectedApi.get(`/talks/posts/${postId}/`);
       setPost(res.data);
       setPostSaved(res.data.saved)
       setUpvoted(res.data.upvoted);
@@ -99,13 +99,28 @@ export default function ViewPost() {
       setUpvotes(res.data.upvotes);
       setDownvotes(res.data.downvotes);
       setCreationTime(res.data.created_at);
+      setMuted(res.data.is_author_muted);
     }
-    catch {
+    catch (err) {
       router.push('/(freeRoutes)/error')
     }
     finally {
       setFetchingPost(false)
     }
+  }
+
+
+  // muting logic
+  const muteRef = React.useRef<any>(null);
+  const [isMuting, setIsMuting] = React.useState(false);
+  // function to mute/unmute user
+  const manageMute = () => {
+    setIsMuting(true);
+    protectedApi.put(`/accounts/manage_mute/${post.author.username}/`).then((res) => {
+      setMuted(res.data.is_muted);
+    }).catch(err => errorHandler(err)).finally(() => {
+      setIsMuting(false);
+    })
   }
 
   // logic to delete a post
@@ -118,7 +133,7 @@ export default function ViewPost() {
       deleteSheetRef?.current?.close();
       router.back();
     } catch (err) {
-      console.error('Error deleting post:', err);
+      router.push('/(freeRoutes)/error')
     } finally {
       setDeletingPost(false);
     }
@@ -128,11 +143,18 @@ export default function ViewPost() {
   useFocusEffect(
     React.useCallback(() => {
       fetchPost();
-    }, [id])
+    }, [postId])
   );
+
+  const [voteInfo, setVoteInfo] = React.useState<any | null>(null);
   // --- Fetch post data on mount ---
   React.useEffect(() => {
     fetchPost();
+    if (detailsfor) {
+      protectedApi.get('/talks/posts/' + postId + '/voteinfo/' + detailsfor + '/').then(res => {
+        setVoteInfo(res.data)
+      })
+    }
   }, [])
 
   // --- Render ---
@@ -165,6 +187,9 @@ export default function ViewPost() {
             downvotes={downvotes}
             setUpvotes={setUpvotes}
             setDownvotes={setDownvotes}
+            detailsfor={voteInfo?.fullName}
+            userUpvoted={voteInfo?.upvoted}
+            userDownvoted={voteInfo?.downvoted}
           />
           {/* Comments section */}
           <Comments
@@ -181,21 +206,51 @@ export default function ViewPost() {
           </View>
         </>
       )}
-      {/* Saved post confirmation sheet */}
-      <BottomSheet
-        menuRef={postSaveRef}
-        height={192}
+      <BottomDrawer
+        sheetRef={muteRef}
+        draggableIconHeight={0}
       >
-        <Image source={require('@/assets/images/blueTick.png')} style={{ width: 48, height: 48, marginHorizontal: 'auto', tintColor: '#202020' }} />
-        <Text style={{ textAlign: 'center', fontSize: 13, color: "#737373", marginTop: 16, marginBottom: 32 }}>
-          {postSaved ? 'This post has been saved successfully.' : 'This post has been removed from your saved list.'}
-        </Text>
-        <BlueButton title="Okay" onPress={() => postSaveRef.current.close()} />
-      </BottomSheet>
+        <View style={{ paddingHorizontal: 16 }}>
+          <Text style={{ textAlign: 'center', fontSize: 15, fontWeight: 'bold', marginBottom: 12 }}>{muted ? 'Unmute' : 'Mute'} this user?</Text>
+          <Text style={{ textAlign: 'center', fontSize: 13, color: "#737373", marginBottom: 30 }}>{muted ? 'Their posts will start appearing in your feed again. You can mute them anytime from your settings.' : "You won't see any more posts from this user in your feed. You can unmute them anytime from your settings."}</Text>
+          <View style={{ flexDirection: 'row', gap: 16 }}>
+            <View style={{ flex: 1 / 2 }}>
+              <GreyBgButton
+                title='Cancel'
+                onPress={() => muteRef?.current.close()}
+              />
+            </View>
+            <View style={{ flex: 1 / 2 }}>
+              <BlueButton
+                title={muted ? 'Unmute' : 'Mute'}
+                onPress={() => {
+                  muteRef?.current.close();
+                  manageMute();
+                }}
+                loading={isMuting}
+              />
+            </View>
+          </View>
+        </View>
+      </BottomDrawer>
+      {/* Saved post confirmation sheet */}
+      <BottomDrawer
+        sheetRef={postSaveRef}
+        draggableIconHeight={0}
+      >
+        <View style={{ marginHorizontal: 16 }}>
+          <Image source={require('@/assets/images/talks/done.png')} style={{ width: 40, height: 40, marginHorizontal: 'auto' }} />
+          <Text style={{ textAlign: 'center', fontSize: 13, color: "#737373", marginTop: 14, marginBottom: 30 }}>
+            {postSaved ? 'This post has been saved successfully.' : 'This post has been removed from your saved list.'}
+          </Text>
+          <BlueButton title="Okay" onPress={() => postSaveRef.current.close()} />
+        </View>
+      </BottomDrawer>
       {/* Menu for other user's post */}
-      <BottomSheet
-        menuRef={menuRef}
-        height={392}>
+      <BottomDrawer
+        sheetRef={menuRef}
+        draggableIconHeight={0}
+      >
         <View style={styles.menuContainer}>
           <MenuButton
             onPress={() => {
@@ -218,24 +273,54 @@ export default function ViewPost() {
               }
             </Text>
           </MenuButton>
-          <MenuButton>
-            <Text style={styles.menuButtonHeading}>Mute</Text>
+          <MenuButton
+            onPress={shareProfileAsync}
+          >
+            <Text style={styles.menuButtonHeading}>Share Post</Text>
             <Text style={styles.menuButtonText}>
-              Hide posts from the user in your feed.
+              Share this post with more people.
             </Text>
           </MenuButton>
-          <MenuButton>
+          <MenuButton
+            onPress={() => {
+              menuRef?.current.close();
+              setTimeout(() => {
+                muteRef?.current.open();
+              }, 300)
+            }}
+          >
             <Text
               style={[styles.menuButtonHeading]}
             >
-              Report Post
+              {muted ? 'Unmute' : 'Mute'}
             </Text>
             <Text style={[styles.menuButtonText]}>
-              Flag this post to our support team for review.
+              {muted ? 'See posts from this user again in your feed.' : 'Hide posts from this user in your feed.'}
+            </Text>
+          </MenuButton>
+          <MenuButton
+            onPress={() => {
+              menuRef?.current.close();
+              setTimeout(() => {
+                if (post?.reported_users.length > 0) {
+                  router.push('/(freeRoutes)/profile/support/tickets/' + post.reported_users[0]);
+                } else {
+                  router.push('/(freeRoutes)/profile/support/initiateSupport?supportType=post&id=' + post.id);
+                }
+              }, 300)
+            }}
+          >
+            <Text
+              style={[styles.menuButtonHeading]}
+            >
+              {post?.reported_users.length > 0 ? 'View Ticket' : 'Report Post'}
+            </Text>
+            <Text style={[styles.menuButtonText]}>
+              {post?.reported_users.length > 0 ? 'Track the status of your report.' : 'Flag this post to our support team for review.'}
             </Text>
           </MenuButton>
         </View>
-      </BottomSheet>
+      </BottomDrawer>
       {/* Menu for own post */}
       <BottomDrawer
         sheetRef={deleteSheetRef}
@@ -243,10 +328,10 @@ export default function ViewPost() {
       >
         <View style={{ paddingHorizontal: 16 }}>
           <Text style={{ textAlign: 'center', fontSize: 15, fontWeight: 'bold' }}>Delete this post?</Text>
-          <Text style={{ fontSize: 13, color: "#a6a6a6", marginTop: 16, textAlign: 'center' }}>
+          <Text style={{ fontSize: 13, color: "#737373", marginTop: 12, textAlign: 'center' }}>
             This action cannot be undone. Once deleted, your post will be permanently removed.
           </Text>
-          <View style={{ marginTop: 32, gap: 16, flexDirection: "row" }}>
+          <View style={{ marginTop: 30, gap: 16, flexDirection: "row" }}>
             <View style={{ flex: 1 / 2 }}>
               <GreyBgButton title="Cancel" onPress={() => deleteSheetRef.current?.close()} />
             </View>
@@ -309,16 +394,10 @@ export default function ViewPost() {
             </Text>
           </MenuButton>
           <MenuButton
-            dark>
-            <Text
-              style={[styles.menuButtonHeading, { color: '#fff' }]}
-            >
-              Boost Post
-            </Text>
-            <Text style={[styles.menuButtonText, { color: "#a6a6a6" }]}>
-              Promote your post to reach a larger audience.
-            </Text>
-          </MenuButton>
+            dark
+            title='Boost Post'
+            subTitle='Promote your post to reach a larger audience.'
+          />
         </View>
       </BottomDrawer>
 
@@ -330,15 +409,18 @@ export default function ViewPost() {
 const styles = StyleSheet.create({
   menuContainer: {
     gap: 16,
+    paddingHorizontal: 16,
   },
   menuButtonHeading: {
     fontSize: 14,
     fontWeight: "bold",
+    lineHeight: 14
   },
   menuButtonText: {
     fontSize: 12,
     color: "#737373",
     marginTop: 8,
+    lineHeight: 12
   },
 
 })

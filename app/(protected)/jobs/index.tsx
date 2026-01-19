@@ -27,6 +27,7 @@ import { useRouter, useNavigation } from "expo-router";
 import { useIsFocused } from "@react-navigation/native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useJobsState } from "@/zustand/jobsStore";
+import { useUnreadMessagesStore } from "@/zustand/stores";
 import { useTabPressScrollToTop } from "@/helpers/hooks/useTabBarScrollToTop";
 import syncUser from "@/helpers/general/syncUser";
 import { useFocusEffect } from "expo-router";
@@ -37,6 +38,7 @@ export function Header({ menuRef, forTalks = false }: { forTalks?: boolean, menu
   const router = useRouter();
   const user = useUserStore(state => state);
   const resume = useJobsState(state => state)
+  const unreadMessages = useUnreadMessagesStore(state => state.unreadMessages)
   let jobRole = null;
   if (resume.previous_experience && resume.previous_experience.length > 0) {
     jobRole = resume.previous_experience[0].job_role;
@@ -68,7 +70,10 @@ export function Header({ menuRef, forTalks = false }: { forTalks?: boolean, menu
         </View>
       </View>
       <View style={{ gap: 16, flexDirection: "row" }}>
-        <IconButton onPress={() => router.push('/(freeRoutes)/messages')}>
+        <IconButton
+          onPress={() => router.push('/(freeRoutes)/messages')}
+          unread={unreadMessages > 0}
+        >
           <Image
             source={require("@/assets/images/jobs/Chats.png")}
             style={styles.headerIcon}
@@ -181,10 +186,14 @@ export function MenuButton({
   children,
   dark = false,
   onPress = () => { },
+  title = '',
+  subTitle = ''
 }: {
-  children: React.ReactNode;
+  children?: React.ReactNode;
   dark?: boolean;
   onPress?: () => void;
+  title?: string;
+  subTitle?: string;
 }) {
   return (
     <Pressable
@@ -210,7 +219,20 @@ export function MenuButton({
             end={{ x: 1, y: 0 }}
             style={[countrySelectStyles.container, { padding: 0 }]}
           >
-            <View style={{ padding: 16 }}>{children}</View>
+            <View style={{ padding: 16 }}>
+              {!title && !subTitle ? children : (
+                <>
+                  <Text
+                    style={[styles.menuButtonHeading, { color: "white" }]}
+                  >
+                    Go Pro
+                  </Text>
+                  <Text style={[styles.menuButtonText, { color: "#a6a6a6" }, pressed && { color: "white" }]}>
+                    Unlock exclusive features and enhance profile visibility.
+                  </Text>
+                </>
+              )}
+            </View>
           </LinearGradient>
         )
       }

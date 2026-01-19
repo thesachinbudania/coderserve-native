@@ -14,6 +14,7 @@ import { useRouter } from 'expo-router';
 import BottomSheet from '@/components/messsages/BottomSheet';
 import { Portal } from 'react-native-paper';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import BottomDrawer from '@/components/BottomDrawer';
 
 export function TopSection() {
   return (
@@ -63,7 +64,7 @@ export default function YourProfile() {
           <View style={styles.profileRow}>
             {user.profile_image &&
               <ImageLoader
-                size={96}
+                size={90}
                 uri={user.profile_image}
               />}
             <View style={styles.countRow}>
@@ -85,7 +86,7 @@ export default function YourProfile() {
             </View>
           </View>
           <Text style={styles.name}>{user.first_name} {user.last_name}</Text>
-          <Text style={{ color: "#004aad", marginTop: 8, fontSize: 13, fontWeight: "bold" }}>Ranked #50</Text>
+          <Text style={{ color: "#004aad", marginTop: 8, fontSize: 13, fontWeight: "bold", lineHeight: 13 }}>Ranked #50</Text>
           <Text style={styles.username}>@{user.username}</Text>
           <Text style={styles.userLocation}>{user.city}, {user.state}, {user.country}</Text>
           <View style={styles.buttonContainer}>
@@ -103,9 +104,9 @@ export default function YourProfile() {
           />
         </View>
         <Portal>
-          <BottomSheet
-            menuRef={menuRef}
-            height={392}>
+          <BottomDrawer
+            sheetRef={menuRef}
+            draggableIconHeight={0}>
             <View style={styles.menuContainer}>
               <MenuButton
                 onPress={() => {
@@ -149,7 +150,7 @@ export default function YourProfile() {
                 </Text>
               </MenuButton>
             </View>
-          </BottomSheet>
+          </BottomDrawer>
         </Portal>
       </ScrollView>
     </View>
@@ -174,12 +175,13 @@ const styles = StyleSheet.create({
   profileRow: {
     flexDirection: 'row',
     position: 'relative',
-    marginTop: -32
+    marginTop: -24
   },
   countRow: {
     flexDirection: 'row',
     width: '70%',
     marginLeft: 32,
+    marginTop: 8,
     justifyContent: 'space-around',
     alignItems: 'flex-end',
     flex: 1,
@@ -187,32 +189,37 @@ const styles = StyleSheet.create({
   countText: {
     fontSize: 13,
     fontWeight: 'bold',
+    lineHeight: 13
   },
   countBox: {
     alignItems: 'center',
     flex: 1,
     paddingVertical: 8,
-    gap: 6,
+    gap: 8,
     borderRadius: 8,
   },
   countHeading: {
     fontSize: 11,
     color: '#737373',
+    lineHeight: 11
   },
   name: {
     fontSize: 21,
     fontWeight: 'bold',
     marginTop: 16,
+    lineHeight: 21
   },
   username: {
     marginTop: 8,
     fontSize: 13,
     color: '#737373',
+    lineHeight: 13
   },
   userLocation: {
     marginTop: 8,
     fontSize: 13,
     color: '#737373',
+    lineHeight: 13
   },
   buttonContainer: {
     marginTop: 32,
@@ -220,14 +227,17 @@ const styles = StyleSheet.create({
   },
   menuContainer: {
     gap: 16,
+    paddingHorizontal: 16,
   },
   menuButtonHeading: {
     fontSize: 14,
     fontWeight: "bold",
+    lineHeight: 14,
   },
   menuButtonText: {
     fontSize: 12,
     color: "#a6a6a6",
     marginTop: 8,
+    lineHeight: 12,
   },
 })

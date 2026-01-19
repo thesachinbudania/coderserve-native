@@ -218,7 +218,7 @@ export default function ControlCentre() {
           <Text style={{ fontSize: 15, fontWeight: 'bold', textAlign: 'center' }}>
             Logging out already?
           </Text>
-          <Text style={{ fontSize: 13, color: "#a6a6a6", textAlign: 'center', marginTop: 12 }}>
+          <Text style={{ fontSize: 13, color: "#737373", textAlign: 'center', marginTop: 12 }}>
             We'll miss you! Don't worry, your account will be right here waiting when you come back.
           </Text>
           <View style={{ flexDirection: 'row', gap: 16, width: '100%', marginTop: 24 }}>

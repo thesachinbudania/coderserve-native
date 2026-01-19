@@ -9,8 +9,8 @@ import DefaultButton from '@/components/buttons/BlueButton';
 import protectedApi from '@/helpers/axios';
 import FullScreenActivity from '@/components/FullScreenActivity';
 import * as zod from 'zod';
-import { useForm, FormProvider, Controller, type SubmitHandler } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import BottomDrawer from '@/components/BottomDrawer';
+import { useRouter } from 'expo-router';
 
 const Select = ({ disabled = false, state, setState, title, subTitle }: { disabled?: boolean, state?: any, setState?: any, title: string, subTitle: string | string[] }) => {
   return (
@@ -76,9 +76,10 @@ export default function SimilarProfilesCriteria() {
     });
   }
 
-
+  const router = useRouter();
   // fetch and inital loading of criteria
   const [initialLoading, setInitialLoading] = React.useState(true);
+  const sheetRef = React.useRef<any>(null);
 
   React.useEffect(() => {
     const fetchCriteria = async () => {
@@ -103,8 +104,8 @@ export default function SimilarProfilesCriteria() {
       setUpdatingCrtieria(true);
       await protectedApi.put('jobs/spotlight_criteria/', currentState);
       setInitialState(currentState);
+      sheetRef.current?.open();
     } catch (error) {
-      console.log(error);
     } finally {
       setUpdatingCrtieria(false);
     }
@@ -165,6 +166,22 @@ export default function SimilarProfilesCriteria() {
             loading={updatingCrtieria}
           />
         </BottomFixedSingleButton>
+        <BottomDrawer
+          sheetRef={sheetRef}
+          draggableIconHeight={0}
+        >
+          <View style={{ paddingHorizontal: 16 }}>
+            <Text style={{ fontSize: 15, textAlign: 'center', lineHeight: 15, fontWeight: 'bold' }}>Spotlight Updated!</Text>
+            <Text style={{ fontSize: 13, textAlign: 'center', marginTop: 14, marginBottom: 30, color: "#737373" }}>We saved your new criteria. From now on you'll see updated profile recommendations in Spotlight.</Text>
+            <DefaultButton
+              title='Okay'
+              onPress={() => {
+                sheetRef.current.close();
+                router.back();
+              }}
+            />
+          </View>
+        </BottomDrawer>
       </>
   );
 }

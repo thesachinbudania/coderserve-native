@@ -60,7 +60,7 @@ const hashChipStyles = StyleSheet.create({
   }
 })
 
-export function Post({ data }: { data: any }) {
+export function Post({ data, detailedPostUsername = null }: { data: any, detailedPostUsername?: string | null }) {
   const router = useRouter();
   let result = timeAgo(data.created_at, true);
   return (
@@ -68,7 +68,7 @@ export function Post({ data }: { data: any }) {
       android_ripple={{ color: '#f5f5f5' }}
       style={postStyles.container}
       onPress={() => {
-        router.push('/(freeRoutes)/talks/viewPost/' + data.id);
+        router.push('/(freeRoutes)/talks/viewPost/' + data.id + '?detailsfor=' + detailedPostUsername);
       }}
     // enable interaction of child pressable
     >
@@ -209,38 +209,55 @@ export default function Page() {
       setSearch("");
     }
   }, [isSearchFocused])
-  const [incompleteProfileText, setIncompleteProfileText] = React.useState("");
-  const [postsUrl, setPostsUrl] = React.useState('/api/talks/posts/');
+  const [incompleteProfileText, setIncompleteProfileText] = React.useState("Your profile is incomplete. Please provide all the required details to enable you to access some features.");
+  const [postsUrl, setPostsUrl] = React.useState<string | null>(null);
   const [selectedTab, setSelectedTab] = React.useState<'trending' | 'following' | 'custom'>('trending');
   const { hashtagsFollowed, setHashtagsFollowed } = useGeneralStore();
-  const [loadingPrefs, setLoadingPrefs] = React.useState(false);
+  const [loadingPrefs, setLoadingPrefs] = React.useState(true);
   const navigation = useNavigation();
   const focused = useIsFocused();
   const listRef = React.useRef<ScrollView>(null);
-  const { isLoading, initialLoading, refreshing, combinedData, handleEndReached, handleRefresh } = useFetchData({ url: postsUrl, refreshOnFocus: false });
+  const { isLoading, initialLoading, refreshing, combinedData, handleEndReached, handleRefresh } = useFetchData({ url: postsUrl, refreshOnFocus: true });
   const pageLoading = initialLoading || loadingPrefs;
   useTabPressScrollToTop(listRef, 'talks', handleRefresh);
   const [searchResults, setSearchResults] = React.useState<any[]>([]);
+  const [searchQueries, setSearchQueries] = React.useState<string[]>([]);
 
   React.useEffect(() => {
-    if (hashtagsFollowed.length == 0) {
-      if (selectedTab === 'custom') {
-        setSelectedTab('trending');
-        setPostsUrl('/api/talks/posts/');
-      }
+    // Wait for initial preferences load unless we already have hashtags
+    if (loadingPrefs && hashtagsFollowed.length === 0) return;
+
+    let newUrl = postsUrl;
+    let newTab = selectedTab;
+
+    if (hashtagsFollowed.length === 0) {
+      newTab = 'trending';
+      newUrl = '/api/talks/posts/';
+    } else {
+      newTab = 'custom';
+      newUrl = '/api/talks/preferences/posts/';
     }
-  }, [hashtagsFollowed]);
+
+    if (newUrl !== postsUrl) {
+      setSelectedTab(newTab);
+      setPostsUrl(newUrl);
+    } else {
+      if (postsUrl) handleRefresh();
+    }
+  }, [hashtagsFollowed, loadingPrefs]);
 
   React.useEffect(() => {
     const fetchSearchResults = async () => {
       if (search.trim() === "" || search.length < 3) {
         setSearchResults([]);
+        setSearchQueries([]);
         return;
       }
       try {
         const response = await protectedApi.get(`talks/search_suggestions/?q=${encodeURIComponent(search)}`);
         const data = await response.data;
-        setSearchResults(data);
+        setSearchResults(data.users);
+        setSearchQueries(data.keywords);
       } catch (error: any) {
         errorHandler(error, false);
         console.error("Error fetching search results:", error);
@@ -256,7 +273,7 @@ export default function Page() {
 
   // Fetch user's hashtag preferences to determine whether to show the Custom chip
   const fetchPreferences = React.useCallback(async () => {
-    setLoadingPrefs(true);
+    // Note: loadingPrefs starts true on mount, so we don't set it here to avoid full-page spinner on focus
     try {
       const resp = await protectedApi.get('/talks/preferences/hashtags/');
       const names = (resp.data?.hashtags || []).map((h: any) => h.name);
@@ -311,7 +328,7 @@ export default function Page() {
   // refetch posts on focus
   useFocusEffect(
     React.useCallback(() => {
-      handleRefresh();
+      fetchPreferences();
     }, [])
   );
 
@@ -371,6 +388,7 @@ export default function Page() {
                     setIsSearchFocused(false);
                   }
                 }}
+                searchQueries={searchQueries}
               />
             </Animated.View>
           )}
@@ -418,7 +436,7 @@ export default function Page() {
                   }}
                 />
                 <OptionChip
-                  title="Following"
+                  title="Followings"
                   selected={selectedTab === 'following'}
                   onPress={() => {
                     // Activate following feed and load following posts
@@ -465,7 +483,7 @@ export default function Page() {
                 {
                   combinedData.length === 0 && !pageLoading && !isLoading && !refreshing && selectedTab == 'following' && (
                     <Animated.View style={{ paddingTop: 112, backgroundColor: 'white' }}>
-                      <Image source={require('@/assets/images/stars.png')} style={{ marginHorizontal: 'auto', height: 128, width: 128, marginBottom: 32, objectFit: 'contain' }} />
+                      <Image source={require('@/assets/images/stars.png')} style={{ marginHorizontal: 'auto', height: 112, width: 120, marginBottom: 30, objectFit: 'contain' }} />
                       <Text style={{ fontSize: 11, color: "#a6a6a6", textAlign: 'center', paddingHorizontal: 16 }}>
                         Follow people or connect with those who share similar backgrounds to start seeing relevant posts and conversations here.
                       </Text>
@@ -525,15 +543,9 @@ export default function Page() {
               menuRef?.current.close();
               router.push("/(freeRoutes)/goPro");
             }}
+            title='Go Pro'
+            subTitle="Unlock exclusive features and enchance profile visibility"
           >
-            <Text
-              style={[styles.menuButtonHeading, { color: "white" }]}
-            >
-              Go Pro
-            </Text>
-            <Text style={[styles.menuButtonText, { color: "#a6a6a6" }]}>
-              Unlock exclusive features and enhance profile visibility.
-            </Text>
           </MenuButton>
         </View>
       </BottomDrawer>
@@ -541,10 +553,10 @@ export default function Page() {
         sheetRef={similarProfileInactiveMenuRef}
         draggableIconHeight={0}
       >
-        <View style={{ gap: 32, paddingHorizontal: 16 }}>
-          <View style={{ gap: 8 }}>
+        <View style={{ gap: 30, paddingHorizontal: 16 }}>
+          <View style={{ gap: 4 }}>
             <Text style={{ textAlign: 'center', fontWeight: 'bold', fontSize: 15 }}>Complete Your Profile</Text>
-            <Text style={{ textAlign: 'center', color: '#a6a6a6', fontSize: 13 }}>
+            <Text style={{ textAlign: 'center', color: '#737373', fontSize: 13 }}>
               {incompleteProfileText}
             </Text>
           </View>
@@ -592,10 +604,12 @@ const styles = StyleSheet.create({
   menuButtonHeading: {
     fontSize: 14,
     fontWeight: "bold",
+    lineHeight: 14,
   },
   menuButtonText: {
     fontSize: 12,
     color: "#a6a6a6",
     marginTop: 8,
+    lineHeight: 12,
   },
 });

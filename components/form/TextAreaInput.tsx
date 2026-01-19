@@ -28,14 +28,14 @@ export default function TextAreaInput({ placeholder, numberOfLines = 100, maxLen
           multiline={true}
           numberOfLines={numberOfLines}
           style={[{
-            height: 400,
+            height: 280,
             borderColor: 'black',
             borderWidth: 1,
             padding: 16,
             borderRadius: 12,
             backgroundColor: '#fff',
             color: '#000',
-            fontSize: 15,
+            fontSize: 14,
             textAlignVertical: 'top',
           }, focused && { borderColor: '#006dff' }, styles]}
           placeholderTextColor={'#cfdbe6'}

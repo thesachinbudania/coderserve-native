@@ -48,8 +48,8 @@ export function LearningStreak() {
   const router = useRouter();
   return (
     <>
-      <Text style={{ marginTop: 48, fontSize: 15, fontWeight: 'bold' }}>Learning Streak</Text>
-       <StreakRate /> 
+      <Text style={{ marginTop: 48, fontSize: 15, fontWeight: 'bold' }}>Streak</Text>
+      <StreakRate />
     </>
   )
 }

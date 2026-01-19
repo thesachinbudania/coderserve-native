@@ -7,6 +7,7 @@ import IconButton from '@/components/buttons/IconButton';
 import { useUserStore } from '@/zustand/stores';
 import { useNewPostStore } from '@/zustand/talks/newPostStore';
 import EditorPreview from '@/components/talks/createPost/EditorPreview';
+import BottomName from '@/components/profile/home/BottomName';
 
 const { width } = Dimensions.get('window');
 
@@ -26,10 +27,10 @@ const BackButton = () => {
   )
 }
 
-const HashChip = ({ hashtag }: { hashtag: string }) => {
+const HashChip = ({ hashtag, light = false }: { hashtag: string, light?: boolean }) => {
   return (
-    <View style={hashChipStyles.container}>
-      <Text style={hashChipStyles.text}>
+    <View style={[hashChipStyles.container, light && { borderColor: "#a6a6a6" }]}>
+      <Text style={[hashChipStyles.text, light && { color: "#a6a6a6" }]}>
         #{hashtag}
       </Text>
     </View>
@@ -47,12 +48,14 @@ const hashChipStyles = StyleSheet.create({
   text: {
     fontSize: 11,
     color: '#737373',
+    lineHeight: 11
   },
   container: {
-    borderWidth: 0.5,
+    borderWidth: 1,
     borderColor: '#737373',
     borderRadius: 6,
-    padding: 4,
+    paddingHorizontal: 8,
+    paddingVertical: 6,
     flexDirection: 'row',
     gap: 8,
   }
@@ -65,11 +68,13 @@ function Header() {
   const { top } = useSafeAreaInsets();
   return (
     <View style={[styles.headerContainer, { paddingTop: top + 8 }]}>
-      <View style={{ flexDirection: "row", gap: 4 }}>
+      <View style={{ flexDirection: "row", gap: 8 }}>
         {user.profile_image && (
-          <ImageLoader size={48} uri={user.profile_image} border={1} />
+          <View>
+            <ImageLoader size={45} uri={user.profile_image} border={1} />
+          </View>
         )}
-        <View style={{ gap: 6, justifyContent: "center" }}>
+        <View style={{ gap: 8, justifyContent: "center" }}>
           <Text
             numberOfLines={1}
             ellipsizeMode="tail"
@@ -81,12 +86,10 @@ function Header() {
         </View>
       </View>
       <IconButton onPress={() => router.back()}>
-        <View style={{ padding: 2 }}>
-          <Image
-            source={require("@/assets/images/close.png")}
-            style={styles.headerIcon}
-          />
-        </View>
+        <Image
+          source={require("@/assets/images/close.png")}
+          style={styles.headerIcon}
+        />
       </IconButton>
     </View>
   );
@@ -107,7 +110,7 @@ export function PostContent({ title, hashtags, thumbnail, content = null }: { ti
           title && hashtags.length > 0 && (
             <View style={styles.hashTagContainer}>
               {hashtags.map((hashtag, index) => (
-                <HashChip key={index} hashtag={hashtag} />
+                <HashChip key={index} hashtag={hashtag} light />
               ))}
             </View>
           )
@@ -153,11 +156,14 @@ export default function PreviewPost() {
   const { title, hashtags, thumbnail, content } = useNewPostStore();
   return (
     <ScrollView
-      contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 48, backgroundColor: 'white', minHeight: "100%" }}
+      contentContainerStyle={{ paddingHorizontal: 16, backgroundColor: 'white', minHeight: "100%" }}
     >
       <Header />
       <PostContent title={title} hashtags={hashtags} thumbnail={thumbnail ? thumbnail.uri : undefined} content={content} />
-      {content && <BackButton />}
+      {content && <>
+        <BackButton />
+        <BottomName />
+      </>}
     </ScrollView>
   );
 }
@@ -175,10 +181,12 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: "bold",
     width: width - 140,
+    lineHeight: 15
   },
   secondaryHeaderText: {
     fontSize: 11,
     color: "#737373",
+    lineHeight: 11
   },
   headerIcon: {
     width: 20,
@@ -187,9 +195,9 @@ const styles = StyleSheet.create({
   postContainer: {
     borderWidth: 1,
     borderRadius: 12,
-    borderColor: '#eee',
+    borderColor: '#f5f5f5',
     padding: 16,
-    marginBottom: 16
+    marginBottom: 32
   },
   postHeading: {
     fontSize: 13,

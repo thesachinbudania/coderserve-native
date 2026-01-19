@@ -85,7 +85,7 @@ const TextTypeButton = ({ isHeading, isHeading2, setIsHeading, setIsHeading2, ch
     UIManager.measure(findNodeHandle(buttonRef.current)!, (x, y, width, height, pageX, pageY) => {
       // x,y = relative to parent
       // pageX,pageY = absolute screen coords
-      let left = pageX + 1;
+      let left = pageX - 0.5;
       // compute top so popup appears above the button (use pageY which is button's top)
       const popupHeight = 140; // approximate popup height including padding
       let top = pageY - popupHeight - 8; // 8px margin above button
@@ -102,7 +102,6 @@ const TextTypeButton = ({ isHeading, isHeading2, setIsHeading, setIsHeading2, ch
       if (left < 16) {
         left = 16;
       }
-
       setLeftButtonPos(left);
       setPopupPos({ left, top });
     });
@@ -289,7 +288,7 @@ export default function Content() {
 
   React.useEffect(() => {
     if (editorState) {
-      setNewPost({ content: editorState });
+      setNewPost({ content: editorState, plainText: plainText.replace(/\n/g, ' ') });
     }
   }, [editorState]);
 

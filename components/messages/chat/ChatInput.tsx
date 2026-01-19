@@ -93,19 +93,22 @@ export default function ChatInput({ value, onChange, onSend, onPickImage, disabl
         <View style={styles.commentInputContainer}>
             {
                 /* Show disabled state when chat is locked or blocked */
-                chatDisabled ? (
-                    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', paddingVertical: 12, flexDirection: 'row', marginBottom: bottom }}>
+                chatDisabled || blocked ? (
+                    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', paddingVertical: 24, flexDirection: 'row', marginBottom: bottom }}>
                         {
-                            /* Different messages for different disabled reasons */
-                            !chat_blocked ? (
-                                /* Server-side messaging disabled - show "Know More" link */
-                                <>
-                                    <Text style={{ fontSize: 11, color: "#737373" }}>Messaging Disabled - </Text><SmallTextButton style={{ fontSize: 11 }} title="Know More" onPress={() => { router.push('/(freeRoutes)/messages/messagingDisabled/' + otherUserName) }} />
-                                </>
-                            ) : (
-                                /* User-blocked or chat closed */
-                                <Text style={{ fontSize: 11, color: "#737373" }}>{blocked ? 'You blocked this user.' : 'Chat Closed'}</Text>
-                            )
+                            blocked ? (
+                                <Text style={{ fontSize: 11, color: "#737373" }}>You blocked this user.</Text>
+                            ) :
+                                /* Different messages for different disabled reasons */
+                                !chat_blocked ? (
+                                    /* Server-side messaging disabled - show "Know More" link */
+                                    <>
+                                        <Text style={{ fontSize: 11, color: "#737373" }}>Messaging Disabled - </Text><SmallTextButton style={{ fontSize: 11 }} title="Know More" onPress={() => { router.push('/(freeRoutes)/messages/messagingDisabled/' + otherUserName) }} />
+                                    </>
+                                ) : (
+                                    /* User-blocked or chat closed */
+                                    <Text style={{ fontSize: 11, color: "#737373" }}>Chat Closed</Text>
+                                )
                         }
                     </View>
                 )
@@ -119,7 +122,6 @@ export default function ChatInput({ value, onChange, onSend, onPickImage, disabl
                                 multiline
                                 style={[styles.commentInput]}
                                 placeholder="Write here"
-                                cursorColor="black"
                                 textAlignVertical="top"
                                 placeholderTextColor={'#cfdbe6'}
                             />

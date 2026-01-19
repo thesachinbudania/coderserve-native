@@ -16,6 +16,7 @@ import BottomDrawer from '@/components/BottomDrawer';
 import BlueButton from '@/components/buttons/BlueButton';
 import { useFocusEffect } from 'expo-router';
 import protectedApi from '@/helpers/axios';
+import SmallTextButton from '@/components/buttons/SmallTextButton';
 
 function matchDegrees(user1Degrees: Degrees, user2Degrees: Degrees): string[] {
   const matched: string[] = [];
@@ -28,47 +29,55 @@ function matchDegrees(user1Degrees: Degrees, user2Degrees: Degrees): string[] {
       matched.push(d1.degree + ' in ' + d1.field_of_study);
     }
   }
-
-  return matched;
+  if (matched.length > 0) {
+    return matched;
+  }
+  return [`${user2Degrees[0].degree} in ${user2Degrees[0].field_of_study}`];
 }
 
 const ProfileOption = ({ data }: { data: any }) => {
   const { degrees } = useJobsState();
   const matchedDegrees = degrees ? matchDegrees(degrees, data['user_resume']['degrees']) : [];
   const router = useRouter();
-
   return (
     <Pressable
-      style={({ pressed }) => [{ padding: 16, borderWidth: 1, borderColor: '#eeeeee', borderRadius: 12 }, pressed && { borderColor: '#006dff' }]}
+      style={({ pressed }) => [{ padding: 16, borderWidth: 1, borderColor: '#f5f5f5', borderRadius: 12 }, pressed && { borderColor: '#006dff' }]}
       onPress={() => router.push(`/(freeRoutes)/profile/userProfile/${data['username']}`)}
     >
-      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-        <ImageLoader
-          size={45}
-          uri={data['profile_image']}
-        />
-        <View style={{ gap: 4, flex: 1 }}>
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+        <View>
+          <ImageLoader
+            size={45}
+            uri={data['profile_image']}
+          />
+        </View>
+        <View style={{ gap: 8, flex: 1 }}>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-            <Text style={{ fontWeight: 'bold', fontSize: 15 }}>{data['first_name']} {data['last_name']}</Text>
+            <Text style={{ fontWeight: 'bold', fontSize: 15, lineHeight: 15 }}>{data['first_name']} {data['last_name']}</Text>
             {data.is_contact && (
-              <Text style={{ fontSize: 9, color: 'white', backgroundColor: "#004aad", paddingHorizontal: 12, paddingVertical: 4, borderRadius: 12 }}>Contact</Text>
+              <Text style={{ fontSize: 9, color: 'white', backgroundColor: "#004aad", paddingHorizontal: 8, paddingVertical: 2, borderRadius: 12, lineHeight: 9 }}>Contact</Text>
             )}
           </View>
-          <Text style={{ fontSize: 11, color: '#737373' }}>@{data['username']}</Text>
+          <Text style={{ fontSize: 12, color: '#a6a6a6', lineHeight: 11 }}>@{data['username']}</Text>
         </View>
       </View>
-      <View style={{ marginTop: 24, paddingVertical: 8, borderRadius: 8, paddingHorizontal: 16, backgroundColor: '#f5f5f5' }}>
+      <View style={{ marginTop: 24, borderRadius: 8, padding: 8, backgroundColor: '#f5f5f5' }}>
         <UnorderedList
           items={[
             matchedDegrees[0],
             `Lives in ${data['city']}, ${data['state']}, ${data['country']}`,
           ]}
-          gap={0}
-          textStyle={{ fontSize: 13, lineHeight: 0 }}
+          gap={-4}
+          textStyle={{ fontSize: 13, lineHeight: 13, color: '#737373' }}
         />
-        <View style={unorderedListStyles.listItem}>
+        <View style={[unorderedListStyles.listItem, { marginTop: -4 }]}>
           <Text style={unorderedListStyles.bullet}>{'\u2022'}</Text>
-          <Text style={[unorderedListStyles.detailText, { fontSize: 13, lineHeight: 0, textDecorationLine: 'underline' }]} onPress={() => router.push(`/(freeRoutes)/profile/userProfile/${data['username']}`)}>See More</Text>
+          <SmallTextButton
+            style={{ fontSize: 13, lineHeight: 13, textDecorationLine: 'underline', color: '#737373' }}
+            onPress={() => router.push(`/(freeRoutes)/profile/userProfile/${data['username']}`)}
+            title='See More'
+          >
+          </SmallTextButton>
         </View>
       </View>
     </Pressable>
@@ -118,6 +127,7 @@ export default function SimilarProfiles() {
     if (contactsPermission?.canAskAgain) {
       Contacts.requestPermissionsAsync().then((response) => {
         setContactsPermission(response);
+        permissionDrawerRef.current?.close();
       })
     }
     else {
@@ -173,11 +183,11 @@ export default function SimilarProfiles() {
                 <View style={{ width: '100%', height: 128, marginBottom: 77, justifyContent: 'center', alignItems: 'center' }}>
                   <ActivityIndicator color={'#202020'} />
                 </View>
-              ) : (
-                <View style={{ marginBottom: 77 }}>
+              ) : combinedData.length > 3 ? (
+                <View style={{ marginBottom: 64 }}>
                   <BottomName />
                 </View>
-              )}
+              ) : null}
             </>
           }
         />
@@ -195,9 +205,9 @@ export default function SimilarProfiles() {
             source={require('@/assets/images/talks/telephone.png')}
             style={{ width: 60, height: 60, marginHorizontal: 'auto' }}
           />
-          <Text style={{ textAlign: "center", fontSize: 15, fontWeight: 'bold', marginTop: 16 }}>Connect with your Network</Text>
-          <Text style={{ textAlign: "center", fontSize: 13, marginTop: 16, color: "#737373" }}>Find friends, peers, and colleagues already on Coder Serve. Allow contact access so we can help you discover and connect instantly.</Text>
-          <BlueButton title='Allow Contacts' style={{ marginTop: 32 }} onPress={handleAllowContacts} />
+          <Text style={{ textAlign: "center", fontSize: 15, fontWeight: 'bold', marginTop: 16, lineHeight: 15 }}>Connect with your Network</Text>
+          <Text style={{ textAlign: "center", fontSize: 13, marginTop: 14, color: "#737373" }}>Find friends, peers, and colleagues already on Coder Serve. Allow contact access so we can help you discover and connect instantly.</Text>
+          <BlueButton title='Allow Contacts' style={{ marginTop: 30 }} onPress={handleAllowContacts} />
         </View>
       </BottomDrawer>
     </>

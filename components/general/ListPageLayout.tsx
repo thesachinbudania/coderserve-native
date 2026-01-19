@@ -11,19 +11,19 @@ export default function ListPageLayout({ headerTitle, children, defaultBack = tr
   const { top } = useSafeAreaInsets();
   return (
     <View style={{ flex: 1, backgroundColor: 'white' }}>
-    <View style={{ marginTop: top }}>
-      {showHeader && (
-        <Header
-          title={headerTitle}
-          onBackPress={defaultBack ? () => {
-            navigation.goBack()
-          } : customBack}
-        />
+      <View style={{ marginTop: top, flex: 1 }}>
+        {showHeader && (
+          <Header
+            title={headerTitle}
+            onBackPress={defaultBack ? () => {
+              navigation.goBack()
+            } : customBack}
+          />
 
-      )}
-      <View
-        style={[styles.content,  contentContainerStyle]}
-      >
+        )}
+        <View
+          style={[styles.content, contentContainerStyle]}
+        >
           {
             flex1 ? (
               <View style={{ flex: 1, backgroundColor: 'white' }}>
@@ -35,8 +35,8 @@ export default function ListPageLayout({ headerTitle, children, defaultBack = tr
               </>
             )
           }
+        </View>
       </View>
-    </View>
     </View>
   )
 }
@@ -46,6 +46,6 @@ const styles = StyleSheet.create({
   content: {
     marginTop: 57,
     backgroundColor: 'white',
-    minHeight: height - 57,
+    flex: 1,
   }
 })

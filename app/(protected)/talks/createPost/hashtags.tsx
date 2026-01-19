@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { KeyboardAvoidingView, Platform, StyleSheet, Text, View, ScrollView } from 'react-native';
 import PageLayout from '@/components/general/PageLayout';
 import BottomDrawer from '@/components/BottomDrawer';
 import React from 'react';
@@ -9,6 +9,7 @@ import { Image, Pressable } from 'react-native';
 import { useNewPostStore } from '@/zustand/talks/newPostStore';
 import { useRouter } from 'expo-router';
 import GreyBgButton from '@/components/buttons/GreyBgButton';
+import SmallTextButton from '@/components/buttons/SmallTextButton';
 
 interface HashChipProps {
   hashtag: string;
@@ -43,11 +44,12 @@ const hashChipStyles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: '#f5f5f5',
-    borderRadius: 24
+    borderRadius: 24,
   },
   text: {
     fontSize: 11,
     color: '#737373',
+    lineHeight: 11
   },
   container: {
     borderWidth: 0.5,
@@ -56,6 +58,7 @@ const hashChipStyles = StyleSheet.create({
     padding: 4,
     flexDirection: 'row',
     gap: 8,
+    alignItems: 'center',
   }
 });
 
@@ -86,30 +89,30 @@ export default function Hashtags() {
   }
   return (
     <>
-     <BottomDrawer
+      <BottomDrawer
         sheetRef={deleteConfirmSheet}
         draggableIconHeight={0}
       >
-        <View style={{paddingHorizontal: 16}}>
-        <Text style={{ fontSize: 15, fontWeight: 'bold', textAlign: 'center', marginBottom: 12 }}>Delete this hashtag?</Text>
-        <Text style={{fontSize: 13, color: "#a6a6a6", textAlign: 'center',marginBottom: 32}}>Are you sure you want to remove this hashtag from your post? This will be permanent, you won't be able to undo this.</Text>
-        <View style={{flexDirection: 'row', gap: 16}}>
-          <View style={{flex: 1/2}}>
-            <GreyBgButton
-              title='Cancel'
-              onPress={() => { deleteConfirmSheet.current?.close() }}
-              color='blue'
-            />
-          </View>
-          <View style={{flex: 1/2}}>
-            <BlueButton
-              title='Delete'
-              onPress={onDeleteHashtag}
-            />
+        <View style={{ paddingHorizontal: 16 }}>
+          <Text style={{ fontSize: 15, fontWeight: 'bold', textAlign: 'center', marginBottom: 12 }}>Delete this hashtag?</Text>
+          <Text style={{ fontSize: 13, color: "#737373", textAlign: 'center', marginBottom: 30 }}>Are you sure you want to remove this hashtag from your post? This will be permanent, you won't be able to undo this.</Text>
+          <View style={{ flexDirection: 'row', gap: 16 }}>
+            <View style={{ flex: 1 / 2 }}>
+              <GreyBgButton
+                title='Cancel'
+                onPress={() => { deleteConfirmSheet.current?.close() }}
+              />
+            </View>
+            <View style={{ flex: 1 / 2 }}>
+              <BlueButton
+                title='Delete'
+                onPress={onDeleteHashtag}
+                dangerButton
+              />
+            </View>
           </View>
         </View>
-        </View>
-     </BottomDrawer> 
+      </BottomDrawer>
       <PageLayout
         headerTitle='Hashtags'
       >
@@ -127,59 +130,74 @@ export default function Hashtags() {
                   index={index}
                 />
               ))}
+              {
+                hashtags.length < 8 && (
+                  <Pressable
+                    style={({ pressed }) => [{ backgroundColor: '#202020', paddingHorizontal: 16, paddingVertical: 4, borderRadius: 6 }, pressed && { backgroundColor: '#006dff' }]}
+                    onPress={() => { menuRef.current?.open() }}>
+                    <Text style={{ fontSize: 11, color: 'white' }}>Add More</Text>
+                  </Pressable>
+                )
+              }
             </View>
           ) : (
             <View style={styles.noHashTagContainer}>
-              <Text style={{ color: '#d9d9d9', fontSize: 13, textAlign: 'center' }}>
-                No hashtags added
+              <Text style={{ color: '#a6a6a6', fontSize: 13, textAlign: 'center' }}>
+                You haven't added any hashtags yet
               </Text>
+              <SmallTextButton
+                title='Add now'
+                onPress={() => { menuRef.current?.open() }}
+                style={{ textAlign: 'center', textDecorationLine: 'underline', marginTop: 4, fontWeight: 'bold' }}
+              />
             </View>
           )
         }
         <View style={styles.buttonsContainer}>
           <BlueButton
-            title='Add Hashtag'
-            onPress={() => { menuRef.current?.open() }}
-            disabled={hashtags.length >= 8}
+            title='Save'
+            onPress={setHashtag}
+            disabled={hashtags.length < 1 || (currentHashtags && hashtags == currentHashtags)}
           />
-          
+
         </View>
       </PageLayout>
-      <BottomFixedSingleButton>
-<BlueButton
-            title='Save'
-            disabled={hashtags.length < 1 || (currentHashtags && hashtags == currentHashtags)}
-            onPress={setHashtag}
-          />
-      </BottomFixedSingleButton>
       <BottomDrawer
         sheetRef={menuRef}
         draggableIconHeight={0}
       >
-        <View style={{paddingHorizontal: 16}}>
-        <Text style={{ fontSize: 15, fontWeight: 'bold', textAlign: 'center', marginBottom: 16 }}>Hashtag</Text>
-        <TextAreaInput
-          placeholder='Write here'
-          maxLength={40}
-          text={newHashtag}
-          setText={(hashtag: any) => {
-            // hashtag should be lowercase and no spaces
-            const formattedHashtag = hashtag.replace(/\s+/g, '').toLowerCase();
-            setNewHashtag(formattedHashtag);
-          }}
-          styles={{ height: 128 }}
-          contentContainerStyle={{ marginBottom: 32}}
-        />
-        <BlueButton
-          title='Add'
-          disabled={newHashtag.length < 1}
-          onPress={() => {
-            setHashtags([...hashtags, newHashtag]);
-            setNewHashtag('');
-            menuRef.current?.close();
-          }}
-        />
-        </View>
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          style={{ flex: 1 }}
+          keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 102}
+        >
+          <ScrollView contentContainerStyle={{ flexGrow: 1, paddingBottom: 24 }} keyboardShouldPersistTaps="handled">
+            <View style={{ paddingHorizontal: 16 }}>
+              <Text style={{ fontSize: 15, fontWeight: 'bold', textAlign: 'center', marginBottom: 32, lineHeight: 15 }}>Add Hashtag</Text>
+              <TextAreaInput
+                placeholder='Write here'
+                maxLength={40}
+                text={newHashtag}
+                setText={(hashtag: any) => {
+                  // hashtag should be lowercase and no spaces
+                  const formattedHashtag = hashtag.replace(/\s+/g, '').toLowerCase();
+                  setNewHashtag(formattedHashtag);
+                }}
+                styles={{ height: 100 }}
+                contentContainerStyle={{ marginBottom: 32 }}
+              />
+              <BlueButton
+                title='Add'
+                disabled={newHashtag.length < 1}
+                onPress={() => {
+                  setHashtags([...hashtags, newHashtag]);
+                  setNewHashtag('');
+                  menuRef.current?.close();
+                }}
+              />
+            </View>
+          </ScrollView>
+        </KeyboardAvoidingView>
       </BottomDrawer>
     </>
   );
@@ -187,7 +205,7 @@ export default function Hashtags() {
 
 const styles = StyleSheet.create({
   noHashTagContainer: {
-    height: 144,
+    minHeight: 280,
     justifyContent: 'center',
     borderWidth: 1,
     borderColor: '#f5f5f5',

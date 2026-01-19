@@ -23,8 +23,8 @@ const styles = StyleSheet.create({
     lineHeight: 13
   },
   container: {
-    marginTop: 64,
-    marginBottom: 48,
+    marginTop: 80,
+    marginBottom: 64,
     alignItems: 'center',
     justifyContent: 'center',
   }

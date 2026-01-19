@@ -62,7 +62,7 @@ const sectionStyles = StyleSheet.create({
 	optionSubTitle: {
 		fontSize: 12,
 		color: '#a6a6a6',
-		marginTop: 8,
+		marginTop: 4,
 	},
 	headerSection: {
 		gap: 8,

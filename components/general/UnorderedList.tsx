@@ -21,11 +21,11 @@ const UnorderedList = ({ items, gap = 6, textStyle }: { items: string[], gap?: n
 export const styles = StyleSheet.create({
   listItem: {
     flexDirection: 'row',
-    alignItems: 'center',
   },
   bullet: {
     marginRight: 6,
-    fontSize: 16,
+    marginTop: 2,
+    fontSize: 20,
     lineHeight: 20, // matches detailText lineHeight
     color: '#737373',
   },

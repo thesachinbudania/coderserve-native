@@ -10,12 +10,13 @@ type SearchProps = {
   isSearchFocused: boolean,
   setIsSearchFocused: React.Dispatch<React.SetStateAction<boolean>>,
   searchResults: Array<{ first_name: string, last_name: string, username: string, profile_image: string }>
+  searchQueries?: string[],
   ResultComponent?: (data: any) => JSX.Element,
   onSubmit?: () => void
 }
 
 
-export default function Search({ search, setSearch, isSearchFocused, onSubmit, setIsSearchFocused, searchResults, ResultComponent }: SearchProps) {
+export default function Search({ search, setSearch, isSearchFocused, onSubmit, setIsSearchFocused, searchResults, searchQueries = [], ResultComponent }: SearchProps) {
   const router = useRouter();
   return (
     <>
@@ -36,20 +37,50 @@ export default function Search({ search, setSearch, isSearchFocused, onSubmit, s
             {
               search.length > 0 && !ResultComponent && (
                 <Pressable
-                  style={{ flexDirection: 'row', gap: 8, marginBottom: 24, alignItems: 'center' }}
+                  style={{ flexDirection: 'row', gap: 8, marginBottom: 16, alignItems: 'center' }}
                   onPress={() => {
                     setSearch("");
                     Keyboard.dismiss();
                     router.push('/(protected)/talks/searchResults/' + search);
                   }}
                 >
-                  <Image source={require('@/assets/images/searchIcon.png')} style={{ height: 15, width: 15 }} />
-                  <Text style={{ fontSize: 15 }}>{search}</Text>
+                  {
+                    ({ pressed }) => (
+                      <>
+                        <Image source={require('@/assets/images/searchIcon.png')} style={{ height: 15, width: 15 }} />
+                        <Text style={{ fontSize: 15, lineHeight: 15, color: pressed ? '#006dff' : '#000000' }}>{search}</Text>
+                      </>
+                    )
+                  }
+
                 </Pressable>
               )
             }
+            {
+              searchQueries.length > 0 && searchQueries.map((data: string, index: number) => (
+                <Pressable
+                  style={{ flexDirection: 'row', gap: 8, marginTop: 8, marginBottom: 16, alignItems: 'center' }}
+                  onPress={() => {
+                    setSearch(data);
+                    Keyboard.dismiss();
+                    router.push('/(protected)/talks/searchResults/' + data);
+                  }}
+                  key={index}
+                >
+                  {
+                    ({ pressed }) => (
+                      <>
+                        <Image source={require('@/assets/images/searchIcon.png')} style={{ height: 15, width: 15 }} />
+                        <Text style={{ fontSize: 15, lineHeight: 15, color: pressed ? '#006dff' : '#000000' }}>{data}</Text>
+                      </>
+                    )
+                  }
+
+                </Pressable>
+              ))
+            }
             {searchResults.length > 0 &&
-              <View style={{ gap: 24 }}>
+              <View style={{ gap: 0 }}>
                 {searchResults.map((data, index) => (
                   ResultComponent ? <View key={index}><ResultComponent data={data} /></View> : (
                     <Pressable
@@ -93,9 +124,11 @@ const styles = StyleSheet.create({
   name: {
     fontSize: 15,
     fontWeight: "bold",
+    lineHeight: 15,
   },
   time: {
     fontSize: 12,
     color: "#737373",
+    lineHeight: 12,
   },
 })

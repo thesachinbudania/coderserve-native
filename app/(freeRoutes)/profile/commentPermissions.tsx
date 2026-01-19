@@ -10,6 +10,7 @@ import BlueButton from "@/components/buttons/BlueButton";
 import BottomDrawer from "@/components/BottomDrawer";
 import GreyBgButton from "@/components/buttons/GreyBgButton";
 import protectedApi from "@/helpers/axios";
+import { useRouter } from "expo-router";
 
 const options = [
   { 'Everyone': 'Anyone can comment on my posts.' },
@@ -26,7 +27,7 @@ const formSchema = zod.object({
 type FormData = zod.infer<typeof formSchema>;
 
 export default function CommentPersmissions() {
-
+  const router = useRouter();
   const { handleSubmit, control, setValue, watch, formState: { isSubmitting } } = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -61,6 +62,7 @@ export default function CommentPersmissions() {
       });
       setCurrentPermission(data.permission_status || 0);
       drawerRef.current?.close();
+      router.back();
     } catch (error) {
       console.error('Error updating permission status:', error);
     }
@@ -108,8 +110,8 @@ export default function CommentPersmissions() {
             <BottomDrawer sheetRef={drawerRef} draggableIconHeight={0}>
               <View style={{ paddingHorizontal: 16 }}>
                 <Text style={{ fontSize: 15, fontWeight: 'bold', textAlign: 'center' }}>Apply Comment Settings?</Text>
-                <Text style={{ fontSize: 13, color: "#a6a6a6", textAlign: 'center', marginTop: 12 }}>Your new comment preference will apply to all existing and future posts. Are you sure you want to proceed?</Text>
-                <View style={{ flexDirection: 'row', gap: 16, width: '100%', marginTop: 24 }}>
+                <Text style={{ fontSize: 13, color: "#737373", textAlign: 'center', marginTop: 12 }}>Your new comment preference will apply to all existing and future posts. Are you sure you want to proceed?</Text>
+                <View style={{ flexDirection: 'row', gap: 16, width: '100%', marginTop: 30 }}>
                   <View style={{ flex: 1 / 2 }}>
                     <GreyBgButton
                       title='Cancel'

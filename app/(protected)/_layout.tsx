@@ -2,7 +2,7 @@ import TalksIcon from "@/components/bottomBar/talksIcon";
 import JobsIcon from "@/components/bottomBar/jobsIcon";
 import ProfileIcon from "@/components/bottomBar/profileIcon";
 import CollabIcon from "@/components/bottomBar/collabIcon";
-import { useNotificationsUnreadStore, useUserStore, useTokensStore } from '@/zustand/stores'
+import { useNotificationsUnreadStore, useUserStore, useTokensStore, useUnreadMessagesStore } from '@/zustand/stores'
 import { useStore } from '@/zustand/auth/stores'
 import { useJobsState } from "@/zustand/jobsStore";
 import protectedApi from '@/helpers/axios'
@@ -143,6 +143,7 @@ export default function AuthProvider() {
   const { setJobsState } = useJobsState();
   const { refresh, access, setTokens } = useTokensStore()
   const { setNotificationsUnread } = useNotificationsUnreadStore();
+  const { setUnreadMessages } = useUnreadMessagesStore();
   const { setStore } = useStore()
 
   React.useEffect(() => {
@@ -162,7 +163,12 @@ export default function AuthProvider() {
       ws.onmessage = (event) => {
         const data = JSON.parse(event.data)
         if (data.type === 'notify.user') {
-          setNotificationsUnread(data.unread_count)
+          if (data.event === 'new_notification' || data.event === 'update_notification' || data.event === 'delete_notification') {
+            setNotificationsUnread(data.unread_count)
+          }
+          else if (data.event === 'new_message' || data.event === 'message_read') {
+            setUnreadMessages(data.unread_count)
+          }
         }
       }
     }

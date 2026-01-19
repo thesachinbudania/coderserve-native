@@ -22,7 +22,7 @@ export default function SearchBar({ onChangeText, forSelectMenu = false }: { for
         placeholder={'Search'}
         value={text}
         onChangeText={setText}
-        placeholderTextColor='#cfdbe6'
+        placeholderTextColor='#d9d9d9'
       />
     </View>
   )

@@ -37,7 +37,7 @@ export function formatDateTime(dateString) {
     hour12: true,
   });
 
-  const formattedDate = date.toLocaleDateString("en-US", {
+  const formattedDate = date.toLocaleDateString("en-GB", {
     day: "2-digit",
     month: "short",
     year: "numeric",

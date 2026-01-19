@@ -33,7 +33,7 @@ function SearchBar({ text = '', onChangeText, isFocused, setIsFocused, placehold
         style={[styles.container,]}
       >
         {(!placeholder || isFocused) && (
-          <Image source={require('@/assets/images/profile/searchIcon.png')} style={styles.searchIcon} />
+          <Image source={require('@/assets/images/searchIcon.png')} style={styles.searchIcon} />
         )}
         <TextInput
           ref={inputRef}
@@ -56,17 +56,17 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 8,
     height: 45,
-    paddingLeft: 43,
-    fontSize: 15,
+    paddingLeft: 39,
+    fontSize: 14,
     flexDirection: 'row',
     gap: 8,
     backgroundColor: 'white'
   },
   searchIcon: {
-    height: 20,
-    width: 20,
+    height: 15,
+    width: 15,
     position: 'absolute',
-    left: 12,
+    left: 16,
     zIndex: 1
   },
   container: {
@@ -75,7 +75,7 @@ const styles = StyleSheet.create({
   placeholderText: {
     position: 'absolute',
     top: 13,
-    left: 43,
+    left: 39,
   },
   headContainer: {
     flexDirection: "row",
@@ -85,10 +85,12 @@ const styles = StyleSheet.create({
   name: {
     fontSize: 15,
     fontWeight: "bold",
+    lineHeight: 15,
   },
   time: {
     fontSize: 11,
     color: "#737373",
+    lineHeight: 11,
   },
 })
 
@@ -100,6 +102,7 @@ export default function Search() {
   const [searchResults, setSearchResults] = React.useState<any>([]);
   const [filter, setFilter] = React.useState(0)
   const [searchTerms, setSearchTerms] = React.useState<any>([]);
+  const [searchQueries, setSearchQueries] = React.useState<string[]>([]);
 
 
   const router = useRouter();
@@ -109,12 +112,14 @@ export default function Search() {
     const fetchSearchResults = async () => {
       if (search.trim() === "" || search.length < 3) {
         setSearchTerms([]);
+        setSearchQueries([]);
         return;
       }
       try {
         const response = await protectedApi.get(`talks/search_suggestions/?q=${encodeURIComponent(search)}`);
         const data = await response.data;
-        setSearchTerms(data);
+        setSearchTerms(data.users);
+        setSearchQueries(data.keywords);
       } catch (error: any) {
         errorHandler(error, false);
         console.error("Error fetching search results:", error);
@@ -188,21 +193,52 @@ export default function Search() {
             );
           }}
         />
-        <ScrollView style={{ height: '100%', paddingTop: 24, paddingHorizontal: 16, width: '100%', backgroundColor: 'white', display: isFocused ? 'flex' : 'none' }} >
+        <ScrollView keyboardShouldPersistTaps="handled" style={{ height: '100%', paddingTop: 24, paddingHorizontal: 16, width: '100%', backgroundColor: 'white', display: isFocused ? 'flex' : 'none' }} >
           {
             search.length > 0 && (
               <Pressable
-                style={{ flexDirection: 'row', gap: 8, marginBottom: 24 }}
+                style={{ flexDirection: 'row', gap: 8, marginBottom: 20, alignItems: 'center' }}
                 onPress={() => {
-                  Keyboard.dismiss();
                   fetchSearchResults(search, filter === 0 ? 'posts' : 'accounts');
+                  Keyboard.dismiss();
                 }}
               >
-                <Image source={require('@/assets/images/profile/searchIcon.png')} style={{ height: 20, width: 20 }} />
-                <Text style={{ fontSize: 15 }}>{search}</Text>
+                {
+                  ({ pressed }) => (
+                    <>
+                      <Image source={require('@/assets/images/searchIcon.png')} style={{ height: 15, width: 15 }} />
+                      <Text style={{ fontSize: 15, color: pressed ? '#006dff' : '#000000' }}>{search}</Text>
+                    </>
+                  )
+                }
+
               </Pressable>
             )
           }
+          <View style={{ marginBottom: 4 }}>
+            {
+              searchQueries.length > 0 && searchQueries.map((data: string, index: number) => (
+                <Pressable
+                  style={{ flexDirection: 'row', gap: 8, marginBottom: 20, alignItems: 'center' }}
+                  onPress={() => {
+                    fetchSearchResults(data, 'posts');
+                    Keyboard.dismiss();
+                  }}
+                  key={index}
+                >
+                  {
+                    ({ pressed }) => (
+                      <>
+                        <Image source={require('@/assets/images/searchIcon.png')} style={{ height: 15, width: 15 }} />
+                        <Text style={{ fontSize: 15, color: pressed ? '#006dff' : '#000000' }}>{data}</Text>
+                      </>
+                    )
+                  }
+
+                </Pressable>
+              ))
+            }
+          </View>
           {searchTerms.length > 0 &&
             searchTerms.map((data: any, index: number) => (
               <Pressable
@@ -308,7 +344,7 @@ export default function Search() {
                     )
                   ) : (
                     <ScrollView contentContainerStyle={{ height: height - 172, alignItems: 'center', backgroundColor: 'white', paddingTop: 192 }}>
-                      <Image source={require('@/assets/images/stars.png')} style={{ height: 128, width: 128, marginBottom: 16 }} />
+                      <Image source={require('@/assets/images/stars.png')} style={{ height: 112, width: 120, marginBottom: 14, resizeMode: 'contain' }} />
                       <Text style={{ marginTop: 16, fontSize: 11, color: "#a6a6a6", textAlign: 'center', paddingHorizontal: 16 }}>{
                         filter === 0 ?
                           'No Posts found. Looks like there are no posts matching your search. Try different keywords or check for typos.'

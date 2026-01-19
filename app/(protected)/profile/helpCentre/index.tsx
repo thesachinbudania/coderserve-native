@@ -46,7 +46,7 @@ export default function HelpCentre() {
                 <SmallTextButton
                     style={{ flex: 2 / 4, paddingHorizontal: 8, textAlign: 'center', justifyContent: 'center', alignItems: 'center', fontSize: 13 }}
                     title={`T${item.ticket_id}`}
-                    onPress={() => router.push(`/(protected)/profile/helpCentre/tickets/${item.ticket_id}`)} />
+                    onPress={() => router.push(`/(freeRoutes)/profile/support/tickets/${item.ticket_id}`)} />
             </View>
             <Text style={[styles.cell, styles.statusCell]}>
                 <Text style={{
@@ -74,7 +74,7 @@ export default function HelpCentre() {
                             <SectionOption
                                 title='Get Support'
                                 subTitle='Chat with our support team.'
-                                onPress={() => router.push('/(protected)/profile/helpCentre/initiateSupport')}
+                                onPress={() => router.push('/(freeRoutes)/profile/support/initiateSupport')}
                             />
                         </Section>
                     </SectionContainer>

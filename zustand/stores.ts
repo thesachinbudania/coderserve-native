@@ -102,6 +102,17 @@ export const useNotificationsUnreadStore = create<NotificationsUnreadState>((set
   setNotificationsUnread: (notificationsUnread) => set(notificationsUnread),
 }))
 
+
+interface UnreadMessagesState {
+  unreadMessages: number
+  setUnreadMessages: (unreadMessages: number) => void
+}
+
+export const useUnreadMessagesStore = create<UnreadMessagesState>((set) => ({
+  unreadMessages: 0,
+  setUnreadMessages: (unreadMessages) => set({ unreadMessages }),
+}))
+
 export const useTokensStore = create<TokensState>((set) => ({
   refresh: null,
   access: null,

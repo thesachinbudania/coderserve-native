@@ -13,6 +13,12 @@ import { useTabPressScrollToTop } from '@/helpers/hooks/useTabBarScrollToTop';
 import syncUser from '@/helpers/general/syncUser';
 import { useFocusEffect } from 'expo-router';
 import { useNotificationsUnreadStore } from '@/zustand/stores';
+import { apiUrl } from '@/constants/env';
+import SmallTextButton from '@/components/buttons/SmallTextButton';
+import BottomDrawer from '@/components/BottomDrawer';
+import GreyBgButton from '@/components/buttons/GreyBgButton';
+import protectedApi from '@/helpers/axios';
+import errorHandler from '@/helpers/general/errorHandler';
 
 
 export function ProfileButton({ count, onPress = () => { }, title, disabled = false }: { count: number, disabled?: boolean, onPress?: () => void, title: string }) {
@@ -28,29 +34,101 @@ export function ProfileButton({ count, onPress = () => { }, title, disabled = fa
   )
 }
 
-export const Profile = ({ user, onPostPress }: { user: any, onPostPress?: () => void }) => {
+export const Profile = ({ user, onPostPress, fetchData = () => { } }: { user: any, onPostPress?: () => void, fetchData?: () => void }) => {
   const router = useRouter();
+  const followRequestId = user.pending_follow_request;
+  const followMenuRef = React.useRef<any>(null);
+  const [isFollowLoading, setIsFollowLoading] = React.useState(false);
+  const [isDeclineLoading, setIsDeclineLoading] = React.useState(false);
+  const handleAccept = async () => {
+    setIsFollowLoading(true);
+    try {
+      await protectedApi.post(`/accounts/accept_follow_request/${followRequestId}/`);
+      fetchData();
+    } catch (error: any) {
+      errorHandler(error);
+      console.error('Error accepting follow request:', error);
+    } finally {
+      followMenuRef?.current.close();
+      setIsFollowLoading(false);
+    }
+  };
+
+  const handleDecline = async () => {
+    setIsDeclineLoading(true);
+    try {
+      await protectedApi.post(`/accounts/decline_follow_request/${followRequestId}/`);
+      fetchData();
+    } catch (error: any) {
+      errorHandler(error);
+      console.error('Error declining follow request:', error);
+    } finally {
+      followMenuRef?.current.close();
+      setIsDeclineLoading(false);
+    }
+  };
+
   return (
     <>
-      {
-        user.background_type === 'default' ?
-          user.background_pattern_code == 0 ? (
-            <View style={[styles.bgImage, { backgroundColor: '#202020', justifyContent: 'center', alignItems: 'center' }]} >
-              <Text style={{ fontSize: 11, color: "#545454" }}>Unavailable</Text>
+      <BottomDrawer
+        sheetRef={followMenuRef}
+        draggableIconHeight={0}
+      >
+        <View style={{ paddingHorizontal: 16 }}>
+          <Text style={{ textAlign: 'center', fontSize: 15, fontWeight: 'bold', marginBottom: 14, lineHeight: 15 }}>Follow Request</Text>
+          <Text style={{ textAlign: 'center', fontSize: 13, color: "#737373", marginBottom: 30 }}>George would like to follow your journey and see your updates. Do you want to accept or decline this request?</Text>
+          <View style={{ flexDirection: 'row', gap: 16 }}>
+            <View style={{ flex: 1 / 2 }}>
+              <GreyBgButton
+                title='Decline'
+                onPress={() => handleDecline()}
+                loading={isDeclineLoading}
+              />
             </View>
-          ) :
-            // @ts-ignore
-            <Image source={BackgroundMapping[user.background_pattern_code]} style={styles.bgImage} /> :
-          user.background_image &&
-          <BackgroundImageLoader size={164} uri={user.background_image} />
+            <View style={{ flex: 1 / 2 }}>
+              <BlueButton
+                title='Accept'
+                onPress={() => {
+                  handleAccept();
+                }}
+                loading={isFollowLoading}
+              />
+            </View>
+          </View>
+        </View>
+      </BottomDrawer>
+      <View style={{ marginTop: 6 }}>
+        {
+          followRequestId && <View style={{ paddingHorizontal: 16, paddingVertical: 12, backgroundColor: "#202020" }}>
+            <Text style={{ color: "white", fontSize: 13, }}>{user.first_name} sent you a follow request. Would you like to accept or decline?{' '}
+              <SmallTextButton
+                style={{ fontSize: 13, color: 'white', textDecorationLine: 'underline', lineHeight: 13, marginBottom: -3 }}
+                title='Click here'
+                onPressColor='#38b6ff'
+                onPress={() => followMenuRef?.current.open()}
+              ></SmallTextButton></Text>
+          </View>
+        }
+        {
+          user.background_type === 'default' ?
+            user.background_pattern_code == 0 ? (
+              <View style={[styles.bgImage, { backgroundColor: '#202020', justifyContent: 'center', alignItems: 'center' }]} >
+                <Text style={{ fontSize: 11, color: "#545454" }}>Unavailable</Text>
+              </View>
+            ) :
+              // @ts-ignore
+              <Image source={BackgroundMapping[user.background_pattern_code]} style={styles.bgImage} /> :
+            user.background_image &&
+            <BackgroundImageLoader size={164} uri={user.background_image} />
 
-      }
+        }
+      </View>
       <View style={styles.body}>
         <View style={styles.profileRow}>
           {user.profile_image &&
             <ImageLoader
-              size={96}
-              uri={user.profile_image}
+              size={90}
+              uri={user.background_pattern_code == 0 ? apiUrl + '/media/profile_images/default_profile_image.png' : user.profile_image}
               viewable
             />}
           <View style={styles.countRow}>
@@ -76,7 +154,7 @@ export const Profile = ({ user, onPostPress }: { user: any, onPostPress?: () => 
         </View>
         <Text style={styles.name}>{user.first_name} {user.last_name}</Text>
         {user.background_pattern_code == 0 ? null : <>
-          <Text style={{ fontSize: 13, color: "#004aad", fontWeight: 'bold', marginTop: 8 }}>Ranked #59</Text>
+          <Text style={{ fontSize: 13, color: "#004aad", fontWeight: 'bold', marginTop: 8, lineHeight: 13 }}>Ranked #59</Text>
           <Text style={styles.username}>@{user.username}</Text>
           {
             user.can_view_profile &&
@@ -222,7 +300,7 @@ const styles = StyleSheet.create({
   profileRow: {
     flexDirection: 'row',
     position: 'relative',
-    marginTop: -32
+    marginTop: -24
   },
   countRow: {
     flexDirection: 'row',
@@ -251,16 +329,19 @@ const styles = StyleSheet.create({
     fontSize: 21,
     fontWeight: 'bold',
     marginTop: 16,
+    lineHeight: 21
   },
   username: {
     marginTop: 8,
     fontSize: 13,
     color: '#737373',
+    lineHeight: 13,
   },
   userLocation: {
     marginTop: 8,
     fontSize: 13,
     color: '#737373',
+    lineHeight: 13,
   },
   buttonContainer: {
     marginTop: 32,

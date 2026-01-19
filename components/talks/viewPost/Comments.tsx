@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, Image, Pressable, TextInput, ScrollView, KeyboardAvoidingView, Dimensions, StyleSheet, Keyboard, Animated } from 'react-native';
+import { View, Text, Image, Pressable, TextInput, ScrollView, KeyboardAvoidingView, Dimensions, StyleSheet, Keyboard, Animated, Platform } from 'react-native';
 import { useUserStore } from '@/zustand/stores';
 import protectedApi from '@/helpers/axios';
 import { useRouter } from 'expo-router';
@@ -10,6 +10,7 @@ import GreyBgButton from '@/components/buttons/GreyBgButton';
 import BottomDrawer from '@/components/BottomDrawer';
 import SmallTextButton from '@/components/buttons/SmallTextButton';
 import errorHandler from '@/helpers/general/errorHandler';
+import LineGraph from '@/components/home/LineGraph';
 
 const width = Dimensions.get('window').width;
 
@@ -53,7 +54,8 @@ const Comment = ({
     profile_image,
     setReplyingTo,
     setReplyingId,
-    onLongPress
+    onLongPress,
+    reply_to = null,
 }: {
     can_reply?: boolean,
     first_name: string,
@@ -67,6 +69,7 @@ const Comment = ({
     setReplyingId: (replyingId: string | null) => void,
     setReplyingTo: (replyingTo: string | null) => void,
     onLongPress?: (commentData: any, position: any, reply: boolean) => void
+    reply_to?: any;
 }) => {
     const [showReplies, setShowReplies] = React.useState(false);
     const commentRef = React.useRef<View>(null);
@@ -74,7 +77,7 @@ const Comment = ({
     const { username: currentUsername } = useUserStore();
 
     const handleLongPress = () => {
-        if (currentUsername === username && onLongPress && commentRef.current) {
+        if (onLongPress && commentRef.current) {
             commentRef.current.measure((x, y, width, height, pageX, pageY) => {
                 onLongPress({
                     id,
@@ -83,7 +86,8 @@ const Comment = ({
                     comment,
                     profile_image,
                     created_at,
-                    reply
+                    reply,
+                    reply_to
                 }, {
                     x: pageX,
                     y: pageY,
@@ -93,20 +97,19 @@ const Comment = ({
             });
         }
     };
-
     return (
         <View ref={commentRef}>
             <Pressable
-                style={({ pressed }) => [{ flexDirection: 'row', gap: 8, paddingHorizontal: 16, marginLeft: reply ? -56 : 0, paddingLeft: reply ? 56 : 16 }, pressed && currentUsername === username && { backgroundColor: '#f5f5f5' }, { marginVertical: -8, paddingVertical: 8 }]}
+                style={({ pressed }) => [{ flexDirection: 'row', gap: 8, paddingHorizontal: 16, marginLeft: reply ? -56 : 0, paddingLeft: reply ? 56 : 16 }, pressed && { backgroundColor: '#f5f5f5' }, { marginVertical: -8, paddingVertical: 8 }]}
                 onLongPress={handleLongPress}
             >
                 <View>
-                    <ImageLoader size={48} uri={profile_image} />
+                    <ImageLoader size={45} uri={profile_image} />
                 </View>
-                <View style={{ width: reply ? width - 144 : width - 88 }}>
+                <View style={{ width: reply ? width - 141 : width - 85 }}>
                     <Text style={{ fontWeight: 'bold', fontSize: 13 }}>{first_name}</Text>
-                    <Text style={{ fontSize: 13, marginTop: 4, color: '#737373' }}>{comment}</Text>
-                    <View style={{ flexDirection: 'row', gap: 8, marginTop: 8 }}>
+                    <Text style={{ fontSize: 13, marginTop: 4, color: '#737373' }}>{reply_to && <Text style={{ color: "#6289bf" }}>@{reply_to.author.username} </Text>}{comment}</Text>
+                    <View style={{ flexDirection: 'row', gap: 8, marginTop: 4 }}>
                         {
                             !reply && can_reply && (
                                 <SmallTextButton
@@ -125,7 +128,7 @@ const Comment = ({
                         !showReplies && replies.length > 0 && (
                             <SmallTextButton
                                 title={`View ${replies.length} more ` + (replies.length === 1 ? 'reply' : 'replies')}
-                                style={{ fontSize: 11, color: '#a6a6a6', marginTop: 32 }}
+                                style={{ fontSize: 11, color: '#a6a6a6', marginTop: 32, lineHeight: 11 }}
                                 onPress={() => setShowReplies(!showReplies)}
                             />
                         )
@@ -150,9 +153,11 @@ const Comment = ({
                                 replies={[]}
                                 created_at={reply.created_at}
                                 onLongPress={onLongPress}
+                                reply_to={reply.reply_to}
                             />
                         ))
                     }
+                    <SmallTextButton title="Hide replies" onPress={() => setShowReplies(false)} style={{ marginTop: 8, lineHeight: 11, fontSize: 11, color: "#a6a6a6" }}></SmallTextButton>
                 </View>
             )}
         </View>
@@ -175,11 +180,12 @@ export const Comments = ({ id, commentsCount, last_comment, onCommentAdded }: Co
     const [replyingTo, setReplyingTo] = React.useState<string | null>(null);
     const [replyingId, setReplyingId] = React.useState<string | null>(null);
     const [canComment, setCanComment] = React.useState<boolean>(false);
-    const router = useRouter();
     const [commentContainerHeight, setCommentContainerHeight] = React.useState(0);
     const [selectedComment, setSelectedComment] = React.useState<{ data: any, position: any, reply: boolean } | null>(null);
     const [isDeletingComment, setIsDeletingComment] = React.useState(false);
     const containerRef = React.useRef<View>(null);
+    const { username } = useUserStore();
+    const router = useRouter();
 
     const fetchComments = async () => {
         protectedApi.get('/talks/posts/' + id + '/comments/').then(res => {
@@ -217,7 +223,6 @@ export const Comments = ({ id, commentsCount, last_comment, onCommentAdded }: Co
     }
 
     const handleCommentLongPress = (commentData: any, position: any, reply: boolean) => {
-        console.log(reply, 'this is reply')
         if (containerRef.current) {
             containerRef.current.measure((cx, cy, cwidth, cheight, cpageX, cpageY) => {
                 // Calculate position relative to container
@@ -306,15 +311,15 @@ export const Comments = ({ id, commentsCount, last_comment, onCommentAdded }: Co
                         style={({ pressed }) => [{ flexDirection: 'row', gap: 4, paddingVertical: 8, backgroundColor: 'white', alignItems: 'center', marginHorizontal: -16, paddingHorizontal: 16, marginVertical: -8 }, pressed && { backgroundColor: '#f7f7f7' }]}
                         onPress={() => menuRef.current?.open()}
                     >
-                        <ImageLoader size={48} uri={last_comment.author.profile_image} />
-                        <Text style={{ width: width - 88, fontSize: 13, color: '#737373' }}>{last_comment.content}</Text>
+                        <ImageLoader size={45} uri={last_comment.author.profile_image} />
+                        <Text style={{ width: width - 85, fontSize: 13, color: '#737373' }}>{last_comment.content}</Text>
                     </Pressable>
                 ) : (
                     <Pressable
                         style={({ pressed }) => [commentStyles.inputContainer, pressed && { borderColor: "#006dff" }]}
                         onPress={() => menuRef.current?.open()}
                     >
-                        <Text style={{ fontSize: 13, color: '#d9d9d9' }}>Add Comment</Text>
+                        <Text style={{ fontSize: 13, color: '#cfdbe6' }}>Add Comment</Text>
                     </Pressable>
                 )
             }
@@ -346,13 +351,15 @@ export const Comments = ({ id, commentsCount, last_comment, onCommentAdded }: Co
                                     replies={[]}
                                     setReplyingTo={setReplyingTo}
                                     setReplyingId={setReplyingId}
+                                    can_reply={true}
+                                    reply_to={selectedComment.data.reply_to}
                                 />
                             </View>
 
                             {/* Contextual Menu - positioned below or above based on space */}
                             <View style={{
                                 backgroundColor: 'white',
-                                borderRadius: 12,
+                                borderRadius: 16,
                                 padding: 16,
                                 marginHorizontal: 16,
                                 ...(selectedComment.position.showMenuAbove
@@ -360,8 +367,8 @@ export const Comments = ({ id, commentsCount, last_comment, onCommentAdded }: Co
                                     : { marginTop: 16 }
                                 ),
                             }}>
-                                <Text style={{ fontSize: 15, fontWeight: "bold", textAlign: "center" }}>Delete this comment?</Text>
-                                <Text style={{ fontSize: 13, color: "#a6a6a6", textAlign: "center", marginTop: 8, marginBottom: 16 }}>This action can't be undone. Are you sure you want to remove your comment?</Text>
+                                <Text style={{ fontSize: 15, fontWeight: "bold", textAlign: "center", lineHeight: 15 }}>{username === selectedComment.data.username ? 'Delete' : 'Report'} this {selectedComment.reply ? 'reply' : 'comment'}?</Text>
+                                <Text style={{ fontSize: 13, color: "#737373", textAlign: "center", marginTop: 14, marginBottom: 30 }}>{username != selectedComment.data.username ? 'If you believe this comment violates our guidelines, you can report it to our moderation team for review.' : `This action can't be undone. Are you sure you want to remove your ${selectedComment.reply ? 'reply' : 'comment'}?`}</Text>
                                 <View style={{ flexDirection: "row", gap: 16 }}>
                                     <View style={{ flex: 1 / 2 }}>
                                         <GreyBgButton
@@ -371,10 +378,20 @@ export const Comments = ({ id, commentsCount, last_comment, onCommentAdded }: Co
                                     </View>
                                     <View style={{ flex: 1 / 2 }}>
                                         <BlueButton
-                                            title='Delete'
+                                            title={username === selectedComment.data.username ? 'Delete' : 'Report'}
                                             dangerButton
                                             loading={isDeletingComment}
-                                            onPress={handleDeleteComment}
+                                            onPress={() => {
+                                                if (username === selectedComment.data.username) {
+                                                    handleDeleteComment()
+                                                } else {
+                                                    setSelectedComment(null)
+                                                    menuRef?.current.close();
+                                                    setTimeout(() => {
+                                                        router.push(`/(freeRoutes)/profile/support/initiateSupport?supportType=comment&id=${selectedComment.data.id}`)
+                                                    }, 300)
+                                                }
+                                            }}
                                         />
                                     </View>
                                 </View>
@@ -382,30 +399,33 @@ export const Comments = ({ id, commentsCount, last_comment, onCommentAdded }: Co
                         </View>
                     </>
                 )}
-                <KeyboardAvoidingView style={{ flex: 1 }} behavior={'padding'}>
+                <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'} keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}>
                     <View ref={containerRef} style={{ flex: 1, position: 'relative' }}>
                         <ScrollView contentContainerStyle={{ flexGrow: 1, gap: 32, paddingBottom: commentContainerHeight + 32 }} style={{ flex: 1 }}>
-                            <Text style={{ fontSize: 11, color: '#a6a6a6', textAlign: 'center' }}>Comments</Text>
+                            {comments.length > 0 && <Text style={{ fontSize: 11, color: '#a6a6a6', textAlign: 'center' }}>Comments</Text>}
                             {
-                                comments.length > 0 ? comments.filter((comment) => comment.reply_to === null).map((comment) => (
-                                    <Comment
-                                        key={comment.id}
-                                        username={comment.author.username}
-                                        first_name={comment.author.first_name}
-                                        id={comment.id}
-                                        comment={comment.content}
-                                        profile_image={comment.author.profile_image}
-                                        setReplyingTo={setReplyingTo}
-                                        setReplyingId={setReplyingId}
-                                        can_reply={canComment && comment.can_tag}
-                                        replies={comments.filter((c) => c.reply_to === comment.id)}
-                                        created_at={comment.created_at}
-                                        onLongPress={handleCommentLongPress}
-                                    />
-                                )) : (
+                                comments.length > 0 ? comments.filter((comment) => comment.reply_to === null).map((comment) => {
+                                    return (
+                                        <Comment
+                                            key={comment.id}
+                                            username={comment.author.username}
+                                            first_name={comment.author.first_name}
+                                            id={comment.id}
+                                            comment={comment.content}
+                                            profile_image={comment.author.profile_image}
+                                            setReplyingTo={setReplyingTo}
+                                            setReplyingId={setReplyingId}
+                                            can_reply={canComment && comment.can_tag}
+                                            replies={comments.filter((c) => c.reply_to?.id === comment.id)}
+                                            created_at={comment.created_at}
+                                            onLongPress={handleCommentLongPress}
+                                            reply_to={comment.reply_to}
+                                        />
+                                    )
+                                }) : (
                                     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', marginTop: 64 }}>
-                                        <Image source={require("@/assets/images/stars.png")} style={{ height: 128, width: 128 }} />
-                                        <Text style={{ fontSize: 11, color: '#a6a6a6', marginTop: 32 }}>No comments yet. Be the first to share your thoughts!</Text>
+                                        <Image source={require("@/assets/images/stars.png")} style={{ height: 112, width: 120, objectFit: 'contain' }} />
+                                        <Text style={{ fontSize: 11, color: '#a6a6a6', marginTop: 30 }}>No comments yet. Be the first to share your thoughts!</Text>
                                     </View>
                                 )
                             }
@@ -414,7 +434,7 @@ export const Comments = ({ id, commentsCount, last_comment, onCommentAdded }: Co
                             {
                                 replyingTo && (
                                     <View style={{ backgroundColor: '#737373', padding: 16, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                                        <Text style={{ fontSize: 13, color: 'white' }}>Replying to @{replyingTo}</Text>
+                                        <Text style={{ fontSize: 13, color: 'white', lineHeight: 13 }}>Replying to @{replyingTo}</Text>
                                         <Pressable onPress={() => setReplyingTo(null)} style={({ pressed }) => [{ padding: 4, borderRadius: 50, backgroundColor: '#eeeeee' }, pressed && { backgroundColor: '#a6a6a6' }]}>
                                             <Image source={require('@/assets/images/close.png')} style={{ width: 6, height: 6 }} />
                                         </Pressable>
@@ -422,37 +442,41 @@ export const Comments = ({ id, commentsCount, last_comment, onCommentAdded }: Co
                                 )
                             }
                             {
-                                canComment &&
-                                <Animated.View style={[commentStyles.commentInputContainer, { marginBottom: animatedMargin }]} onLayout={(e) => setCommentContainerHeight(e.nativeEvent.layout.height)}>
-                                    {
-                                        replyingTo &&
-                                        <Text style={{ color: '#006dff', marginLeft: 16, marginRight: -16 }}>@{replyingTo} </Text>
-                                    }
-                                    <TextInput
-                                        onChangeText={setComment}
-                                        multiline
-                                        numberOfLines={6}
-                                        style={[commentStyles.commentInput]}
-                                        placeholder='Write here'
-                                        cursorColor='black'
-                                        textAlignVertical='top'
-                                        ref={commentInputRef}
-                                    >
+                                canComment ?
+                                    <Animated.View style={[commentStyles.commentInputContainer, { marginBottom: animatedMargin }]} onLayout={(e) => setCommentContainerHeight(e.nativeEvent.layout.height)}>
+                                        {
+                                            replyingTo &&
+                                            <Text style={{ color: '#006dff', marginLeft: 16, marginRight: -16 }}>@{replyingTo} </Text>
+                                        }
+                                        <TextInput
+                                            onChangeText={setComment}
+                                            multiline
+                                            numberOfLines={6}
+                                            style={[commentStyles.commentInput]}
+                                            placeholder='Write here'
+                                            cursorColor='black'
+                                            textAlignVertical='top'
+                                            ref={commentInputRef}
+                                        >
 
-                                    </TextInput>
-                                    <Pressable
-                                        onPress={postComment}
-                                        style={({ pressed }) => [{ height: 45, width: 45, justifyContent: 'center', alignItems: 'center', backgroundColor: '#202020', borderRadius: 45, margin: 8, marginRight: 16 }, pressed && comment.length != 0 && { backgroundColor: '#006dff' }, comment.length == 0 && { backgroundColor: "#f5f5f5" }]}>
-                                        <Image style={[{ transform: [{ rotate: '-90deg' }], height: 24, width: 24 }, { tintColor: comment.length === 0 ? '#d9d9d9' : 'white' }]} source={require('@/assets/images/arrows/right-arrow-white.png')} />
-                                    </Pressable>
-                                </Animated.View>
+                                        </TextInput>
+                                        <Pressable
+                                            onPress={postComment}
+                                            style={({ pressed }) => [{ height: 45, width: 45, justifyContent: 'center', alignItems: 'center', backgroundColor: '#202020', borderRadius: 45, margin: 8, marginRight: 16 }, pressed && comment.length != 0 && { backgroundColor: '#006dff' }, comment.length == 0 && { backgroundColor: "#f5f5f5" }]}>
+                                            <Image style={[{ transform: [{ rotate: '-90deg' }], height: 24, width: 24 }, { tintColor: comment.length === 0 ? '#d9d9d9' : 'white' }]} source={require('@/assets/images/arrows/right-arrow-white.png')} />
+                                        </Pressable>
+                                    </Animated.View> : <View style={{
+                                        paddingHorizontal: 16, height: 60, borderTopWidth: 1, borderTopColor: '#f5f5f5', alignItems: 'center', justifyContent: 'center'
+                                    }}>
+                                        <Text style={{ fontSize: 11, color: '#737373', textAlign: 'center' }}>Comments on this post have been limited</Text>
+                                    </View>
                             }
                         </View>
                     </View>
-                </KeyboardAvoidingView>
-            </BottomDrawer>
+                </KeyboardAvoidingView >
+            </BottomDrawer >
 
-        </View>
+        </View >
     );
 }
 
@@ -464,11 +488,12 @@ const commentStyles = StyleSheet.create({
     heading: {
         fontSize: 15,
         fontWeight: 'bold',
+        lineHeight: 15,
     },
     inputContainer: {
         borderWidth: 1,
         borderColor: '#737373',
-        height: 45,
+        height: 42,
         justifyContent: 'center',
         paddingHorizontal: 16,
         borderRadius: 45,

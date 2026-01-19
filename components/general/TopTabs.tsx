@@ -36,7 +36,7 @@ interface Props {
 }
 
 const MIN_TAB_WIDTH = 80
-const HORIZONTAL_PADDING = 0  
+const HORIZONTAL_PADDING = 0
 
 export default function AnimatedTopTabs({ tabs, setScrollEnabled, index, setIndex }: Props) {
   const { width: screenWidth } = useWindowDimensions()
@@ -122,8 +122,8 @@ export default function AnimatedTopTabs({ tabs, setScrollEnabled, index, setInde
       if (setScrollEnabled) runOnJS(setScrollEnabled)(true)
     })
 
-    // not being use currently anywhere
-    const [heights, setHeights] = useState<any>({});
+  // not being use currently anywhere
+  const [heights, setHeights] = useState<any>({});
 
   return (
     <GestureHandlerRootView >
@@ -146,17 +146,17 @@ export default function AnimatedTopTabs({ tabs, setScrollEnabled, index, setInde
                 style={[styles.tab, { width: tabWidth }]}
               >
                 {
-                  ({pressed}) => (
-<Text
-                  numberOfLines={1}
-                  ellipsizeMode="tail"
-                  style={[styles.tabText, isActive && styles.activeText, pressed && !isActive && { color: '#006dff', fontWeight: 'bold' }]}
-                >
-                  {tab.name}
-                </Text>
+                  ({ pressed }) => (
+                    <Text
+                      numberOfLines={1}
+                      ellipsizeMode="tail"
+                      style={[styles.tabText, isActive && styles.activeText, pressed && !isActive && { color: '#006dff', fontWeight: 'bold' }]}
+                    >
+                      {tab.name}
+                    </Text>
                   )
                 }
-                
+
               </Pressable>
             )
           })}
@@ -184,7 +184,7 @@ export default function AnimatedTopTabs({ tabs, setScrollEnabled, index, setInde
                 paddingHorizontal: 16,
               }}
             >
-              <View 
+              <View
                 onLayout={(event) => {
                   const height = event.nativeEvent.layout.height;
                   setHeights((prev: any) => {
@@ -193,10 +193,10 @@ export default function AnimatedTopTabs({ tabs, setScrollEnabled, index, setInde
                   })
                 }}
               >
-              {
-               // only render active tab content to measure height 
-                i === activeIndex ? tab.content : null
-              }
+                {
+                  // only render active tab content to measure height 
+                  i === activeIndex ? tab.content : null
+                }
               </View>
             </View>
           ))}
@@ -229,6 +229,7 @@ const styles = StyleSheet.create({
   tabText: {
     fontSize: 13,
     color: '#737373',
+    lineHeight: 13
   },
   activeText: {
     color: '#000',

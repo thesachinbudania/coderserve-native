@@ -2,7 +2,7 @@ import { Pressable, Text, StyleSheet } from 'react-native';
 import * as Haptics from 'expo-haptics';
 
 
-export default function SmallTextButton({ underline = false, title, onPress = () => { }, style = {} }: { style?: any, underline?: boolean, title: string, onPress?: () => void }) {
+export default function SmallTextButton({ underline = false, title, onPress = () => { }, style = {}, underlineOnPress = false, onPressColor = '#006dff' }: { style?: any, underline?: boolean, title: string, onPress?: () => void, underlineOnPress?: boolean, onPressColor?: string }) {
 	return (
 		<Pressable onPress={() => {
 			Haptics.selectionAsync();
@@ -10,7 +10,7 @@ export default function SmallTextButton({ underline = false, title, onPress = ()
 		}}>
 			{
 				({ pressed }) => (
-					<Text style={[styles.text, style, underline && { textDecorationLine: 'underline' }, pressed && { color: '#006dff' }]}>{title}</Text>
+					<Text style={[styles.text, style, underline && { textDecorationLine: 'underline' }, pressed && { color: onPressColor }, underlineOnPress && pressed && { textDecorationLine: 'underline' }]}>{title}</Text>
 				)
 			}
 		</Pressable>

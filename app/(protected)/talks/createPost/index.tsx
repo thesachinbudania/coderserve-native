@@ -15,11 +15,17 @@ import errorHandler from '@/helpers/general/errorHandler';
 
 export default function CreatePost() {
   const router = useRouter();
-  const { title, hashtags, thumbnail, content, editId, setNewPost } = useNewPostStore();
+  const { title, hashtags, thumbnail, content, plainText, editId, setNewPost } = useNewPostStore();
+  const currentTitle = React.useRef(title || '');
+  const currentHashtags = React.useRef(hashtags || []);
+  const currentThumbnail = React.useRef(thumbnail || null);
+  const currentContent = React.useRef(content || '');
+  const currentPlainText = React.useRef(plainText || '');
   const PostSchema = zod.object({
     title: zod.string().min(1, 'Title is required'),
     hashtags: zod.array(zod.string()).optional(),
     content: zod.string().min(1, 'Content is required'),
+    text_content: zod.string().optional(),
     thumbnail: zod
       .any()
       .optional()
@@ -37,6 +43,7 @@ export default function CreatePost() {
       title: title || '',
       hashtags: hashtags || [],
       content: content || '',
+      text_content: plainText || '',
       thumbnail: thumbnail || undefined
     }
   });
@@ -44,8 +51,8 @@ export default function CreatePost() {
   // keep the form in sync with zustand values updated in other screens
 
   React.useEffect(() => {
-    reset({ title: title || '', hashtags: hashtags || [], content: content || '', thumbnail: thumbnail || undefined });
-  }, [title, hashtags, content, thumbnail]);
+    reset({ title: title || '', hashtags: hashtags || [], content: content || '', text_content: plainText || '', thumbnail: thumbnail || undefined });
+  }, [title, hashtags, content, plainText, thumbnail]);
 
   const uploadPost = handleSubmit(
     async (values) => {
@@ -60,10 +67,12 @@ export default function CreatePost() {
         });
       }
       if (editId) {
-        form.append('content', values.content)
+        form.append('content', values.content);
+        form.append('text_content', values.text_content);
       }
       else {
         form.append('content', JSON.stringify(values.content));
+        form.append('text_content', values.text_content);
       }
       try {
         if (editId) {
@@ -91,7 +100,7 @@ export default function CreatePost() {
           router.back();
         }
         else {
-          router.push('/(protected)/talks');
+          router.back();
         }
       } catch (error: any) {
         errorHandler(error);
@@ -107,7 +116,7 @@ export default function CreatePost() {
     <>
       <PageLayout headerTitle='Create Post'>
         <SectionContainer>
-          <Section title='Share your ideas with the community'>
+          <Section>
             <SectionOption
               title='Headline'
               subTitle='Grab attention with a strong title.'
@@ -139,14 +148,14 @@ export default function CreatePost() {
             <NoBgButton
               title='Preview'
               onPress={() => router.push('/(protected)/talks/createPost/previewPost')}
-              disabled={!title}
+              disabled={editId ? (!title || (currentTitle.current == title && currentHashtags.current == hashtags && currentThumbnail.current == thumbnail && currentContent.current == content)) : !title}
               outlined
             />
           </View>
           <View style={{ flex: 1 / 2 }}>
             <BlueButton
               title={editId ? 'Update' : 'Post '}
-              disabled={!title || !hashtags.length || !content}
+              disabled={editId ? (!title || !hashtags.length || !content || (currentTitle.current == title && currentHashtags.current == hashtags && currentThumbnail.current == thumbnail && currentContent.current == content)) : (!title || !hashtags.length || !content)}
               loading={isSubmitting}
               onPress={uploadPost}
             />

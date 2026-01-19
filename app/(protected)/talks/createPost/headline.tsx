@@ -15,7 +15,7 @@ export default function Headline() {
     <PageLayout
       headerTitle='Headline'
     >
-      <Text style={{ fontSize: 11, color: '#a6a6a6', marginBottom: 8 }}>
+      <Text style={{ fontSize: 11, color: '#a6a6a6', marginBottom: 8, lineHeight: 11 }}>
         Grab attention with a strong title
       </Text>
       <View style={{ marginBottom: 48 }}>

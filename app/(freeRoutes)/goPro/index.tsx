@@ -1,7 +1,7 @@
 import { ActivityIndicator, Text, Image, View, ScrollView, StatusBar } from 'react-native';
 import IconButton from '@/components/profile/IconButton';
 import { useRouter } from 'expo-router';
-import { useFonts } from '@expo-google-fonts/roboto';
+import { useFonts } from 'expo-font';
 import BlueButton from '@/components/buttons/BlueButton';
 import UnorderedList from '@/components/general/UnorderedList';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -15,7 +15,7 @@ function Section({ title, content }: { title: string, content: string }) {
     return (
         <View>
             <Text style={{ fontSize: 15, fontWeight: 'bold' }}>{title}</Text>
-            <Text style={{ fontSize: 13, color: '#a6a6a6', marginTop: 8, textAlign: 'justify' }}>{content}</Text>
+            <Text style={{ fontSize: 13, color: '#737373', marginTop: 4, textAlign: 'justify' }}>{content}</Text>
         </View>
     )
 }
@@ -36,13 +36,13 @@ const features = [
         renderer: (
             <View>
                 <Text style={{ fontSize: 15, fontWeight: 'bold' }}>Job Insights</Text>
-                <Text style={{ fontSize: 13, color: '#a6a6a6', marginTop: 8 }}>Get deeper job analytics before applying:</Text>
+                <Text style={{ fontSize: 13, color: '#737373', marginTop: 4 }}>Get deeper job analytics before applying:</Text>
                 <UnorderedList
                     items={["How many candidates have applied", "Your relative hiring probability, calculated by comparing your profile with other applicants"]}
                     gap={0}
-                    textStyle={{ fontSize: 13, color: "#a6a6a6" }}
+                    textStyle={{ fontSize: 13, color: "#737373" }}
                 />
-                <Text style={{ fontSize: 13, color: "#a6a6a6", marginTop: 32 }}>Apply smarter and focus on jobs where you truly stand out.</Text>
+                <Text style={{ fontSize: 13, color: "#737373", marginTop: 12 }}>Apply smarter and focus on jobs where you truly stand out.</Text>
             </View>
         )
     },
@@ -53,7 +53,7 @@ const features = [
     },
     {
         title: "Ads-Free Learning",
-        content: "Enojy a completely ad-free experience across learning modules and challenges - so you can focus without distractions.",
+        content: "Enjoy a completely ad-free experience across learning modules and challenges - so you can focus without distractions.",
         type: "section"
     },
     {
@@ -131,6 +131,7 @@ export default function GoPro() {
             setJoining(true);
             await protectedApi.post('/home/pro_waitlist/');
             setWaitlisted(true);
+            joinedSheetRef.current?.open();
         } catch (err: any) {
             errorHandler(err);
         } finally {
@@ -138,6 +139,7 @@ export default function GoPro() {
         }
     }
     const drawerRef = useRef<any>(null);
+    const joinedSheetRef = useRef<any>(null);
 
 
     return (
@@ -154,10 +156,10 @@ export default function GoPro() {
                     </View>
                     <View style={{ alignSelf: 'center', marginTop: -24, alignItems: 'center' }}>
                         <Image source={require('@/assets/images/goProStar.png')} style={{ height: 150, width: 156 }} />
-                        <Text style={{ fontFamily: 'magnolia', fontSize: 29, color: 'white', marginTop: 32, fontWeight: 'bold' }}>Coder Serve Pro</Text>
+                        <Text style={{ fontFamily: 'magnolia', fontSize: 29, color: 'white', marginTop: 32 }}>Coder Serve Pro</Text>
                         <Text style={{ fontSize: 13, marginTop: 8, color: "#a6a6a6", textAlign: 'center' }}>Go beyond the basics and unlock powerful tools for visibility, smarter job discovery, and faster learning with Coder Serve Pro.</Text>
                     </View>
-                    <BlueButton title={waitlisted ? "Coming Soon!" : "Join Waitlist"} style={{ marginTop: 32 }} onPress={waitlisted ? () => drawerRef.current?.open() : joinWaitlist} loading={joining} />
+                    <BlueButton title={waitlisted ? "Coming Soon!" : "Join Waitlist"} style={{ marginTop: 28 }} onPress={waitlisted ? () => drawerRef.current?.open() : joinWaitlist} loading={joining} />
                 </View>
                 <View style={{ gap: 32, backgroundColor: 'white', marginTop: 32, borderTopLeftRadius: 24, borderTopRightRadius: 24, paddingHorizontal: 16, paddingTop: 24 }}>
                     {
@@ -182,9 +184,21 @@ export default function GoPro() {
             >
                 <View style={{ marginHorizontal: 16 }}>
                     <Text style={{ textAlign: 'center', fontSize: 15, fontWeight: 'bold' }}>You're Already on the Pro Waitlist!</Text>
-                    <Text style={{ textAlign: 'center', marginTop: 16, fontSize: 13, color: "#737373" }}>You've successfully joined the Pro waitlist. We'll notify you the moment Pro becomes available for you - no action needed.</Text>
-                    <View style={{ marginTop: 32 }}>
+                    <Text style={{ textAlign: 'center', marginTop: 12, fontSize: 13, color: "#737373" }}>You've successfully joined the Pro waitlist. We'll notify you the moment Pro becomes available for you - no action needed.</Text>
+                    <View style={{ marginTop: 30 }}>
                         <BlueButton title="Okay" onPress={() => drawerRef.current?.close()} />
+                    </View>
+                </View>
+            </BottomDrawer>
+            <BottomDrawer
+                sheetRef={joinedSheetRef}
+                draggableIconHeight={0}
+            >
+                <View style={{ marginHorizontal: 16 }}>
+                    <Text style={{ textAlign: 'center', fontSize: 15, fontWeight: 'bold' }}>You're on the Pro Waitlist!</Text>
+                    <Text style={{ textAlign: 'center', marginTop: 12, fontSize: 13, color: "#737373" }}>Pro access is currently limited as we roll it out in phases. You're now on the waitlist and will be notified as soon as Pro becomes available for you.</Text>
+                    <View style={{ marginTop: 30 }}>
+                        <BlueButton title="Okay" onPress={() => joinedSheetRef.current?.close()} />
                     </View>
                 </View>
             </BottomDrawer>

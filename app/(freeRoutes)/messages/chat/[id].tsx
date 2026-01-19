@@ -4,7 +4,7 @@ import {
   ActivityIndicator, Text, StyleSheet, View, FlatList,
   KeyboardAvoidingView, Platform, InteractionManager
 } from 'react-native';
-import { useGlobalSearchParams, useRouter } from 'expo-router';
+import { useFocusEffect, useGlobalSearchParams, useRouter } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
 import protectedApi from '@/helpers/axios';
 import { useUserStore, useTokensStore } from '@/zustand/stores';
@@ -66,7 +66,7 @@ const Chat: React.FC = () => {
   const [currentMessageMenuTime, setCurrentMessageMenuTime] = useState<number | null>(null);
   // Track which options and height are available for the current message
   const [currentMenuOptions, setCurrentMenuOptions] = useState<{ edit: boolean, delete: boolean }>({ edit: false, delete: false });
-  const [currentMenuHeight, setCurrentMenuHeight] = useState(120);
+  const [currentMenuHeight, setCurrentMenuHeight] = useState(112);
 
   const [editMode, setEditMode] = useState(false);
   const [sendMessageEnabled, setSendMessageEnabled] = useState(true);
@@ -122,11 +122,11 @@ const Chat: React.FC = () => {
   const fmtTime = (iso: string) => dayjs(iso).format('h:mm a');
 
   // --- DATA FETCHING & WEBSOCKET ---
-  useEffect(() => {
+  useFocusEffect(React.useCallback(() => {
     let mounted = true;
     fetchData(mounted);
     return () => { mounted = false; };
-  }, [id, username]);
+  }, [id, username]));
 
   useEffect(() => {
     if (!token || id === undefined) return;
@@ -361,14 +361,6 @@ const Chat: React.FC = () => {
 
   // --- RENDER LOGIC ---
   const renderFooter = () => {
-    const lastMessage = messages[messages.length - 1];
-    if (lastMessage && lastMessage.senderId === username && seenTimestamp && dayjs(seenTimestamp).isAfter(dayjs(lastMessage.createdAt))) {
-      return (
-        <View style={styles.seenContainer}>
-          <Text style={styles.seenText}>Seen</Text>
-        </View>
-      );
-    }
     return null;
   };
 
@@ -407,7 +399,7 @@ const Chat: React.FC = () => {
     }
     const opts = { edit: canEdit, delete: canDelete };
     setCurrentMenuOptions(opts);
-    setCurrentMenuHeight(opts.edit && opts.delete ? 216 : 120);
+    setCurrentMenuHeight(opts.edit && opts.delete ? 200 : 112);
     setCurrentMessageMenuTime(messageTimeMs);
     // Wait for state to update, then open the drawer (ensures correct height)
     setTimeout(() => {
@@ -433,8 +425,8 @@ const Chat: React.FC = () => {
             renderItem={({ item }) => 'isSeparator' in item ? <DateSeparator date={item.date} /> : <MessageBubble openMessageMenu={openMessageMenu} message={item} currentUserId={me} />}
             keyExtractor={(item) => item.id}
             contentContainerStyle={styles.messagesContainer}
-            onContentSizeChange={() => scrollToBottom(false)}
-            onLayout={() => scrollToBottom(false)}
+            onContentSizeChange={() => scrollToBottom(true)}
+            onLayout={() => scrollToBottom(true)}
             ListFooterComponent={renderFooter}
           />
           <ChatInput
@@ -488,7 +480,7 @@ const Chat: React.FC = () => {
       <BottomDrawer sheetRef={deleteMessageDrawerRef} draggableIconHeight={0}>
         <View style={{ paddingHorizontal: 16 }}>
           <Text style={{ fontSize: 15, fontWeight: 'bold', textAlign: 'center' }}>Delete Message</Text>
-          <Text style={{ fontSize: 13, color: "#737373", textAlign: 'center', marginTop: 8 }}>This action cannot be undone. Once deleted, your message will be permanently removed.</Text>
+          <Text style={{ fontSize: 13, color: "#737373", textAlign: 'center', marginTop: 8, }}>This action cannot be undone. Once deleted, your message will be permanently removed.</Text>
           <View style={{ flexDirection: 'row', gap: 16, marginTop: 32 }}>
             <View style={{ flex: 1 / 2 }}>
               <GreyBgButton
@@ -529,9 +521,10 @@ const Chat: React.FC = () => {
           </View>
         </View>
       </BottomDrawer>
-      <BottomSheet
-        menuRef={menuRef}
-        height={392}>
+      <BottomDrawer
+        sheetRef={menuRef}
+        draggableIconHeight={0}
+      >
         <View style={styles.menuContainer}>
           <MenuButton
             onPress={() => {
@@ -576,25 +569,37 @@ const Chat: React.FC = () => {
               Permanently remove this chat.
             </Text>
           </MenuButton>
-          <MenuButton >
+          <MenuButton
+            onPress={() => {
+              menuRef?.current.close();
+              setTimeout(() => {
+                if (chatData.reported_chats.length > 0) {
+                  router.push(`/(freeRoutes)/profile/support/tickets/${chatData.reported_chats[0]}`)
+                }
+                else {
+                  router.push(`/(freeRoutes)/profile/support/initiateSupport?supportType=${'chat'}&id=${id}`)
+                }
+              }, 300)
+            }}
+          >
             <Text
               style={[styles.menuButtonHeading]}
             >
-              Report Chat
+              {chatData.reported_chats.length > 0 ? 'View Ticket' : 'Report Chat'}
             </Text>
             <Text style={[styles.menuButtonText]}>
-              Flag this chat to our support team for review.
+              {chatData.reported_chats.length > 0 ? 'Track the status of your report' : 'Flag this chat to our support team for review.'}
             </Text>
           </MenuButton>
         </View>
-      </BottomSheet>
+      </BottomDrawer>
       <BottomDrawer
         draggableIconHeight={0}
         sheetRef={deleteChatRef}
       >
         <View style={{ paddingHorizontal: 16 }}>
-          <Text style={{ textAlign: 'center', fontSize: 15, fontWeight: 'bold', marginBottom: 16 }}>Delete Chat</Text>
-          <Text style={{ textAlign: 'center', fontSize: 13, color: "#737373", marginBottom: 24 }}>This action cannot be undone. Once deleted, all your messages in this chat will be permanently removed.</Text>
+          <Text style={{ textAlign: 'center', fontSize: 15, fontWeight: 'bold', marginBottom: 16, lineHeight: 15 }}>Delete Chat</Text>
+          <Text style={{ textAlign: 'center', fontSize: 13, color: "#737373", marginBottom: 32, lineHeight: 13 }}>This action cannot be undone. Once deleted, all your messages in this chat will be permanently removed.</Text>
           <View style={{ flexDirection: 'row', gap: 16 }}>
             <View style={{ flex: 1 / 2 }}>
               <GreyBgButton
@@ -645,24 +650,26 @@ const Chat: React.FC = () => {
           </View>
         </View>
       </BottomSheet>
-      <BottomDrawer sheetRef={blockDrawerRef} height={652}>
+      <BottomDrawer sheetRef={blockDrawerRef} >
         <View style={{ paddingHorizontal: 16 }}>
           <Text style={{ fontSize: 15, fontWeight: 'bold', marginTop: 8 }}>What Happens When You Block Someone?</Text>
-          <Text style={{ fontSize: 13, color: "#737373", textAlign: 'left', marginTop: 8, marginBottom: 16 }}>Blocking gives you full control over your experience. When you block a user:</Text>
+          <Text style={{ fontSize: 13, color: "#737373", textAlign: 'left', marginTop: 4, marginBottom: 12 }}>Blocking gives you full control over your experience. When you block a user:</Text>
           <UnorderedList
             items={["You won't see their profile, posts, followers, or following list - and they can't see yours.", "If you were following each other, both follow connections are removed."]}
-            gap={16}
+            gap={12}
+            textStyle={{ fontSize: 13 }}
           />
-          <Text style={{ fontSize: 15, fontWeight: 'bold', marginTop: 24, marginBottom: 8 }}>No Interactions Allowed</Text>
+          <Text style={{ fontSize: 15, fontWeight: 'bold', marginTop: 20, marginBottom: 4 }}>No Interactions Allowed</Text>
           <UnorderedList items={[
             "Their posts will no longer appear in your feed or search, and yours will be hidden from them.",
             'Messaging is disabled, and any existing chat will be closed on your side with the message: "You blocked this user."',
             "The blocked user won't be notified. However, they can still send up to 5 final replies to your last message - but you won't see them unless you unblock.",
             'After those 5 replies, the conversation will be permanently locked for them with the message: "Chat Closed". Your profile picture will be hidden, and your name will appear as "Unknown User" in the chat.'
           ]}
-            gap={16}
+            gap={12}
+            textStyle={{ fontSize: 13 }}
           />
-          <View style={{ flexDirection: 'row', gap: 16, marginTop: 16 }}>
+          <View style={{ flexDirection: 'row', gap: 16, marginTop: 44 }}>
             <View style={{ flex: 1 / 2 }}>
               <GreyBgButton
                 title="Cancel"
@@ -678,6 +685,7 @@ const Chat: React.FC = () => {
                   blockDrawerRef.current?.close();
                   manageBlock()
                 }}
+                dangerButton
               />
             </View>
           </View>
@@ -692,7 +700,7 @@ export default Chat;
 // --- STYLES ---
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: 'white' },
-  messagesContainer: { paddingHorizontal: 16, paddingVertical: 0, flexGrow: 1, paddingTop: 16 },
+  messagesContainer: { paddingHorizontal: 16, paddingVertical: 0, flexGrow: 1, paddingTop: 16, paddingBottom: 12 },
   // Styles for the "Seen" indicator
   seenContainer: {
     alignSelf: 'flex-end',
@@ -705,14 +713,17 @@ const styles = StyleSheet.create({
   },
   menuContainer: {
     gap: 16,
+    paddingHorizontal: 16
   },
   menuButtonHeading: {
     fontSize: 14,
     fontWeight: "bold",
+    lineHeight: 14,
   },
   menuButtonText: {
     fontSize: 12,
     color: "#737373",
     marginTop: 8,
+    lineHeight: 12,
   },
 });

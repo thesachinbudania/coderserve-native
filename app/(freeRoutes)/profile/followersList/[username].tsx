@@ -8,22 +8,22 @@ import ListPageLayout from '@/components/general/ListPageLayout';
 
 
 
-const UserListing = ({ user }: { user: any }) => {
+export const UserListing = ({ user }: { user: any }) => {
   const router = useRouter();
   return (
-    <Pressable 
+    <Pressable
       style={userStyles.container}
       onPress={() => {
         router.push('/(freeRoutes)/profile/userProfile/' + user.username);
       }}
     >
       <View>
-      <ImageLoader
-        size={54}
-        uri={user.profile_image}
-      />
-</View>
-      <View style={{gap: 8}}>
+        <ImageLoader
+          size={54}
+          uri={user.profile_image}
+        />
+      </View>
+      <View style={{ gap: 8 }}>
         <Text style={userStyles.name}>{user.first_name} {user.last_name}</Text>
         <Text style={userStyles.username}>@{user.username}</Text>
       </View>
@@ -41,10 +41,12 @@ const userStyles = StyleSheet.create({
   name: {
     fontWeight: 'bold',
     fontSize: 15,
+    lineHeight: 15
   },
   username: {
     fontSize: 12,
     color: '#737373',
+    lineHeight: 12
   },
 })
 
@@ -52,7 +54,7 @@ const userStyles = StyleSheet.create({
 export default function FollowersList() {
   const { username } = useGlobalSearchParams();
 
-  const {combinedData, initialLoading, refreshing, handleEndReached, handleRefresh, isLoading, setFilteredData, searchQuery, setSearchQuery, filteredData} = useFetchData({ url: `/api/accounts/followers_list/${username}/`, allowSearch: true });
+  const { combinedData, initialLoading, refreshing, handleEndReached, handleRefresh, isLoading, setFilteredData, searchQuery, setSearchQuery, filteredData } = useFetchData({ url: `/api/accounts/followers_list/${username}/`, allowSearch: true });
 
   React.useEffect(() => {
     if (searchQuery === '') {
@@ -75,22 +77,23 @@ export default function FollowersList() {
       {
         filteredData.length === 0 && !isLoading && !initialLoading ? (
           <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 16, marginTop: -57 }}>
-            <Image source={require('@/assets/images/stars.png')} style={{ width: 128, height: 128, marginBottom: 32 }} />
+            <Image source={require('@/assets/images/stars.png')} style={{ width: 112, height: 120, marginBottom: 30 }} />
             <Text style={{ color: '#a6a6a6', textAlign: 'center', fontSize: 11 }}>
-              {searchQuery ? 'No users match your search.' : "It looks like you're not following anyone yet. Once you follow someone, their profiles will appear here. Start exploring and connect with interesting profiles to build your network."}
+              {searchQuery ? 'No users match your search.' : "It looks like you don't have any followers yet. Once yyou start gaining them, their profile will appear here. Start sharing useful content to build yoyur network."}
             </Text>
           </View>
         ) :
-         <DataList
-          data={filteredData}
-          RenderItem={({ item }) => <UserListing user={item} />}
-          initialLoading={initialLoading}
-          refreshing={refreshing}
-          allowSearch={true}
-          onSearchChange={setSearchQuery}
-          onEndReached={handleEndReached}
-          onRefresh={handleRefresh}
-        /> 
+          <DataList
+            data={filteredData}
+            RenderItem={({ item }) => <UserListing user={item} />}
+            initialLoading={initialLoading}
+            refreshing={refreshing}
+            allowSearch={true}
+            onSearchChange={setSearchQuery}
+            onEndReached={handleEndReached}
+            onRefresh={handleRefresh}
+            gap={0}
+          />
       }
     </ListPageLayout>
   );

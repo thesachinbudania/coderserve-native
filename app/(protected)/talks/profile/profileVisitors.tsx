@@ -9,11 +9,11 @@ export default function ProfileVisitors() {
   return (
     <PageLayout headerTitle='Profile Visitors'>
       <View style={{ height: '100%', width: '100%', justifyContent: 'center', alignItems: 'center' }}>
-        <Text style={{ fontSize: 15, fontWeight: 'bold' }}>Gain insights with Pro</Text>
-        <Text style={{ fontSize: 13, color: "#737373", textAlign: 'center', marginTop: 16 }}>
+        <Text style={{ fontSize: 15, fontWeight: 'bold', lineHeight: 15 }}>Gain insights with Pro</Text>
+        <Text style={{ fontSize: 13, color: "#737373", textAlign: 'center', marginTop: 14 }}>
           Upgrade to Pro to access your profile visitor list and stay ahead with valuable networking opportunities.
         </Text>
-        <View style={{ width: '100%', marginTop: 32 }}>
+        w       <View style={{ width: '100%', marginTop: 30 }}>
           <BlueButton
             title='Unlock Now'
             onPress={() => router.push('/(freeRoutes)/goPro')} />

@@ -31,7 +31,7 @@ export default DateSeparator;
 
 const styles = StyleSheet.create({
     /** Container centers the date label horizontally and adds vertical spacing */
-    dateSeparatorContainer: { alignItems: 'center', marginVertical: 16 },
+    dateSeparatorContainer: { alignItems: 'center', marginTop: 12 },
     /** Text styling for the date label - small and muted */
     dateSeparatorText: { fontSize: 11, color: '#a6a6a6', lineHeight: 11 },
 });

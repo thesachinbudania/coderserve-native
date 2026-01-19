@@ -42,9 +42,11 @@ interface MessageBubbleProps {
     allowEdit?: boolean;
     /** Custom message content to display instead of default message */
     customMessage?: React.ReactNode;
+    /** Custom message content to display instead of default message */
+    children?: React.ReactNode;
 }
 
-const MessageBubble: React.FC<MessageBubbleProps> = ({ message, currentUserId, openMessageMenu, maxWidth = false, allowEdit = true, customMessage }) => {
+const MessageBubble: React.FC<MessageBubbleProps> = ({ message, currentUserId, openMessageMenu, maxWidth = false, allowEdit = true, customMessage, children }) => {
     // Determine if this message belongs to the current user
     const isCurrentUser = message.senderId === currentUserId;
 
@@ -90,9 +92,9 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({ message, currentUserId, o
                 {/* Pressable file card to open image viewer */}
                 <Pressable onPress={() => setImageVisible(true)}>
                     <View style={{ backgroundColor: isCurrentUser ? '#003a88' : "#eeeeee", borderRadius: 8, padding: 8 }}>
-                        <Text style={{ fontSize: 13, color: isCurrentUser ? 'white' : 'black' }}>{filename}</Text>
+                        <Text style={{ fontSize: 13, color: isCurrentUser ? 'white' : 'black', lineHeight: 13 }}>{filename}</Text>
                         <View style={{ flexDirection: 'row', gap: 16, marginTop: 8 }}>
-                            <Text style={{ fontSize: 11, color: isCurrentUser ? "#73afff" : '#a6a6a6' }}>{fileType}</Text>
+                            <Text style={{ fontSize: 11, color: isCurrentUser ? "#73afff" : '#a6a6a6', lineHeight: 11 }}>{fileType}</Text>
                         </View>
                     </View>
                 </Pressable>
@@ -115,7 +117,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({ message, currentUserId, o
 
     return (
         /* Long-press opens menu for current user's messages, applies positioning based on sender */
-        <Pressable onLongPress={() => openMessageMenu(message.id)} style={({ pressed }) => [styles.messageRow, isCurrentUser ? styles.currentUserRow : styles.otherUserRow]}>
+        <Pressable onLongPress={() => openMessageMenu(message.id)} style={({ pressed }) => [styles.messageRow, isCurrentUser ? styles.currentUserRow : styles.otherUserRow, isFirst && { marginTop: 12 }]}>
             {
                 ({ pressed }) => (
                     <>
@@ -133,7 +135,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({ message, currentUserId, o
                             maxWidth && { minWidth: '80%' }
                         ]}>
                             {/* Render the message content (text, image, or upload progress) */}
-                            {customMessage || renderContent()}
+                            {children || customMessage || renderContent()}
 
                             {/* Timestamp with optional "Edited" label */}
                             <Text style={[styles.timestamp, isCurrentUser ? styles.currentUserTimestamp : styles.otherUserTimestamp, pressed && isCurrentUser && editable && { color: "#737373" }]}>
@@ -154,7 +156,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({ message, currentUserId, o
 export default MessageBubble;
 
 const styles = StyleSheet.create({
-    messageRow: { marginVertical: 4 },
+    messageRow: { marginVertical: 2 },
     currentUserRow: { alignSelf: 'flex-end' },
     otherUserRow: { alignSelf: 'flex-start' },
     messageBubble: { paddingVertical: 16, paddingHorizontal: 16, borderRadius: 12, maxWidth: '85%' },

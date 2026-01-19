@@ -77,7 +77,7 @@ export default function EditorPreview({ editorState, className = "" }: EditorPre
     <LexicalComposer initialConfig={editorConfig}>
       <div
         className={`editor-preview-container ${className}`}
-        style={{fontFamily: 'Roboto, sans-serif'}}
+        style={{ fontFamily: 'Roboto, sans-serif' }}
       >
         <LoadStatePlugin editorState={editorState} />
         <RichTextPlugin
@@ -95,7 +95,7 @@ export default function EditorPreview({ editorState, className = "" }: EditorPre
                 overflow: "visible",    // let content expand
                 resize: "none",
                 height: "auto",         // key: don’t lock height
-                minHeight: "unset"
+                minHeight: "unset",
               }}
             />
           }

@@ -24,7 +24,7 @@ export default function VoteButton({ title, dangerButton = false, disabled = fal
           >
             {
               loading ? <ActivityIndicator color='white' /> : (
-                <Text style={[styles.text, (pressed || dangered || selected) && { color: 'white' }, disabled && { color: '#d9d9d9' }]}>{title}</Text>
+                <Text style={[styles.text, (pressed || dangered || selected) && { color: 'white' }, disabled && { color: '#d9d9d9' }, (pressed || selected || dangered) && { fontWeight: 'bold' }]}>{title}</Text>
               )
             }
           </LinearGradient>
@@ -42,10 +42,9 @@ const styles = StyleSheet.create({
     borderRadius: 45,
     justifyContent: 'center',
     alignItems: 'center',
-    height: 45,
+    height: 42,
   },
   text: {
-    fontSize: 15,
-    fontWeight: 'bold',
+    fontSize: 13,
   }
 })

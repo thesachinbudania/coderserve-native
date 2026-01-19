@@ -71,15 +71,15 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 8,
     height: 45,
-    paddingLeft: 40,
+    paddingLeft: 39,
     fontSize: 14,
     flexDirection: 'row',
     gap: 8,
     backgroundColor: 'white'
   },
   searchIcon: {
-    height: 16,
-    width: 16,
+    height: 15,
+    width: 15,
     position: 'absolute',
     left: 16,
     zIndex: 1
