@@ -418,7 +418,7 @@ const styles = StyleSheet.create({
   },
   menuButtonText: {
     fontSize: 12,
-    color: "#737373",
+    color: "#a6a6a6",
     marginTop: 8,
     lineHeight: 12
   },

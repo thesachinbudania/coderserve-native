@@ -83,7 +83,7 @@ const AppTabs = () => {
             })}
             screenOptions={{
               animation: 'shift',
-              tabBarLabelStyle: { fontSize: 11, fontWeight: '100' },
+              tabBarLabelStyle: { fontSize: 11 },
               tabBarActiveTintColor: "#000",
               tabBarInactiveTintColor: '#d9d9d9',
               tabBarStyle: {
@@ -110,7 +110,6 @@ const AppTabs = () => {
           <BottomDrawer
             sheetRef={drawerRef}
             draggableIconHeight={0}
-            closeOnPressMask={false}
           >
             <View style={{ marginHorizontal: 16 }}>
               <Image source={require('@/assets/images/home/allowNotifications.png')} style={{ height: 64, width: 64, marginHorizontal: 'auto' }} />

@@ -59,7 +59,7 @@ const styles = StyleSheet.create({
     },
     secondaryHeaderText: {
         fontSize: 11,
-        color: "#737373",
+        color: "#a6a6a6",
     },
     headerIcon: {
         width: 24,

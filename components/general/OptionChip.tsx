@@ -39,12 +39,12 @@ export default function OptionChip({
 
 const optionChipStyles = StyleSheet.create({
   container: {
-    paddingVertical: 12,
     paddingHorizontal: 24,
     justifyContent: 'center',
     borderRadius: 32,
     backgroundColor: "#202020",
     alignItems: 'center',
+    height: 42,
   },
   text: {
     fontSize: 13,

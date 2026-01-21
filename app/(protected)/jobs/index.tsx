@@ -81,6 +81,7 @@ export function Header({ menuRef, forTalks = false }: { forTalks?: boolean, menu
         </IconButton>
         <IconButton
           onPress={() => {
+            console.log('pressed')
             menuRef?.current.open();
           }}
         >

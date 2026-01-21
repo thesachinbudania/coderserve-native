@@ -15,7 +15,7 @@ function Section({ title, content }: { title: string, content: string }) {
     return (
         <View>
             <Text style={{ fontSize: 15, fontWeight: 'bold' }}>{title}</Text>
-            <Text style={{ fontSize: 13, color: '#737373', marginTop: 4, textAlign: 'justify' }}>{content}</Text>
+            <Text style={{ fontSize: 14, color: '#737373', marginTop: 4, textAlign: 'justify' }}>{content}</Text>
         </View>
     )
 }
@@ -36,13 +36,13 @@ const features = [
         renderer: (
             <View>
                 <Text style={{ fontSize: 15, fontWeight: 'bold' }}>Job Insights</Text>
-                <Text style={{ fontSize: 13, color: '#737373', marginTop: 4 }}>Get deeper job analytics before applying:</Text>
+                <Text style={{ fontSize: 14, color: '#737373', marginTop: 4 }}>Get deeper job analytics before applying:</Text>
                 <UnorderedList
                     items={["How many candidates have applied", "Your relative hiring probability, calculated by comparing your profile with other applicants"]}
                     gap={0}
-                    textStyle={{ fontSize: 13, color: "#737373" }}
+                    textStyle={{ fontSize: 14, color: "#737373" }}
                 />
-                <Text style={{ fontSize: 13, color: "#737373", marginTop: 12 }}>Apply smarter and focus on jobs where you truly stand out.</Text>
+                <Text style={{ fontSize: 14, color: "#737373", marginTop: 12 }}>Apply smarter and focus on jobs where you truly stand out.</Text>
             </View>
         )
     },
@@ -149,19 +149,19 @@ export default function GoPro() {
             <StatusBar backgroundColor={'#0d0d0d'} barStyle={'light-content'} />
             <ScrollView style={{ paddingTop: top }}>
                 <View style={{ marginHorizontal: 16 }}>
-                    <View style={{ flexDirection: 'row' }}>
+                    <View style={{ flexDirection: 'row', marginTop: 8 }}>
                         <IconButton onPress={() => router.back()} dark>
                             <Image source={require('@/assets/images/arrows/left.png')} style={{ height: 24, width: 24, tintColor: 'white' }} />
                         </IconButton>
                     </View>
-                    <View style={{ alignSelf: 'center', marginTop: -24, alignItems: 'center' }}>
+                    <View style={{ alignSelf: 'center', marginTop: 0, alignItems: 'center' }}>
                         <Image source={require('@/assets/images/goProStar.png')} style={{ height: 150, width: 156 }} />
-                        <Text style={{ fontFamily: 'magnolia', fontSize: 29, color: 'white', marginTop: 32 }}>Coder Serve Pro</Text>
-                        <Text style={{ fontSize: 13, marginTop: 8, color: "#a6a6a6", textAlign: 'center' }}>Go beyond the basics and unlock powerful tools for visibility, smarter job discovery, and faster learning with Coder Serve Pro.</Text>
+                        <Text style={{ fontFamily: 'magnolia', fontSize: 29, color: 'white', marginTop: 24 }}>Coder Serve Pro</Text>
+                        <Text style={{ fontSize: 13, marginTop: -4, color: "#a6a6a6", textAlign: 'center' }}>Go beyond the basics and unlock powerful tools for visibility, smarter job discovery, and faster learning with Coder Serve Pro.</Text>
                     </View>
-                    <BlueButton title={waitlisted ? "Coming Soon!" : "Join Waitlist"} style={{ marginTop: 28 }} onPress={waitlisted ? () => drawerRef.current?.open() : joinWaitlist} loading={joining} />
+                    <BlueButton title={waitlisted ? "Coming Soon!" : "Join Waitlist"} style={{ marginTop: 32 }} onPress={waitlisted ? () => drawerRef.current?.open() : joinWaitlist} loading={joining} />
                 </View>
-                <View style={{ gap: 32, backgroundColor: 'white', marginTop: 32, borderTopLeftRadius: 24, borderTopRightRadius: 24, paddingHorizontal: 16, paddingTop: 24 }}>
+                <View style={{ gap: 44, backgroundColor: 'white', marginTop: 32, borderTopLeftRadius: 24, borderTopRightRadius: 24, paddingHorizontal: 16, paddingTop: 24 }}>
                     {
                         features.map((feature, index) => (
                             feature.type === "section" ? (

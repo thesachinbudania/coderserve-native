@@ -106,7 +106,7 @@ export function ResumeDetails({ showLess = false, jobsState, userState }: { show
         <Text style={styles.heading}>Experience</Text>
         {
           (jobs.previous_experience && jobs.previous_experience.length > 0) ?
-            <View style={{ marginBottom: -32 }}>
+            <View style={{}}>
               {
                 jobs.previous_experience.map((experience, index) => (
                   <ExperienceListing
@@ -114,7 +114,7 @@ export function ResumeDetails({ showLess = false, jobsState, userState }: { show
                     key={index}
                     showLine={jobs.previous_experience ? (index !== jobs.previous_experience.length - 1) : false}
                   >
-                    <View style={{ marginBottom: 32, width: width - 96 }}>
+                    <View style={{ width: width - 96 }}>
                       <Text style={styles.containerPrimaryHeading}>{experience.job_role}</Text>
                       <Text style={styles.containerSecondaryHeading}>{experience.company.name}</Text>
                       <Text style={styles.containerTertiaryHeading}>{experience.joining_month.slice(0, 3)} {experience.joining_year} - {experience.end_month === 'Present' || experience.end_year === 'Present' ? 'Present' : `${experience.end_month.slice(0, 3)} ${experience.end_year}`} ({experience.job_type})</Text>
@@ -123,9 +123,9 @@ export function ResumeDetails({ showLess = false, jobsState, userState }: { show
                         experience.description && (
                           <View style={{ marginTop: 4, width: width - 96 }}>
                             <ReadMore
-                              text={experience.description}
+                              text={experience.description + 'something extra extra'}
                               numberOfLines={2}
-                              textStyle={{ color: '#a6a6a6' }}
+                              textStyle={{ color: '#a6a6a6', fontSize: 11 }}
                             />
                           </View>
 
@@ -432,8 +432,8 @@ export const styles = StyleSheet.create({
     borderBottomColor: '#f5f5f5',
   },
   menuIcon: {
-    width: 32,
-    height: 32,
+    width: 24,
+    height: 24,
   },
   bgImage: {
     width: '100%',
@@ -456,8 +456,8 @@ export const styles = StyleSheet.create({
   },
   logo: {
     margin: 8,
-    height: 32,
-    width: 32,
+    height: 24,
+    width: 24,
   },
   containerPrimaryHeading: {
     fontSize: 13,
@@ -473,9 +473,9 @@ export const styles = StyleSheet.create({
     color: '#737373',
   },
   sideLine: {
-    width: 2,
+    width: 1,
     flex: 1,
-    marginLeft: 24,
+    marginLeft: 22,
     marginTop: 8,
     backgroundColor: '#eeeeee',
   },

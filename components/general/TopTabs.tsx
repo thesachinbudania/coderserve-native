@@ -245,6 +245,6 @@ const styles = StyleSheet.create({
   },
   contentWrapper: {
     flexDirection: 'row',
-    marginTop: 32,
+    marginTop: 24,
   },
 })

@@ -53,12 +53,12 @@ const ProfileOption = ({ data }: { data: any }) => {
         </View>
         <View style={{ gap: 8, flex: 1 }}>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-            <Text style={{ fontWeight: 'bold', fontSize: 15, lineHeight: 15 }}>{data['first_name']} {data['last_name']}</Text>
+            <Text style={{ fontWeight: 'bold', fontSize: 15, lineHeight: 15 }}>{data['first_name']}</Text>
             {data.is_contact && (
               <Text style={{ fontSize: 9, color: 'white', backgroundColor: "#004aad", paddingHorizontal: 8, paddingVertical: 2, borderRadius: 12, lineHeight: 9 }}>Contact</Text>
             )}
           </View>
-          <Text style={{ fontSize: 12, color: '#a6a6a6', lineHeight: 11 }}>@{data['username']}</Text>
+          <Text style={{ fontSize: 12, color: '#a6a6a6', lineHeight: 12 }}>@{data['username']}</Text>
         </View>
       </View>
       <View style={{ marginTop: 24, borderRadius: 8, padding: 8, backgroundColor: '#f5f5f5' }}>
@@ -67,7 +67,7 @@ const ProfileOption = ({ data }: { data: any }) => {
             matchedDegrees[0],
             `Lives in ${data['city']}, ${data['state']}, ${data['country']}`,
           ]}
-          gap={-4}
+          gap={0}
           textStyle={{ fontSize: 13, lineHeight: 13, color: '#737373' }}
         />
         <View style={[unorderedListStyles.listItem, { marginTop: -4 }]}>

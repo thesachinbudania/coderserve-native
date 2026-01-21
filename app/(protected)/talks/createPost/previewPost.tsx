@@ -8,6 +8,7 @@ import { useUserStore } from '@/zustand/stores';
 import { useNewPostStore } from '@/zustand/talks/newPostStore';
 import EditorPreview from '@/components/talks/createPost/EditorPreview';
 import BottomName from '@/components/profile/home/BottomName';
+import { HashChip as HashChipTalk } from '..';
 
 const { width } = Dimensions.get('window');
 
@@ -27,7 +28,7 @@ const BackButton = () => {
   )
 }
 
-const HashChip = ({ hashtag, light = false }: { hashtag: string, light?: boolean }) => {
+export const HashChip = ({ hashtag, light = false }: { hashtag: string, light?: boolean }) => {
   return (
     <View style={[hashChipStyles.container, light && { borderColor: "#a6a6a6" }]}>
       <Text style={[hashChipStyles.text, light && { color: "#a6a6a6" }]}>
@@ -110,7 +111,7 @@ export function PostContent({ title, hashtags, thumbnail, content = null }: { ti
           title && hashtags.length > 0 && (
             <View style={styles.hashTagContainer}>
               {hashtags.map((hashtag, index) => (
-                <HashChip key={index} hashtag={hashtag} light />
+                <HashChipTalk key={index} title={hashtag} />
               ))}
             </View>
           )

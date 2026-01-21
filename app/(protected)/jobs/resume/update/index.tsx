@@ -633,7 +633,7 @@ export const styles = StyleSheet.create({
   resumeContainer: {
     marginHorizontal: 16,
     marginTop: 32,
-    gap: 44,
+    gap: 40,
   },
   detailsHeading: {
     fontWeight: "bold",
@@ -662,8 +662,8 @@ export const styles = StyleSheet.create({
   },
   logo: {
     margin: 8,
-    height: 32,
-    width: 32,
+    height: 24,
+    width: 24,
   },
   containerPrimaryHeading: {
     fontSize: 13,

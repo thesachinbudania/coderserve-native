@@ -91,7 +91,7 @@ export function Post({ data, detailedPostUsername = null }: { data: any, detaile
           <Text style={postStyles.time}>{result}</Text>
         </View>
       </View>
-      <View style={{ marginTop: 32 }} pointerEvents="none">
+      <View style={{ marginTop: 18 }} pointerEvents="none">
         <Text style={postStyles.content}>
           {data.title}
         </Text>
