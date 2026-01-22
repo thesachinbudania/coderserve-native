@@ -29,7 +29,7 @@ export function EditResume({ showLess = false, editable = true }: { showLess?: b
     <View style={styles.resumeContainer}>
       {jobs.about ? (
         <View>
-          <Text style={styles.detailsHeading}>About</Text>
+          <Text style={[styles.detailsHeading, { marginBottom: -4 }]}>About</Text>
           {
             editable ? (
               <Pressable
@@ -324,7 +324,7 @@ export function EditResume({ showLess = false, editable = true }: { showLess?: b
       )}
       <View>
         <Text style={styles.detailsHeading}>Certifications</Text>
-        <Text style={styles.detailsContent}>
+        <Text style={[styles.detailsContent]}>
           {editable ? "You haven't completed any certifications yet. Once you complete one, it'll be showcased here." :
             "This user hasn't completed any certifications yet."
           }
@@ -389,7 +389,7 @@ export function EditResume({ showLess = false, editable = true }: { showLess?: b
 
       <View>
         <Text style={styles.detailsHeading}>Challenges</Text>
-        <Text style={styles.detailsContent}>
+        <Text style={[styles.detailsContent]}>
           {editable ? "You haven't completed any challenge yet. Once you do, they'll be showcased here." : "This user hasn't completed any challenges yet."}
         </Text>
       </View>
@@ -638,7 +638,8 @@ export const styles = StyleSheet.create({
   detailsHeading: {
     fontWeight: "bold",
     fontSize: 15,
-    marginBottom: 6,
+    marginBottom: 0,
+    lineHeight: 15,
   },
   menuIcon: {
     height: 24,
@@ -649,6 +650,7 @@ export const styles = StyleSheet.create({
     color: "#a6a6a6",
     textAlign: "justify",
     verticalAlign: "bottom",
+    marginTop: -4,
   },
   experienceContainer: {
     flexDirection: "row",

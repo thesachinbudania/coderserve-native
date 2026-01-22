@@ -446,7 +446,7 @@ export const styles = StyleSheet.create({
   experienceContainer: {
     flexDirection: 'row',
     gap: 16,
-    paddingTop: 8,
+    backgroundColor: 'blue'
   },
   logoContainer: {
     borderRadius: 6,
@@ -476,7 +476,7 @@ export const styles = StyleSheet.create({
     width: 1,
     flex: 1,
     marginLeft: 22,
-    marginTop: 8,
+    marginVertical: 8,
     backgroundColor: '#eeeeee',
   },
   addEntryContainer: {
